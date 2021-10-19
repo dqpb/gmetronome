@@ -1,4 +1,4 @@
 SUBDIRS = data src po
 
-dist_doc_DATA = README
+dist_doc_DATA = README.md
 
