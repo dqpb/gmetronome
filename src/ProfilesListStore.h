@@ -61,21 +61,18 @@ class ProfilesListStore : public Gtk::ListStore
  //Overridden virtual functions:
  // bool row_draggable_vfunc(const Gtk::TreeModel::Path& path) const override
  //    {
- //      std::cout << G_STRFUNC << std::endl;
  //      return true;
  //    }
 
  //  bool row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest,
  //                               const Gtk::SelectionData& selection_data) const override
  //    {
- //      std::cout << G_STRFUNC << std::endl;
  //      return true;
  //    }
   
  //  bool drag_data_get_vfunc(const Gtk::TreeModel::Path& path,
  //                           Gtk::SelectionData& selection_data) const
  //    {
- //      std::cout << G_STRFUNC << std::endl;
  //      return true;
  //    }
 };

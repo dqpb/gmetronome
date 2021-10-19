@@ -126,8 +126,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
 
 void MainWindow::initSettings()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   settings_ = Gio::Settings::create(kSchemaId);
   settings_prefs_ = settings_->get_child(kSchemaIdPrefsBasename);
   settings_state_ = settings_->get_child(kSchemaIdStateBasename);
@@ -140,8 +138,6 @@ void MainWindow::initSettings()
 
 void MainWindow::initActions()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   const ActionHandlerMap kWinActionHandler =
     {
       {kActionShowPrimaryMenu,         sigc::mem_fun(*this, &MainWindow::onShowPrimaryMenu)},
@@ -160,8 +156,6 @@ void MainWindow::initActions()
 
 void MainWindow::initUI()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   // initialize header bar
   updateCurrentTempo({0,0,0,0,0});
   
@@ -209,8 +203,6 @@ void MainWindow::initUI()
 
 void MainWindow::initAbout()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   about_dialog_.set_program_name(Glib::get_application_name());
   about_dialog_.set_version(VERSION);
   about_dialog_.set_license_type(Gtk::LICENSE_GPL_3_0);
@@ -242,8 +234,6 @@ void MainWindow::initAbout()
 
 void MainWindow::initBindings()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
   
   settings_prefs_->bind(kKeyPrefsVolume,
@@ -348,8 +338,6 @@ void MainWindow::initBindings()
 
 MainWindow::~MainWindow()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   if (preferences_dialog_ != nullptr)
     delete preferences_dialog_;
 
@@ -360,7 +348,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::onProfilesShow()
 {
-  std::cout << G_STRFUNC << std::endl;
   profiles_tree_view_->set_can_focus(true);
 
   if (profiles_tree_view_->get_selection()->count_selected_rows() != 0)
@@ -372,36 +359,30 @@ void MainWindow::onProfilesShow()
 
 void MainWindow::onProfilesHide()
 {
-  std::cout << G_STRFUNC << std::endl;
   profiles_tree_view_->set_can_focus(false);  
 }
 
 
 void MainWindow::onShowPrimaryMenu(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
   menu_button_->activate();
 }
 
 
 void MainWindow::onShowProfiles(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
   profiles_button_->activate();
 }
 
 
 void MainWindow::onShowPreferences(const Glib::VariantBase& parameter)
 {
-  std::cout << G_STRFUNC << std::endl;
   preferences_dialog_->present();
 }
 
 
 void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   static const Glib::ustring ui_header = 
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     "<interface>\n"
@@ -510,20 +491,16 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
 
 
 void MainWindow::onShowHelp(const Glib::VariantBase& parameter)
-{
-  std::cout << G_STRFUNC << std::endl;
-}
+{}
 
 
 void MainWindow::onShowAbout(const Glib::VariantBase& parameter)
 {
-  std::cout << G_STRFUNC << std::endl;
   about_dialog_.present();
 }
 
-void MainWindow::onMeterChanged() {
-  std::cout << G_STRFUNC << std::endl;
-  
+void MainWindow::onMeterChanged()
+{  
   Glib::ustring param_str = meter_combo_box_->get_active_id();
   
   Gtk::Application::get_default()
@@ -533,8 +510,6 @@ void MainWindow::onMeterChanged() {
 
 void MainWindow::onBeatsChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   auto app = Gtk::Application::get_default();
 
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
@@ -553,8 +528,6 @@ void MainWindow::onBeatsChanged()
 
 void MainWindow::onSubdivChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   auto app = Gtk::Application::get_default();
 
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
@@ -573,8 +546,6 @@ void MainWindow::onSubdivChanged()
 
 void MainWindow::onAccentChanged(std::size_t button_index)
 {
-  std::cout << G_STRFUNC << " (" << button_index << ")" << std::endl;
-
   std::size_t beats = std::lround(beats_adjustment_->get_value());
   std::size_t division = std::atoi(subdiv_combo_box_->get_active_id().c_str());
   std::size_t pattern_size = std::min(beats * division, accent_button_grid_.size());
@@ -597,8 +568,6 @@ void MainWindow::onAccentChanged(std::size_t button_index)
 
 void MainWindow::onProfilesSelectionChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::ustring id;
 
   auto row_it = profiles_tree_view_->get_selection()->get_selected();
@@ -614,8 +583,6 @@ void MainWindow::onProfilesSelectionChanged()
 void MainWindow::onProfilesTitleStartEditing(Gtk::CellEditable* editable,
                                              const Glib::ustring& path_string)
 {
-  std::cout << G_STRFUNC << " path:" << std::endl;
-  
   Gtk::TreePath path(path_string);
   ProfilesListStore::iterator row_it = profiles_list_store_->get_iter(path);
   
@@ -629,8 +596,6 @@ void MainWindow::onProfilesTitleStartEditing(Gtk::CellEditable* editable,
 void MainWindow::onProfilesTitleChanged(const Glib::ustring& path_string,
                                         const Glib::ustring& text)
 {
-  std::cout << G_STRFUNC << " path:" << path_string << " text:" << text << std::endl;
-
   auto app = Gtk::Application::get_default();
   
   Gtk::TreePath path(path_string);
@@ -653,21 +618,15 @@ void MainWindow::onProfilesTitleChanged(const Glib::ustring& path_string,
 
 void MainWindow::onProfilesRowInserted(const Gtk::TreeModel::Path& path,
                                        const Gtk::TreeModel::iterator& iter)
-{
-  std::cout << G_STRFUNC << std::endl; 
-}
+{}
 
 void MainWindow::onProfilesRowDeleted(const Gtk::TreeModel::Path& path)
-{
-  std::cout << G_STRFUNC << std::endl; 
-}
+{}
 
 
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
-  //std::cout << G_STRFUNC << " Action: " << action_name << std::endl;
-
   auto app = Gtk::Application::get_default();
 
   if (action_name.compare(0,6,"meter-") == 0)
@@ -723,8 +682,6 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
 
 void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& meter)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   std::for_each(meter_connections_.begin(), meter_connections_.end(), 
                 std::bind(&sigc::connection::block, std::placeholders::_1, true));
   
@@ -759,8 +716,6 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
 
 void MainWindow::updateAccentButtons(const Meter& meter)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   std::size_t new_grouping = meter.division();
   std::size_t new_size = meter.beats() * new_grouping;
   auto& new_accents = meter.accents();
@@ -799,8 +754,6 @@ void MainWindow::updateAccentButtons(const Meter& meter)
 
 void MainWindow::updateProfilesList(const ProfilesList& list)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   profiles_selection_changed_connection_.block();
 
   profiles_list_store_->clear();
@@ -825,8 +778,6 @@ void MainWindow::updateProfilesList(const ProfilesList& list)
 
 void MainWindow::updateProfilesSelect(const Glib::ustring& id)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   auto rows = profiles_list_store_->children();
 
   auto it = std::find_if(rows.begin(), rows.end(),
@@ -847,8 +798,6 @@ void MainWindow::updateProfilesSelect(const Glib::ustring& id)
 
 void MainWindow::updateProfilesTitle(const Glib::ustring& title)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   if (title.empty())
   {
     current_profile_label_->hide();
@@ -865,36 +814,26 @@ void MainWindow::updateProfilesTitle(const Glib::ustring& title)
 
 void MainWindow::updateTempo(double tempo)
 {
-  //std::cout << G_STRFUNC << std::endl;
   cancelButtonAnimations();
 }
 
 void MainWindow::updateStart(bool running)
 {
-  //std::cout << G_STRFUNC << std::endl;
   if (!running) 
     cancelButtonAnimations();
 }
 
 void MainWindow::cancelButtonAnimations()
 {
-  //std::cout << G_STRFUNC << std::endl;
   for (auto button : accent_button_grid_.buttons())
     button->cancelAnimation();  
 }
 
 void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
-  //std::cout << "Latency: " << stats.latency << std::endl;
-  
   std::size_t next_accent = stats.next_accent;
   uint64_t time = stats.next_accent_time;
   
-  // std::cout << "Schedule animation for accent " << accent
-  //           << " at " << time << std::endl;
-
   time += animation_sync_usecs_;
   
   if ( next_accent < accent_button_grid_.size())
@@ -940,16 +879,12 @@ void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
 
 void MainWindow::updateTickerStatistics(audio::Statistics stats)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   updateCurrentTempo(stats);  
   updateAccentAnimation(stats);
 }
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   if (key == kKeyPrefsAnimationSync)
   {
     updateAnimationSync();
@@ -958,7 +893,6 @@ void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void MainWindow::updateAnimationSync()
 {
-  std::cout << G_STRFUNC << std::endl;
   animation_sync_usecs_ = 
     std::round( settings_prefs_->get_double(kKeyPrefsAnimationSync) * 1000.);
 }

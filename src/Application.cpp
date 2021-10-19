@@ -34,14 +34,10 @@ Application::Application() : Gtk::Application("org.gmetronome")
 {}
 
 Application::~Application()
-{
-  std::cout << G_STRFUNC << std::endl;
-}
+{}
 
 void Application::on_startup()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   //call the base class's implementation
   Gtk::Application::on_startup();
 
@@ -67,15 +63,11 @@ void Application::on_startup()
 
 void Application::on_activate()
 {  
-  std::cout << G_STRFUNC << std::endl;
-
   main_window_->present();
 }
 
 void Application::initActions()
 {  
-  std::cout << G_STRFUNC << std::endl;
-    
   const ActionHandlerMap kAppActionHandler =
     {
       {kActionQuit,            sigc::mem_fun(*this, &Application::onQuit)},
@@ -119,8 +111,6 @@ void Application::initActions()
 
 void Application::initSettings()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   settings_ = Gio::Settings::create(kSchemaId);
   settings_prefs_ = settings_->get_child(kSchemaIdPrefsBasename);
   settings_state_ = settings_->get_child(kSchemaIdStateBasename);
@@ -138,8 +128,6 @@ void Application::initSettings()
 
 void Application::initProfiles()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   profiles_manager_.signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onProfilesManagerChanged));
   
@@ -158,8 +146,6 @@ void Application::initProfiles()
 
 void Application::initUI()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   main_window_ = MainWindow::create();
   
   add_window(*main_window_);  
@@ -186,14 +172,11 @@ void Application::initUI()
 
 void Application::initTicker()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   configureTickerSound();
 }
 
 void Application::configureTickerSound()
 {
-  //std::cout << G_STRFUNC << std::endl;
   configureTickerSoundHigh();
   configureTickerSoundMid();
   configureTickerSoundLow();
@@ -201,7 +184,6 @@ void Application::configureTickerSound()
 
 void Application::configureTickerSoundHigh()
 {
-  //std::cout << G_STRFUNC << std::endl;
   ticker_.setSoundHigh(settings_prefs_->get_double(kKeyPrefsSoundHighFrequency),
                        settings_prefs_->get_double(kKeyPrefsSoundHighVolume) *
                        settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
@@ -209,7 +191,6 @@ void Application::configureTickerSoundHigh()
 
 void Application::configureTickerSoundMid()
 {
-  //std::cout << G_STRFUNC << std::endl;
   ticker_.setSoundMid(settings_prefs_->get_double(kKeyPrefsSoundMidFrequency),
                       settings_prefs_->get_double(kKeyPrefsSoundMidVolume) *
                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
@@ -217,7 +198,6 @@ void Application::configureTickerSoundMid()
 
 void Application::configureTickerSoundLow()
 {
-  //std::cout << G_STRFUNC << std::endl;
   ticker_.setSoundLow(settings_prefs_->get_double(kKeyPrefsSoundLowFrequency),
                       settings_prefs_->get_double(kKeyPrefsSoundLowVolume) *
                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
@@ -235,8 +215,6 @@ void Application::setAccelerator(const ActionScope& scope,
                                  const Glib::VariantBase& target_value,
                                  const Glib::ustring& accel)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   // validate accelerator
   guint accel_key;
   GdkModifierType accel_mods;
@@ -259,27 +237,22 @@ void Application::setAccelerator(const ActionScope& scope,
   
   if ( accel_key != 0 || accel_mods != 0 )
   {
-    std::cout << "Set Accel " << accel << " for action " << detailed_action_name << std::endl; 
     set_accel_for_action(detailed_action_name, accel);
   }
   else
   {
-    std::cout << "Unset Accel for action " << detailed_action_name << std::endl; 
     unset_accels_for_action(detailed_action_name);
   }
 }
 
 void Application::onHideWindow(Gtk::Window* window)
 {
-  std::cout << G_STRFUNC << std::endl;
   saveSelectedProfile();
   delete window;
 }
 
 void Application::onQuit(const Glib::VariantBase& parameter)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   // Gio::Application::quit() will make Gio::Application::run() return,
   // but it's a crude way of ending the program. The window is not removed
   // from the application. Neither the window's nor the application's
@@ -300,8 +273,6 @@ void Application::onQuit(const Glib::VariantBase& parameter)
 
 void Application::onTrainerEnabled(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
   
@@ -331,8 +302,6 @@ void Application::onTrainerEnabled(const Glib::VariantBase& value)
 
 void Application::onMeterEnabled(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
   
@@ -356,8 +325,6 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
 
 void Application::onMeterSelect(const Glib::VariantBase& value)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   auto in_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
   
@@ -425,8 +392,6 @@ void Application::onMeterChanged_4_Compound(const Glib::VariantBase& value)
 void Application::onMeterChanged_Default(const Glib::ustring& action_name,
                                          const Glib::VariantBase& value)
 {
-  //std::cout << G_STRFUNC << " Action: " << action_name << std::endl;
-  
   Meter old_meter;
   get_action_state(action_name, old_meter);
   
@@ -444,8 +409,6 @@ void Application::onMeterChanged_Default(const Glib::ustring& action_name,
 
 void Application::onMeterChanged_Custom(const Glib::VariantBase& value)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   Glib::Variant<Meter> in_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Meter>>(value);
   
@@ -457,8 +420,6 @@ void Application::onMeterChanged_Custom(const Glib::VariantBase& value)
 void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
                                           Meter&& meter)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   auto action = lookup_simple_action(action_name);
   if (action)
   {
@@ -481,8 +442,6 @@ void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
 
 void Application::onVolumeIncrease(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
@@ -496,8 +455,6 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
 
 void Application::onVolumeDecrease(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
@@ -511,8 +468,6 @@ void Application::onVolumeDecrease(const Glib::VariantBase& value)
 
 void Application::onTempo(const Glib::VariantBase& in_val)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   double value =
     Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(in_val).get();
   
@@ -530,8 +485,6 @@ void Application::onTempo(const Glib::VariantBase& in_val)
 
 void Application::onTempoIncrease(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   double delta_tempo
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
@@ -548,8 +501,6 @@ void Application::onTempoIncrease(const Glib::VariantBase& value)
 
 void Application::onTempoDecrease(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   double delta_tempo
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
@@ -566,8 +517,6 @@ void Application::onTempoDecrease(const Glib::VariantBase& value)
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   Glib::Variant<double> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
 
@@ -576,8 +525,6 @@ void Application::onTrainerStart(const Glib::VariantBase& value)
 
 void Application::onTrainerTarget(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::Variant<double> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
 
@@ -592,8 +539,6 @@ void Application::onTrainerTarget(const Glib::VariantBase& value)
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::Variant<double> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
 
@@ -608,8 +553,6 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
 
 void Application::onProfilesManagerChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   auto in_list = profiles_manager_.profileList();
 
   ProfilesList out_list;
@@ -663,14 +606,10 @@ void Application::onProfilesList(const Glib::VariantBase& value)
   // signal (signal_changed) of the profiles manager (i.e. the underlying storage)
   // and therefore gives clients access to an up-to-date list of all available
   // profiles. Currently it cannot be modified directly.
-  
-  std::cout << G_STRFUNC << std::endl;
 }
 
 void Application::onProfilesSelect(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   saveSelectedProfile();
   
   Glib::Variant<Glib::ustring> in_state
@@ -729,8 +668,6 @@ void Application::onProfilesSelect(const Glib::VariantBase& value)
 
 void Application::convertActionToProfile(Profile::Content& content)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   get_action_state(kActionTempo, content.tempo);
   get_action_state(kActionMeterEnabled, content.meter_enabled);
 
@@ -791,8 +728,6 @@ void Application::convertProfileToAction(const Profile::Content& content)
 
 void Application::onProfilesNew(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Profile::Content content;
   
   convertActionToProfile(content);
@@ -806,8 +741,6 @@ void Application::onProfilesNew(const Glib::VariantBase& value)
 
 void Application::loadSelectedProfile()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::ustring id;
   get_action_state(kActionProfilesSelect, id);
   
@@ -821,15 +754,11 @@ void Application::loadSelectedProfile()
 
 void Application::loadDefaultProfile()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   convertProfileToAction(kDefaultProfile.content);
 }
 
 void Application::saveSelectedProfile()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   Glib::ustring id;
   get_action_state(kActionProfilesSelect, id);
   
@@ -851,8 +780,6 @@ void Application::saveSelectedProfile()
 
 void Application::onProfilesDelete(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   Glib::ustring id;
   get_action_state(kActionProfilesSelect, id);
   
@@ -864,15 +791,11 @@ void Application::onProfilesDelete(const Glib::VariantBase& value)
 
 void Application::onProfilesReset(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   loadDefaultProfile();
 }
 
 void Application::onProfilesTitle(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::ustring id;
   get_action_state(kActionProfilesSelect, id);
   
@@ -906,8 +829,6 @@ void Application::onProfilesTitle(const Glib::VariantBase& value)
 
 void Application::onProfilesDescription(const Glib::VariantBase& value)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   Glib::ustring id;
   get_action_state(kActionProfilesSelect, id);
   
@@ -942,8 +863,6 @@ void Application::onProfilesDescription(const Glib::VariantBase& value)
 
 void Application::onStart(const Glib::VariantBase& value)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
 
@@ -973,8 +892,6 @@ void Application::onStart(const Glib::VariantBase& value)
 
 void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  std::cout << G_STRFUNC << " Key: " << key << std::endl;
-
   if (key == kKeyPrefsVolume)
   {
     configureTickerSound();
@@ -995,8 +912,6 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void Application::onSettingsStateChanged(const Glib::ustring& key)
 {
-  std::cout << G_STRFUNC << " Key: " << key << std::endl;
-
   if (key == kKeyStateProfilesSelect)
   {
     Glib::ustring profile_id = settings_state_->get_string(kKeyStateProfilesSelect);
@@ -1010,8 +925,6 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
 
 void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
 {
-  std::cout << G_STRFUNC << " Key: " << key << std::endl;
-  
   auto shortcut_action = kDefaultShortcutActionMap.find(key);
   if (shortcut_action != kDefaultShortcutActionMap.end())
   {
@@ -1030,23 +943,18 @@ void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
 
 void Application::startTimer()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   timer_connection_ = Glib::signal_timeout()
     .connect(sigc::mem_fun(*this, &Application::onTimer), 70);
 }
 
 void Application::stopTimer()
 {
-  std::cout << G_STRFUNC << std::endl;
   timer_connection_.disconnect();
   signal_ticker_statistics_.emit({0,0,-1,0,0});
 }
 
 bool Application::onTimer()
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   audio::Statistics stats = ticker_.getStatistics();
 
   bool meter_enabled;

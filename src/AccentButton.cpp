@@ -30,9 +30,6 @@ AccentButtonCache::getIconSurface(Accent button_state,
                                    const Gdk::RGBA& color1,
                                    const Gdk::RGBA& color2)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  //std::cout << "ICON CACHE SIZE: " << icon_surface_map_.size() << std::endl;
-  
   return icon_surface_map_[{button_state, hashColor(color1), hashColor(color2)}];  
 }
 
@@ -41,18 +38,12 @@ AccentButtonCache::getTextSurface(const Glib::ustring& text,
                                    const Pango::FontDescription& font,
                                    const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  //std::cout << "TEXT CACHE SIZE: " << text_surface_map_.size() << std::endl;
-  
   return text_surface_map_[{text.raw(), hashFont(font), hashColor(color)}];
 }
 
 Cairo::RefPtr<Cairo::ImageSurface>&
 AccentButtonCache::getAnimationSurface(const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  //std::cout << "ANIMATION CACHE SIZE: " << animation_surface_map_.size() << std::endl;
-  
   return animation_surface_map_[{hashColor(color)}];
 }
 
@@ -139,9 +130,7 @@ AccentButtonDrawingArea::AccentButtonDrawingArea(AccentButtonDrawingArea&& src)
     animation_tick_callback_id_(std::move(src.animation_tick_callback_id_)),
     animation_alpha_(std::move(src.animation_alpha_))
 
-{
-  std::cout << G_STRFUNC << std::endl;
-}
+{}
 
 AccentButtonDrawingArea::~AccentButtonDrawingArea()
 {
@@ -169,8 +158,6 @@ void AccentButtonDrawingArea::setAccentState(Accent state)
 
 void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   // we merge overlapping animations by erasing the previously
   // scheduled animations in question
   
@@ -201,13 +188,11 @@ void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
 
 void AccentButtonDrawingArea::cancelAnimation()
 {
-  //std::cout << G_STRFUNC << std::endl;
   scheduled_animations_.clear();
 }
 
 void AccentButtonDrawingArea::startAnimation()
 {
-  //std::cout << G_STRFUNC << std::endl;
   if (animation_running_)
     return;
   
@@ -219,7 +204,6 @@ void AccentButtonDrawingArea::startAnimation()
 
 void AccentButtonDrawingArea::stopAnimation()
 {
-  //std::cout << G_STRFUNC << std::endl;
   if (!animation_running_)
     return;
   
@@ -229,8 +213,6 @@ void AccentButtonDrawingArea::stopAnimation()
 
 bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   bool need_redraw = false;
   
   if (clock && button_state_ != kAccentOff)
@@ -310,15 +292,12 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
 
 Gtk::SizeRequestMode AccentButtonDrawingArea::get_request_mode_vfunc() const
 {
-  //std::cout << G_STRFUNC << std::endl;
   return Gtk::SIZE_REQUEST_CONSTANT_SIZE;
 }
 
 void AccentButtonDrawingArea::get_preferred_width_vfunc(int& minimum_width,
                                                         int& natural_width) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   recalculateDimensions();
   minimum_width = natural_width = min_width_;
 }
@@ -327,8 +306,6 @@ void AccentButtonDrawingArea::get_preferred_height_for_width_vfunc(int width,
                                                                    int& minimum_height,
                                                                    int& natural_height) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   recalculateDimensions();
   minimum_height = natural_height = min_height_;
 }
@@ -337,8 +314,6 @@ void AccentButtonDrawingArea::get_preferred_width_for_height_vfunc(int height,
                                                                    int& minimum_width,
                                                                    int& natural_width) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   recalculateDimensions();
   minimum_width = natural_width = min_width_;
 }
@@ -346,8 +321,6 @@ void AccentButtonDrawingArea::get_preferred_width_for_height_vfunc(int height,
 void AccentButtonDrawingArea::get_preferred_height_vfunc(int& minimum_height,
                                                          int& natural_height) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   recalculateDimensions();
   minimum_height = natural_height = min_height_;
 }
@@ -355,8 +328,6 @@ void AccentButtonDrawingArea::get_preferred_height_vfunc(int& minimum_height,
 
 void AccentButtonDrawingArea::recalculateDimensions() const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   icon_width_  = kIconWidth; //icon_surface->get_width();
   icon_height_ = kIconHeight; //icon_surface->get_height();
   text_width_  = 0;
@@ -383,20 +354,10 @@ void AccentButtonDrawingArea::recalculateDimensions() const
   
   min_width_ = std::max( std::max(text_width_, text_height_), icon_width_);
   min_height_ = text_height_ + icon_height_ + icon_text_padding_;
-      
-  // std::cout << "icon_width:" << icon_width_
-  //           << " icon_height:" << icon_height_
-  //           << " text_width:" << text_width_
-  //           << " text_height:" << text_height_
-  //           << " min_width_:" << min_width_
-  //           << " min_height_:" << min_height_ 
-  //           << std::endl;
 }
 
 void AccentButtonDrawingArea::onFontChanged()
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   surface_cache_.clearTextSurfaceCache();
   surface_cache_.clearAnimationSurfaceCache();
 
@@ -405,8 +366,6 @@ void AccentButtonDrawingArea::onFontChanged()
 
 void AccentButtonDrawingArea::onThemeChanged()
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   surface_cache_.clearIconSurfaceCache();
   surface_cache_.clearTextSurfaceCache();
   surface_cache_.clearAnimationSurfaceCache();
@@ -420,8 +379,6 @@ AccentButtonCache AccentButtonDrawingArea::surface_cache_;
 
 void AccentButtonDrawingArea::onStyleChanged()
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto style_context = get_style_context();
   Gtk::StateFlags widget_state = style_context->get_state();
   Pango::FontDescription font = style_context->get_font(widget_state);
@@ -430,7 +387,6 @@ void AccentButtonDrawingArea::onStyleChanged()
   
   if (current_font_hash_ != font_hash)
   {
-    std::cout << G_STRFUNC << " -- FONT CHANGED --" << std::endl;
     current_font_hash_ = font_hash;
     
     surface_cache_.clearTextSurfaceCache();
@@ -446,8 +402,6 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
                                               const Gdk::RGBA& color1,
                                               const Gdk::RGBA& color2)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto cairo_context = Cairo::Context::create(surface);
 
   Gdk::Cairo::set_source_rgba(cairo_context, color1);
@@ -509,8 +463,6 @@ void AccentButtonDrawingArea::drawTextSurface(Cairo::RefPtr<Cairo::ImageSurface>
                                               Glib::RefPtr<Pango::Layout>& layout,
                                               const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   auto cairo_context = Cairo::Context::create(surface);
 
   Gdk::Cairo::set_source_rgba(cairo_context, color);
@@ -522,8 +474,6 @@ void AccentButtonDrawingArea::drawTextSurface(Cairo::RefPtr<Cairo::ImageSurface>
 void AccentButtonDrawingArea::drawAnimationSurface(Cairo::RefPtr<Cairo::ImageSurface>& surface,
                                                    const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-    
   auto cairo_context = Cairo::Context::create(surface);
   
   Gdk::Cairo::set_source_rgba(cairo_context, color);
@@ -544,8 +494,6 @@ AccentButtonDrawingArea::getIconSurface(Accent button_state,
                                         const Gdk::RGBA& color1,
                                         const Gdk::RGBA& color2)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto& surface = surface_cache_.getIconSurface(button_state, color1, color2);
 
   if (!surface)
@@ -570,8 +518,6 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
                                         const Pango::FontDescription& font,
                                         const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto& surface = surface_cache_.getTextSurface(text, font, color);
   
   if (!surface)
@@ -601,8 +547,6 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
 const Cairo::RefPtr<Cairo::ImageSurface>&
 AccentButtonDrawingArea::getAnimationSurface(const Gdk::RGBA& color)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto& surface = surface_cache_.getAnimationSurface(color);
   
   if (!surface)
@@ -639,8 +583,6 @@ Gdk::RGBA AccentButtonDrawingArea::getSecondaryColor(Glib::RefPtr<Gtk::StyleCont
 
 bool AccentButtonDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   draw_animation(cr);
   draw_icon(cr);
   draw_text(cr);
@@ -650,8 +592,6 @@ bool AccentButtonDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
 void AccentButtonDrawingArea::draw_icon(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto style_context = get_style_context();
   Gdk::RGBA color1 = getPrimaryColor(style_context);
   Gdk::RGBA color2 = getSecondaryColor(style_context);
@@ -672,8 +612,6 @@ void AccentButtonDrawingArea::draw_icon(const Cairo::RefPtr<Cairo::Context>& cr)
 
 void AccentButtonDrawingArea::draw_text(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto style_context = get_style_context();
   Gtk::StateFlags widget_state = style_context->get_state();
   
@@ -704,8 +642,6 @@ void AccentButtonDrawingArea::draw_text(const Cairo::RefPtr<Cairo::Context>& cr)
 
 void AccentButtonDrawingArea::draw_animation(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   auto style_context = get_style_context();
   Gdk::RGBA color;
 
@@ -769,43 +705,33 @@ AccentButton::AccentButton(Accent state, const Glib::ustring& label)
 AccentButton::AccentButton(AccentButton&& src)
   : drawing_area_(std::move(src.drawing_area_)),
     signal_accent_state_changed_(std::move(src.signal_accent_state_changed_))
-{
-  std::cout << G_STRFUNC << std::endl;
-}
+{}
 
 AccentButton::~AccentButton()
-{
-  std::cout << G_STRFUNC << std::endl;
-}
+{}
   
 void AccentButton::setAccentState(Accent state)
 {
-  //std::cout << G_STRFUNC << std::endl;
   drawing_area_.setAccentState(state);
 }
 
 void AccentButton::setLabel(const Glib::ustring& label)
 {
-  //std::cout << G_STRFUNC << std::endl;
   drawing_area_.setLabel(label);
 }
 
 void AccentButton::scheduleAnimation(gint64 frame_time)
 {
-  //std::cout << G_STRFUNC << std::endl;
   drawing_area_.scheduleAnimation(frame_time);
 }
 
 void AccentButton::cancelAnimation()
 {
-  //std::cout << G_STRFUNC << std::endl;
   drawing_area_.cancelAnimation();
 }
 
 void AccentButton::on_clicked()
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   switch (getAccentState()) {
   case kAccentHigh: setAccentState(kAccentOff); break;
   case kAccentMid: setAccentState(kAccentHigh); break;
@@ -819,8 +745,6 @@ void AccentButton::on_clicked()
 
 bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   bool state_changed = false;
     
   switch (scroll_event->direction) {

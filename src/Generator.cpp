@@ -79,31 +79,24 @@ namespace audio {
 
   void Generator::setTempo(double tempo)
   {
-    std::cout << "Generator::setTempo()" << std::endl;
-
     in_tempo_.store(tempo);
     tempo_import_flag_.clear(std::memory_order_release);
   }
   
   void Generator::setTargetTempo(double target_tempo)
   {
-    std::cout << "Generator::setTargetTempo()" << std::endl;
-
     in_target_tempo_.store(target_tempo);
     target_tempo_import_flag_.clear(std::memory_order_release);
   }
   
   void Generator::setAccel(double accel)
   {
-    std::cout << "Generator::setAccel()" << std::endl;
-
     in_accel_.store(accel);
     accel_import_flag_.clear(std::memory_order_release);
   }
 
   void Generator::setMeter(const Meter& meter)
   {
-    std::cout << "Generator::setMeter()" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       in_meter_ = meter;
@@ -113,7 +106,6 @@ namespace audio {
   
   void Generator::setMeter(Meter&& meter)
   {
-    std::cout << "Generator::setMeter(&&)" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       in_meter_ = std::move(meter);
@@ -123,7 +115,6 @@ namespace audio {
 
   void Generator::setSoundHigh(Buffer&& sound)
   {
-    std::cout << "Generator::setSoundHigh()" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       std::swap(in_sound_high_,sound);
@@ -133,7 +124,6 @@ namespace audio {
   
   void Generator::setSoundMid(Buffer&& sound)
   {
-    std::cout << "Generator::setSoundMid()" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       std::swap(in_sound_mid_,sound);
@@ -143,7 +133,6 @@ namespace audio {
 
   void Generator::setSoundLow(Buffer&& sound)
   {
-    std::cout << "Generator::setSoundLow()" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       std::swap(in_sound_low_,sound);
@@ -171,8 +160,6 @@ namespace audio {
   std::unique_ptr<AbstractAudioSink>
   Generator::swapSink(std::unique_ptr<AbstractAudioSink> sink)
   {
-    std::cout << "Generator::swapSink()" << std::endl;
-
     std::unique_lock<std::mutex> lock(mutex_);
     std::swap(in_audio_sink_,sink);
 
@@ -193,8 +180,6 @@ namespace audio {
   
   void Generator::importTempo()
   {
-    std::cout << "Generator::importTempo()" << std::endl;
-
     tempo_ = convertTempoToFrameTime(in_tempo_.load());
     accel_ = convertAccelToFrameTime(in_accel_.load());
 
@@ -204,8 +189,6 @@ namespace audio {
   
   void Generator::importTargetTempo()
   {
-    std::cout << "Generator::importTargetTempo()" << std::endl;
-
     target_tempo_ = convertTempoToFrameTime(in_target_tempo_.load());
     accel_ = convertAccelToFrameTime(in_accel_.load());
 
@@ -215,8 +198,6 @@ namespace audio {
   
   void Generator::importAccel()
   {
-    std::cout << "Generator::importAccel()" << std::endl;
-    
     accel_ = convertAccelToFrameTime(in_accel_.load());
 
     recalculateAccelSign();
@@ -225,8 +206,6 @@ namespace audio {
 
   void Generator::importMeter()
   {
-    std::cout << "Generator::importMeter()" << std::endl;
-
     std::lock_guard<std::mutex> guard(mutex_);
 
     double s_subdiv = meter_.division();
@@ -239,8 +218,6 @@ namespace audio {
     //
     // This seems to be a little harder to make in a clean way but it is entirely
     // possible with the known information.
-
-    std::cout << " frames_done * tempo * s_subdiv : " << frames_done_ * tempo_ * s_subdiv << std::endl;
 
     auto fmodulo = [](double a, double b) -> int
       {
@@ -257,15 +234,6 @@ namespace audio {
     double t_next_accent = std::ceil( t_accent );
     double t_prev_accent = t_next_accent - 1;
 
-    std::cout << " s_frames_done  : " << frames_done_ << std::endl
-              << " accent_ratio   : " << accent_ratio << std::endl 
-              << " s_next_accent  : " << s_next_accent << std::endl
-              << " s_prev_accent  : " << s_prev_accent << std::endl
-              << " s_accent       : " << s_accent << std::endl
-              << " t_accent       : " << t_accent << std::endl
-              << " t_next_accent  : " << t_next_accent << std::endl
-              << " t_prev_accent  : " << t_prev_accent << std::endl;
-	  
     // compute frames_done
     if (accel_ == 0) {
       frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
@@ -289,9 +257,6 @@ namespace audio {
       frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, t_subdiv);
     }
 
-    std::cout << " t_frames_done  : " << frames_done_ << std::endl;
-    std::cout << " t_frames_total : " << frames_total_ << std::endl;
-
     next_accent_ = fmodulo(t_next_accent, meter_.accents().size());
     if (next_accent_ >= meter_.accents().size())
       next_accent_ = 0;
@@ -310,31 +275,24 @@ namespace audio {
   
   void Generator::importSoundHigh()
   {
-    std::cout << "Generator::importSoundHigh()" << std::endl;
-
     std::lock_guard<std::mutex> guard(mutex_);
     std::swap(sound_high_, in_sound_high_);
   }
   
   void Generator::importSoundMid()
   {
-    std::cout << "Generator::importSoundMid()" << std::endl;
-
     std::lock_guard<std::mutex> guard(mutex_);
     std::swap(sound_mid_, in_sound_mid_);
   }
   
   void Generator::importSoundLow()
   {
-    std::cout << "Generator::importSoundLow()" << std::endl;
-
     std::lock_guard<std::mutex> guard(mutex_);
     std::swap(sound_low_, in_sound_low_);
   }
 
   void Generator::importAudioSink()
   {
-    std::cout << "Generator::importAudioSink()" << std::endl;
     {
       std::lock_guard<std::mutex> guard(mutex_);
       std::swap(audio_sink_, in_audio_sink_);
@@ -424,7 +382,6 @@ namespace audio {
       };
     
     if (accel == 0) {
-      //std::cout << "# TREAT SPECIAL CASE (NO ACCEL)" << std::endl;
       frames_total = (size_t) ( 1. / tempo );
     }
     else {	  
@@ -437,19 +394,16 @@ namespace audio {
       if (accel > 0) {
         frames_total =  ( -p_half + sqrt(radicand) );
         if (t<frames_total) {
-          //std::cout << "# TREAT SPECIAL CASE (POSITIVE)" << std::endl;
           frames_total = framesAfterCompoundMotion(t);
         }
       }
       else { 
         if (radicand < 0) {
-          //std::cout << "# TREAT SPECIAL CASE (RADICAND)" << std::endl;
           frames_total = framesAfterCompoundMotion(t);
         }
         else {
           frames_total = (size_t) ( -p_half - sqrt(radicand) );
           if (t<frames_total) {
-            //std::cout << "# TREAT SPECIAL CASE (NEGATIVE)" << std::endl;
             frames_total = framesAfterCompoundMotion(t);
           }
         }
@@ -475,13 +429,6 @@ namespace audio {
     uint64_t now = g_get_monotonic_time();
     uint64_t time = now + latency_ + (frames_left_ * kMicrosecondsFramesRatio_);
 
-    // std::cout << "out_next_accent_: "
-    //           << " accent:" << next_accent_
-    //           << " now:" << now
-    //           << " time:" << time
-    //           << " with latency:" << latency_
-    //           << " frames_left:" << frames_left_ << "[" << frames_left_ * kMicrosecondsFramesRatio_ << "])" << std::endl;
-    
     uint64_t accent = next_accent_;
     out_next_accent_.store(
       ( (accent << 56) & 0xff00000000000000 ) | ( time & 0x00ffffffffffffff ) );
@@ -494,8 +441,6 @@ namespace audio {
   
   void Generator::start()
   {
-    std::cout << "Generator::start()" << std::endl;
-
     next_accent_ = 0;
 
     out_current_tempo_ = 0.0;
@@ -555,8 +500,6 @@ namespace audio {
 
   void Generator::stop()
   {
-    std::cout << "Generator::stop()" << std::endl;
-
     out_current_tempo_ = 0.0;
     out_current_accel_ = 0.0;
     out_next_accent_ = 0;
@@ -565,8 +508,6 @@ namespace audio {
   
   void Generator::cycle()
   {
-    //std::cout << "Generator::cycle()" << std::endl;
-    
     const AccentPattern& accents = meter_.accents();
     
     if (frames_left_ <= 0) {

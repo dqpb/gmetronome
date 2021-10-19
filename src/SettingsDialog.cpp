@@ -150,8 +150,6 @@ SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
 void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
                                      const Gtk::TreeModel::iterator& iter)
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   auto row = *iter;
   const Glib::ustring& key = row[shortcuts_model_columns_.key];
   
@@ -196,8 +194,6 @@ void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
 
 void SettingsDialog::onAccelCleared(const Glib::ustring& path_string)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   onAccelEdited(path_string, 0, Gdk::ModifierType(0), 0);
 }
   
@@ -206,8 +202,6 @@ void SettingsDialog::onAccelEdited(const Glib::ustring& path_string,
                                    Gdk::ModifierType accel_mods,
                                    guint hardware_keycode)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   auto iter = shortcuts_tree_store_->get_iter(path_string);
   if (iter)
   {
@@ -224,8 +218,6 @@ void SettingsDialog::onAccelEdited(const Glib::ustring& path_string,
 
 void SettingsDialog::onResetShortcuts()
 {
-  std::cout << G_STRFUNC << std::endl;
-
   for (const auto& entry  : ShortcutList())
     if (!entry.key.empty())
       settings_shortcuts_->reset(entry.key);
@@ -233,7 +225,6 @@ void SettingsDialog::onResetShortcuts()
 
 void SettingsDialog::onAnimationSyncChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
   if (animation_sync_spin_button_->get_value() != 0)
   {
     animation_sync_spin_button_->set_icon_from_icon_name("dialog-warning",
@@ -247,8 +238,6 @@ void SettingsDialog::onAnimationSyncChanged()
 
 void SettingsDialog::onSettingsShortcutsChanged(const Glib::ustring& key)
 {
-  std::cout << G_STRFUNC << " Key: " << key << std::endl;
-  
   auto foreach_slot = [this, &key] (const Gtk::TreeModel::iterator& iter) -> bool
     {
       auto row = *iter;

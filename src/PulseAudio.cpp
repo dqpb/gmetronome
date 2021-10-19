@@ -76,8 +76,8 @@ namespace audio {
       throw PulseAudioError(error);
   }
   
-  PulseAudioConnection::~PulseAudioConnection() {
-    std::cout << "PulseAudioConnection::~PulseAudioConnection() : " << this << std::endl;
+  PulseAudioConnection::~PulseAudioConnection()
+  {
     if (pa_simple_)
       pa_simple_free(pa_simple_);
   }

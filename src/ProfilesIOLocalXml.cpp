@@ -154,8 +154,6 @@ namespace {
                            const Glib::ustring& element_name,
                            const AttributeMap& attributes) override
       {
-        //std::cout << G_STRFUNC << " (" << element_name << ")" << std::endl;
-
         auto element_name_lowercase = element_name.lowercase();
         if (element_name_lowercase == "header"
             || element_name_lowercase == "content"
@@ -242,8 +240,6 @@ namespace {
     void on_end_element (Glib::Markup::ParseContext& context,
                          const Glib::ustring& element_name) override
       {
-        //std::cout << G_STRFUNC << " (" << element_name << ")" << std::endl;
-
         auto element_name_lowercase = element_name.lowercase();
         if (element_name_lowercase == "header"
             || element_name_lowercase == "content"
@@ -275,8 +271,6 @@ namespace {
     void on_text (Glib::Markup::ParseContext& context,
                   const Glib::ustring& text) override
       {
-        //std::cout << G_STRFUNC << std::endl;        
-
         if (current_profile_ && !current_block_.empty())
         {
           auto element_name_lowercase = context.get_element().lowercase();
@@ -324,14 +318,12 @@ namespace {
     void on_passthrough (Glib::Markup::ParseContext& context,
                          const Glib::ustring& passthrough_text) override
       {
-        //std::cout << G_STRFUNC << std::endl;
         //not implemented yet
       }
 
     void on_error (Glib::Markup::ParseContext& context,
                    const Glib::MarkupError& error) override
       {
-        //std::cout << G_STRFUNC << std::endl;
         //not implemented yet
       }
 

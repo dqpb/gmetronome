@@ -24,8 +24,6 @@
 
 AccentButtonGrid::AccentButtonGrid(std::size_t size, std::size_t grouping)
 {
-  std::cout << G_STRFUNC << std::endl;
-
   set_has_window(false);
   set_redraw_on_allocate(false);
   
@@ -36,7 +34,6 @@ AccentButtonGrid::AccentButtonGrid(std::size_t size, std::size_t grouping)
 
 AccentButtonGrid::~AccentButtonGrid()
 {
-  std::cout << G_STRFUNC << std::endl;  
   resizeButtonsVector(0);  
 }
 
@@ -47,8 +44,6 @@ void AccentButtonGrid::onAccentChanged(std::size_t index)
 
 bool AccentButtonGrid::resizeButtonsVector(std::size_t new_size)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   std::size_t old_size = buttons_.size();
   
   for ( std::size_t index = new_size; index < old_size; ++index )
@@ -78,8 +73,6 @@ bool AccentButtonGrid::resizeButtonsVector(std::size_t new_size)
 
 bool AccentButtonGrid::setGrouping(std::size_t grouping)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   if (grouping < 1)
     grouping = 1;
 
@@ -92,30 +85,23 @@ bool AccentButtonGrid::setGrouping(std::size_t grouping)
 
 void AccentButtonGrid::resize(std::size_t new_size)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   if ( resizeButtonsVector(new_size) )
     queue_resize();
 }
 
 void AccentButtonGrid::regroup(std::size_t grouping)
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   if ( setGrouping(grouping) )
     queue_resize();
 }
 
 Gtk::SizeRequestMode AccentButtonGrid::get_request_mode_vfunc() const
 {
-  //std::cout << G_STRFUNC << std::endl;  
   return Gtk::SIZE_REQUEST_HEIGHT_FOR_WIDTH;
 }
 
 void AccentButtonGrid::updateCellDimensions() const
 {
-  //std::cout << G_STRFUNC << std::endl;
-    
   int result_width_min = 1;
   int result_height_min = 1;
   
@@ -147,21 +133,12 @@ void AccentButtonGrid::updateCellDimensions() const
   
   group_width_min_ = min_cells_per_row * cell_width_min_;
   group_width_nat_ = min_cells_per_row * cell_width_nat_;
-
-  // std::cout << " * cell_width (min): " << cell_width_min_ << std::endl
-  //           << " * cell_width (nat): " << cell_width_nat_ << std::endl
-  //           << " * cell_height (min): " << cell_height_min_ << std::endl
-  //           << " * cell_height (nat): " << cell_height_nat_ << std::endl
-  //           << " * group_width (min): " << group_width_min_ << std::endl
-  //           << " * group_width (nat): " << group_width_nat_ << std::endl;
 }
 
 void AccentButtonGrid::numRowsForWidth(int width,
                                        int& num_rows_min,
                                        int& num_rows_nat) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
   std::size_t max_groups_per_row_min = ( width / group_width_min_ );
   std::size_t max_groups_per_row_nat = ( width / group_width_nat_ );
@@ -175,13 +152,6 @@ void AccentButtonGrid::numRowsForWidth(int width,
   num_rows_min = std::ceil( (double) num_groups / max_groups_per_row_min );
   num_rows_nat = std::ceil( (double) num_groups / max_groups_per_row_nat );
 
-  // std::cout << " * width: " << width << std::endl;
-  // std::cout << " * num_groups:" << num_groups << std::endl;
-  // std::cout << " * max_groups_per_row (min): " << max_groups_per_row_min << std::endl;
-  // std::cout << " * max_groups_per_row (nat): " << max_groups_per_row_nat << std::endl;
-  // std::cout << " * num rows (min): " << num_rows_min << std::endl
-  //           << " * num rows (nat): " << num_rows_nat << std::endl;
-  
   //int groups_per_row = std::ceil( (double) num_groups / num_rows);
   //int max_columns = groups_per_row * subdiv;  
 }
@@ -190,8 +160,6 @@ void AccentButtonGrid::numGroupsPerRowForHeight(int height,
                                                 int& groups_per_row_min,
                                                 int& groups_per_row_nat) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
 
   std::size_t num_rows_min = ( height / cell_height_min_ );
@@ -210,8 +178,6 @@ void AccentButtonGrid::numGroupsPerRowForHeight(int height,
 void AccentButtonGrid::get_preferred_width_vfunc(int& minimum_width,
                                                  int& natural_width) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-  
   updateCellDimensions();
   
   minimum_width = group_width_min_;
@@ -222,8 +188,6 @@ void AccentButtonGrid::get_preferred_height_for_width_vfunc(int width,
                                                             int& minimum_height,
                                                             int& natural_height) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   updateCellDimensions();
 
   int num_rows_min;
@@ -238,8 +202,6 @@ void AccentButtonGrid::get_preferred_height_for_width_vfunc(int width,
 void AccentButtonGrid::get_preferred_height_vfunc(int& minimum_height,
                                                   int& natural_height) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   updateCellDimensions();
 
   minimum_height = cell_height_min_;
@@ -250,8 +212,6 @@ void AccentButtonGrid::get_preferred_width_for_height_vfunc(int height,
                                                             int& minimum_width,
                                                             int& natural_width) const
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   updateCellDimensions();
 
   int groups_per_row_min;
@@ -265,8 +225,6 @@ void AccentButtonGrid::get_preferred_width_for_height_vfunc(int height,
 
 void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   updateCellDimensions();
 
   std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
@@ -298,11 +256,6 @@ void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
                           + top_offset_nat
                           + ( index / cells_per_row_nat ) * cell_height_nat_ );
       
-      // std::cout << "Button Alloc: "
-      //           << button_alloc.get_x() << ","
-      //           << button_alloc.get_y() << ","
-      //           << button_alloc.get_width() << ","
-      //           << button_alloc.get_height() << std::endl;
 
       buttons_[index]->size_allocate(button_alloc);
     }
@@ -315,28 +268,18 @@ void AccentButtonGrid::forall_vfunc(gboolean,
                                     GtkCallback callback,
                                     gpointer callback_data)
 {
-  //std::cout << G_STRFUNC << std::endl;
-
   for (auto& button : buttons_)
     callback((GtkWidget*)button->gobj(), callback_data);
 }
 
 
 void AccentButtonGrid::on_add(Gtk::Widget* child)
-{
-  //std::cout << G_STRFUNC << std::endl;
-  // NOP
-}
+{}
 
 void AccentButtonGrid::on_remove(Gtk::Widget* child)
-{
-  //std::cout << G_STRFUNC << std::endl;
-  // NOP
-}
-
+{}
 
 GType AccentButtonGrid::child_type_vfunc() const
 {
-  //std::cout << G_STRFUNC << std::endl;  
   return G_TYPE_NONE;
 }

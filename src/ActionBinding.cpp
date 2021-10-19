@@ -132,7 +132,6 @@ ActionBinding::ActionBinding(Glib::RefPtr<Gio::ActionGroup> action_group,
 void ActionBinding::onActionStateChanged(const Glib::ustring& action_name,
 					 const Glib::VariantBase& variant)
 {
-  std::cout << G_STRFUNC << std::endl;
   prop_connection_.block();
   property_.get_object()->set_property_value(property_.get_name(),
                                              variant_to_value(variant));
@@ -141,8 +140,6 @@ void ActionBinding::onActionStateChanged(const Glib::ustring& action_name,
 
 void ActionBinding::onPropertyValueChanged()
 {
-  std::cout << G_STRFUNC << std::endl;
-  
   property_.get_object()->get_property_value(property_.get_name(), property_value_);
 
   action_connection_.block();

@@ -186,31 +186,24 @@ namespace audio {
   void Ticker::worker() noexcept
   {
     try {
-      
       std::unique_ptr<AbstractAudioSink> pa_sink
         = std::make_unique<PulseAudioConnection>(kSampleSpec); 
       
       generator_.swapSink(std::move(pa_sink));      
       generator_.start();
       
-      std::cout << "Ticker::worker() - START cycling" << std::endl;
       while ( state_.load() != TickerState::kReady )
       {
         generator_.cycle();
       }
-      std::cout << "Ticker::worker() - STOP cycling" << std::endl;
       
       generator_.stop();
       pa_sink = generator_.swapSink(nullptr); 
       
       pa_sink->drain();
-      
-      //std::cout << "Stop Audio Worker." << std::endl;
     }
     catch(...)
     {
-      //std::lock_guard<std::recursive_mutex> guard(mutex_);
-      std::cout << "AudioWorker: Error" << std::endl;
       except_ = std::current_exception();
       state_ = TickerState::kError;
     }
