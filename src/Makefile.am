@@ -1,5 +1,3 @@
-SUBDIRS = resources
-
 AUTOMAKE_OPTIONS = subdir-objects
 
 bin_PROGRAMS = gmetronome
@@ -27,7 +25,7 @@ gmetronome_SOURCES = \
 	Ticker.cpp
 
 nodist_gmetronome_SOURCES = \
-	resources/resources.cpp
+	../data/resources.cpp
 
 noinst_HEADERS = \
 	AccentButton.h \

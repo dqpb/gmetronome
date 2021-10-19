@@ -1,4 +1,4 @@
-SUBDIRS = src po
+SUBDIRS = data src po
 
 dist_doc_DATA = README
 
