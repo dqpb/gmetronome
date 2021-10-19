@@ -227,7 +227,7 @@ void MainWindow::initAbout()
   //about_dialog_.set_website_label( about_dialog_.get_website() );
 
   about_dialog_.set_logo(
-    Gdk::Pixbuf::create_from_resource("/org/gmetronome/gmetronome.svg",128,128));
+    Gdk::Pixbuf::create_from_resource("/org/gmetronome/icons/gmetronome.svg",128,128));
 
 }
 
