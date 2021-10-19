@@ -95,7 +95,7 @@ fi
 test -n "$srcdir" || srcdir=`dirname "$0"`
 test -n "$srcdir" || srcdir=.
 
-autoreconf --verbose --install --force "$srcdir"
+autoreconf --verbose --install "$srcdir"
 
 if test -z "$NOCONFIGURE"; then
 
