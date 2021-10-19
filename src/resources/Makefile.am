@@ -10,7 +10,7 @@ $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
 
 # The application icon
 appicondir = $(datadir)/icons/hicolor/48x48/apps
-appicon_DATA = gmetronome.png
+appicon_DATA = icons/gmetronome.png
 
 ### Application resources
 resource_files = \
@@ -18,8 +18,8 @@ resource_files = \
 	ui/SettingsDialog.glade \
 	ui/MainWindow.glade \
 	ui/ShortcutDialog.glade \
-	gmetronome.png \
-	gmetronome.svg
+	icons/gmetronome.png \
+	icons/gmetronome.svg
 
 gresource_xml_file = gmetronome.gresource.xml
 
