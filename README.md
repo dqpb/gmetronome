@@ -1,11 +1,9 @@
-<img src="data/icons/gmetronome.png" align="left">
-
 GMetronome
 ==========
 
 A practical and precise tempo measurement tool for composers and musicians. 
 
-![View](data/screenshots/screenshot.png)
+![Screenshot](data/screenshots/screenshot.png)
 
 GMetronome is currently under heavy development. It is written for GNU/Linux
 and other UN*X like operating system and utilizes the C++ language binding for
