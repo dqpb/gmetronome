@@ -1,0 +1,7 @@
+# Autotools
+/.deps/
+/Makefile
+/Makefile.in
+/gmetronome
+/resources.cpp
+/TAGS

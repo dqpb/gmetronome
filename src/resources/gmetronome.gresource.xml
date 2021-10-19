@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gmetronome">
+    <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
+    <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
+    <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
+    <file>gmetronome.svg</file>
+    <file>css/global.css</file>
+  </gresource>
+</gresources>

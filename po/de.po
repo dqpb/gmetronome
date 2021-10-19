@@ -1,0 +1,580 @@
+# German translation file for GMetronome.
+#
+# Copyright (C) 2021 The GMetronome Team
+# This file is distributed under the same license as the GMetronome package.
+# Uwe Leonhardt <dqpb@mailbox.org>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
+"POT-Creation-Date: 2021-06-29 00:26+0200\n"
+"PO-Revision-Date: 2021-06-29 00:24+0200\n"
+"Last-Translator: Uwe Leonhardt <dqpb@mailbox.org>\n"
+"Language-Team: German - Germany <gnome-de@gnome.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 40.0\n"
+
+#. Translators: Put one translator per line, in the form
+#. NAME <EMAIL>, YEAR1, YEAR2
+#: src/MainWindow.cpp:215
+msgctxt "About dialog"
+msgid "translator-credits"
+msgstr ""
+
+#. Parameters:
+#. %1 - year of the last commit
+#. %2 - localized application name
+#: src/MainWindow.cpp:223
+msgctxt "About dialog"
+msgid "Copyright © 2020-%1 The %2 Team"
+msgstr "Copyright © 2020-%1 Das %2 Team"
+
+#: src/resources/ui/MainWindow.glade:25
+msgctxt "Primary menu"
+msgid "Show Accents"
+msgstr "Betonung anzeigen"
+
+#: src/resources/ui/MainWindow.glade:39
+msgctxt "Primary menu"
+msgid "Show Trainer"
+msgstr "Trainer anzeigen"
+
+#: src/resources/ui/MainWindow.glade:65
+msgctxt "Primary menu"
+msgid "_Preferences"
+msgstr "_Einstellungen"
+
+#: src/resources/ui/MainWindow.glade:79
+msgctxt "Primary menu"
+msgid "_Keyboard Shortcuts"
+msgstr "Tasten_kürzel"
+
+#: src/resources/ui/MainWindow.glade:93
+msgctxt "Primary menu"
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: src/resources/ui/MainWindow.glade:107
+msgctxt "Primary menu"
+msgid "About GMetronome"
+msgstr "_Über GMetronome"
+
+#: src/resources/ui/MainWindow.glade:140
+msgctxt "Profiles menu"
+msgid "Profiles"
+msgstr "Profile"
+
+#: src/resources/ui/MainWindow.glade:160
+msgid "List of profiles"
+msgstr "Profilliste"
+
+#: src/resources/ui/MainWindow.glade:185
+msgctxt "Profiles menu"
+msgid "_New"
+msgstr "_Neu"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:189
+msgctxt "Profiles menu"
+msgid "Create a new profile"
+msgstr "Erstelle ein neues Profil"
+
+#: src/resources/ui/MainWindow.glade:201
+msgctxt "Profiles menu"
+msgid "_Delete"
+msgstr "_Löschen"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:205
+msgctxt "Profiles menu"
+msgid "Delete selected profile"
+msgstr "Lösche das markierte Profil"
+
+#: src/resources/ui/MainWindow.glade:217
+msgctxt "Profiles menu"
+msgid "_Reset"
+msgstr "_Zurücksetzen"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:221
+msgctxt "Profiles menu"
+msgid "Reset the metronome"
+msgstr "Setze das Metronom zurück"
+
+#: src/resources/ui/MainWindow.glade:335
+msgctxt "Main window"
+msgid "Ta_p"
+msgstr "_Klopfen"
+
+#: src/resources/ui/MainWindow.glade:354
+msgctxt "Main window"
+msgid "Tempo"
+msgstr "Tempo"
+
+#: src/resources/ui/MainWindow.glade:398
+msgctxt "Main window"
+msgid "Meter"
+msgstr "Metrum"
+
+#: src/resources/ui/MainWindow.glade:412
+msgctxt "Main window"
+msgid "Single"
+msgstr "Einer"
+
+#: src/resources/ui/MainWindow.glade:413
+msgctxt "Main window"
+msgid "Duple"
+msgstr "Zweier"
+
+#: src/resources/ui/MainWindow.glade:414
+msgctxt "Main window"
+msgid "Triple"
+msgstr "Dreier"
+
+#: src/resources/ui/MainWindow.glade:415
+msgctxt "Main window"
+msgid "Quadruple"
+msgstr "Vierer"
+
+#: src/resources/ui/MainWindow.glade:416
+msgctxt "Main window"
+msgid "Comp. Single"
+msgstr "Einer (Ternär)"
+
+#: src/resources/ui/MainWindow.glade:417
+msgctxt "Main window"
+msgid "Comp. Duple"
+msgstr "Zweier (Ternär)"
+
+#: src/resources/ui/MainWindow.glade:418
+msgctxt "Main window"
+msgid "Comp. Triple"
+msgstr "Dreier (Ternär)"
+
+#: src/resources/ui/MainWindow.glade:419
+msgctxt "Main window"
+msgid "Comp. Quadruple"
+msgstr "Vierer (Ternär)"
+
+#: src/resources/ui/MainWindow.glade:420
+msgctxt "Main window"
+msgid "Custom"
+msgstr "Eigenes"
+
+#: src/resources/ui/MainWindow.glade:436
+msgctxt "Main window"
+msgid "Beats"
+msgstr "Schläge"
+
+#: src/resources/ui/MainWindow.glade:467
+msgctxt "Main window"
+msgid "Division"
+msgstr "Teilung"
+
+#: src/resources/ui/MainWindow.glade:482
+msgctxt "Main window"
+msgid "None"
+msgstr "Keine"
+
+#: src/resources/ui/MainWindow.glade:483
+msgctxt "Main window"
+msgid "Simple"
+msgstr "Binär"
+
+#: src/resources/ui/MainWindow.glade:484
+msgctxt "Main window"
+msgid "Compound"
+msgstr "Ternär"
+
+#: src/resources/ui/MainWindow.glade:509
+msgctxt "Main window"
+msgid "Accents"
+msgstr "Betonung"
+
+#: src/resources/ui/MainWindow.glade:550
+msgctxt "Main window"
+msgid "Start"
+msgstr "Start"
+
+#: src/resources/ui/MainWindow.glade:582
+msgctxt "Main window"
+msgid "Target"
+msgstr "Ziel"
+
+#: src/resources/ui/MainWindow.glade:614
+msgctxt "Main window"
+msgid "Accel"
+msgstr "Änderung"
+
+#: src/resources/ui/MainWindow.glade:645
+msgctxt "Main window"
+msgid "Trainer"
+msgstr "Trainer"
+
+#: src/resources/ui/MainWindow.glade:667
+msgctxt "Main window"
+msgid "_Start"
+msgstr "_Start"
+
+#: src/resources/ui/MainWindow.glade:831
+msgctxt "Main window"
+msgid "_Accents"
+msgstr "_Betonung"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:836
+msgctxt "Main window"
+msgid "Toggle accentuation"
+msgstr "Betonung Ein/Aus"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:855
+msgctxt "Main window"
+msgid "Application menu"
+msgstr "Hauptmenü"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:879
+msgctxt "Main window"
+msgid "Profiles"
+msgstr "Profile"
+
+#: src/resources/ui/MainWindow.glade:905
+msgctxt "Main window"
+msgid "_Trainer"
+msgstr "_Trainer"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:910
+msgctxt "Main window"
+msgid "Toggle tempo trainer"
+msgstr "Trainer Ein/Aus"
+
+#: src/resources/ui/SettingsDialog.glade:92
+msgctxt "Preferences dialog"
+msgid "Startup"
+msgstr "Programmstart"
+
+#: src/resources/ui/SettingsDialog.glade:108
+msgctxt "Preferences dialog"
+msgid "_Restore previous profile:"
+msgstr "Letztes Profil _wiederherstellen:"
+
+#: src/resources/ui/SettingsDialog.glade:123
+msgctxt "Preferences dialog"
+msgid "Animations"
+msgstr "Animation"
+
+#: src/resources/ui/SettingsDialog.glade:151
+msgctxt "Preferences dialog"
+msgid "Off"
+msgstr "Aus"
+
+#: src/resources/ui/SettingsDialog.glade:152
+msgctxt "Preferences dialog"
+msgid "Beats only"
+msgstr "Nur Hauptschläge"
+
+#: src/resources/ui/SettingsDialog.glade:153
+msgctxt "Preferences dialog"
+msgid "Beats and Subdivisions"
+msgstr "Hauptschläge und Teilungen"
+
+#: src/resources/ui/SettingsDialog.glade:167
+msgctxt "Preferences dialog"
+msgid "Accent Animations:"
+msgstr "Betonungs-Animationen:"
+
+#: src/resources/ui/SettingsDialog.glade:180
+msgctxt "Preferences dialog"
+msgid "Synchronization (ms):"
+msgstr "Synchronisation (ms):"
+
+#. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
+#: src/resources/ui/SettingsDialog.glade:191
+msgid ""
+"Be cautious! An additional static time gap between video output (animation) "
+"and the audio stream might be useful for compensating unknown external "
+"latencies. However, it also may cause major problems up to total animation "
+"failure, especially on large (absolute) values."
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:246
+msgctxt "Preferences dialog"
+msgid "_General"
+msgstr "_Allgemein"
+
+#: src/resources/ui/SettingsDialog.glade:270
+msgctxt "Preferences dialog"
+msgid "Falloff:"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:283
+msgctxt "Preferences dialog"
+msgid "Volume:"
+msgstr "Lautstärke:"
+
+#: src/resources/ui/SettingsDialog.glade:296
+msgctxt "Preferences dialog"
+msgid "Frequency:"
+msgstr "Frequenz:"
+
+#: src/resources/ui/SettingsDialog.glade:408
+msgctxt "Preferences dialog"
+msgid "Audio"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:424
+msgctxt "Preferences dialog"
+msgid "Audio backend:"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:437
+msgctxt "Preferences dialog"
+msgid "Pulseaudio"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:438
+msgctxt "Preferences dialog"
+msgid "Alsa"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:451
+msgctxt "Preferences dialog"
+msgid "Sound"
+msgstr "Ton"
+
+#: src/resources/ui/SettingsDialog.glade:542
+msgctxt "Preferences dialog"
+msgid "_Sound & Audio"
+msgstr "T_on und Audiosystem"
+
+#: src/resources/ui/SettingsDialog.glade:597
+msgctxt "Preferences dialog"
+msgid "_Reset to defaults"
+msgstr "_Zurücksetzen"
+
+#: src/resources/ui/SettingsDialog.glade:632
+msgctxt "Preferences dialog"
+msgid "Short_cuts"
+msgstr "Tasten_kürzel"
+
+#: src/resources/ui/SettingsDialog.glade:653
+msgctxt "Preferences dialog"
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#. Shortcuts table header title (first column)
+#: src/SettingsDialog.cpp:120
+msgid "Action"
+msgstr "Aktion"
+
+#. Shortcuts table header title (second column)
+#: src/SettingsDialog.cpp:126
+msgid "Shortcut"
+msgstr "Tastenkombination"
+
+#. Group title for shortcuts regarding application actions
+#: src/Shortcut.cpp:28
+msgctxt "Shortcut group title"
+msgid "Application"
+msgstr "Anwendung"
+
+#: src/Shortcut.cpp:30
+msgctxt "Shortcut title"
+msgid "Show Primary Menu"
+msgstr "Hauptmenü anzeigen"
+
+#: src/Shortcut.cpp:31
+msgctxt "Shortcut title"
+msgid "Show Profiles"
+msgstr "Profile anzeigen"
+
+#: src/Shortcut.cpp:32
+msgctxt "Shortcut title"
+msgid "Show Preferences"
+msgstr "Einstellungen anzeigen"
+
+#: src/Shortcut.cpp:33
+msgctxt "Shortcut title"
+msgid "Show Keyboard Shortcuts"
+msgstr "Tastenkürzel anzeigen"
+
+#: src/Shortcut.cpp:34
+msgctxt "Shortcut title"
+msgid "Show Help"
+msgstr "Hilfe anzeigen"
+
+#: src/Shortcut.cpp:35
+msgctxt "Shortcut title"
+msgid "Show About"
+msgstr "Programminformationen anzeigen"
+
+#: src/Shortcut.cpp:36
+msgctxt "Shortcut title"
+msgid "Quit"
+msgstr "Beenden"
+
+#. Group title for shortcuts regarding view actions
+#: src/Shortcut.cpp:39
+msgctxt "Shortcut group title"
+msgid "View"
+msgstr "Ansicht"
+
+#: src/Shortcut.cpp:41
+msgctxt "Shortcut title"
+msgid "Show Accents"
+msgstr "Betonung anzeigen"
+
+#: src/Shortcut.cpp:42
+msgctxt "Shortcut title"
+msgid "Show Trainer"
+msgstr "Trainer anzeigen"
+
+#: src/Shortcut.cpp:43
+msgctxt "Shortcut title"
+msgid "Full Screen"
+msgstr "Vollbild"
+
+#. Group title for shortcuts regarding transport actions
+#: src/Shortcut.cpp:46
+msgctxt "Shortcut group title"
+msgid "Transport"
+msgstr "Transport"
+
+#: src/Shortcut.cpp:48
+msgctxt "Shortcut title"
+msgid "Start / Stop"
+msgstr "Start / Stop"
+
+#. Group title for shortcuts regarding volume actions
+#: src/Shortcut.cpp:51
+msgctxt "Shortcut group title"
+msgid "Volume"
+msgstr "Lautstärke:"
+
+#: src/Shortcut.cpp:53
+msgctxt "Shortcut title"
+msgid "Volume +1"
+msgstr "Lautstärke +1"
+
+#: src/Shortcut.cpp:54
+msgctxt "Shortcut title"
+msgid "Volume -1"
+msgstr "Lautstärke -1"
+
+#: src/Shortcut.cpp:55
+msgctxt "Shortcut title"
+msgid "Volume +10"
+msgstr "Lautstärke +10"
+
+#: src/Shortcut.cpp:56
+msgctxt "Shortcut title"
+msgid "Volume -10"
+msgstr "Lautstärke -10"
+
+#. Group title for shortcuts regarding tempo actions
+#: src/Shortcut.cpp:59
+msgctxt "Shortcut group title"
+msgid "Tempo"
+msgstr "Tempo"
+
+#: src/Shortcut.cpp:61
+msgctxt "Shortcut title"
+msgid "Tempo +1"
+msgstr "Tempo +1"
+
+#: src/Shortcut.cpp:62
+msgctxt "Shortcut title"
+msgid "Tempo -1"
+msgstr "Tempo -1"
+
+#: src/Shortcut.cpp:63
+msgctxt "Shortcut title"
+msgid "Tempo +10"
+msgstr "Tempo +10"
+
+#: src/Shortcut.cpp:64
+msgctxt "Shortcut title"
+msgid "Tempo -10"
+msgstr "Tempo -10"
+
+#. Group title for shortcuts regarding accent actions
+#: src/Shortcut.cpp:67
+msgctxt "Shortcut group title"
+msgid "Accents"
+msgstr "Betonung"
+
+#: src/Shortcut.cpp:69
+msgctxt "Shortcut title"
+msgid "Enable / Disable Accentuation"
+msgstr "Betonung Ein / Aus"
+
+#: src/Shortcut.cpp:70
+msgctxt "Shortcut title"
+msgid "Select Simple 1 Meter"
+msgstr "Metrum 1 (Binär)"
+
+#: src/Shortcut.cpp:71
+msgctxt "Shortcut title"
+msgid "Select Simple 2 Meter"
+msgstr "Metrum 2 (Binär)"
+
+#: src/Shortcut.cpp:72
+msgctxt "Shortcut title"
+msgid "Select Simple 3 Meter"
+msgstr "Metrum 3 (Binär)"
+
+#: src/Shortcut.cpp:73
+msgctxt "Shortcut title"
+msgid "Select Simple 4 Meter"
+msgstr "Metrum 4 (Binär)"
+
+#: src/Shortcut.cpp:74
+msgctxt "Shortcut title"
+msgid "Select Compound 1 Meter"
+msgstr "Metrum 1 (Ternär)"
+
+#: src/Shortcut.cpp:75
+msgctxt "Shortcut title"
+msgid "Select Compound 2 Meter"
+msgstr "Metrum 2 (Ternär)"
+
+#: src/Shortcut.cpp:76
+msgctxt "Shortcut title"
+msgid "Select Compound 3 Meter"
+msgstr "Metrum 3 (Ternär)"
+
+#: src/Shortcut.cpp:77
+msgctxt "Shortcut title"
+msgid "Select Compound 4 Meter"
+msgstr "Metrum 4 (Ternär)"
+
+#: src/Shortcut.cpp:78
+msgctxt "Shortcut title"
+msgid "Select Custom Meter"
+msgstr "Eigenes Metrum"
+
+#. Group title for shortcuts regarding trainer actions
+#: src/Shortcut.cpp:81
+msgctxt "Shortcut group title"
+msgid "Trainer"
+msgstr "Trainer"
+
+#: src/Shortcut.cpp:83
+msgctxt "Shortcut title"
+msgid "Enable / Disable Trainer"
+msgstr "Trainer Ein / Aus"
+
+#: src/resources/gmetronome.desktop.in:5
+msgid "GMetronome"
+msgstr "GMetronome"
+
+#: src/resources/gmetronome.desktop.in:6
+msgid "Metronome application"
+msgstr "Ein Metronom"

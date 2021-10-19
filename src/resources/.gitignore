@@ -1,0 +1,8 @@
+/.deps/
+/Makefile
+/Makefile.in
+/resources.cpp
+/org.gmetronome.gschema.valid
+/.dirstamp
+/gmetronome.desktop
+/TAGS

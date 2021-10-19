@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (C) 2020 The GMetronome Team
+ 
+ This file is part of GMetronome.
+
+ GMetronome is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ GMetronome is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<schemalist>
+  
+  <enum id="org.gmetronome.AudioBackend">
+    <value nick='pulseaudio' value='0'/>
+    <value nick='alsa' value='1'/>
+  </enum>
+  
+  <enum id="org.gmetronome.SoundFalloff">
+    <value nick='linear' value='0'/>
+    <value nick='polynomial' value='1'/>
+  </enum>
+
+  <enum id="org.gmetronome.MeterAnimation">
+    <value nick='off' value='0'/>
+    <value nick='beat' value='1'/>
+    <value nick='all' value='2'/>
+  </enum>
+
+  <!--
+  <schema id="org.gmetronome.preferences.custom-shortcut" >
+    <key name="action-name" type="s">
+      <default>''</default> 
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="action-target" type="s">
+      <default>''</default>
+      <summary></summary>
+      <description></description>  
+    </key>
+    <key name="accelerator" type="s">
+      <default>''</default> 
+      <summary></summary>
+      <description></description>
+    </key>
+  </schema>
+  -->
+  
+  <schema id="org.gmetronome.preferences.shortcuts"
+	  path="/org/gmetronome/preferences/shortcuts/">
+    
+    <key name="quit" type="s">
+      <default>'&lt;Primary&gt;q'</default> 
+      <summary>Keyboard shortcut to quit the application</summary>
+    </key>
+    <key name="show-primary-menu" type="s">
+      <default>'F10'</default>
+      <summary>Keyboard shortcut to show the primary menu</summary>
+    </key>
+    <key name="show-profiles" type="s">
+      <default>'F9'</default> 
+      <summary>Keyboard shortcut to show the profiles menu</summary>
+    </key>
+    <key name="show-preferences" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to show the preferences dialog</summary>
+    </key>
+    <key name="show-shortcuts" type="s">
+      <default>'&lt;Primary&gt;question'</default> 
+      <summary>Keyboard shortcut to show the help for keyboard shortcuts</summary>
+    </key>
+    <key name="show-help" type="s">
+      <default>'F1'</default> 
+      <summary>Keyboard shortcut to show the help</summary>
+    </key>
+    <key name="show-about" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to show the about dialog</summary>
+    </key>
+    <key name="show-meter" type="s">
+      <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default> 
+      <summary>Keyboard shortcut to toggle meter interface</summary>
+    </key>
+    <key name="show-trainer" type="s">
+      <default>'&lt;Primary&gt;&lt;Shift&gt;t'</default> 
+      <summary>Keyboard shortcut to toggle trainer interface</summary>
+    </key>
+    <key name="full-screen" type="s">
+      <default>'F11'</default> 
+      <summary>Keyboard shortcut to toggle full screen mode</summary>
+    </key>
+    <key name="start" type="s">
+      <default>'&lt;Primary&gt;s'</default> 
+      <summary>Keyboard shortcut to start or stop the metronome</summary>
+    </key>
+    <key name="volume-increase-1" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to increase the volume by 1 percent</summary>
+    </key>
+    <key name="volume-decrease-1" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to decrease the volume by 1 percent</summary>
+    </key>
+    <key name="volume-increase-10" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to increase the volume by 10 percent</summary>
+    </key>
+    <key name="volume-decrease-10" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
+    </key>
+    <key name="tempo-increase-1" type="s">
+      <default>'&lt;Primary&gt;Up'</default> 
+      <summary>Keyboard shortcut to increase the tempo by 1 bpm</summary>
+    </key>
+    <key name="tempo-decrease-1" type="s">
+      <default>'&lt;Primary&gt;Down'</default> 
+      <summary>Keyboard shortcut to decrease the tempo by 1 bpm</summary>
+    </key>
+    <key name="tempo-increase-10" type="s">
+      <default>'&lt;Primary&gt;Page_Up'</default> 
+      <summary>Keyboard shortcut to increase the tempo by 10 bpm</summary>
+    </key>
+    <key name="tempo-decrease-10" type="s">
+      <default>'&lt;Primary&gt;Page_Down'</default> 
+      <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
+    </key>
+    <key name="meter-enabled" type="s">
+      <default>'&lt;Primary&gt;a'</default> 
+      <summary>Keyboard shortcut to toggle metric accentuation</summary>
+    </key>
+    <key name="meter-select-1-simple" type="s">
+      <default>'&lt;Primary&gt;1'</default> 
+      <summary>Keyboard shortcut to select the simple single meter</summary>
+    </key>
+    <key name="meter-select-2-simple" type="s">
+      <default>'&lt;Primary&gt;2'</default> 
+      <summary>Keyboard shortcut to select the simple duple meter</summary>
+    </key>
+    <key name="meter-select-3-simple" type="s">
+      <default>'&lt;Primary&gt;3'</default> 
+      <summary>Keyboard shortcut to select the simple triple meter</summary>
+    </key>
+    <key name="meter-select-4-simple" type="s">
+      <default>'&lt;Primary&gt;4'</default> 
+      <summary>Keyboard shortcut to select the simple quadruple meter</summary>
+    </key>
+    <key name="meter-select-1-compound" type="s">
+      <default>'&lt;Primary&gt;5'</default> 
+      <summary>Keyboard shortcut to select the compound single meter</summary>
+    </key>
+    <key name="meter-select-2-compound" type="s">
+      <default>'&lt;Primary&gt;6'</default> 
+      <summary>Keyboard shortcut to select the compound duple meter</summary>
+    </key>
+    <key name="meter-select-3-compound" type="s">
+      <default>'&lt;Primary&gt;7'</default> 
+      <summary>Keyboard shortcut to select the compound triple meter</summary>
+    </key>
+    <key name="meter-select-4-compound" type="s">
+      <default>'&lt;Primary&gt;8'</default> 
+      <summary>Keyboard shortcut to select the compound quadruple meter</summary>
+    </key>
+    <key name="meter-select-custom" type="s">
+      <default>'&lt;Primary&gt;0'</default> 
+      <summary>Keyboard shortcut to select the custom meter</summary>
+    </key>
+    <key name="trainer-enabled" type="s">
+      <default>'&lt;Primary&gt;t'</default> 
+      <summary>Keyboard shortcut to toggle tempo trainer</summary>
+    </key>
+    <key name="custom-shortcuts" type="as">
+      <default>[]</default> 
+      <summary></summary>
+      <description></description>
+    </key>
+  </schema>
+  
+  <schema id="org.gmetronome.preferences" path="/org/gmetronome/preferences/">
+    
+    <key name="volume" type="d">
+      <range min="0." max="100."/>
+      <default>80.</default> 
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="restore-profile" type="b">
+      <default>true</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="meter-animation" enum="org.gmetronome.MeterAnimation">
+      <default>'all'</default> 
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="animation-sync" type="d">
+      <range min="-10000." max="10000."/>
+      <default>0.0</default> 
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="sound-high-frequency" type="d">
+      <range min="20." max="20000."/>
+      <default>1479.978</default> <!-- F#6 -->
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="sound-high-volume" type="d">
+      <range min="0." max="100."/>
+      <default>100.0</default>
+      <summary></summary>
+      <description></description>  
+    </key>    
+    <key name="sound-high-falloff" enum="org.gmetronome.SoundFalloff">
+      <default>'linear'</default> 
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="sound-mid-frequency" type="d">
+      <range min="20." max="20000."/>
+      <default>1108.731</default> <!-- C#6 -->
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="sound-mid-volume" type="d">
+      <range min="0." max="100."/>
+      <default>100.0</default>
+      <summary></summary>
+      <description></description>  
+    </key>    
+    <key name="sound-mid-falloff" enum="org.gmetronome.SoundFalloff">
+      <default>'linear'</default> 
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="sound-low-frequency" type="d">
+      <range min="20." max="20000."/>
+      <default>1108.731</default> <!-- C#6 -->
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="sound-low-volume" type="d">
+      <range min="0." max="100."/>
+      <default>40</default>
+      <summary></summary>
+      <description></description>  
+    </key>    
+    <key name="sound-low-falloff" enum="org.gmetronome.SoundFalloff">
+      <default>'linear'</default> 
+      <summary></summary>
+      <description></description>
+    </key>    
+    <key name="audio-backend" enum="org.gmetronome.AudioBackend">
+      <default>'pulseaudio'</default> 
+      <summary>Audio backend</summary>
+      <description></description>
+    </key>    
+
+    <child name="shortcuts" schema="org.gmetronome.preferences.shortcuts"/>
+
+  </schema>
+  
+  <schema id="org.gmetronome.state" path="/org/gmetronome/state/">
+    <key name="profiles-select" type="s">
+      <default>''</default>
+      <summary>Selected profile</summary>
+      <description></description>
+    </key>
+    <key name="show-meter" type="b">
+      <default>true</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="show-trainer" type="b">
+      <default>false</default>
+      <summary></summary>
+      <description></description>
+    </key>    
+  </schema>
+  
+  <schema id="org.gmetronome" path="/org/gmetronome/">
+    <child name="preferences" schema="org.gmetronome.preferences"/>
+    <child name="state" schema="org.gmetronome.state"/>
+  </schema>
+
+</schemalist>

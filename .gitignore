@@ -1,0 +1,31 @@
+# Autotools
+*.o
+*~
+\#*\#
+/Makefile
+/Makefile.in
+/aclocal.m4
+/autom4te.cache/
+/build/
+/install/
+/compile
+/config.h
+/config.h.in
+/config.log
+/config.status
+/configure
+/depcomp
+/install-sh
+/missing
+/.deps/
+/stamp-h1
+/TAGS
+/ABOUT-NLS
+
+# il8n
+/config.guess
+/config.rpath
+/config.sub
+/intltool-extract.in
+/intltool-merge.in
+/intltool-update.in
