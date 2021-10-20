@@ -331,12 +331,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="tapButton">
+                  <object class="GtkButton" id="tempoTapButton">
                     <property name="label" translatable="yes" context="Main window">Ta_p</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="focus-on-click">False</property>
                     <property name="receives-default">True</property>
+                    <property name="action-name">app.tempo-tap</property>
                     <property name="use-underline">True</property>
                   </object>
                   <packing>
