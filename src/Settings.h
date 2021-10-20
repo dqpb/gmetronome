@@ -95,6 +95,7 @@ const Glib::ustring  kKeyShortcutsTempoIncrease1        {"tempo-increase-1"};
 const Glib::ustring  kKeyShortcutsTempoDecrease1        {"tempo-decrease-1"};
 const Glib::ustring  kKeyShortcutsTempoIncrease10       {"tempo-increase-10"};
 const Glib::ustring  kKeyShortcutsTempoDecrease10       {"tempo-decrease-10"};
+const Glib::ustring  kKeyShortcutsTempoTap              {"tempo-tap"};
 const Glib::ustring  kKeyShortcutsMeterEnabled          {"meter-enabled"};
 const Glib::ustring  kKeyShortcutsMeterSelect1Simple    {"meter-select-1-simple"};
 const Glib::ustring  kKeyShortcutsMeterSelect2Simple    {"meter-select-2-simple"};
