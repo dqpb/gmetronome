@@ -97,6 +97,9 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { kKeyShortcutsTempoDecrease10,
     { kActionTempoDecrease, Glib::Variant<double>::create(10.) }
   },
+  { kKeyShortcutsTempoTap,
+    { kActionTempoTap, {} }
+  },
   { kKeyShortcutsTrainerEnabled,
     { kActionTrainerEnabled, {} }
   },

@@ -62,6 +62,7 @@ const std::vector<ShortcutEntry>& ShortcutList()
       { kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1") },
       { kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10") },
       { kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10") },
+      { kKeyShortcutsTempoTap,               C_("Shortcut title", "Tempo Tap") },
         
       // Group title for shortcuts regarding accent actions
       { {}, C_("Shortcut group title", "Accents") },
