@@ -134,6 +134,10 @@
       <default>'&lt;Primary&gt;Page_Down'</default> 
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
+    <key name="tempo-tap" type="s">
+      <default>'disabled'</default> 
+      <summary>Keyboard shortcut to tap the tempo</summary>
+    </key>
     <key name="meter-enabled" type="s">
       <default>'&lt;Primary&gt;a'</default> 
       <summary>Keyboard shortcut to toggle metric accentuation</summary>
