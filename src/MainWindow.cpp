@@ -842,20 +842,20 @@ void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
 
 void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
 {
-  static const Glib::ustring kAccelUpSymbol     = ("▴");
-  static const Glib::ustring kAccelDownSymbol   = ("▾");
-  static const Glib::ustring kAccelStableSymbol = ("•");
+  static const Glib::ustring kAccelUpSymbol     = (u8"▴");
+  static const Glib::ustring kAccelDownSymbol   = (u8"▾");
+  static const Glib::ustring kAccelStableSymbol = (u8"•");
 
   static const int precision = 2;
-  
+
   double tempo_integral;
   double tempo_fraction;
   
   tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
-
-  int tempo_integral_int = tempo_integral;
-  int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
   
+  int tempo_integral_int = tempo_integral;
+  int tempo_fraction_int = tempo_fraction * std::pow(10, precision);
+
   auto text = Glib::ustring::format(tempo_integral_int);
   
   if (text != tempo_integral_label_->get_text())
