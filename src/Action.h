@@ -38,6 +38,7 @@ const Glib::ustring  kActionVolumeDecrease       {"volume-decrease"};
 const Glib::ustring  kActionTempo                {"tempo"};
 const Glib::ustring  kActionTempoIncrease        {"tempo-increase"};
 const Glib::ustring  kActionTempoDecrease        {"tempo-decrease"};
+const Glib::ustring  kActionTempoTap             {"tempo-tap"};
 const Glib::ustring  kActionTrainerEnabled       {"trainer-enabled"};
 const Glib::ustring  kActionTrainerStart         {"trainer-start"};
 const Glib::ustring  kActionTrainerTarget        {"trainer-target"};
@@ -267,6 +268,20 @@ const ActionDescriptionMap kActionDescriptions =
       {},
       {},
       true
+    }
+  },
+
+  /* Action         : kActionTempoTap
+   * Scope          : Application
+   * Parameter type : -
+   * State type     : -
+   * State value    : -
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionTempoTap,
+    {
+      ActionScope::kApp, {}, {}, {}, true
     }
   },
   
