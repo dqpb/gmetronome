@@ -80,6 +80,7 @@ void Application::initActions()
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
       {kActionTempoIncrease,   sigc::mem_fun(*this, &Application::onTempoIncrease)},
       {kActionTempoDecrease,   sigc::mem_fun(*this, &Application::onTempoDecrease)},
+      {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
       {kActionTrainerEnabled,  sigc::mem_fun(*this, &Application::onTrainerEnabled)},
       {kActionTrainerStart,    sigc::mem_fun(*this, &Application::onTrainerStart)},
       {kActionTrainerTarget,   sigc::mem_fun(*this, &Application::onTrainerTarget)},
@@ -513,6 +514,31 @@ void Application::onTempoDecrease(const Glib::VariantBase& value)
     = Glib::Variant<double>::create(tempo_state);
   
   activate_action(kActionTempo, new_tempo_state);
+}
+
+void Application::onTempoTap(const Glib::VariantBase& value)
+{
+  using std::literals::chrono_literals::operator""min;
+
+  static auto now = std::chrono::steady_clock::now();
+  static auto last_timepoint = now;
+
+  now = std::chrono::steady_clock::now();
+  
+  auto duration = now - last_timepoint;
+  
+  if ( duration.count() > 0 )
+  {
+    double bpm = 1min / duration;
+    
+    if ( bpm >= kMinimumTempo && bpm <= kMaximumTempo )
+    {
+      Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( bpm );
+      activate_action(kActionTempo, new_tempo_state);
+    }
+  }
+  
+  last_timepoint = now;
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
