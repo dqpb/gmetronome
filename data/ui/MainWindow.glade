@@ -331,7 +331,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="tempoTapButton">
+                  <object class="GtkButton" id="tapButton">
                     <property name="label" translatable="yes" context="Main window">Ta_p</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
