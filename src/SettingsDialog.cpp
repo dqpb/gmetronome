@@ -28,6 +28,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
 : Gtk::Dialog(cobject),
   builder_(builder)
 {
+  builder_->get_widget("animationComboBox", animation_combo_box_);
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);  
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);  
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);  
@@ -72,7 +73,8 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
 
   animation_sync_spin_button_->signal_value_changed()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
-  
+
+  settings_prefs_->bind(kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
   settings_prefs_->bind(kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundHighFrequency, sound_high_freq_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundHighVolume, sound_high_vol_adjustment_->property_value());
