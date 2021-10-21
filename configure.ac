@@ -3,7 +3,7 @@ AC_INIT([GMetronome],
 	[dqpb@mailbox.org],
 	[gmetronome])
 
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([foreign -Wall])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
