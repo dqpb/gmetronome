@@ -58,6 +58,22 @@ const Glib::ustring kSchemaPathShortcuts {
   kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
 };
 
+/*
+ * org.gmetronome enum types
+ */
+enum AudioBackend
+{
+  kAudioBackendPulseaudio = 0,
+  kAudioBackendAlsa       = 1,
+};
+
+enum MeterAnimation
+{
+  kMeterAnimationOff  = 0,
+  kMeterAnimationBeat = 1,
+  kMeterAnimationAll  = 2,
+};
+
 /* 
  * org.gmetronome.preferences keys
  */
