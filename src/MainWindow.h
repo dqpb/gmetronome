@@ -159,7 +159,7 @@ protected:
 
   void updateAccentAnimation(const audio::Statistics& stats);
   void updateCurrentTempo(const audio::Statistics& stats);
-  void updateTickerStatistics(audio::Statistics stats);
+  void updateTickerStatistics(const audio::Statistics& stats);
   
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);

@@ -877,9 +877,9 @@ void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
     tempo_divider_label_->set_text(text);
 }
 
-void MainWindow::updateTickerStatistics(audio::Statistics stats)
+void MainWindow::updateTickerStatistics(const audio::Statistics& stats)
 {
-  updateCurrentTempo(stats);  
+  updateCurrentTempo(stats);
   updateAccentAnimation(stats);
 }
 
