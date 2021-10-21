@@ -143,15 +143,14 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
+                  <object class="GtkComboBoxText" id="animationComboBox">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
-                    <property name="active-id">2</property>
+                    <property name="active-id">all</property>
                     <items>
-                      <item id="0" translatable="yes" context="Preferences dialog">Off</item>
-                      <item id="1" translatable="yes" context="Preferences dialog">Beats only</item>
-                      <item id="2" translatable="yes" context="Preferences dialog">Beats and Subdivisions</item>
+                      <item id="off" translatable="yes" context="Preferences dialog">Off</item>
+                      <item id="beat" translatable="yes" context="Preferences dialog">Beats only</item>
+                      <item id="all" translatable="yes" context="Preferences dialog">Beats and Subdivisions</item>
                     </items>
                   </object>
                   <packing>
@@ -162,7 +161,6 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
