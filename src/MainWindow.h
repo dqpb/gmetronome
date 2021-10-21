@@ -108,7 +108,9 @@ protected:
   Glib::RefPtr<Gtk::Adjustment> beats_adjustment_;
   
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
-
+  
+  // cached preferences
+  int meter_animation_;
   double animation_sync_usecs_;
   
   // Initialization
@@ -163,7 +165,8 @@ protected:
   
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
-  void updateAnimationSync();
+  void updatePrefAnimationSync();
+  void updatePrefMeterAnimation();
 };
 
 #endif//__MAIN_WINDOW_H__

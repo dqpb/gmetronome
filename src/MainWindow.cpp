@@ -120,7 +120,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   initAbout();
   initBindings();
 
-  updateAnimationSync();
+  updatePrefAnimationSync();
+  updatePrefMeterAnimation();
 }
 
 
@@ -836,8 +837,22 @@ void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
   
   time += animation_sync_usecs_;
   
-  if ( next_accent < accent_button_grid_.size())
-    accent_button_grid_[next_accent].scheduleAnimation(time);
+  if ( next_accent < accent_button_grid_.size() )
+  {
+    switch (meter_animation_)
+    {
+    case kMeterAnimationBeat:
+      if (next_accent % accent_button_grid_.grouping() != 0)
+	break;
+
+    case kMeterAnimationAll:
+      accent_button_grid_[next_accent].scheduleAnimation(time);
+      break;
+      
+    default:
+      break;
+    };
+  }
 }
 
 void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
@@ -880,18 +895,29 @@ void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
 void MainWindow::updateTickerStatistics(const audio::Statistics& stats)
 {
   updateCurrentTempo(stats);
-  updateAccentAnimation(stats);
+  
+  if (meter_animation_ != kMeterAnimationOff)
+    updateAccentAnimation(stats);
 }
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
   if (key == kKeyPrefsAnimationSync)
   {
-    updateAnimationSync();
+    updatePrefAnimationSync();
+  }
+  else if (key == kKeyPrefsMeterAnimation)
+  {
+    updatePrefMeterAnimation();
   }
 }
 
-void MainWindow::updateAnimationSync()
+void MainWindow::updatePrefMeterAnimation()
+{
+  meter_animation_ = settings_prefs_->get_enum(kKeyPrefsMeterAnimation);
+}
+
+void MainWindow::updatePrefAnimationSync()
 {
   animation_sync_usecs_ = 
     std::round( settings_prefs_->get_double(kKeyPrefsAnimationSync) * 1000.);
