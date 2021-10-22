@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2017 The GMetronome Team
+ * Copyright (C) 2020 The GMetronome Team
  * 
- * This file is part of BookReader.
+ * This file is part of GMetronome.
  *
- * BookReader is free software: you can redistribute it and/or modify
+ * GMetronome is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BookReader is distributed in the hope that it will be useful,
+ * GMetronome is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BookReader.  If not, see <http://www.gnu.org/licenses/>.
+ * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "AudioBuffer.h"
@@ -25,38 +25,33 @@ namespace audio {
   
   constexpr SampleSpec Buffer::DefaultSpec;
   
-  Buffer::Buffer()
-    : _data(),
-      _spec(DefaultSpec)
-  {}
-  
-  Buffer::Buffer(const Buffer& buffer) {
-    _data = buffer._data;
-    _spec = buffer._spec;
-  }
-  
-  Buffer::Buffer(Buffer&& buffer) {
-    _data = std::move(buffer._data);
-    _spec = std::move(buffer._spec);
-  }
-  
   Buffer::Buffer(size_type nbytes, const SampleSpec& spec)
-    : _data(nbytes,0),
-      _spec(spec)
+    : data_(nbytes,0),
+      spec_(spec)
   {}
   
   Buffer::Buffer(microseconds duration, const SampleSpec& spec)
-    : _data(usecsToBytes(duration,spec),0),
-      _spec(spec)
+    : data_(usecsToBytes(duration,spec),0),
+      spec_(spec)
   {}
 
   Buffer::Buffer(byte_container data, const SampleSpec& spec) {
-    std::swap(_data,data);
-    _spec = spec;
+    std::swap(data_,data);
+    spec_ = spec;
   }
   
   Buffer::Buffer(const std::string& filename) {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
+  }
+
+  Buffer::Buffer(const Buffer& buffer) {
+    data_ = buffer.data_;
+    spec_ = buffer.spec_;
+  }
+  
+  Buffer::Buffer(Buffer&& buffer) {
+    data_ = std::move(buffer.data_);
+    spec_ = std::move(buffer.spec_);
   }
 
   Buffer::~Buffer() {}
@@ -70,21 +65,21 @@ namespace audio {
   }
 
   microseconds Buffer::time() const {
-    return bytesToUsecs(_data.size(), _spec);
+    return bytesToUsecs(data_.size(), spec_);
   }
 
   Buffer& Buffer::operator=(const Buffer& buffer) {
     if (&buffer != this) {
-      _data = buffer._data;
-      _spec = buffer._spec;
+      data_ = buffer.data_;
+      spec_ = buffer.spec_;
     }
     return *this;
   }
   
   Buffer& Buffer::operator=(Buffer&& buffer) {
     if (&buffer != this) {
-      _data = std::move(buffer._data);
-      _spec = std::move(buffer._spec);
+      data_ = std::move(buffer.data_);
+      spec_ = std::move(buffer.spec_);
     }
     return *this;
   }
@@ -97,69 +92,13 @@ namespace audio {
   }
   
   void Buffer::swap(Buffer& buffer) {
-    std::swap(_data, buffer._data);
-    std::swap(_spec, buffer._spec);
+    std::swap(data_, buffer.data_);
+    std::swap(spec_, buffer.spec_);
   }
 
-  Buffer::operator BufferView () {
-    return BufferView(*this);
+  Buffer::size_type Buffer::frames() const {
+    auto fs = frameSize(spec_);
+    return (fs == 0) ? 0 : data_.size() / fs;
   }
 
-
-  BufferView::BufferView(const Buffer& buffer)
-    : BufferView(buffer, buffer.begin(), buffer.end())
-  {}
-
-  BufferView::BufferView(const Buffer& buffer,
-                         Buffer::const_iterator begin,
-                         Buffer::const_iterator end)
-    : _buffer(buffer),
-      _begin(begin),
-      _end(end)
-  {}
-  
-  BufferView::BufferView(const Buffer& buffer,
-                         microseconds start,
-                         microseconds duration)
-    : _buffer(buffer)
-  {
-    if (start > buffer.time())
-      _begin = buffer.end();
-    else
-      _begin = buffer.begin() + usecsToBytes(start, buffer.spec());
-    
-    if ((start + duration) > buffer.time())
-      _end = buffer.end();
-    else
-      _end = _begin + usecsToBytes(duration, buffer.spec());
-  }
-  
-  BufferView::BufferView(const BufferView& view,
-                         Buffer::const_iterator begin,
-                         Buffer::const_iterator end)
-    : _buffer(view._buffer),
-      _begin(begin),
-      _end(end)
-  {}
-  
-  Buffer BufferView::resample(const SampleSpec& spec) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-
-  microseconds BufferView::time() const {
-    return bytesToUsecs(size(), spec());
-  }
-
-  bool BufferView::operator==(const Buffer&) const {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-  
-  bool BufferView::operator!=(const Buffer&) const {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-  
-  void BufferView::swap(BufferView&) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-  
 }//namespace audio
