@@ -43,16 +43,16 @@ namespace audio {
       accel_(convertAccelToFrameTime(0.0)),
       meter_({kSingleMeter, kNoDivision, {kAccentMid}}),
       sound_zero_(kMaxChunkDuration_, kSampleSpec_),
-      sound_low_(sound_zero_),
+      sound_weak_(sound_zero_),
       sound_mid_(sound_zero_),
-      sound_high_(sound_zero_),
+      sound_strong_(sound_zero_),
       in_tempo_(tempo_),
       in_target_tempo_(target_tempo_),
       in_accel_(accel_),
       in_meter_(meter_),
-      in_sound_low_(sound_zero_),
+      in_sound_weak_(sound_zero_),
       in_sound_mid_(sound_zero_),
-      in_sound_high_(sound_zero_),
+      in_sound_strong_(sound_zero_),
       out_current_tempo_(0.0),
       out_current_accel_(0.0),
       out_next_accent_(0),
@@ -68,9 +68,9 @@ namespace audio {
     accel_import_flag_.test_and_set();
     target_tempo_import_flag_.test_and_set();
     meter_import_flag_.test_and_set();
-    sound_low_import_flag_.test_and_set();
+    sound_weak_import_flag_.test_and_set();
     sound_mid_import_flag_.test_and_set();
-    sound_high_import_flag_.test_and_set();
+    sound_strong_import_flag_.test_and_set();
     audio_sink_import_flag_.test_and_set();
   }
 
@@ -113,13 +113,13 @@ namespace audio {
     meter_import_flag_.clear(std::memory_order_release);
   }
 
-  void Generator::setSoundHigh(Buffer&& sound)
+  void Generator::setSoundStrong(Buffer&& sound)
   {
     {
       std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(in_sound_high_,sound);
+      std::swap(in_sound_strong_,sound);
     }
-    sound_high_import_flag_.clear(std::memory_order_release);
+    sound_strong_import_flag_.clear(std::memory_order_release);
   }
   
   void Generator::setSoundMid(Buffer&& sound)
@@ -131,13 +131,13 @@ namespace audio {
     sound_mid_import_flag_.clear(std::memory_order_release);
   }
 
-  void Generator::setSoundLow(Buffer&& sound)
+  void Generator::setSoundWeak(Buffer&& sound)
   {
     {
       std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(in_sound_low_,sound);
+      std::swap(in_sound_weak_,sound);
     }
-    sound_low_import_flag_.clear(std::memory_order_release);
+    sound_weak_import_flag_.clear(std::memory_order_release);
   }
   
   Statistics Generator::getStatistics() const
@@ -273,10 +273,10 @@ namespace audio {
     //   ( (next_accent_ << 16) & 0xffff0000 ) | ( frames_left_ & 0x0000ffff ) );
   }
   
-  void Generator::importSoundHigh()
+  void Generator::importSoundStrong()
   {
     std::lock_guard<std::mutex> guard(mutex_);
-    std::swap(sound_high_, in_sound_high_);
+    std::swap(sound_strong_, in_sound_strong_);
   }
   
   void Generator::importSoundMid()
@@ -285,10 +285,10 @@ namespace audio {
     std::swap(sound_mid_, in_sound_mid_);
   }
   
-  void Generator::importSoundLow()
+  void Generator::importSoundWeak()
   {
     std::lock_guard<std::mutex> guard(mutex_);
-    std::swap(sound_low_, in_sound_low_);
+    std::swap(sound_weak_, in_sound_weak_);
   }
 
   void Generator::importAudioSink()
@@ -463,14 +463,14 @@ namespace audio {
 
     recalculateAccelSign();
         
-    if (!sound_high_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(sound_high_, in_sound_high_);
+    if (!sound_strong_import_flag_.test_and_set(std::memory_order_acquire))
+      std::swap(sound_strong_, in_sound_strong_);
       
     if (!sound_mid_import_flag_.test_and_set(std::memory_order_acquire))
       std::swap(sound_mid_, in_sound_mid_);
       
-    if (!sound_low_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(sound_low_, in_sound_low_);    
+    if (!sound_weak_import_flag_.test_and_set(std::memory_order_acquire))
+      std::swap(sound_weak_, in_sound_weak_);    
 
     // we start by filling the audio buffer with zeros
     audio_sink_->write(&(sound_zero_[0]), kMaxChunkFrames_ * frameSize(kSampleSpec_));      
@@ -516,17 +516,17 @@ namespace audio {
       {
         switch (accents[next_accent_])
         {
-        case kAccentHigh:
-          frames_chunk_ = sound_high_.size() / frameSize(kSampleSpec_); 
-          audio_sink_->write(&(sound_high_[0]), sound_high_.size());
+        case kAccentStrong:
+          frames_chunk_ = sound_strong_.size() / frameSize(kSampleSpec_); 
+          audio_sink_->write(&(sound_strong_[0]), sound_strong_.size());
           break;
         case kAccentMid:
           frames_chunk_ = sound_mid_.size() / frameSize(kSampleSpec_); 
           audio_sink_->write(&(sound_mid_[0]), sound_mid_.size());
           break;
-        case kAccentLow:
-          frames_chunk_ = sound_low_.size() / frameSize(kSampleSpec_); 
-          audio_sink_->write(&(sound_low_[0]), sound_low_.size());
+        case kAccentWeak:
+          frames_chunk_ = sound_weak_.size() / frameSize(kSampleSpec_); 
+          audio_sink_->write(&(sound_weak_[0]), sound_weak_.size());
           break;
         default:
           break;
@@ -556,12 +556,12 @@ namespace audio {
       importAccel();
     else if (!meter_import_flag_.test_and_set(std::memory_order_acquire))
       importMeter();
-    else if (!sound_high_import_flag_.test_and_set(std::memory_order_acquire))
-      importSoundHigh();
+    else if (!sound_strong_import_flag_.test_and_set(std::memory_order_acquire))
+      importSoundStrong();
     else if (!sound_mid_import_flag_.test_and_set(std::memory_order_acquire))
       importSoundMid();
-    else if (!sound_low_import_flag_.test_and_set(std::memory_order_acquire))
-      importSoundLow();
+    else if (!sound_weak_import_flag_.test_and_set(std::memory_order_acquire))
+      importSoundWeak();
     else if (!audio_sink_import_flag_.test_and_set(std::memory_order_acquire))
       importAudioSink();
     

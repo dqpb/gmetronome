@@ -414,7 +414,7 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
   double M = ( L + R ) / 2.;
   
   switch ( button_state ) {
-  case kAccentHigh:
+  case kAccentStrong:
   {
     cairo_context->move_to(M,1);
     cairo_context->line_to(L,6);
@@ -436,7 +436,7 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
     cairo_context->rectangle( L, 11, surface_width, 4);
     cairo_context->fill();
   }
-  case kAccentLow:
+  case kAccentWeak:
   {
     cairo_context->rectangle( L, 16, surface_width, 4);
     cairo_context->fill();
@@ -647,7 +647,7 @@ void AccentButtonDrawingArea::draw_animation(const Cairo::RefPtr<Cairo::Context>
 
   switch (button_state_)
   {
-  case kAccentHigh:
+  case kAccentStrong:
     color = getSecondaryColor(style_context);
     color.set_alpha_u(0.9 * animation_alpha_);
     break;
@@ -655,7 +655,7 @@ void AccentButtonDrawingArea::draw_animation(const Cairo::RefPtr<Cairo::Context>
     color = getPrimaryColor(style_context);
     color.set_alpha_u(0.6 * animation_alpha_);
     break;
-  case kAccentLow:
+  case kAccentWeak:
     color = getPrimaryColor(style_context);
     color.set_alpha_u(0.2 * animation_alpha_);
     break;
@@ -733,10 +733,10 @@ void AccentButton::cancelAnimation()
 void AccentButton::on_clicked()
 {
   switch (getAccentState()) {
-  case kAccentHigh: setAccentState(kAccentOff); break;
-  case kAccentMid: setAccentState(kAccentHigh); break;
-  case kAccentLow: setAccentState(kAccentMid); break;
-  case kAccentOff: setAccentState(kAccentLow); break;
+  case kAccentStrong: setAccentState(kAccentOff); break;
+  case kAccentMid: setAccentState(kAccentStrong); break;
+  case kAccentWeak: setAccentState(kAccentMid); break;
+  case kAccentOff: setAccentState(kAccentWeak); break;
   default: break;
   }
   signal_accent_state_changed_.emit();
@@ -754,15 +754,15 @@ bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
 
     switch (getAccentState()) {
     case kAccentOff:
-      setAccentState(kAccentLow);
+      setAccentState(kAccentWeak);
       state_changed = true;
       break;
-    case kAccentLow:
+    case kAccentWeak:
       setAccentState(kAccentMid);
       state_changed = true;
       break;
     case kAccentMid:
-      setAccentState(kAccentHigh);
+      setAccentState(kAccentStrong);
       state_changed = true;
       break;
     default:
@@ -775,15 +775,15 @@ bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
   case GDK_SCROLL_LEFT:
       
     switch (getAccentState()) {
-    case kAccentHigh:
+    case kAccentStrong:
       setAccentState(kAccentMid);
       state_changed = true;
       break;
     case kAccentMid:
-      setAccentState(kAccentLow);
+      setAccentState(kAccentWeak);
       state_changed = true;
       break;
-    case kAccentLow:
+    case kAccentWeak:
       setAccentState(kAccentOff);
       state_changed = true;
       break;

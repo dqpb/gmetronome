@@ -37,18 +37,18 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
-  sound_high_freq_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundHighFreqAdjustment"));
-  sound_high_vol_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundHighVolAdjustment"));
+  sound_strong_freq_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongFreqAdjustment"));
+  sound_strong_vol_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongVolAdjustment"));
   sound_mid_freq_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidFreqAdjustment"));
   sound_mid_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidVolAdjustment"));
-  sound_low_freq_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundLowFreqAdjustment"));
-  sound_low_vol_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundLowVolAdjustment"));
+  sound_weak_freq_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakFreqAdjustment"));
+  sound_weak_vol_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakVolAdjustment"));
 
   settings_ = Gio::Settings::create(kSchemaId);
   settings_prefs_ = settings_->get_child(kSchemaIdPrefsBasename);
@@ -59,29 +59,29 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
                         "state",
                         Gio::SETTINGS_BIND_DEFAULT);
 
-  high_accent_drawing_.setAccentState(kAccentHigh);
+  strong_accent_drawing_.setAccentState(kAccentStrong);
   mid_accent_drawing_.setAccentState(kAccentMid);
-  low_accent_drawing_.setAccentState(kAccentLow);
+  weak_accent_drawing_.setAccentState(kAccentWeak);
 
-  high_accent_drawing_.show();
+  strong_accent_drawing_.show();
   mid_accent_drawing_.show();
-  low_accent_drawing_.show();
+  weak_accent_drawing_.show();
 
-  sound_grid_->attach(high_accent_drawing_, 1, 1);
+  sound_grid_->attach(strong_accent_drawing_, 1, 1);
   sound_grid_->attach(mid_accent_drawing_, 2, 1);
-  sound_grid_->attach(low_accent_drawing_, 3, 1);  
+  sound_grid_->attach(weak_accent_drawing_, 3, 1);  
 
   animation_sync_spin_button_->signal_value_changed()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
 
   settings_prefs_->bind(kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
   settings_prefs_->bind(kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
-  settings_prefs_->bind(kKeyPrefsSoundHighFrequency, sound_high_freq_adjustment_->property_value());
-  settings_prefs_->bind(kKeyPrefsSoundHighVolume, sound_high_vol_adjustment_->property_value());
+  settings_prefs_->bind(kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
+  settings_prefs_->bind(kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundMidFrequency, sound_mid_freq_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
-  settings_prefs_->bind(kKeyPrefsSoundLowFrequency, sound_low_freq_adjustment_->property_value());
-  settings_prefs_->bind(kKeyPrefsSoundLowVolume, sound_low_vol_adjustment_->property_value());
+  settings_prefs_->bind(kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
+  settings_prefs_->bind(kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
 
   shortcuts_reset_button_->signal_clicked()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onResetShortcuts) );

@@ -63,9 +63,9 @@ namespace audio {
   void Ticker::setMeter(Meter&& meter)
   { generator_.setMeter(std::move(meter));}
 
-  void Ticker::setSoundHigh(double frequency, double volume)
+  void Ticker::setSoundStrong(double frequency, double volume)
   {
-    generator_.setSoundHigh(
+    generator_.setSoundStrong(
       generateSound(frequency, volume, kSampleSpec, kSineDuration));
   }
   
@@ -75,9 +75,9 @@ namespace audio {
       generateSound(frequency, volume, kSampleSpec, kSineDuration));
   }
   
-  void Ticker::setSoundLow(double frequency, double volume)
+  void Ticker::setSoundWeak(double frequency, double volume)
   {
-    generator_.setSoundLow(
+    generator_.setSoundWeak(
       generateSound(frequency, volume, kSampleSpec, kSineDuration));
   }
 

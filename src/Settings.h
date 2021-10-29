@@ -81,12 +81,12 @@ const Glib::ustring  kKeyPrefsVolume                    {"volume"};
 const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
 const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
 const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
-const Glib::ustring  kKeyPrefsSoundHighFrequency        {"sound-high-frequency"};
-const Glib::ustring  kKeyPrefsSoundHighVolume           {"sound-high-volume"};
+const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
+const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
 const Glib::ustring  kKeyPrefsSoundMidFrequency         {"sound-mid-frequency"};
 const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
-const Glib::ustring  kKeyPrefsSoundLowFrequency         {"sound-low-frequency"};
-const Glib::ustring  kKeyPrefsSoundLowVolume            {"sound-low-volume"};
+const Glib::ustring  kKeyPrefsSoundWeakFrequency        {"sound-weak-frequency"};
+const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
 const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
 
 /* 

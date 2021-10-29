@@ -64,9 +64,9 @@ namespace audio {
     void setMeter(const Meter& meter);
     void setMeter(Meter&& meter);
     
-    void setSoundHigh(double frequency, double volume);
+    void setSoundStrong(double frequency, double volume);
     void setSoundMid(double frequency, double volume);
-    void setSoundLow(double frequency, double volume);
+    void setSoundWeak(double frequency, double volume);
     
     audio::Statistics getStatistics() const;
     

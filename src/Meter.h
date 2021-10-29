@@ -24,10 +24,10 @@
 
 enum Accent
 {
-  kAccentOff  = 0,
-  kAccentLow  = 1,
-  kAccentMid  = 2,
-  kAccentHigh = 3
+  kAccentOff    = 0,
+  kAccentWeak   = 1,
+  kAccentMid    = 2,
+  kAccentStrong = 3
 };
 
 using AccentPattern = std::vector<Accent>;
@@ -36,16 +36,16 @@ const AccentPattern kAccentPattern_1 = {
   kAccentMid
 };
 const AccentPattern kAccentPattern_2 = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentMid
 };
 const AccentPattern kAccentPattern_3 = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentMid,
   kAccentMid
 };
 const AccentPattern kAccentPattern_4 = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentMid,
   kAccentMid,
   kAccentMid
@@ -55,13 +55,13 @@ const AccentPattern kAccentPattern_1_Simple = {
   kAccentOff
 };
 const AccentPattern kAccentPattern_2_Simple = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentMid,
   kAccentOff
 };
 const AccentPattern kAccentPattern_3_Simple = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentMid,
   kAccentOff,
@@ -69,7 +69,7 @@ const AccentPattern kAccentPattern_3_Simple = {
   kAccentOff
 };
 const AccentPattern kAccentPattern_4_Simple = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentMid,
   kAccentOff,
@@ -84,7 +84,7 @@ const AccentPattern kAccentPattern_1_Compound = {
   kAccentOff
 };
 const AccentPattern kAccentPattern_2_Compound = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentOff,
   kAccentMid,
@@ -92,7 +92,7 @@ const AccentPattern kAccentPattern_2_Compound = {
   kAccentOff
 };
 const AccentPattern kAccentPattern_3_Compound = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentOff,
   kAccentMid,
@@ -103,7 +103,7 @@ const AccentPattern kAccentPattern_3_Compound = {
   kAccentOff
 };
 const AccentPattern kAccentPattern_4_Compound = {
-  kAccentHigh,
+  kAccentStrong,
   kAccentOff,
   kAccentOff,
   kAccentMid,

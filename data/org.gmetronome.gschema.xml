@@ -213,19 +213,19 @@
       <summary></summary>
       <description></description>
     </key>    
-    <key name="sound-high-frequency" type="d">
+    <key name="sound-strong-frequency" type="d">
       <range min="20." max="20000."/>
       <default>1479.978</default> <!-- F#6 -->
       <summary></summary>
       <description></description>
     </key>    
-    <key name="sound-high-volume" type="d">
+    <key name="sound-strong-volume" type="d">
       <range min="0." max="100."/>
       <default>100.0</default>
       <summary></summary>
       <description></description>  
     </key>    
-    <key name="sound-high-falloff" enum="org.gmetronome.SoundFalloff">
+    <key name="sound-strong-falloff" enum="org.gmetronome.SoundFalloff">
       <default>'linear'</default> 
       <summary></summary>
       <description></description>
@@ -247,19 +247,19 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="sound-low-frequency" type="d">
+    <key name="sound-weak-frequency" type="d">
       <range min="20." max="20000."/>
       <default>1108.731</default> <!-- C#6 -->
       <summary></summary>
       <description></description>
     </key>    
-    <key name="sound-low-volume" type="d">
+    <key name="sound-weak-volume" type="d">
       <range min="0." max="100."/>
       <default>40</default>
       <summary></summary>
       <description></description>  
     </key>    
-    <key name="sound-low-falloff" enum="org.gmetronome.SoundFalloff">
+    <key name="sound-weak-falloff" enum="org.gmetronome.SoundFalloff">
       <default>'linear'</default> 
       <summary></summary>
       <description></description>

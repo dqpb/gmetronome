@@ -56,9 +56,9 @@ namespace audio {
     void setMeter(const Meter& meter);
     void setMeter(Meter&& meter);
     
-    void setSoundHigh(Buffer&& sound);
+    void setSoundStrong(Buffer&& sound);
     void setSoundMid(Buffer&& sound);
-    void setSoundLow(Buffer&& sound);
+    void setSoundWeak(Buffer&& sound);
 
     Statistics getStatistics() const;
     
@@ -85,18 +85,18 @@ namespace audio {
     double accel_;
     Meter meter_;
     const Buffer sound_zero_;
-    Buffer sound_low_;
+    Buffer sound_weak_;
     Buffer sound_mid_;
-    Buffer sound_high_;
+    Buffer sound_strong_;
     std::unique_ptr<AbstractAudioSink> audio_sink_;
 
     std::atomic<double> in_tempo_;
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
     Meter in_meter_;
-    Buffer in_sound_low_;
+    Buffer in_sound_weak_;
     Buffer in_sound_mid_;
-    Buffer in_sound_high_;    
+    Buffer in_sound_strong_;    
     std::unique_ptr<AbstractAudioSink> in_audio_sink_;
     
     std::atomic<double>   out_current_tempo_;
@@ -112,9 +112,9 @@ namespace audio {
     std::atomic_flag accel_import_flag_;
     std::atomic_flag target_tempo_import_flag_;
     std::atomic_flag meter_import_flag_;
-    std::atomic_flag sound_low_import_flag_;
+    std::atomic_flag sound_weak_import_flag_;
     std::atomic_flag sound_mid_import_flag_;
-    std::atomic_flag sound_high_import_flag_;
+    std::atomic_flag sound_strong_import_flag_;
     std::atomic_flag audio_sink_import_flag_;
             
     unsigned next_accent_;
@@ -130,9 +130,9 @@ namespace audio {
     void importTargetTempo();
     void importAccel();
     void importMeter();
-    void importSoundHigh();
+    void importSoundStrong();
     void importSoundMid();
-    void importSoundLow();
+    void importSoundWeak();
     void importAudioSink();
     
     double convertTempoToFrameTime(double tempo);

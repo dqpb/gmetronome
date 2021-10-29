@@ -71,9 +71,9 @@ private:
   void initTicker();
   
   void configureTickerSound();
-  void configureTickerSoundHigh();
+  void configureTickerSoundStrong();
   void configureTickerSoundMid();
-  void configureTickerSoundLow();
+  void configureTickerSoundWeak();
   
   Glib::RefPtr<Gio::SimpleAction> lookup_simple_action(const Glib::ustring& name);
 

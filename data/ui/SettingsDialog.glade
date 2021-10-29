@@ -8,32 +8,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="soundHighFreqAdjustment">
-    <property name="lower">20</property>
-    <property name="upper">20000</property>
-    <property name="value">1100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundHighVolAdjustment">
-    <property name="upper">100</property>
-    <property name="value">80</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundLowFreqAdjustment">
-    <property name="lower">20</property>
-    <property name="upper">20000</property>
-    <property name="value">1100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundLowVolAdjustment">
-    <property name="upper">100</property>
-    <property name="value">80</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
   <object class="GtkAdjustment" id="soundMidFreqAdjustment">
     <property name="lower">20</property>
     <property name="upper">20000</property>
@@ -42,6 +16,32 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="soundMidVolAdjustment">
+    <property name="upper">100</property>
+    <property name="value">80</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundStrongFreqAdjustment">
+    <property name="lower">20</property>
+    <property name="upper">20000</property>
+    <property name="value">1100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundStrongVolAdjustment">
+    <property name="upper">100</property>
+    <property name="value">80</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundWeakFreqAdjustment">
+    <property name="lower">20</property>
+    <property name="upper">20000</property>
+    <property name="value">1100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundWeakVolAdjustment">
     <property name="upper">100</property>
     <property name="value">80</property>
     <property name="step-increment">1</property>
@@ -302,10 +302,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="soundHighFreqSpinButton">
+                  <object class="GtkSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="adjustment">soundHighFreqAdjustment</property>
+                    <property name="adjustment">soundStrongFreqAdjustment</property>
                     <property name="climb-rate">0.10</property>
                   </object>
                   <packing>
@@ -329,7 +329,7 @@
                   <object class="GtkSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="adjustment">soundLowFreqAdjustment</property>
+                    <property name="adjustment">soundWeakFreqAdjustment</property>
                     <property name="climb-rate">0.10000000022351742</property>
                   </object>
                   <packing>
@@ -338,10 +338,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="soundHighVolSpinButton">
+                  <object class="GtkSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="adjustment">soundHighVolAdjustment</property>
+                    <property name="adjustment">soundStrongVolAdjustment</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -363,7 +363,7 @@
                   <object class="GtkSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="adjustment">soundLowVolAdjustment</property>
+                    <property name="adjustment">soundWeakVolAdjustment</property>
                   </object>
                   <packing>
                     <property name="left-attach">3</property>
@@ -419,7 +419,6 @@
                 <child>
                   <object class="GtkLabel" id="label3">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
@@ -433,12 +432,12 @@
                 <child>
                   <object class="GtkComboBoxText" id="comboboxtext1">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
-                    <property name="active">0</property>
+                    <property name="active-id">pulseaudio</property>
                     <items>
-                      <item id="0" translatable="yes" context="Preferences dialog">Pulseaudio</item>
-                      <item id="1" translatable="yes" context="Preferences dialog">Alsa</item>
+                      <item id="none" translatable="yes" context="Preferences dialog">None</item>
+                      <item id="alsa" translatable="yes" context="Preferences dialog">Alsa</item>
+                      <item id="pulseaudio" translatable="yes" context="Preferences dialog">Pulseaudio</item>
                     </items>
                   </object>
                   <packing>

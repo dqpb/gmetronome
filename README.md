@@ -12,7 +12,7 @@ Features
 * Divisible beats for simple and compound meters
 * Pre defined patterns for widely used meters (e.g. simple triple meter) and 
   time signatures
-* Configurable accentuation levels for heavy, middle and low accentuation
+* Configurable accentuation levels for strong, middle and weak accents
 * Accurate trainer function to smoothly raise or lower tempo
 * Profiles to (automatically) save and restore metronome settings
 * Customizable keyboard shortcuts for nearly all metronome functions

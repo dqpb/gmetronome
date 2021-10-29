@@ -178,16 +178,16 @@ void Application::initTicker()
 
 void Application::configureTickerSound()
 {
-  configureTickerSoundHigh();
+  configureTickerSoundStrong();
   configureTickerSoundMid();
-  configureTickerSoundLow();
+  configureTickerSoundWeak();
 }
 
-void Application::configureTickerSoundHigh()
+void Application::configureTickerSoundStrong()
 {
-  ticker_.setSoundHigh(settings_prefs_->get_double(kKeyPrefsSoundHighFrequency),
-                       settings_prefs_->get_double(kKeyPrefsSoundHighVolume) *
-                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
+  ticker_.setSoundStrong(settings_prefs_->get_double(kKeyPrefsSoundStrongFrequency),
+                         settings_prefs_->get_double(kKeyPrefsSoundStrongVolume) *
+                         settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
 }
 
 void Application::configureTickerSoundMid()
@@ -197,11 +197,11 @@ void Application::configureTickerSoundMid()
                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
 }
 
-void Application::configureTickerSoundLow()
+void Application::configureTickerSoundWeak()
 {
-  ticker_.setSoundLow(settings_prefs_->get_double(kKeyPrefsSoundLowFrequency),
-                      settings_prefs_->get_double(kKeyPrefsSoundLowVolume) *
-                      settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
+  ticker_.setSoundWeak(settings_prefs_->get_double(kKeyPrefsSoundWeakFrequency),
+                       settings_prefs_->get_double(kKeyPrefsSoundWeakVolume) *
+                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
 }
 
 
@@ -922,17 +922,17 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
   {
     configureTickerSound();
   }
-  else if (key == kKeyPrefsSoundHighFrequency || key == kKeyPrefsSoundHighVolume)
+  else if (key == kKeyPrefsSoundStrongFrequency || key == kKeyPrefsSoundStrongVolume)
   {
-    configureTickerSoundHigh();
+    configureTickerSoundStrong();
   }
   else if (key == kKeyPrefsSoundMidFrequency || key == kKeyPrefsSoundMidVolume)
   {
     configureTickerSoundMid();
   }
-  else if (key == kKeyPrefsSoundLowFrequency || key == kKeyPrefsSoundLowVolume)
+  else if (key == kKeyPrefsSoundWeakFrequency || key == kKeyPrefsSoundWeakVolume)
   {
-    configureTickerSoundLow();
+    configureTickerSoundWeak();
   }
 }
 

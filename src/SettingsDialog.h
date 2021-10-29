@@ -50,16 +50,16 @@ private:
 
   // Sound and Audio 
   Gtk::Grid* sound_grid_;
-  Glib::RefPtr<Gtk::Adjustment> sound_high_freq_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_high_vol_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_strong_freq_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_strong_vol_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_mid_freq_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_mid_vol_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_low_freq_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_low_vol_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_weak_freq_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_weak_vol_adjustment_;
 
-  AccentButtonDrawingArea high_accent_drawing_;
+  AccentButtonDrawingArea strong_accent_drawing_;
   AccentButtonDrawingArea mid_accent_drawing_;
-  AccentButtonDrawingArea low_accent_drawing_;
+  AccentButtonDrawingArea weak_accent_drawing_;
 
   // Shortcuts
   Gtk::TreeView* shortcuts_tree_view_;
