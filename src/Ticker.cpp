@@ -18,8 +18,6 @@
  */
 
 #include "Ticker.h"
-#include "PulseAudio.h"
-
 #include <iostream>
 
 namespace audio {
@@ -149,9 +147,6 @@ namespace audio {
       try {
 	std::rethrow_exception(except_);
       }
-      catch (const PulseAudioError& e) {
-	// handle error
-      }
       catch (...) {
 	// handle error
       }
@@ -187,7 +182,7 @@ namespace audio {
   {
     try {
       std::unique_ptr<AbstractAudioSink> pa_sink
-        = std::make_unique<PulseAudioConnection>(kSampleSpec); 
+        = createBackend(kAudioBackendPulseaudio); 
       
       generator_.swapSink(std::move(pa_sink));      
       generator_.start();

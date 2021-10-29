@@ -20,14 +20,16 @@
 #ifndef __GENERATOR_H__
 #define __GENERATOR_H__
 
+#include "AudioSource.h"
+#include "AudioBackend.h"
+#include "AudioBuffer.h"
+#include "Meter.h"
+
 #include <memory>
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <vector>
-
-#include "AudioBuffer.h"
-#include "Meter.h"
 
 namespace audio {
 

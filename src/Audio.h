@@ -20,8 +20,11 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
 
+#include <vector>
 #include <chrono>
 #include <memory>
+
+#include "Settings.h"
 
 namespace audio {
 
@@ -65,28 +68,7 @@ namespace audio {
     SampleRate   rate;
     uint8_t      channels;
   };
-
-  class AbstractAudioSink {
-  public:
-    virtual ~AbstractAudioSink() {}
-    virtual void start() {}
-    virtual void stop() {}
-    virtual void write(const void* data, size_t bytes) = 0;
-    virtual void flush() = 0;
-    virtual void drain() = 0;
-    virtual uint64_t latency() { return 0; }
-  };
-
-  class AbstractAudioSource {
-  public:
-    virtual ~AbstractAudioSource() {}
-    virtual void start() {}
-    virtual void stop() {}
-    virtual void cycle() = 0;
-    virtual std::unique_ptr<AbstractAudioSink>
-    swapSink(std::unique_ptr<AbstractAudioSink> sink) = 0;
-  };
-
+  
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);
   

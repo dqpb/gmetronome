@@ -20,7 +20,7 @@
 #ifndef __PULSEAUDIO_H__
 #define __PULSEAUDIO_H__
 
-#include "Audio.h"
+#include "AudioBackend.h"
 #include <exception>
 #include <string>
 #include <pulse/sample.h>

@@ -59,7 +59,7 @@ namespace audio {
     };
     return _m.at(format);
   }
-
+  
   size_t frameSize(SampleSpec spec) {
     return sampleSize(spec.format) * spec.channels;
   }
