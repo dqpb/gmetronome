@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AUDIO_BUFFER_H__
-#define __AUDIO_BUFFER_H__
+#ifndef GMetronome_AudioBuffer_h
+#define GMetronome_AudioBuffer_h
 
 #include <vector>
 #include <string>
@@ -120,4 +120,4 @@ namespace audio {
   };
 
 }//namespace audio
-#endif//__AUDIO_BUFFER_H__
+#endif//GMetronome_AudioBuffer_h

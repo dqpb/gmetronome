@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACCENT_BUTTON_H__
-#define __ACCENT_BUTTON_H__
+#ifndef GMetronome_AccentButton_h
+#define GMetronome_AccentButton_h
 
 #include "Meter.h"
 #include <gtkmm.h>
@@ -241,4 +241,4 @@ private:
   sigc::signal<void()> signal_accent_state_changed_;
 };
 
-#endif//__ACCENT_BUTTON_H__
+#endif//GMetronome_AccentButton_h

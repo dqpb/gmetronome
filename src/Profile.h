@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PROFILE_H__
-#define __PROFILE_H__
+#ifndef GMetronome_Profile_h
+#define GMetronome_Profile_h
 
 #include <string>
 #include "Meter.h"
@@ -65,4 +65,4 @@ struct Profile
   Content content;
 };
 
-#endif//__PROFILE_H__
+#endif//GMetronome_Profile_h

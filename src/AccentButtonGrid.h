@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACCENT_BUTTON_GRID_H__
-#define __ACCENT_BUTTON_GRID_H__
+#ifndef GMetronome_AccentButtonGrid_h
+#define GMetronome_AccentButtonGrid_h
 
 #include <gtkmm/container.h>
 #include <vector>
@@ -111,4 +111,4 @@ private:
                                 int& groups_per_row_nat) const;
 };
 
-#endif//__ACCENT_BUTTON_GRID_H__
+#endif//GMetronome_AccentButtonGrid_h

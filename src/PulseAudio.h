@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PULSEAUDIO_H__
-#define __PULSEAUDIO_H__
+#ifndef GMetronome_PulseAudio_h
+#define GMetronome_PulseAudio_h
 
 #include "Audio.h"
 #include <exception>
@@ -73,4 +73,4 @@ namespace audio {
   };
   
 }//namespace audio
-#endif//__PULSEAUDIO_H__
+#endif//GMetronome_PulseAudio_h

@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __APPLICATION_H__
-#define __APPLICATION_H__
+#ifndef GMetronome_Application_h
+#define GMetronome_Application_h
 
 #include <gtkmm.h>
 #include "ProfilesManager.h"
@@ -151,4 +151,4 @@ private:
   bool onTimer();
 };
 
-#endif//__APPLICATION_H__
+#endif//GMetronome_Application_h

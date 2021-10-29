@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PROFILES_MANAGER_H__
-#define __PROFILES_MANAGER_H__
+#ifndef GMetronome_ProfilesManager_h
+#define GMetronome_ProfilesManager_h
 
 #include "ProfilesIOBase.h"
 #include <sigc++/sigc++.h>
@@ -63,4 +63,4 @@ private:
   std::unique_ptr<ProfilesIOBase> io_;
 };
 
-#endif//__PROFILES_MANAGER_H__
+#endif//GMetronome_ProfilesManager_h

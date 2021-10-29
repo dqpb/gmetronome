@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACTION_BINDING_H__
-#define __ACTION_BINDING_H__
+#ifndef GMetronome_ActionBinding_h
+#define GMetronome_ActionBinding_h
 
 #include <gtkmm.h>
 
@@ -62,4 +62,4 @@ Glib::RefPtr<ActionBinding> bind_action(Glib::RefPtr<Gio::ActionGroup> action_gr
                                         Glib::Property<T>& property)
 { return bind_action(action_group, action_name, property.get_proxy()); }
 
-#endif//__ACTION_BINDING_H__
+#endif//GMetronome_ActionBinding_h

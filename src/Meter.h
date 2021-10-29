@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __METER_H__
-#define __METER_H__
+#ifndef GMetronome_Meter_h
+#define GMetronome_Meter_h
 
 #include <vector>
 
@@ -296,4 +296,4 @@ public:
   }
 };
 
-#endif//__METER_H__
+#endif//GMetronome_Meter_h

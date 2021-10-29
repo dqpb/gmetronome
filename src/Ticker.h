@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TICKER_H__
-#define __TICKER_H__
+#ifndef GMetronome_Ticker_h
+#define GMetronome_Ticker_h
 
 #include <mutex>
 #include <memory>
@@ -101,4 +101,4 @@ namespace audio {
   }
 
 }//namespace audio
-#endif
+#endif//GMetronome_Ticker_h

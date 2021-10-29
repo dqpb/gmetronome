@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SHORTCUT_H__
-#define __SHORTCUT_H__
+#ifndef GMetronome_Shortcut_h
+#define GMetronome_Shortcut_h
 
 #include "Settings.h"
 #include "Action.h"
@@ -135,4 +135,4 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   }
 };
 
-#endif//__SHORTCUT_H__
+#endif//GMetronome_Shortcut_h

@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SETTINGS_H__
-#define __SETTINGS_H__
+#ifndef GMetronome_Settings_h
+#define GMetronome_Settings_h
 
 #include <glibmm/ustring.h>
 
@@ -131,4 +131,4 @@ const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
 const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
 const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
 
-#endif//__SETTINGS_H__
+#endif//GMetronome_Settings_h

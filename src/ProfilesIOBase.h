@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PROFILES_IO_BASE_H__
-#define __PROFILES_IO_BASE_H__
+#ifndef GMetronome_ProfilesIOBase_h
+#define GMetronome_ProfilesIOBase_h
 
 #include "Profile.h"
 #include <vector>
@@ -99,4 +99,4 @@ protected:
   sigc::signal<void> signal_storage_changed_;
 };
 
-#endif//__PROFILES_IO_BASE_H__
+#endif//GMetronome_ProfilesIOBase_h

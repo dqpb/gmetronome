@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MAIN_WINDOW_H__
-#define __MAIN_WINDOW_H__
+#ifndef GMetronome_MainWindow_h
+#define GMetronome_MainWindow_h
 
 #include "Action.h"
 #include "Generator.h"
@@ -169,4 +169,4 @@ protected:
   void updatePrefMeterAnimation();
 };
 
-#endif//__MAIN_WINDOW_H__
+#endif//GMetronome_MainWindow_h

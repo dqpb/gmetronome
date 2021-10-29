@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AUDIO_H__
-#define __AUDIO_H__
+#ifndef GMetronome_Audio_h
+#define GMetronome_Audio_h
 
 #include <chrono>
 #include <memory>
@@ -125,4 +125,4 @@ namespace audio {
   microseconds bytesToUsecs(size_t bytes, const SampleSpec& spec);
 
 }//namespace audio
-#endif
+#endif//GMetronome_Audio_h

@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACTION_CORE_H__
-#define __ACTION_CORE_H__
+#ifndef GMetronome_Action_h
+#define GMetronome_Action_h
 
 #include "Profile.h"
 #include "Meter.h"
@@ -821,4 +821,4 @@ void install_actions(Gio::ActionMap& gmap,
                      const ActionDescriptionMap& descriptions,
                      const ActionHandlerMap& handler);
 
-#endif//__ACTION_CORE_H__
+#endif//GMetronome_Action_h

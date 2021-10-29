@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PROFILES_IO_LOCAL_XML_H__
-#define __PROFILES_IO_LOCAL_XML_H__
+#ifndef GMetronome_ProfilesIOLocalXml_h
+#define GMetronome_ProfilesIOLocalXml_h
 
 #include "ProfilesIOBase.h"
 #include <gtkmm.h>
@@ -60,4 +60,4 @@ protected:
   void exportProfiles();
 };
 
-#endif//__PROFILES_IO_LOCAL_XML_H__
+#endif//GMetronome_ProfilesIOLocalXml_h

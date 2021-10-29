@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SETTINGS_DIALOG_H__
-#define __SETTINGS_DIALOG_H__
+#ifndef GMetronome_SettingsDialog_h
+#define GMetronome_SettingsDialog_h
 
 #include "AccentButton.h"
 #include <gtkmm.h>
@@ -93,4 +93,4 @@ private:
   void onSettingsShortcutsChanged(const Glib::ustring& key);
 };
 
-#endif//__SETTINGS_DIALOG_H__
+#endif//GMetronome_SettingsDialog_h

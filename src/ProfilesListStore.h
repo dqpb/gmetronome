@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PROFILES_LIST_STORE_H__
-#define __PROFILES_LIST_STORE_H__
+#ifndef GMetronome_ProfilesListStore_h
+#define GMetronome_ProfilesListStore_h
 
 #include <gtkmm.h>
 #include <iostream>
@@ -77,4 +77,4 @@ class ProfilesListStore : public Gtk::ListStore
  //    }
 };
 
-#endif//__PROFILES_LIST_STORE_H__
+#endif//GMetronome_ProfilesListStore_h

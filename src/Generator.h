@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GENERATOR_H__
-#define __GENERATOR_H__
+#ifndef GMetronome_Generator_h
+#define GMetronome_Generator_h
 
 #include <memory>
 #include <atomic>
@@ -158,4 +158,4 @@ namespace audio {
                        SampleSpec spec,
                        microseconds duration);
 }//namespace
-#endif//__GENERATOR_H__
+#endif//GMetronome_Generator_h
