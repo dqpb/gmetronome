@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AUDIO_SOURCE_H__
-#define __AUDIO_SOURCE_H__
+#ifndef GMetronome_AudioSource_h
+#define GMetronome_AudioSource_h
 
 #include "Audio.h"
 
@@ -37,4 +37,4 @@ namespace audio {
   };
 
 }//namespace audio
-#endif//__AUDIO_SOURCE_H__
+#endif//GMetronome_AudioSource_h

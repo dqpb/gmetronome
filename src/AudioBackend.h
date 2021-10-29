@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AUDIO_BACKEND_H__
-#define __AUDIO_BACKEND_H__
+#ifndef GMetronome_AudioBackend_h
+#define GMetronome_AudioBackend_h
 
 #include "Audio.h"
 #include "Settings.h"
@@ -47,4 +47,4 @@ namespace audio {
   std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend);
   
 }//namespace audio
-#endif//__AUDIO_BACKEND_H__
+#endif//GMetronome_AudioBackend_h
