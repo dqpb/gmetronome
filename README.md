@@ -29,7 +29,7 @@ It depends on the following packages:
 * gtkmm-3.0
 * pulseaudio
 
-Since there is no official release yet, clone the projects repository:
+Since there is no official release yet, clone the project's repository:
 
 ```
 $ git clone https://gitlab.gnome.org/dqpb/gmetronome.git
@@ -58,5 +58,5 @@ See [INSTALL](INSTALL) for further details.
 
 How to report bugs
 ------------------
-Bugs should be reported on the projects [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues/new).
+Bugs should be reported on the project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues/new).
 Please read the GNOME [bug reporting guidelines](https://wiki.gnome.org/Community/GettingInTouch/BugReportingGuidelines).
