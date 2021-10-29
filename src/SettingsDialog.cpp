@@ -20,6 +20,7 @@
 #include "SettingsDialog.h"
 #include "Settings.h"
 #include "Shortcut.h"
+#include "AudioBackend.h"
 #include <glibmm/i18n.h>
 #include <iostream>
 
@@ -31,6 +32,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("animationComboBox", animation_combo_box_);
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);  
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);  
+  builder_->get_widget("audioBackendComboBox", audio_backend_combo_box_);
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);  
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
   builder_->get_widget("soundGrid", sound_grid_);  
@@ -73,8 +75,18 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
 
   animation_sync_spin_button_->signal_value_changed()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
-
+  
+  // remove unavailable audio backends from combo box
+  const auto& backends = audio::availableBackends();
+  auto n_backends = audio_backend_combo_box_->get_model()->children().size();
+  for (int index = n_backends - 1; index >= 0; --index)
+  {
+    if (std::find(backends.begin(), backends.end(), index) == backends.end())
+      audio_backend_combo_box_->remove_text(index);
+  }
+  
   settings_prefs_->bind(kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
+  settings_prefs_->bind(kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
   settings_prefs_->bind(kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundHighFrequency, sound_high_freq_adjustment_->property_value());
   settings_prefs_->bind(kKeyPrefsSoundHighVolume, sound_high_vol_adjustment_->property_value());

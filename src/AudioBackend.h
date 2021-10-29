@@ -41,7 +41,7 @@ namespace audio {
    *  Returns a list of available audio backends, that can be instantiated
    *  with createBackend().
    */
-  const std::vector<AudioBackend> availableBackends();
+  const std::vector<AudioBackend>& availableBackends();
   
   /** Create a new audio backend. */
   std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend);

@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+#include "AudioBackend.h"
 
 #ifdef HAVE_ALSA 
 #include "Alsa.h"
@@ -28,7 +29,7 @@
 
 namespace audio {
   
-  const std::vector<AudioBackend> availableBackends()
+  const std::vector<AudioBackend>& availableBackends()
   {
     static const std::vector<AudioBackend> backends = {
       kAudioBackendNone,

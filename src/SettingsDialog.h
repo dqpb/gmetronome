@@ -61,6 +61,8 @@ private:
   AccentButtonDrawingArea mid_accent_drawing_;
   AccentButtonDrawingArea low_accent_drawing_;
 
+  Gtk::ComboBoxText* audio_backend_combo_box_;
+
   // Shortcuts
   Gtk::TreeView* shortcuts_tree_view_;
   Gtk::Button* shortcuts_reset_button_;

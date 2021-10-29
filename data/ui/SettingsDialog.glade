@@ -430,7 +430,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText" id="comboboxtext1">
+                  <object class="GtkComboBoxText" id="audioBackendComboBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="active-id">pulseaudio</property>

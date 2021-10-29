@@ -204,6 +204,11 @@ void Application::configureTickerSoundLow()
                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
 }
 
+void Application::configureTickerAudioBackend()
+{
+  //TODO
+  std::cout << __FUNCTION__ << std::endl;
+}
 
 Glib::RefPtr<Gio::SimpleAction> Application::lookup_simple_action(const Glib::ustring& name)
 {
@@ -933,6 +938,10 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
   else if (key == kKeyPrefsSoundLowFrequency || key == kKeyPrefsSoundLowVolume)
   {
     configureTickerSoundLow();
+  }
+  else if (key == kKeyPrefsAudioBackend)
+  {
+    configureTickerAudioBackend();
   }
 }
 
