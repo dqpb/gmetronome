@@ -31,11 +31,12 @@ namespace audio {
   const std::vector<AudioBackend> availableBackends()
   {
     static const std::vector<AudioBackend> backends = {
-#ifdef HAVE_PULSEAUDIO
-      kAudioBackendPulseaudio,
-#endif
+      kAudioBackendNone,
 #ifdef HAVE_ALSA
       kAudioBackendAlsa,
+#endif
+#ifdef HAVE_PULSEAUDIO
+      kAudioBackendPulseaudio,
 #endif
     };
     return backends;
