@@ -50,6 +50,7 @@ noinst_HEADERS = \
 	Settings.h \
 	SettingsDialog.h \
 	Shortcut.h \
+	SpinLock.h \
 	Ticker.h 
 
 gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
