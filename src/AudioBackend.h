@@ -55,7 +55,7 @@ namespace audio {
   };
 
   /**
-   * @class AbstractAudioSink
+   * @class Backend
    *
    * An audio backend is always in one of the following states:
    *
@@ -73,9 +73,9 @@ namespace audio {
    *   IV)  Running --> Open      [stop()]
    *   V)   Open    --> Config    [close()]
    */
-  class AbstractAudioSink {
+  class Backend {
   public:
-    virtual ~AbstractAudioSink() {}
+    virtual ~Backend() {}
 
     virtual void configure(const SampleSpec& spec) = 0;
     virtual void open() = 0;
@@ -105,7 +105,7 @@ namespace audio {
    * @param  An audio backend identifier.
    * @return  A pointer to the audio backend object or nullptr on error.
    */
-  std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend);
+  std::unique_ptr<Backend> createBackend(AudioBackend backend);
   
 }//namespace audio
 #endif//GMetronome_AudioBackend_h

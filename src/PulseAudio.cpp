@@ -123,30 +123,30 @@ namespace audio {
   }
 
 
-  PulseAudioSink::PulseAudioSink(const SampleSpec& spec)
+  PulseAudioBackend::PulseAudioBackend(const SampleSpec& spec)
     : state_(BackendState::kConfig),
       spec_(spec)
   {}
   
-  void PulseAudioSink::configure(const SampleSpec& spec)
+  void PulseAudioBackend::configure(const SampleSpec& spec)
   {
     spec_ = spec;
   }
 
-  void PulseAudioSink::open()
+  void PulseAudioBackend::open()
   {
     if (state_ == BackendState::kConfig)
       // TODO: check configuration
       state_ = BackendState::kOpen;
   }
   
-  void PulseAudioSink::close()
+  void PulseAudioBackend::close()
   {
     if (state_ == BackendState::kOpen)
       state_ = BackendState::kConfig;
   }
   
-  void PulseAudioSink::start()
+  void PulseAudioBackend::start()
   {
     if (state_ == BackendState::kOpen)
     {
@@ -155,7 +155,7 @@ namespace audio {
     }
   }
   
-  void PulseAudioSink::stop()
+  void PulseAudioBackend::stop()
   {
     if (state_ == BackendState::kRunning)
     {
@@ -164,25 +164,25 @@ namespace audio {
     }
   }
   
-  void PulseAudioSink::write(const void* data, size_t bytes)
+  void PulseAudioBackend::write(const void* data, size_t bytes)
   {
     if (pa_connection_)
       pa_connection_->write(data, bytes);
   }
 
-  void PulseAudioSink::flush()
+  void PulseAudioBackend::flush()
   {
     if (pa_connection_)
       pa_connection_->flush();
   }
   
-  void PulseAudioSink::drain()
+  void PulseAudioBackend::drain()
   {
     if (pa_connection_)
       pa_connection_->drain();
   }
   
-  uint64_t PulseAudioSink::latency()
+  uint64_t PulseAudioBackend::latency()
   {
     if (pa_connection_)
       return pa_connection_->latency();
@@ -190,7 +190,7 @@ namespace audio {
       return 0;
   }
 
-  BackendState PulseAudioSink::state() const
+  BackendState PulseAudioBackend::state() const
   {
     return state_;
   }

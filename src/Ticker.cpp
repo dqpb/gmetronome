@@ -58,7 +58,7 @@ namespace audio {
     stop();
   }  
   
-  void Ticker::setAudioBackend(std::unique_ptr<AbstractAudioSink> new_backend)
+  void Ticker::setAudioBackend(std::unique_ptr<Backend> new_backend)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);

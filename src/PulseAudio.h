@@ -76,10 +76,10 @@ namespace audio {
   /**
    * PulseAudio Backend
    */ 
-  class PulseAudioSink : public AbstractAudioSink
+  class PulseAudioBackend : public Backend
   {
   public:
-    PulseAudioSink(const audio::SampleSpec& spec = kDefaultSpec); 
+    PulseAudioBackend(const audio::SampleSpec& spec = kDefaultSpec); 
     
     void configure(const SampleSpec& spec) override;
     void open() override;

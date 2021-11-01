@@ -56,7 +56,7 @@ namespace audio {
     
     ~Ticker();
     
-    void setAudioBackend(std::unique_ptr<AbstractAudioSink> backend);
+    void setAudioBackend(std::unique_ptr<Backend> backend);
     
     void start();
     void stop();
@@ -78,7 +78,7 @@ namespace audio {
   private:
     Generator generator_;
 
-    std::unique_ptr<AbstractAudioSink> audio_backend_;
+    std::unique_ptr<Backend> audio_backend_;
     
     std::atomic<TickerState> state_;
     
@@ -91,7 +91,7 @@ namespace audio {
     Buffer in_sound_strong_;
     Buffer in_sound_mid_;
     Buffer in_sound_weak_;
-    std::unique_ptr<AbstractAudioSink> in_audio_backend_;
+    std::unique_ptr<Backend> in_audio_backend_;
 
     Ticker::Statistics out_stats_;
     

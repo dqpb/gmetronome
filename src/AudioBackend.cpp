@@ -44,26 +44,26 @@ namespace audio {
     return backends;
   }
   
-  std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend)
+  std::unique_ptr<Backend> createBackend(AudioBackend id)
   {
-    std::unique_ptr<AbstractAudioSink> sink = nullptr;
+    std::unique_ptr<Backend> backend = nullptr;
     
-    switch (backend)
+    switch (id)
     {
 #ifdef HAVE_PULSEAUDIO
     case kAudioBackendPulseaudio:
-      sink = std::make_unique<PulseAudioSink>();
+      backend = std::make_unique<PulseAudioBackend>();
       break;
 #endif
     case kAudioBackendNone:
-      sink = std::make_unique<DummyBackend>();
+      backend = std::make_unique<DummyBackend>();
       break;
       
     default:
       return nullptr;
     };
 
-    return sink;
+    return backend;
   }
   
 }//namespace audio

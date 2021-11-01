@@ -24,7 +24,7 @@
 
 namespace audio {
 
-  class DummyBackend : public AbstractAudioSink{
+  class DummyBackend : public Backend{
 
   public:
     DummyBackend(const audio::SampleSpec& spec = kDefaultSpec);
