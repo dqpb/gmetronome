@@ -29,6 +29,7 @@
 namespace audio {
 
   using std::chrono::microseconds;  
+  using std::chrono::milliseconds;  
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""us;
 
@@ -68,7 +69,9 @@ namespace audio {
     SampleRate   rate;
     uint8_t      channels;
   };
-  
+
+  constexpr SampleSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 1 };
+
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);
   
