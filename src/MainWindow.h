@@ -21,7 +21,7 @@
 #define __MAIN_WINDOW_H__
 
 #include "Action.h"
-#include "Generator.h"
+#include "Ticker.h"
 #include "AccentButtonGrid.h"
 
 #include <gtkmm.h>
@@ -159,9 +159,9 @@ protected:
 
   void cancelButtonAnimations();
 
-  void updateAccentAnimation(const audio::Statistics& stats);
-  void updateCurrentTempo(const audio::Statistics& stats);
-  void updateTickerStatistics(const audio::Statistics& stats);
+  void updateAccentAnimation(const audio::Ticker::Statistics& stats);
+  void updateCurrentTempo(const audio::Ticker::Statistics& stats);
+  void updateTickerStatistics(const audio::Ticker::Statistics& stats);
   
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);

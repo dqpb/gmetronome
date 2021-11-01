@@ -174,6 +174,7 @@ void Application::initUI()
 void Application::initTicker()
 {
   configureTickerSound();
+  configureTickerAudioBackend();
 }
 
 void Application::configureTickerSound()
@@ -206,8 +207,25 @@ void Application::configureTickerSoundLow()
 
 void Application::configureTickerAudioBackend()
 {
-  //TODO
-  std::cout << __FUNCTION__ << std::endl;
+  int backend_id = settings_prefs_->get_enum(kKeyPrefsAudioBackend);
+
+  if (auto& backends = audio::availableBackends();
+      std::find(backends.begin(), backends.end(), backend_id) != backends.end())
+  {
+    auto new_backend = audio::createBackend( (AudioBackend) backend_id );
+
+    if (new_backend)
+      new_backend->configure(audio::kDefaultSpec);
+    
+    ticker_.setAudioBackend( std::move(new_backend) );
+  }
+  else
+  {
+    std::cerr << "Audio Backend (" << backend_id
+              << ") is not available on this platform." << std::endl;
+
+    settings_prefs_->set_enum(kKeyPrefsAudioBackend, kAudioBackendNone);
+  }
 }
 
 Glib::RefPtr<Gio::SimpleAction> Application::lookup_simple_action(const Glib::ustring& name)
@@ -984,21 +1002,25 @@ void Application::startTimer()
 
 void Application::stopTimer()
 {
+  using std::literals::chrono_literals::operator""us;
+  
   timer_connection_.disconnect();
-  signal_ticker_statistics_.emit({0,0,-1,0,0});
+  signal_ticker_statistics_.emit({ 0us, 0us, { 0, 0, -1, 0us } });
 }
 
 bool Application::onTimer()
 {
-  audio::Statistics stats = ticker_.getStatistics();
+  using std::literals::chrono_literals::operator""us;
+
+  audio::Ticker::Statistics stats = ticker_.getStatistics();
 
   bool meter_enabled;
   get_action_state(kActionMeterEnabled, meter_enabled);
   
   if (!meter_enabled)
   {
-    stats.next_accent = -1;
-    stats.next_accent_time = 0;
+    stats.generator.next_accent = -1;
+    stats.generator.next_accent_time = 0us;
   }  
   
   signal_ticker_statistics_.emit(stats);

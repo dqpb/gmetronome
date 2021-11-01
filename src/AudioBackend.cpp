@@ -45,13 +45,11 @@ namespace audio {
   
   std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend)
   {
-    static constexpr SampleSpec kSampleSpec = { SampleFormat::S16LE, 44100, 1 };
-    
     switch (backend)
     {
 #ifdef HAVE_PULSEAUDIO
     case kAudioBackendPulseaudio:
-      return std::make_unique<PulseAudioConnection>(kSampleSpec); 
+      return std::make_unique<PulseAudioSink>(); 
 #endif
     default:
       return nullptr;

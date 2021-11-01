@@ -20,72 +20,109 @@
 #ifndef __TICKER_H__
 #define __TICKER_H__
 
-#include <mutex>
 #include <memory>
 #include <thread>
 #include <atomic>
 
 #include "Generator.h"
+#include "AudioBackend.h"
 #include "AudioBuffer.h"
 #include "Meter.h"
+#include "SpinLock.h"
 
 namespace audio {
 
-  class Ticker;
-  
-  enum class TickerState {
+  enum class TickerState
+  {
     kReady,
     kPlaying,
     kError
   };
-  
-  template<class T>
-  using Range = std::array<T,2>;
-  const std::size_t kRangeMinIndex = 0;
-  const std::size_t kRangeMaxIndex = 1;
-  
+    
   class Ticker {
+
   public:
+
+    struct Statistics
+    {
+      microseconds timestamp;
+      microseconds backend_latency;
+      Generator::Statistics generator;
+    };
+
+  public:
+    
     Ticker();
+    
     ~Ticker();
+    
+    void setAudioBackend(std::unique_ptr<AbstractAudioSink> backend);
     
     void start();
     void stop();
     void reset();
     
     TickerState state() const noexcept;
-
+    
     void setTempo(double tempo);
-    
     void setTargetTempo(double target_tempo);
-    
     void setAccel(double accel);
-    
-    void setMeter(const Meter& meter);
-    void setMeter(Meter&& meter);
+    void setMeter(Meter meter);
     
     void setSoundHigh(double frequency, double volume);
     void setSoundMid(double frequency, double volume);
     void setSoundLow(double frequency, double volume);
     
-    audio::Statistics getStatistics() const;
+    Ticker::Statistics getStatistics() const;
     
-    void setTempoRange(Range<double> range);
-    const Range<double>& getTempoRange() const;
-    
-    void setAccelRange(Range<double> range);
-    const Range<double>& getAccelRange() const;
-
   private:
     Generator generator_;
-    
-    Range<double> tempo_range_;
-    Range<double> accel_range_;
+
+    std::unique_ptr<AbstractAudioSink> audio_backend_;
     
     std::atomic<TickerState> state_;
     
     std::exception_ptr except_;
-    mutable std::recursive_mutex mutex_;    
+    
+    std::atomic<double> in_tempo_;
+    std::atomic<double> in_target_tempo_;
+    std::atomic<double> in_accel_;
+    Meter in_meter_;
+    Buffer in_sound_high_;
+    Buffer in_sound_mid_;
+    Buffer in_sound_low_;
+    std::unique_ptr<AbstractAudioSink> in_audio_backend_;
+
+    Ticker::Statistics out_stats_;
+    
+    std::atomic_flag tempo_imported_flag_;
+    std::atomic_flag target_tempo_imported_flag_;
+    std::atomic_flag accel_imported_flag_;
+    std::atomic_flag meter_imported_flag_;
+    std::atomic_flag sound_high_imported_flag_;
+    std::atomic_flag sound_mid_imported_flag_;
+    std::atomic_flag sound_low_imported_flag_;
+    std::atomic_flag audio_backend_imported_flag_;
+
+    mutable SpinLock mutex_;
+    
+    void importTempo();
+    void importTargetTempo();
+    void importAccel();
+    void importMeter();
+    void importSoundHigh();
+    void importSoundMid();
+    void importSoundLow();
+    void importAudioBackend();
+
+    void importSettings();
+
+    void exportStatistics();
+    
+    void startAudioBackend();
+    void writeAudioBackend(const void* data, size_t bytes);
+    void stopAudioBackend();
+
     std::unique_ptr<std::thread> worker_thread_;
     
     void startWorker() noexcept;
@@ -93,12 +130,5 @@ namespace audio {
     void worker() noexcept;
   };
   
-  /** Clamp values to the inclusive range of min and max. */
-  template<class T>
-  T clamp(T val, const Range<T>& range)
-  {
-    return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] );
-  }
-
 }//namespace audio
 #endif

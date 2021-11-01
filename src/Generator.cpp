@@ -22,7 +22,6 @@
 #include <cmath>
 #include <cassert>
 #include <iostream>
-#include <glib.h>
 
 namespace audio {
 
@@ -42,176 +41,47 @@ namespace audio {
       target_tempo_(convertTempoToFrameTime(120.)),
       accel_(convertAccelToFrameTime(0.0)),
       meter_({kSingleMeter, kNoDivision, {kAccentMid}}),
-      sound_zero_(kMaxChunkDuration_, kSampleSpec_),
+      sound_zero_(2 * kMaxChunkDuration_, kSampleSpec_),
       sound_low_(sound_zero_),
       sound_mid_(sound_zero_),
       sound_high_(sound_zero_),
-      in_tempo_(tempo_),
-      in_target_tempo_(target_tempo_),
-      in_accel_(accel_),
-      in_meter_(meter_),
-      in_sound_low_(sound_zero_),
-      in_sound_mid_(sound_zero_),
-      in_sound_high_(sound_zero_),
-      out_current_tempo_(0.0),
-      out_current_accel_(0.0),
-      out_next_accent_(0),
-      out_latency_(0),
-      condition_var_flag_(false),
       next_accent_(0),
       frames_done_(0),
       frames_left_(0),
-      frames_chunk_(0),
-      frames_total_(0)
-  {
-    tempo_import_flag_.test_and_set();
-    accel_import_flag_.test_and_set();
-    target_tempo_import_flag_.test_and_set();
-    meter_import_flag_.test_and_set();
-    sound_low_import_flag_.test_and_set();
-    sound_mid_import_flag_.test_and_set();
-    sound_high_import_flag_.test_and_set();
-    audio_sink_import_flag_.test_and_set();
-  }
+      frames_total_(0),
+      stats_({0,0,0,0us})
+  {}
 
   Generator::~Generator()
   {}
 
   void Generator::setTempo(double tempo)
   {
-    in_tempo_.store(tempo);
-    tempo_import_flag_.clear(std::memory_order_release);
+    tempo_ = convertTempoToFrameTime(tempo);
+    recalculateAccelSign();
+    recalculateFramesTotal();
   }
   
   void Generator::setTargetTempo(double target_tempo)
   {
-    in_target_tempo_.store(target_tempo);
-    target_tempo_import_flag_.clear(std::memory_order_release);
+    target_tempo_ = convertTempoToFrameTime(target_tempo);
+    recalculateAccelSign();
+    recalculateFramesTotal();
   }
   
   void Generator::setAccel(double accel)
   {
-    in_accel_.store(accel);
-    accel_import_flag_.clear(std::memory_order_release);
-  }
-
-  void Generator::setMeter(const Meter& meter)
-  {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      in_meter_ = meter;
-    }
-    meter_import_flag_.clear(std::memory_order_release);
-  }
-  
-  void Generator::setMeter(Meter&& meter)
-  {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      in_meter_ = std::move(meter);
-    }
-    meter_import_flag_.clear(std::memory_order_release);
-  }
-
-  void Generator::setSoundHigh(Buffer&& sound)
-  {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(in_sound_high_,sound);
-    }
-    sound_high_import_flag_.clear(std::memory_order_release);
-  }
-  
-  void Generator::setSoundMid(Buffer&& sound)
-  {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(in_sound_mid_,sound);
-    }
-    sound_mid_import_flag_.clear(std::memory_order_release);
-  }
-
-  void Generator::setSoundLow(Buffer&& sound)
-  {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(in_sound_low_,sound);
-    }
-    sound_low_import_flag_.clear(std::memory_order_release);
-  }
-  
-  Statistics Generator::getStatistics() const
-  {
-    Statistics stats;
-    
-    stats.current_tempo = out_current_tempo_.load();
-    stats.current_accel = out_current_accel_.load();
-    
-    uint64_t tmp = out_next_accent_.load();
-    
-    stats.next_accent = ((tmp >> 56) & 0x00000000000000ff);
-    stats.next_accent_time = (tmp & 0x00ffffffffffffff);
-
-    stats.latency = out_latency_.load();
-    
-    return stats;
-  }
-
-  std::unique_ptr<AbstractAudioSink>
-  Generator::swapSink(std::unique_ptr<AbstractAudioSink> sink)
-  {
-    std::unique_lock<std::mutex> lock(mutex_);
-    std::swap(in_audio_sink_,sink);
-
-    audio_sink_import_flag_.clear(std::memory_order_release);
-
-    bool cv_status = condition_var_.wait_for( lock,
-                                              2 * kMaxChunkDuration_,
-                                              [&] {return condition_var_flag_;} );
-    condition_var_flag_ = false;
-    
-    if ( !cv_status )
-    {
-      std::swap(audio_sink_, in_audio_sink_);
-      audio_sink_import_flag_.test_and_set(std::memory_order_acquire);
-    }
-    return std::move(in_audio_sink_);
-  }
-  
-  void Generator::importTempo()
-  {
-    tempo_ = convertTempoToFrameTime(in_tempo_.load());
-    accel_ = convertAccelToFrameTime(in_accel_.load());
-
-    recalculateAccelSign();
-    recalculateFramesTotal();
-  }
-  
-  void Generator::importTargetTempo()
-  {
-    target_tempo_ = convertTempoToFrameTime(in_target_tempo_.load());
-    accel_ = convertAccelToFrameTime(in_accel_.load());
-
-    recalculateAccelSign();
-    recalculateFramesTotal();
-  }
-  
-  void Generator::importAccel()
-  {
-    accel_ = convertAccelToFrameTime(in_accel_.load());
-
+    accel_ = convertAccelToFrameTime(accel);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
 
-  void Generator::importMeter()
+  void Generator::swapMeter(Meter& meter)
   {
-    std::lock_guard<std::mutex> guard(mutex_);
-
     double s_subdiv = meter_.division();
-    double t_subdiv = in_meter_.division();
-
-    std::swap(meter_, in_meter_);
+    double t_subdiv = meter.division();
+    
+    std::swap(meter_, meter);
     
     // TODO: recalculate the current index to gain a smooth transition between the 
     //       old and the new pattern, ie. keep beats consistent.
@@ -273,34 +143,26 @@ namespace audio {
     //   ( (next_accent_ << 16) & 0xffff0000 ) | ( frames_left_ & 0x0000ffff ) );
   }
   
-  void Generator::importSoundHigh()
+  void Generator::swapSoundHigh(Buffer& sound)
   {
-    std::lock_guard<std::mutex> guard(mutex_);
-    std::swap(sound_high_, in_sound_high_);
+    std::swap(sound_high_,sound);
   }
   
-  void Generator::importSoundMid()
+  void Generator::swapSoundMid(Buffer& sound)
   {
-    std::lock_guard<std::mutex> guard(mutex_);
-    std::swap(sound_mid_, in_sound_mid_);
-  }
-  
-  void Generator::importSoundLow()
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    std::swap(sound_low_, in_sound_low_);
+    std::swap(sound_mid_,sound);
   }
 
-  void Generator::importAudioSink()
+  void Generator::swapSoundLow(Buffer& sound)
   {
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::swap(audio_sink_, in_audio_sink_);
-      condition_var_flag_ = true;
-    }
-    condition_var_.notify_all();
+    std::swap(sound_low_,sound);
   }
   
+  const Generator::Statistics& Generator::getStatistics() const
+  {
+    return stats_;
+  }
+      
   double Generator::convertTempoToFrameTime(double tempo) {
     return kMinutesFramesRatio_ * tempo;
   }
@@ -324,10 +186,6 @@ namespace audio {
     tempo_ = tempoAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
   }
 
-  void Generator::recalculateLatency() {
-    latency_ = audio_sink_->latency();
-  }
-  
   double Generator::tempoAfterNFrames(double tempo,
                                       double target_tempo,
                                       double accel,
@@ -412,159 +270,108 @@ namespace audio {
     return frames_total;
   }
 
-  void Generator::exportCurrentTempo()
+  void Generator::updateStatistics()
   {
-    out_current_tempo_.store(
-      tempoAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_ );      
-  }
-
-  void Generator::exportCurrentAccel()
-  {
-    out_current_accel_.store(
-      accelAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_ );      
-  }
-
-  void Generator::exportNextAccent()
-  {
-    uint64_t now = g_get_monotonic_time();
-    uint64_t time = now + latency_ + (frames_left_ * kMicrosecondsFramesRatio_);
-
-    uint64_t accent = next_accent_;
-    out_next_accent_.store(
-      ( (accent << 56) & 0xff00000000000000 ) | ( time & 0x00ffffffffffffff ) );
-  }
-
-  void Generator::exportLatency()
-  {
-    out_latency_.store(latency_);
+    stats_.current_tempo = 
+      tempoAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_;
+    
+    stats_.current_accel =
+      accelAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_;
+    
+    stats_.next_accent = next_accent_;
+    
+    stats_.next_accent_time
+      = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio_));
   }
   
-  void Generator::start()
+  void Generator::start(const void*& data, size_t& bytes)
   {
-    next_accent_ = 0;
-
-    out_current_tempo_ = 0.0;
-    out_current_accel_ = 0.0;
-    out_next_accent_ = 0;
-    out_latency_ = 0;
+    next_accent_  = 0;
     
-    if (!tempo_import_flag_.test_and_set(std::memory_order_acquire))
-      tempo_ = convertTempoToFrameTime(in_tempo_.load());
-    
-    if (!target_tempo_import_flag_.test_and_set(std::memory_order_acquire))
-      target_tempo_ = convertTempoToFrameTime(in_target_tempo_.load());
+    frames_total_ = 2 * kMaxChunkFrames_;
+    frames_done_  = 0;
+    frames_left_  = 2 * kMaxChunkFrames_;
 
-    // always reset acceleration
-    accel_import_flag_.test_and_set(std::memory_order_acquire);
-    accel_ = convertAccelToFrameTime(in_accel_.load());
+    updateStatistics();
     
-    if (!meter_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(meter_, in_meter_);
-
-    recalculateAccelSign();
-        
-    if (!sound_high_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(sound_high_, in_sound_high_);
-      
-    if (!sound_mid_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(sound_mid_, in_sound_mid_);
-      
-    if (!sound_low_import_flag_.test_and_set(std::memory_order_acquire))
-      std::swap(sound_low_, in_sound_low_);    
-
-    // we start by filling the audio buffer with zeros
-    audio_sink_->write(&(sound_zero_[0]), kMaxChunkFrames_ * frameSize(kSampleSpec_));      
-    
-    frames_total_ = kMaxChunkFrames_;
-    frames_done_ = 0;
-    frames_left_ = frames_total_;
-    frames_chunk_ = 0;
-
-    // measure the latency and export the next accent info for the first accent
-    recalculateLatency();
-    exportLatency();
-    exportNextAccent();
-    
-    // write the remaining frames 
-    audio_sink_->write(&(sound_zero_[0]), frames_left_ * frameSize(kSampleSpec_));      
+    data = &(sound_zero_[0]);
+    bytes = frames_left_ * frameSize(kSampleSpec_);
     
     recalculateFramesTotal();
-
     frames_done_ = 0;
     frames_left_ = 0;
-    frames_chunk_ = 0;
-
-    exportCurrentTempo();
-    exportCurrentAccel();
   }
 
-  void Generator::stop()
+  void Generator::stop(const void*& data, size_t& bytes)
   {
-    out_current_tempo_ = 0.0;
-    out_current_accel_ = 0.0;
-    out_next_accent_ = 0;
-    out_latency_ = 0;
+    stats_.current_tempo = 0;
+    stats_.current_accel = 0;
+    stats_.next_accent = 0;
+    stats_.next_accent_time = 0us;
   }
   
-  void Generator::cycle()
+  void Generator::cycle(const void*& data, size_t& bytes)
   {
     const AccentPattern& accents = meter_.accents();
+    size_t frames_chunk = 0;
+    
+    // std::cout << "cycle: "
+    //           << "next_accent_: " << next_accent_ << " "
+    //           << "frames_total_: " << frames_total_ << " "
+    //           << "frames_done_: " << frames_done_ << "\t"
+    //           << "frames_left_: " << frames_left_ << " \t";
+//              << std::endl;
     
     if (frames_left_ <= 0) {
-      frames_chunk_ = 0;
+      frames_chunk = 0;
       if (!accents.empty())
       {
         switch (accents[next_accent_])
         {
         case kAccentHigh:
-          frames_chunk_ = sound_high_.size() / frameSize(kSampleSpec_); 
-          audio_sink_->write(&(sound_high_[0]), sound_high_.size());
+          frames_chunk = sound_high_.size() / frameSize(kSampleSpec_); 
+          data = &(sound_high_[0]);
+          bytes = sound_high_.size();
           break;
+
         case kAccentMid:
-          frames_chunk_ = sound_mid_.size() / frameSize(kSampleSpec_); 
-          audio_sink_->write(&(sound_mid_[0]), sound_mid_.size());
+          frames_chunk = sound_mid_.size() / frameSize(kSampleSpec_); 
+          data = &(sound_mid_[0]);
+          bytes = sound_mid_.size();
           break;
+
         case kAccentLow:
-          frames_chunk_ = sound_low_.size() / frameSize(kSampleSpec_); 
-          audio_sink_->write(&(sound_low_[0]), sound_low_.size());
+          frames_chunk = sound_low_.size() / frameSize(kSampleSpec_); 
+          data = &(sound_low_[0]);
+          bytes = sound_low_.size();
           break;
+
         default:
+          frames_chunk = kAvgChunkFrames_;
+          data = &(sound_zero_[0]);
+          bytes = kAvgChunkFrames_ * frameSize(kSampleSpec_);
           break;
         };
         if (++next_accent_ == accents.size())
           next_accent_ = 0;
       }
-      frames_done_ = frames_chunk_;
+      frames_done_ = frames_chunk;
     }
     else if (frames_left_ <= kMaxChunkFrames_) {
-      frames_chunk_ = frames_left_;
-      audio_sink_->write(&(sound_zero_[0]), frames_left_ * frameSize(kSampleSpec_));
-      frames_done_ += frames_chunk_;
+      frames_chunk = frames_left_;
+      data = &(sound_zero_[0]);
+      bytes = frames_left_ * frameSize(kSampleSpec_);
+      frames_done_ += frames_chunk;
     }
     else {
-      frames_chunk_ = frames_left_ / lround( (double) frames_left_ / kAvgChunkFrames_ );
-      audio_sink_->write(&(sound_zero_[0]), frames_chunk_ * frameSize(kSampleSpec_));
-      frames_done_ += frames_chunk_;
+      frames_chunk = frames_left_ / lround( (double) frames_left_ / kAvgChunkFrames_ );
+      data = &(sound_zero_[0]);
+      bytes = frames_chunk * frameSize(kSampleSpec_);
+      frames_done_ += frames_chunk;
     }
-    
-    // apply at most one parameter import per cycle
-    if (!tempo_import_flag_.test_and_set(std::memory_order_acquire))
-      importTempo();
-    else if (!target_tempo_import_flag_.test_and_set(std::memory_order_acquire))
-      importTargetTempo();
-    else if (!accel_import_flag_.test_and_set(std::memory_order_acquire))
-      importAccel();
-    else if (!meter_import_flag_.test_and_set(std::memory_order_acquire))
-      importMeter();
-    else if (!sound_high_import_flag_.test_and_set(std::memory_order_acquire))
-      importSoundHigh();
-    else if (!sound_mid_import_flag_.test_and_set(std::memory_order_acquire))
-      importSoundMid();
-    else if (!sound_low_import_flag_.test_and_set(std::memory_order_acquire))
-      importSoundLow();
-    else if (!audio_sink_import_flag_.test_and_set(std::memory_order_acquire))
-      importAudioSink();
-    
+
+    //std::cout << "written: " << frames_chunk << std::endl; 
+        
     if (frames_done_ >= frames_total_)
     {
       frames_left_=0;
@@ -576,13 +383,8 @@ namespace audio {
     {
       frames_left_ = frames_total_ - frames_done_;
     }
-
-    recalculateLatency();
     
-    exportCurrentTempo();
-    exportCurrentAccel();
-    exportLatency();
-    exportNextAccent();
+    updateStatistics();
   }
 
   Buffer generateSound(double frequency,
