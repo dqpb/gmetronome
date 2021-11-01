@@ -321,7 +321,8 @@ namespace audio {
         audio_backend_->drain();
         audio_backend_->stop();
       case BackendState::kOpen:
-        audio_backend_->close();
+        // we keep audio backend open ...
+        // audio_backend_->close();
       case BackendState::kConfig:
         // do nothing
       default:
