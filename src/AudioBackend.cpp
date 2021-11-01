@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "AudioBackend.h"
+#include "AudioBackendDummy.h"
 
 #ifdef HAVE_ALSA 
 #include "Alsa.h"
@@ -45,15 +46,24 @@ namespace audio {
   
   std::unique_ptr<AbstractAudioSink> createBackend(AudioBackend backend)
   {
+    std::unique_ptr<AbstractAudioSink> sink = nullptr;
+    
     switch (backend)
     {
 #ifdef HAVE_PULSEAUDIO
     case kAudioBackendPulseaudio:
-      return std::make_unique<PulseAudioSink>(); 
+      sink = std::make_unique<PulseAudioSink>();
+      break;
 #endif
+    case kAudioBackendNone:
+      sink = std::make_unique<DummyBackend>();
+      break;
+      
     default:
       return nullptr;
     };
+
+    return sink;
   }
   
 }//namespace audio
