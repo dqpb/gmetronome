@@ -37,7 +37,6 @@ noinst_HEADERS = \
 	Audio.h \
 	AudioBackend.h \
 	AudioBuffer.h \
-	AudioSource.h \
 	Generator.h \
 	MainWindow.h \
 	Meter.h \
