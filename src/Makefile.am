@@ -10,7 +10,9 @@ gmetronome_SOURCES = \
 	Application.cpp \
 	Audio.cpp \
 	AudioBackend.cpp \
+	AudioBackendDummy.cpp \
 	AudioBuffer.cpp \
+	Error.cpp \
 	Generator.cpp \
 	main.cpp \
 	MainWindow.cpp \
@@ -36,7 +38,9 @@ noinst_HEADERS = \
 	Application.h \
 	Audio.h \
 	AudioBackend.h \
+	AudioBackendDummy.h \
 	AudioBuffer.h \
+	Error.h \
 	Generator.h \
 	MainWindow.h \
 	Meter.h \
