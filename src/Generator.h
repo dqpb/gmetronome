@@ -51,9 +51,9 @@ namespace audio {
     void setAccel(double accel);
     void swapMeter(Meter& meter);
     
-    void setSoundStrong(Buffer& sound);
-    void setSoundMid(Buffer& sound);
-    void setSoundWeak(Buffer& sound);
+    void swapSoundStrong(Buffer& sound);
+    void swapSoundMid(Buffer& sound);
+    void swapSoundWeak(Buffer& sound);
     
     const Generator::Statistics& getStatistics() const;
     

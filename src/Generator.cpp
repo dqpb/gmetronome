@@ -321,7 +321,7 @@ namespace audio {
       {
         switch (accents[next_accent_])
         {
-        case kAccentHigh:
+        case kAccentStrong:
           frames_chunk = sound_strong_.size() / frameSize(kSampleSpec_); 
           data = &(sound_strong_[0]);
           bytes = sound_strong_.size();
@@ -333,7 +333,7 @@ namespace audio {
           bytes = sound_mid_.size();
           break;
 
-        case kAccentLow:
+        case kAccentWeak:
           frames_chunk = sound_weak_.size() / frameSize(kSampleSpec_); 
           data = &(sound_weak_[0]);
           bytes = sound_weak_.size();

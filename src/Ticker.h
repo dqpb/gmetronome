@@ -88,9 +88,9 @@ namespace audio {
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
     Meter in_meter_;
-    Buffer in_sound_high_;
+    Buffer in_sound_strong_;
     Buffer in_sound_mid_;
-    Buffer in_sound_low_;
+    Buffer in_sound_weak_;
     std::unique_ptr<AbstractAudioSink> in_audio_backend_;
 
     Ticker::Statistics out_stats_;
@@ -99,9 +99,9 @@ namespace audio {
     std::atomic_flag target_tempo_imported_flag_;
     std::atomic_flag accel_imported_flag_;
     std::atomic_flag meter_imported_flag_;
-    std::atomic_flag sound_high_imported_flag_;
+    std::atomic_flag sound_strong_imported_flag_;
     std::atomic_flag sound_mid_imported_flag_;
-    std::atomic_flag sound_low_imported_flag_;
+    std::atomic_flag sound_weak_imported_flag_;
     std::atomic_flag audio_backend_imported_flag_;
 
     mutable SpinLock mutex_;
@@ -110,9 +110,9 @@ namespace audio {
     void importTargetTempo();
     void importAccel();
     void importMeter();
-    void importSoundHigh();
+    void importSoundStrong();
     void importSoundMid();
-    void importSoundLow();
+    void importSoundWeak();
     void importAudioBackend();
 
     void importSettings();

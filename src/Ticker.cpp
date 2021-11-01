@@ -94,13 +94,13 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
   
-  void Ticker::setSoundHigh(double frequency, double volume)
+  void Ticker::setSoundStrong(double frequency, double volume)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);
-      in_sound_high_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+      in_sound_strong_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
     }
-    sound_high_imported_flag_.clear(std::memory_order_release);
+    sound_strong_imported_flag_.clear(std::memory_order_release);
   }
   
   void Ticker::setSoundMid(double frequency, double volume)
@@ -112,13 +112,13 @@ namespace audio {
     sound_mid_imported_flag_.clear(std::memory_order_release);
   }
   
-  void Ticker::setSoundLow(double frequency, double volume)
+  void Ticker::setSoundWeak(double frequency, double volume)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);
-      in_sound_low_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+      in_sound_weak_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
     }
-    sound_low_imported_flag_.clear(std::memory_order_release);
+    sound_weak_imported_flag_.clear(std::memory_order_release);
   }
 
   Ticker::Statistics Ticker::getStatistics() const
@@ -211,14 +211,14 @@ namespace audio {
     else meter_imported_flag_.clear();
   }
 
-  void Ticker::importSoundHigh()
+  void Ticker::importSoundStrong()
   {
     if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapSoundHigh(in_sound_high_);
+      generator_.swapSoundStrong(in_sound_strong_);
     }
-    else sound_high_imported_flag_.clear();
+    else sound_strong_imported_flag_.clear();
   }
 
   void Ticker::importSoundMid()
@@ -231,14 +231,14 @@ namespace audio {
     else sound_mid_imported_flag_.clear();
   }
 
-  void Ticker::importSoundLow()
+  void Ticker::importSoundWeak()
   {
     if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapSoundLow(in_sound_low_);
+      generator_.swapSoundWeak(in_sound_weak_);
     }
-    else sound_low_imported_flag_.clear();
+    else sound_weak_imported_flag_.clear();
   }
 
   void Ticker::importAudioBackend()
@@ -263,12 +263,12 @@ namespace audio {
       importAccel();
     if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
       importMeter();
-    if (!sound_high_imported_flag_.test_and_set(std::memory_order_acquire))
-      importSoundHigh();
+    if (!sound_strong_imported_flag_.test_and_set(std::memory_order_acquire))
+      importSoundStrong();
     if (!sound_mid_imported_flag_.test_and_set(std::memory_order_acquire))
       importSoundMid();
-    if (!sound_low_imported_flag_.test_and_set(std::memory_order_acquire))
-      importSoundLow();
+    if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
+      importSoundWeak();
     if (!audio_backend_imported_flag_.test_and_set(std::memory_order_acquire))
       importAudioBackend();
   }
