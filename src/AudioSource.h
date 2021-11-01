@@ -31,9 +31,7 @@ namespace audio {
     virtual ~AbstractAudioSource() {}
     virtual void start() {}
     virtual void stop() {}
-    virtual void cycle() = 0;
-    virtual std::unique_ptr<AbstractAudioSink>
-    swapSink(std::unique_ptr<AbstractAudioSink> sink) = 0;
+    virtual void cycle(const void*& data, size_t& bytes) = 0;
   };
 
 }//namespace audio
