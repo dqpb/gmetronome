@@ -9,6 +9,7 @@ gmetronome_SOURCES = \
 	Action.cpp \
 	Application.cpp \
 	Audio.cpp \
+	AudioBackend.cpp \
 	AudioBuffer.cpp \
 	Generator.cpp \
 	main.cpp \
@@ -34,6 +35,7 @@ noinst_HEADERS = \
 	Action.h \
 	Application.h \
 	Audio.h \
+	AudioBackend.h \
 	AudioBuffer.h \
 	Generator.h \
 	MainWindow.h \
@@ -47,6 +49,7 @@ noinst_HEADERS = \
 	Settings.h \
 	SettingsDialog.h \
 	Shortcut.h \
+	SpinLock.h \
 	Ticker.h 
 
 gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"

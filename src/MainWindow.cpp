@@ -157,8 +157,10 @@ void MainWindow::initActions()
 
 void MainWindow::initUI()
 {
+  using std::literals::chrono_literals::operator""us;
+
   // initialize header bar
-  updateCurrentTempo({0,0,0,0,0});
+  updateCurrentTempo( { 0us, 0us, { 0, 0, -1, 0us } } );
   
   // initialize tempo interface
   Glib::ustring markup_30 = Glib::ustring::format(30);
@@ -830,11 +832,14 @@ void MainWindow::cancelButtonAnimations()
     button->cancelAnimation();  
 }
 
-void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
+void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
-  std::size_t next_accent = stats.next_accent;
-  uint64_t time = stats.next_accent_time;
+  std::size_t next_accent = stats.generator.next_accent;
   
+  uint64_t time = stats.timestamp.count()
+    + stats.backend_latency.count()
+    + stats.generator.next_accent_time.count();
+
   time += animation_sync_usecs_;
   
   if ( next_accent < accent_button_grid_.size() )
@@ -855,7 +860,7 @@ void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
   }
 }
 
-void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
+void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
   static const Glib::ustring kAccelUpSymbol     = (u8"▴");
   static const Glib::ustring kAccelDownSymbol   = (u8"▾");
@@ -866,7 +871,7 @@ void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
   double tempo_integral;
   double tempo_fraction;
   
-  tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
+  tempo_fraction = std::modf(stats.generator.current_tempo, &tempo_integral);
   
   int tempo_integral_int = tempo_integral;
   int tempo_fraction_int = tempo_fraction * std::pow(10, precision);
@@ -881,18 +886,18 @@ void MainWindow::updateCurrentTempo(const audio::Statistics& stats)
   if (text != tempo_fraction_label_->get_text())
     tempo_fraction_label_->set_text(text);
   
-  if (stats.current_accel == 0)
+  if (stats.generator.current_accel == 0)
      text = kAccelStableSymbol;
-  else if (stats.current_accel > 0)
+  else if (stats.generator.current_accel > 0)
      text = kAccelUpSymbol;
-  else if (stats.current_accel < 0)
+  else if (stats.generator.current_accel < 0)
     text = kAccelDownSymbol;
 
   if (text != tempo_divider_label_->get_text())
     tempo_divider_label_->set_text(text);
 }
 
-void MainWindow::updateTickerStatistics(const audio::Statistics& stats)
+void MainWindow::updateTickerStatistics(const audio::Ticker::Statistics& stats)
 {
   updateCurrentTempo(stats);
   

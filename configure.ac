@@ -26,7 +26,20 @@ PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
-PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple])
+
+AC_ARG_WITH([pulseaudio],
+            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
+            [],
+            [with_pulseaudio=check])
+
+AS_IF([test "x$with_pulseaudio" != "xno"],
+  [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
+     AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
+     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
+      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
+     )
+  )]
+)
 
 #
 # Internationalisation

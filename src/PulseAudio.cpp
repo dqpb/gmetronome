@@ -23,7 +23,7 @@
 namespace audio {
 
     // Helper
-  pa_sample_spec convertSpecToPA(SampleSpec spec)
+  pa_sample_spec convertSpecToPA(const SampleSpec& spec)
   {
     pa_sample_spec pa_spec;
     pa_spec.rate = spec.rate;
@@ -51,7 +51,7 @@ namespace audio {
     return pa_spec;
   }
   
-  PulseAudioConnection::PulseAudioConnection(SampleSpec spec)
+  PulseAudioConnection::PulseAudioConnection(const SampleSpec& spec)
   {
     pa_spec_ = convertSpecToPA(spec);
 
@@ -120,6 +120,79 @@ namespace audio {
       //   throw PulseAudioError(error);
     }    
     return latency;
+  }
+
+
+  PulseAudioSink::PulseAudioSink(const SampleSpec& spec)
+    : state_(BackendState::kConfig),
+      spec_(spec)
+  {}
+  
+  void PulseAudioSink::configure(const SampleSpec& spec)
+  {
+    spec_ = spec;
+  }
+
+  void PulseAudioSink::open()
+  {
+    if (state_ == BackendState::kConfig)
+      // TODO: check configuration
+      state_ = BackendState::kOpen;
+  }
+  
+  void PulseAudioSink::close()
+  {
+    if (state_ == BackendState::kOpen)
+      state_ = BackendState::kConfig;
+  }
+  
+  void PulseAudioSink::start()
+  {
+    if (state_ == BackendState::kOpen)
+    {
+      pa_connection_ = std::make_unique<PulseAudioConnection>(spec_);
+      state_ = BackendState::kRunning;
+    }
+  }
+  
+  void PulseAudioSink::stop()
+  {
+    if (state_ == BackendState::kRunning)
+    {
+      pa_connection_ = nullptr;
+      state_ = BackendState::kOpen;
+    }
+  }
+  
+  void PulseAudioSink::write(const void* data, size_t bytes)
+  {
+    if (pa_connection_)
+      pa_connection_->write(data, bytes);
+  }
+
+  void PulseAudioSink::flush()
+  {
+    if (pa_connection_)
+      pa_connection_->flush();
+  }
+  
+  void PulseAudioSink::drain()
+  {
+    if (pa_connection_)
+      pa_connection_->drain();
+  }
+  
+  uint64_t PulseAudioSink::latency()
+  {
+    if (pa_connection_)
+      return pa_connection_->latency();
+    else
+      return 0;
+  }
+
+  BackendState PulseAudioSink::state() const
+  {
+    return state_;
   }
 
 }//namespace audio

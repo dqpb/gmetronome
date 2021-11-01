@@ -20,12 +20,16 @@
 #ifndef GMetronome_Audio_h
 #define GMetronome_Audio_h
 
+#include <vector>
 #include <chrono>
 #include <memory>
+
+#include "Settings.h"
 
 namespace audio {
 
   using std::chrono::microseconds;  
+  using std::chrono::milliseconds;  
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""us;
 
@@ -66,26 +70,7 @@ namespace audio {
     uint8_t      channels;
   };
 
-  class AbstractAudioSink {
-  public:
-    virtual ~AbstractAudioSink() {}
-    virtual void start() {}
-    virtual void stop() {}
-    virtual void write(const void* data, size_t bytes) = 0;
-    virtual void flush() = 0;
-    virtual void drain() = 0;
-    virtual uint64_t latency() { return 0; }
-  };
-
-  class AbstractAudioSource {
-  public:
-    virtual ~AbstractAudioSource() {}
-    virtual void start() {}
-    virtual void stop() {}
-    virtual void cycle() = 0;
-    virtual std::unique_ptr<AbstractAudioSink>
-    swapSink(std::unique_ptr<AbstractAudioSink> sink) = 0;
-  };
+  constexpr SampleSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 1 };
 
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);

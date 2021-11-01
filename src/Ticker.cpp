@@ -18,27 +18,37 @@
  */
 
 #include "Ticker.h"
-#include "PulseAudio.h"
-
+#include <mutex>
 #include <iostream>
 
 namespace audio {
 
   namespace
   {
-    using namespace std::chrono_literals;
-    
-    static constexpr SampleSpec    kSampleSpec       = { SampleFormat::S16LE, 44100, 1 };
     static constexpr microseconds  kMaxChunkDuration = 80ms;
     static constexpr microseconds  kAvgChunkDuration = 50ms;
     static constexpr double        kSineVolume       = 1.;
     static constexpr microseconds  kSineDuration     = 60ms;
+
+    template<class T>
+    using Range = std::array<T,2>;
+
+    const std::size_t kRangeMinIndex = 0;
+    const std::size_t kRangeMaxIndex = 1;
+    
+    /** Clamp values to the inclusive range of min and max. */
+    template<class T>
+    T clamp(T val, const Range<T>& range)
+    { return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] ); }
+
+    static constexpr Range<double> kTempoRange       = {30,250};
+    static constexpr Range<double> kAccelRange       = {1,1000};
   }
   
   // Ticker
   Ticker::Ticker()
-    : generator_(kSampleSpec, kMaxChunkDuration, kAvgChunkDuration),
-      tempo_range_({30,250}),
+    : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
+      audio_backend_(nullptr),
       state_(TickerState::kReady),
       except_(nullptr)
   {}
@@ -47,75 +57,78 @@ namespace audio {
   {
     stop();
   }  
-
-  void Ticker::setTempo(double tempo)
-  { generator_.setTempo(clamp(tempo, tempo_range_)); }
-
-  void Ticker::setTargetTempo(double target_tempo)
-  { generator_.setTargetTempo(clamp(target_tempo, tempo_range_)); }
-
-  void Ticker::setAccel(double accel)
-  { generator_.setAccel(accel);}
-
-  void Ticker::setMeter(const Meter& meter)
-  { generator_.setMeter(meter); }
   
-  void Ticker::setMeter(Meter&& meter)
-  { generator_.setMeter(std::move(meter));}
-
-  void Ticker::setSoundStrong(double frequency, double volume)
+  void Ticker::setAudioBackend(std::unique_ptr<AbstractAudioSink> new_backend)
   {
-    generator_.setSoundStrong(
-      generateSound(frequency, volume, kSampleSpec, kSineDuration));
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      in_audio_backend_ = std::move(new_backend);
+    }
+    audio_backend_imported_flag_.clear(std::memory_order_release);
+  }
+    
+  void Ticker::setTempo(double tempo)
+  {
+    in_tempo_.store( clamp(tempo, kTempoRange) );
+    tempo_imported_flag_.clear(std::memory_order_release);
+  }
+  
+  void Ticker::setTargetTempo(double target_tempo)
+  {
+    in_target_tempo_.store( clamp(target_tempo, kTempoRange) );
+    target_tempo_imported_flag_.clear(std::memory_order_release);
+  }
+ 
+  void Ticker::setAccel(double accel)
+  {
+    in_accel_.store( clamp(accel, kAccelRange) );
+    accel_imported_flag_.clear(std::memory_order_release);
+  }
+ 
+  void Ticker::setMeter(Meter meter)
+  {
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      in_meter_ = std::move(meter);
+    }
+    meter_imported_flag_.clear(std::memory_order_release);
+  }
+  
+  void Ticker::setSoundHigh(double frequency, double volume)
+  {
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      in_sound_high_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+    }
+    sound_high_imported_flag_.clear(std::memory_order_release);
   }
   
   void Ticker::setSoundMid(double frequency, double volume)
   {
-    generator_.setSoundMid(
-      generateSound(frequency, volume, kSampleSpec, kSineDuration));
-  }
-  
-  void Ticker::setSoundWeak(double frequency, double volume)
-  {
-    generator_.setSoundWeak(
-      generateSound(frequency, volume, kSampleSpec, kSineDuration));
-  }
-
-  void Ticker::setTempoRange(Range<double> range)
-  {
-    if (range[kRangeMinIndex]>range[kRangeMaxIndex]) {
-      //TODO: handle error
-      return;
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      in_sound_mid_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
     }
-    // TODO: clamp tempo_, target_tempo_ and start_tempo_
-    tempo_range_.swap(range);
-  }
-
-  Statistics Ticker::getStatistics() const
-  {
-    return generator_.getStatistics();
+    sound_mid_imported_flag_.clear(std::memory_order_release);
   }
   
-  const Range<double>& Ticker::getTempoRange() const
+  void Ticker::setSoundLow(double frequency, double volume)
   {
-    return tempo_range_;
-  }
-
-  void Ticker::setAccelRange(Range<double> range)
-  {
-    if (range[kRangeMinIndex]>range[kRangeMaxIndex]) {
-      //TODO: handle error
-      return;
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      in_sound_low_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
     }
-    // TODO: clamp accel_
-    accel_range_.swap(range);
+    sound_low_imported_flag_.clear(std::memory_order_release);
   }
-  
-  const Range<double>& Ticker::getAccelRange() const
+
+  Ticker::Statistics Ticker::getStatistics() const
   {
-    return accel_range_;
+    {
+      std::lock_guard<SpinLock> guard(mutex_);
+      return out_stats_;
+    }
   }
-  
+    
   void Ticker::start()
   {
     TickerState state = state_.load();
@@ -149,9 +162,6 @@ namespace audio {
       try {
 	std::rethrow_exception(except_);
       }
-      catch (const PulseAudioError& e) {
-	// handle error
-      }
       catch (...) {
 	// handle error
       }
@@ -166,8 +176,7 @@ namespace audio {
     
     try {
       
-      worker_thread_
-        = std::make_unique<std::thread>(&Ticker::worker, this);
+      worker_thread_ = std::make_unique<std::thread>(&Ticker::worker, this);
 
     } catch(...) {}
   }
@@ -183,30 +192,183 @@ namespace audio {
     except_ = nullptr;
   }
   
+  void Ticker::importTempo()
+  { generator_.setTempo(in_tempo_.load()); }
+  
+  void Ticker::importTargetTempo()
+  { generator_.setTargetTempo(in_target_tempo_.load()); }
+  
+  void Ticker::importAccel()
+  { generator_.setAccel(in_accel_.load()); }
+
+  void Ticker::importMeter()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      generator_.swapMeter(in_meter_);
+    }
+    else meter_imported_flag_.clear();
+  }
+
+  void Ticker::importSoundHigh()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      generator_.swapSoundHigh(in_sound_high_);
+    }
+    else sound_high_imported_flag_.clear();
+  }
+
+  void Ticker::importSoundMid()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      generator_.swapSoundMid(in_sound_mid_);
+    }
+    else sound_mid_imported_flag_.clear();
+  }
+
+  void Ticker::importSoundLow()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      generator_.swapSoundLow(in_sound_low_);
+    }
+    else sound_low_imported_flag_.clear();
+  }
+
+  void Ticker::importAudioBackend()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      stopAudioBackend();
+      swap(audio_backend_, in_audio_backend_);
+      startAudioBackend();
+    }
+    else audio_backend_imported_flag_.clear();
+  }
+
+  void Ticker::importSettings()
+  {
+    if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
+      importTempo();
+    if (!target_tempo_imported_flag_.test_and_set(std::memory_order_acquire))
+      importTargetTempo();
+    if (!accel_imported_flag_.test_and_set(std::memory_order_acquire))
+      importAccel();
+    if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
+      importMeter();
+    if (!sound_high_imported_flag_.test_and_set(std::memory_order_acquire))
+      importSoundHigh();
+    if (!sound_mid_imported_flag_.test_and_set(std::memory_order_acquire))
+      importSoundMid();
+    if (!sound_low_imported_flag_.test_and_set(std::memory_order_acquire))
+      importSoundLow();
+    if (!audio_backend_imported_flag_.test_and_set(std::memory_order_acquire))
+      importAudioBackend();
+  }
+
+  void Ticker::exportStatistics()
+  {
+    if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      out_stats_.timestamp = microseconds(g_get_monotonic_time());
+      
+      if (audio_backend_)
+        out_stats_.backend_latency = microseconds( audio_backend_->latency() );
+      
+      out_stats_.generator = generator_.getStatistics();
+    }
+  }
+
+  void Ticker::startAudioBackend()
+  {
+    if (audio_backend_)
+    {
+      switch (audio_backend_->state())
+      {
+      case BackendState::kConfig:
+        audio_backend_->open();
+      case BackendState::kOpen:
+        audio_backend_->start();
+      case BackendState::kRunning:
+        // do nothing
+      default:
+        break;
+      }
+    }
+  }
+
+  void Ticker::writeAudioBackend(const void* data, size_t bytes)
+  {
+    if (audio_backend_ && bytes > 0)
+      audio_backend_->write(data, bytes);
+  }
+
+  void Ticker::stopAudioBackend()
+  {
+    if (audio_backend_)
+    {
+      switch (audio_backend_->state())
+      {
+      case BackendState::kRunning:
+        audio_backend_->drain();
+        audio_backend_->stop();
+      case BackendState::kOpen:
+        audio_backend_->close();
+      case BackendState::kConfig:
+        // do nothing
+      default:
+        break;
+      }
+    }
+  }
+
   void Ticker::worker() noexcept
   {
+    const void* data;
+    size_t bytes;
+    
     try {
-      std::unique_ptr<AbstractAudioSink> pa_sink
-        = std::make_unique<PulseAudioConnection>(kSampleSpec); 
+      importSettings();
       
-      generator_.swapSink(std::move(pa_sink));      
-      generator_.start();
+      generator_.start(data, bytes);
       
+      exportStatistics();
+
+      startAudioBackend();
+      writeAudioBackend(data, bytes);
+      
+      // enter the main loop
       while ( state_.load() != TickerState::kReady )
-      {
-        generator_.cycle();
+      {                
+        importSettings();
+
+        generator_.cycle(data, bytes);
+
+        exportStatistics();
+
+        writeAudioBackend(data, bytes);
       }
       
-      generator_.stop();
-      pa_sink = generator_.swapSink(nullptr); 
+      generator_.stop(data, bytes);
       
-      pa_sink->drain();
+      exportStatistics();
+      
+      writeAudioBackend(data, bytes);
+      stopAudioBackend();
     }
     catch(...)
     {
       except_ = std::current_exception();
       state_ = TickerState::kError;
     }
-  }  
+  }
     
 }//namespace audio

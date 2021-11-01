@@ -63,8 +63,9 @@ const Glib::ustring kSchemaPathShortcuts {
  */
 enum AudioBackend
 {
-  kAudioBackendPulseaudio = 0,
+  kAudioBackendNone       = 0,
   kAudioBackendAlsa       = 1,
+  kAudioBackendPulseaudio = 2
 };
 
 enum MeterAnimation

@@ -20,9 +20,10 @@
 #ifndef GMetronome_PulseAudio_h
 #define GMetronome_PulseAudio_h
 
-#include "Audio.h"
+#include "AudioBackend.h"
 #include <exception>
 #include <string>
+#include <memory>
 #include <pulse/sample.h>
 #include <pulse/simple.h>
 #include <pulse/error.h>
@@ -53,23 +54,48 @@ namespace audio {
   /**
    * PulseAudio connection resource.
    */
-  class PulseAudioConnection : public AbstractAudioSink {
+  class PulseAudioConnection {
   public:
-    PulseAudioConnection(const audio::SampleSpec spec);  // may throw PulseAudioError
+    PulseAudioConnection(const audio::SampleSpec& spec);  // may throw PulseAudioError
     ~PulseAudioConnection();
     PulseAudioConnection(PulseAudioConnection&&);
     PulseAudioConnection(const PulseAudioConnection&) = delete;
     PulseAudioConnection& operator=(const PulseAudioConnection&) = delete;      
     
-    void write(const void* data, size_t bytes) override;
-    void flush() override;
-    void drain() override;
-    uint64_t latency() override;
+    void write(const void* data, size_t bytes);
+    void flush();
+    void drain();
+    uint64_t latency();
     
   private:
     pa_sample_spec pa_spec_;
     pa_buffer_attr pa_buffer_attr_;
     pa_simple*     pa_simple_;
+  };
+
+  /**
+   * PulseAudio Backend
+   */ 
+  class PulseAudioSink : public AbstractAudioSink
+  {
+  public:
+    PulseAudioSink(const audio::SampleSpec& spec = kDefaultSpec); 
+    
+    void configure(const SampleSpec& spec) override;
+    void open() override;
+    void close() override;
+    void start() override;
+    void stop() override;
+    void write(const void* data, size_t bytes) override;
+    void flush() override;
+    void drain() override;
+    uint64_t latency() override;
+    BackendState state() const override;
+
+  private:
+    BackendState state_;
+    audio::SampleSpec spec_;
+    std::unique_ptr<PulseAudioConnection> pa_connection_;
   };
   
 }//namespace audio
