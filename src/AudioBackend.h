@@ -21,13 +21,43 @@
 #define GMetronome_AudioBackend_h
 
 #include "Audio.h"
+#include "Error.h"
 #include "Settings.h"
 #include <vector>
 
 namespace audio {
 
   /**
-   * An audio::Backend is always in one of the following states:
+   * @class BackendStateTransitionError
+   * @brief A generic exception for an invalid backend state transition.
+   */
+  class BackendStateTransitionError : public GMetronomeError {
+  public:
+    BackendStateTransitionError()
+      : GMetronomeError("Invalid state transition in audio backend.") {} 
+  };
+
+  /**
+   * @class BackendConfigurationError
+   * @brief A generic exception for an invalid backend configuration.
+   */
+  class BackendConfigurationError : public GMetronomeError {
+  public:
+    BackendConfigurationError()
+      : GMetronomeError("Invalid configuration of audio backend.") {} 
+  };
+
+  enum class BackendState
+  {
+    kConfig   = 0,
+    kOpen     = 1,
+    kRunning  = 2
+  };
+
+  /**
+   * @class AbstractAudioSink
+   *
+   * An audio backend is always in one of the following states:
    *
    * 1) Config:  This state is used to configure the audio::Backend 
    * 2) Open:    After configuration call open() to check configuration and
@@ -43,40 +73,19 @@ namespace audio {
    *   IV)  Running --> Open      [stop()]
    *   V)   Open    --> Config    [close()]
    */
-  enum class BackendState
-  {
-    kConfig   = 0,
-    kOpen     = 1,
-    kRunning  = 2
-  };
-
-  /**
-   * @class AbstractAudioSink
-   */
   class AbstractAudioSink {
-
   public:
-
     virtual ~AbstractAudioSink() {}
 
     virtual void configure(const SampleSpec& spec) = 0;
-    
     virtual void open() = 0;
-
     virtual void close() = 0;
-
     virtual void start() = 0;
-
     virtual void stop() = 0;
-
     virtual void write(const void* data, size_t bytes) = 0;
-
     virtual void flush() = 0;
-
     virtual void drain() = 0;
-
     virtual uint64_t latency() { return 0; }
-    
     virtual BackendState state() const = 0;
   };
   
