@@ -77,18 +77,12 @@ namespace audio {
   }
 
   void Generator::swapMeter(Meter& meter)
-  {
+  {    
     double s_subdiv = meter_.division();
     double t_subdiv = meter.division();
     
     std::swap(meter_, meter);
     
-    // TODO: recalculate the current index to gain a smooth transition between the 
-    //       old and the new pattern, ie. keep beats consistent.
-    //
-    // This seems to be a little harder to make in a clean way but it is entirely
-    // possible with the known information.
-
     auto fmodulo = [](double a, double b) -> int
       {
         int ai = std::lround(a);
@@ -103,13 +97,14 @@ namespace audio {
     double t_accent = accent_ratio * s_accent;
     double t_next_accent = std::ceil( t_accent );
     double t_prev_accent = t_next_accent - 1;
-
+    
     // compute frames_done
     if (accel_ == 0) {
       frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
       frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, t_subdiv);
     }
     else {
+      // TODO
       /*
         double p = 2.0 * tempo / accel;
         double q = -2.0 * delta_s / accel;
@@ -132,15 +127,6 @@ namespace audio {
       next_accent_ = 0;
     
     frames_left_ = frames_total_ - frames_done_;
-
-    // TODO: there is a race condition regarding out_next_accent_ which leads to
-    // a potential data inconsistency after a pattern change followed by a reqest
-    // of the next accent (the returned index could be out of pattern range). 
-    // A solution might introduce another condition variable in case of a pending
-    // pattern change during a next accent request.
-    //
-    // out_next_accent_.store(
-    //   ( (next_accent_ << 16) & 0xffff0000 ) | ( frames_left_ & 0x0000ffff ) );
   }
   
   void Generator::swapSoundStrong(Buffer& sound)
@@ -290,7 +276,7 @@ namespace audio {
     
     frames_total_ = 2 * kMaxChunkFrames_;
     frames_done_  = 0;
-    frames_left_  = 2 * kMaxChunkFrames_;
+    frames_left_  = frames_total_ - frames_done_;
 
     updateStatistics();
     
@@ -298,7 +284,7 @@ namespace audio {
     bytes = frames_left_ * frameSize(kSampleSpec_);
     
     recalculateFramesTotal();
-    frames_done_ = 0;
+    frames_done_ = frames_total_;
     frames_left_ = 0;
   }
 
@@ -315,8 +301,8 @@ namespace audio {
     const AccentPattern& accents = meter_.accents();
     size_t frames_chunk = 0;
     
-    if (frames_left_ <= 0) {
-      frames_chunk = 0;
+    if (frames_done_ >= frames_total_)
+    {
       if (!accents.empty())
       {
         switch (accents[next_accent_])
@@ -348,33 +334,24 @@ namespace audio {
         if (++next_accent_ == accents.size())
           next_accent_ = 0;
       }
-      frames_done_ = frames_chunk;
+      recalculateTempo();
+      frames_done_ = frames_done_ - frames_total_;
+      recalculateFramesTotal();
     }
     else if (frames_left_ <= kMaxChunkFrames_) {
       frames_chunk = frames_left_;
       data = &(sound_zero_[0]);
       bytes = frames_left_ * frameSize(kSampleSpec_);
-      frames_done_ += frames_chunk;
     }
     else {
       frames_chunk = frames_left_ / lround( (double) frames_left_ / kAvgChunkFrames_ );
       data = &(sound_zero_[0]);
       bytes = frames_chunk * frameSize(kSampleSpec_);
-      frames_done_ += frames_chunk;
     }
 
-    if (frames_done_ >= frames_total_)
-    {
-      frames_left_=0;
-      recalculateTempo();
-      recalculateFramesTotal();
-      frames_done_ = 0;
-    }
-    else
-    {
-      frames_left_ = frames_total_ - frames_done_;
-    }
-    
+    frames_done_ += frames_chunk;
+    frames_left_ = frames_total_ - frames_done_;
+        
     updateStatistics();
   }
 
