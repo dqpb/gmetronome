@@ -295,8 +295,10 @@ namespace audio {
       {
       case BackendState::kConfig:
         audio_backend_->open();
+        [[fallthrough]];
       case BackendState::kOpen:
         audio_backend_->start();
+        [[fallthrough]];
       case BackendState::kRunning:
         // do nothing
       default:

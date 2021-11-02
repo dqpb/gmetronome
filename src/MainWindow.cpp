@@ -849,11 +849,12 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
     case kMeterAnimationBeat:
       if (next_accent % accent_button_grid_.grouping() != 0)
 	break;
-
+      [[fallthrough]];
+      
     case kMeterAnimationAll:
       accent_button_grid_[next_accent].scheduleAnimation(time);
       break;
-      
+
     default:
       break;
     };

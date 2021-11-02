@@ -430,11 +430,13 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
     cairo_context->fill();
     
     Gdk::Cairo::set_source_rgba(cairo_context, color1);
+    [[fallthrough]];
   }
   case kAccentMid: 
   {
     cairo_context->rectangle( L, 11, surface_width, 4);
     cairo_context->fill();
+    [[fallthrough]];
   }
   case kAccentWeak:
   {
