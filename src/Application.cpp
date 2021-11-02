@@ -249,11 +249,18 @@ void Application::setAccelerator(const ActionScope& scope,
 void Application::onHideWindow(Gtk::Window* window)
 {
   saveSelectedProfile();
+  
+  bool start_state;
+  get_action_state(kActionStart, start_state);
+  
+  if (start_state)
+    activate_action(kActionStart);
+  
   delete window;
 }
 
 void Application::onQuit(const Glib::VariantBase& parameter)
-{
+{  
   // Gio::Application::quit() will make Gio::Application::run() return,
   // but it's a crude way of ending the program. The window is not removed
   // from the application. Neither the window's nor the application's
