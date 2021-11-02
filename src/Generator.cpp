@@ -39,7 +39,8 @@ namespace audio {
       kFramesMicrosecondsRatio_(1. / kMicrosecondsFramesRatio_),
       tempo_(convertTempoToFrameTime(120.)),
       target_tempo_(convertTempoToFrameTime(120.)),
-      accel_(convertAccelToFrameTime(0.0)),
+      accel_(convertAccelToFrameTime(0)),
+      accel_saved_(accel_),
       meter_({kSingleMeter, kNoDivision, {kAccentMid}}),
       sound_zero_(2 * kMaxChunkDuration_, kSampleSpec_),
       sound_strong_(sound_zero_),
@@ -70,7 +71,7 @@ namespace audio {
   
   void Generator::setAccel(double accel)
   {
-    accel_ = convertAccelToFrameTime(accel);
+    accel_ = accel_saved_ = convertAccelToFrameTime(accel);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
@@ -156,55 +157,45 @@ namespace audio {
 
   void Generator::recalculateAccelSign() {
     if (target_tempo_ == tempo_)
-      accel_ = 0.;
+      accel_ = 0;
     else 
-      accel_ = std::copysign(accel_, (target_tempo_ < tempo_) ? -1. : 1.);
+      accel_ = std::copysign(accel_saved_, (target_tempo_ < tempo_) ? -1. : 1.);
   }
 
   void Generator::recalculateFramesTotal() {
     frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, meter_.division());
   }
 
-  void Generator::recalculateTempo() {
-    tempo_ = tempoAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
+  void Generator::recalculateMotionParameters() {
+    std::tie(tempo_, accel_) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
   }
 
-  double Generator::tempoAfterNFrames(double tempo,
-                                      double target_tempo,
-                                      double accel,
-                                      size_t n_frames)
+  std::pair<double, double> Generator::motionAfterNFrames(double tempo,
+                                                          double target_tempo,
+                                                          double accel,
+                                                          size_t n_frames)
   {
     double new_tempo;
+    double new_accel;
+    
     if (accel == 0) {
       new_tempo = tempo;
-    }
-    else {
-      new_tempo = accel * n_frames + tempo;
-      if ( (accel > 0 && new_tempo > target_tempo) || (accel < 0 && new_tempo < target_tempo) )
-        new_tempo = target_tempo;
-    }
-    return new_tempo;
-  }
-
-  double Generator::accelAfterNFrames(double tempo,
-                                      double target_tempo,
-                                      double accel,
-                                      size_t n_frames)
-  {
-    double new_accel;
-    if (accel == 0) {
       new_accel = 0;
     }
     else {
-      double new_tempo = accel * n_frames + tempo;
+      new_tempo = accel * n_frames + tempo;
       if ( (accel > 0 && new_tempo >= target_tempo) || (accel < 0 && new_tempo <= target_tempo) )
+      {
+        new_tempo = target_tempo;
         new_accel = 0;
-      else
-        new_accel = accel;
+      }
+      else {
+         new_accel = accel;
+      }
     }
-    return new_accel;
+    return {new_tempo,new_accel};
   }
-
+  
   size_t Generator::framesPerPulse(double tempo,
                                    double target_tempo,
                                    double accel,
@@ -255,12 +246,11 @@ namespace audio {
 
   void Generator::updateStatistics()
   {
-    stats_.current_tempo = 
-      tempoAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_;
-    
-    stats_.current_accel =
-      accelAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_;
-    
+    double tempo, accel;
+    std::tie(tempo, accel) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
+
+    stats_.current_tempo = tempo * kFramesMinutesRatio_;
+    stats_.current_accel = accel * kFramesMinutesRatio_;
     stats_.next_accent = next_accent_;
 
     int frames_left = std::max(0, frames_total_ - frames_done_);
@@ -336,8 +326,8 @@ namespace audio {
         if (++next_accent_ == accents.size())
           next_accent_ = 0;
       }
-      recalculateTempo();
-      frames_done_ = frames_done_ - frames_total_;
+      recalculateMotionParameters();
+      frames_done_ = 0;
       recalculateFramesTotal();
     }
     else if (frames_left <= kMaxChunkFrames_) {

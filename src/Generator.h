@@ -74,7 +74,7 @@ namespace audio {
 
     double tempo_;
     double target_tempo_;
-    double accel_;
+    double accel_, accel_saved_;
     Meter meter_;
     const Buffer sound_zero_;
     Buffer sound_strong_;
@@ -90,10 +90,11 @@ namespace audio {
     
     void recalculateAccelSign();
     void recalculateFramesTotal();
-    void recalculateTempo();
+    void recalculateMotionParameters();
     
-    double tempoAfterNFrames(double tempo, double target_tempo, double accel, size_t n_frames);
-    double accelAfterNFrames(double tempo, double target_tempo, double accel, size_t n_frames);
+    std::pair<double, double>
+    motionAfterNFrames(double tempo, double target_tempo, double accel, size_t n_frames);
+      
     size_t framesPerPulse(double tempo, double target_tempo,  double accel, unsigned subdiv=1);
     
     void updateStatistics();
