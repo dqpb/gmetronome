@@ -113,7 +113,7 @@ namespace audio {
       */
       // ...
 
-      // tempo = ...
+      // tempo_ = ...
 	    
       // temp. solution (remove) 
       frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
@@ -283,8 +283,8 @@ namespace audio {
     data = &(sound_zero_[0]);
     bytes = frames_left_ * frameSize(kSampleSpec_);
     
-    recalculateFramesTotal();
-    frames_done_ = frames_total_;
+    frames_total_ = 0;
+    frames_done_ = 0;
     frames_left_ = 0;
   }
 
