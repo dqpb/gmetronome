@@ -229,7 +229,7 @@ namespace {
         {
           auto it = std::find_if(attributes.begin(), attributes.end(),
                                  [] (auto& pair) {
-                                   return pair.first.lowercase() == "strength";
+                                   return pair.first.lowercase() == "level";
                                  });
           if (it != attributes.end())
             current_meter_accents_.push_back( static_cast<Accent>(std::stoi(it->second)) );
@@ -398,7 +398,7 @@ namespace {
     const AccentPattern& accents = meter.accents();
     for ( const Accent& a : accents )
     {
-      ostream->write("              <accent strength=\"");
+      ostream->write("              <accent level=\"");
       int i = static_cast<int>(a);
       ostream->write(std::to_string(i));
       ostream->write("\"/>\n");

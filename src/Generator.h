@@ -100,10 +100,5 @@ namespace audio {
     void updateStatistics();
   };
   
-  Buffer generateSound(double frequency,
-                       double volume,
-                       SampleSpec spec,
-                       microseconds duration);
-  
 }//namespace audio
 #endif//GMetronome_Generator_h

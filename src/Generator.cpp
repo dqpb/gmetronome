@@ -346,41 +346,4 @@ namespace audio {
     updateStatistics();
   }
 
-  Buffer generateSound(double frequency,
-                       double volume,
-                       SampleSpec spec,
-                       microseconds duration)
-  {
-    assert(spec.channels == 1);
-    assert(spec.format == SampleFormat::S16LE);
-    
-    volume = std::min( std::max(volume, 0.), 1.0);
-    
-    using namespace std::chrono_literals;
-    
-    Buffer buffer(duration, spec);
-
-    if (volume > 0)
-    {
-      double sine_fac = 2 * M_PI * frequency / spec.rate;
-      auto n_frames = buffer.frames();
-      double one_over_n_frames = 1. / n_frames;
-      double volume_drop_exp = 2. / volume;
-      auto frameSize = audio::frameSize(spec);
-      
-      for(size_t frame = 0, buffer_index = 0;
-          frame < n_frames;
-          ++frame, buffer_index+=frameSize)
-      {
-        double v = volume * std::pow( 1. - one_over_n_frames * frame, volume_drop_exp);
-        double amplitude = v * std::sin(sine_fac * frame);
-        int16_t pcm =  amplitude * std::numeric_limits<int16_t>::max();
-	
-        buffer[buffer_index] = pcm & 0xff;
-        buffer[buffer_index+1] = (pcm>>8) & 0xff;	
-      }
-    }
-    return buffer;
-  }
-
-}//namespace
+}//namespace audio
