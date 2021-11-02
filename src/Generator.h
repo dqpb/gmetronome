@@ -40,7 +40,7 @@ namespace audio {
 
   public:    
 
-    Generator(SampleSpec spec = { SampleFormat::S16LE, 44100, 1 },
+    Generator(SampleSpec spec = kDefaultSpec,
               microseconds maxChunkDuration = 80ms,
               microseconds avgChunkDuration = 50ms);
     
