@@ -42,7 +42,7 @@ namespace audio {
     { return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] ); }
 
     static constexpr Range<double> kTempoRange       = {30,250};
-    static constexpr Range<double> kAccelRange       = {1,1000};
+    static constexpr Range<double> kAccelRange       = {0,1000};
   }
   
   // Ticker
