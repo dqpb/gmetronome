@@ -46,9 +46,8 @@ namespace audio {
       sound_mid_(sound_zero_),
       sound_weak_(sound_zero_),
       next_accent_(0),
-      frames_done_(0),
-      frames_left_(0),
       frames_total_(0),
+      frames_done_(0),
       stats_({0,0,0,0us})
   {}
 
@@ -125,8 +124,6 @@ namespace audio {
     next_accent_ = fmodulo(t_next_accent, meter_.accents().size());
     if (next_accent_ >= meter_.accents().size())
       next_accent_ = 0;
-    
-    frames_left_ = frames_total_ - frames_done_;
   }
   
   void Generator::swapSoundStrong(Buffer& sound)
@@ -265,9 +262,11 @@ namespace audio {
       accelAfterNFrames(tempo_, target_tempo_, accel_, frames_done_) * kFramesMinutesRatio_;
     
     stats_.next_accent = next_accent_;
+
+    int frames_left = std::max(0, frames_total_ - frames_done_);
     
     stats_.next_accent_time
-      = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio_));
+      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio_));
   }
   
   void Generator::start(const void*& data, size_t& bytes)
@@ -276,16 +275,14 @@ namespace audio {
     
     frames_total_ = 2 * kMaxChunkFrames_;
     frames_done_  = 0;
-    frames_left_  = frames_total_ - frames_done_;
 
     updateStatistics();
     
     data = &(sound_zero_[0]);
-    bytes = frames_left_ * frameSize(kSampleSpec_);
+    bytes = frames_total_ * frameSize(kSampleSpec_);
     
     frames_total_ = 0;
     frames_done_ = 0;
-    frames_left_ = 0;
   }
 
   void Generator::stop(const void*& data, size_t& bytes)
@@ -294,14 +291,19 @@ namespace audio {
     stats_.current_accel = 0;
     stats_.next_accent = 0;
     stats_.next_accent_time = 0us;
+
+    data = &(sound_zero_[0]);
+    bytes = 0;
   }
   
   void Generator::cycle(const void*& data, size_t& bytes)
   {
     const AccentPattern& accents = meter_.accents();
     size_t frames_chunk = 0;
+
+    int frames_left = frames_total_ - frames_done_;
     
-    if (frames_done_ >= frames_total_)
+    if (frames_left <= 0)
     {
       if (!accents.empty())
       {
@@ -338,20 +340,19 @@ namespace audio {
       frames_done_ = frames_done_ - frames_total_;
       recalculateFramesTotal();
     }
-    else if (frames_left_ <= kMaxChunkFrames_) {
-      frames_chunk = frames_left_;
+    else if (frames_left <= kMaxChunkFrames_) {
+      frames_chunk = frames_left;
       data = &(sound_zero_[0]);
-      bytes = frames_left_ * frameSize(kSampleSpec_);
+      bytes = frames_left * frameSize(kSampleSpec_);
     }
     else {
-      frames_chunk = frames_left_ / lround( (double) frames_left_ / kAvgChunkFrames_ );
+      frames_chunk = frames_left / lround( (double) frames_left / kAvgChunkFrames_ );
       data = &(sound_zero_[0]);
       bytes = frames_chunk * frameSize(kSampleSpec_);
     }
 
     frames_done_ += frames_chunk;
-    frames_left_ = frames_total_ - frames_done_;
-        
+
     updateStatistics();
   }
 

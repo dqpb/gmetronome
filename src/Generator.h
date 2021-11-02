@@ -81,9 +81,8 @@ namespace audio {
     Buffer sound_mid_;
     Buffer sound_weak_;
     unsigned next_accent_;
-    int frames_done_;
-    int frames_left_;
     int frames_total_;
+    int frames_done_;
     Generator::Statistics stats_;
     
     double convertTempoToFrameTime(double tempo);
