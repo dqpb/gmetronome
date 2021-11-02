@@ -22,6 +22,7 @@ gmetronome_SOURCES = \
 	PulseAudio.cpp \
 	Shortcut.cpp \
 	SettingsDialog.cpp \
+	Synthesizer.cpp \
 	Ticker.cpp
 
 nodist_gmetronome_SOURCES = \
@@ -47,7 +48,8 @@ noinst_HEADERS = \
 	Settings.h \
 	SettingsDialog.h \
 	Shortcut.h \
-	Ticker.h 
+	Synthesizer.h \
+	Ticker.h
 
 gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
 gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@

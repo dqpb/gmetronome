@@ -153,9 +153,5 @@ namespace audio {
     void exportLatency();
   };
   
-  Buffer generateSound(double frequency,
-                       double volume,
-                       SampleSpec spec,
-                       microseconds duration);
-}//namespace
+}//namespace audio
 #endif//GMetronome_Generator_h
