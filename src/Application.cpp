@@ -112,10 +112,10 @@ void Application::initActions()
 
 void Application::initSettings()
 {
-  settings_ = Gio::Settings::create(kSchemaId);
-  settings_prefs_ = settings_->get_child(kSchemaIdPrefsBasename);
-  settings_state_ = settings_->get_child(kSchemaIdStateBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(kSchemaIdShortcutsBasename);  
+  settings_ = Gio::Settings::create(settings::kSchemaId);
+  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
+  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
+  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);  
   
   settings_prefs_connection_ = settings_prefs_->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
@@ -134,9 +134,9 @@ void Application::initProfiles()
   
   profiles_manager_.setIOModule(std::make_unique<ProfilesIOLocalXml>());
 
-  if (settings_prefs_->get_boolean(kKeyPrefsRestoreProfile))
+  if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
   {
-    Glib::ustring profile_id = settings_state_->get_string(kKeyStateProfilesSelect);
+    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
     
     Glib::Variant<Glib::ustring> state
       = Glib::Variant<Glib::ustring>::create(profile_id);
@@ -185,23 +185,23 @@ void Application::configureTickerSound()
 
 void Application::configureTickerSoundStrong()
 {
-  ticker_.setSoundStrong(settings_prefs_->get_double(kKeyPrefsSoundStrongFrequency),
-                         settings_prefs_->get_double(kKeyPrefsSoundStrongVolume) *
-                         settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
+  ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongFrequency),
+                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
+                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
 }
 
 void Application::configureTickerSoundMid()
 {
-  ticker_.setSoundMid(settings_prefs_->get_double(kKeyPrefsSoundMidFrequency),
-                      settings_prefs_->get_double(kKeyPrefsSoundMidVolume) *
-                      settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
+  ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidFrequency),
+                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
+                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
 }
 
 void Application::configureTickerSoundWeak()
 {
-  ticker_.setSoundWeak(settings_prefs_->get_double(kKeyPrefsSoundWeakFrequency),
-                       settings_prefs_->get_double(kKeyPrefsSoundWeakVolume) *
-                       settings_prefs_->get_double(kKeyPrefsVolume) / 100. / 100.); 
+  ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakFrequency),
+                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
+                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
 }
 
 
@@ -453,12 +453,12 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
-  double current_volume = settings_prefs_->get_double(kKeyPrefsVolume);
+  double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
   double new_volume = current_volume + delta_volume;
   
   new_volume = std::clamp(new_volume, kMinimumVolume, kMaximumVolume);
   
-  settings_prefs_->set_double(kKeyPrefsVolume, new_volume);
+  settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
 
 void Application::onVolumeDecrease(const Glib::VariantBase& value)
@@ -466,12 +466,12 @@ void Application::onVolumeDecrease(const Glib::VariantBase& value)
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   
-  double current_volume = settings_prefs_->get_double(kKeyPrefsVolume);
+  double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
   double new_volume = current_volume - delta_volume;
   
   new_volume = std::clamp(new_volume, kMinimumVolume, kMaximumVolume);
   
-  settings_prefs_->set_double(kKeyPrefsVolume, new_volume);
+  settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
 
 void Application::onTempo(const Glib::VariantBase& in_val)
@@ -693,7 +693,7 @@ void Application::onProfilesSelect(const Glib::VariantBase& value)
   get_action_state(kActionProfilesSelect, selected_id);
 
   settings_state_connection_.block();
-  settings_state_->set_string(kKeyStateProfilesSelect, selected_id);
+  settings_state_->set_string(settings::kKeyStateProfilesSelect, selected_id);
   settings_state_connection_.unblock();
   
   loadSelectedProfile();
@@ -925,19 +925,19 @@ void Application::onStart(const Glib::VariantBase& value)
 
 void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == kKeyPrefsVolume)
+  if (key == settings::kKeyPrefsVolume)
   {
     configureTickerSound();
   }
-  else if (key == kKeyPrefsSoundStrongFrequency || key == kKeyPrefsSoundStrongVolume)
+  else if (key == settings::kKeyPrefsSoundStrongFrequency || key == settings::kKeyPrefsSoundStrongVolume)
   {
     configureTickerSoundStrong();
   }
-  else if (key == kKeyPrefsSoundMidFrequency || key == kKeyPrefsSoundMidVolume)
+  else if (key == settings::kKeyPrefsSoundMidFrequency || key == settings::kKeyPrefsSoundMidVolume)
   {
     configureTickerSoundMid();
   }
-  else if (key == kKeyPrefsSoundWeakFrequency || key == kKeyPrefsSoundWeakVolume)
+  else if (key == settings::kKeyPrefsSoundWeakFrequency || key == settings::kKeyPrefsSoundWeakVolume)
   {
     configureTickerSoundWeak();
   }
@@ -945,9 +945,9 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void Application::onSettingsStateChanged(const Glib::ustring& key)
 {
-  if (key == kKeyStateProfilesSelect)
+  if (key == settings::kKeyStateProfilesSelect)
   {
-    Glib::ustring profile_id = settings_state_->get_string(kKeyStateProfilesSelect);
+    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
     
     Glib::Variant<Glib::ustring> state
       = Glib::Variant<Glib::ustring>::create(profile_id);

@@ -127,10 +127,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
 
 void MainWindow::initSettings()
 {
-  settings_ = Gio::Settings::create(kSchemaId);
-  settings_prefs_ = settings_->get_child(kSchemaIdPrefsBasename);
-  settings_state_ = settings_->get_child(kSchemaIdStateBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(kSchemaIdShortcutsBasename);  
+  settings_ = Gio::Settings::create(settings::kSchemaId);
+  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
+  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
+  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);  
 
   settings_prefs_->signal_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
@@ -237,27 +237,27 @@ void MainWindow::initBindings()
 {
   auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
   
-  settings_prefs_->bind(kKeyPrefsVolume,
+  settings_prefs_->bind(settings::kKeyPrefsVolume,
                         volume_button_,
                         "value",
                         Gio::SETTINGS_BIND_DEFAULT);
 
-  settings_state_->bind(kKeyStateShowMeter,
+  settings_state_->bind(settings::kKeyStateShowMeter,
                         accent_revealer_,
                         "reveal-child",
                         Gio::SETTINGS_BIND_GET);
   
-  settings_state_->bind(kKeyStateShowMeter,
+  settings_state_->bind(settings::kKeyStateShowMeter,
                         accent_toggle_button_revealer_,
                         "reveal-child",
                         Gio::SETTINGS_BIND_GET);
   
-  settings_state_->bind(kKeyStateShowTrainer,
+  settings_state_->bind(settings::kKeyStateShowTrainer,
                         trainer_revealer_,
                         "reveal-child",
                         Gio::SETTINGS_BIND_GET);
   
-  settings_state_->bind(kKeyStateShowTrainer,
+  settings_state_->bind(settings::kKeyStateShowTrainer,
                         trainer_toggle_button_revealer_,
                         "reveal-child",
                         Gio::SETTINGS_BIND_GET);
@@ -841,11 +841,11 @@ void MainWindow::updateAccentAnimation(const audio::Statistics& stats)
   {
     switch (meter_animation_)
     {
-    case kMeterAnimationBeat:
+    case settings::kMeterAnimationBeat:
       if (next_accent % accent_button_grid_.grouping() != 0)
 	break;
 
-    case kMeterAnimationAll:
+    case settings::kMeterAnimationAll:
       accent_button_grid_[next_accent].scheduleAnimation(time);
       break;
       
@@ -896,17 +896,17 @@ void MainWindow::updateTickerStatistics(const audio::Statistics& stats)
 {
   updateCurrentTempo(stats);
   
-  if (meter_animation_ != kMeterAnimationOff)
+  if (meter_animation_ != settings::kMeterAnimationOff)
     updateAccentAnimation(stats);
 }
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == kKeyPrefsAnimationSync)
+  if (key == settings::kKeyPrefsAnimationSync)
   {
     updatePrefAnimationSync();
   }
-  else if (key == kKeyPrefsMeterAnimation)
+  else if (key == settings::kKeyPrefsMeterAnimation)
   {
     updatePrefMeterAnimation();
   }
@@ -914,11 +914,11 @@ void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void MainWindow::updatePrefMeterAnimation()
 {
-  meter_animation_ = settings_prefs_->get_enum(kKeyPrefsMeterAnimation);
+  meter_animation_ = settings_prefs_->get_enum(settings::kKeyPrefsMeterAnimation);
 }
 
 void MainWindow::updatePrefAnimationSync()
 {
   animation_sync_usecs_ = 
-    std::round( settings_prefs_->get_double(kKeyPrefsAnimationSync) * 1000.);
+    std::round( settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.);
 }
