@@ -22,114 +22,117 @@
 
 #include <glibmm/ustring.h>
 
-/*
- * GSettings schema id's
- */
-const Glib::ustring kSchemaId                   {"org.gmetronome"};
-const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
-const Glib::ustring kSchemaIdStateBasename      {"state"};
-const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
+namespace settings {
 
-const Glib::ustring kSchemaIdPrefs {
-  kSchemaId + "." + kSchemaIdPrefsBasename
-};
-const Glib::ustring kSchemaIdState {
-  kSchemaId + "." + kSchemaIdStateBasename
-};
-const Glib::ustring kSchemaIdShortcuts {
-  kSchemaIdPrefs + "." + kSchemaIdShortcutsBasename
-};
+  /*
+   * GSettings schema id's
+   */
+  const Glib::ustring kSchemaId                   {"org.gmetronome"};
+  const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
+  const Glib::ustring kSchemaIdStateBasename      {"state"};
+  const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
 
-/*
- * GSettings schema paths
- */
-const Glib::ustring kSchemaPath                   {"/org/gmetronome/"};
-const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
-const Glib::ustring kSchemaPathStateBasename      {"state"};
-const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};
+  const Glib::ustring kSchemaIdPrefs {
+    kSchemaId + "." + kSchemaIdPrefsBasename
+  };
+  const Glib::ustring kSchemaIdState {
+    kSchemaId + "." + kSchemaIdStateBasename
+  };
+  const Glib::ustring kSchemaIdShortcuts {
+    kSchemaIdPrefs + "." + kSchemaIdShortcutsBasename
+  };
+  
+  /*
+   * GSettings schema paths
+   */
+  const Glib::ustring kSchemaPath                   {"/org/gmetronome/"};
+  const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
+  const Glib::ustring kSchemaPathStateBasename      {"state"};
+  const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};
 
-const Glib::ustring kSchemaPathPrefs {
-  kSchemaPath + kSchemaPathPrefsBasename + "/"
-};
-const Glib::ustring kSchemaPathState {
-  kSchemaPath + kSchemaPathStateBasename + "/"
-};
-const Glib::ustring kSchemaPathShortcuts {
-  kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
-};
+  const Glib::ustring kSchemaPathPrefs {
+    kSchemaPath + kSchemaPathPrefsBasename + "/"
+  };
+  const Glib::ustring kSchemaPathState {
+    kSchemaPath + kSchemaPathStateBasename + "/"
+  };
+  const Glib::ustring kSchemaPathShortcuts {
+    kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
+  };
+  
+  /*
+   * org.gmetronome enum types
+   */
+  enum AudioBackend
+  {
+    kAudioBackendNone       = 0,
+    kAudioBackendAlsa       = 1,
+    kAudioBackendPulseaudio = 2
+  };
 
-/*
- * org.gmetronome enum types
- */
-enum AudioBackend
-{
-  kAudioBackendNone       = 0,
-  kAudioBackendAlsa       = 1,
-  kAudioBackendPulseaudio = 2
-};
+  enum MeterAnimation
+  {
+    kMeterAnimationOff  = 0,
+    kMeterAnimationBeat = 1,
+    kMeterAnimationAll  = 2,
+  };
 
-enum MeterAnimation
-{
-  kMeterAnimationOff  = 0,
-  kMeterAnimationBeat = 1,
-  kMeterAnimationAll  = 2,
-};
+  /* 
+   * org.gmetronome.preferences keys
+   */
+  const Glib::ustring  kKeyPrefsVolume                    {"volume"};
+  const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
+  const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
+  const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
+  const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
+  const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
+  const Glib::ustring  kKeyPrefsSoundMidFrequency         {"sound-mid-frequency"};
+  const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
+  const Glib::ustring  kKeyPrefsSoundWeakFrequency        {"sound-weak-frequency"};
+  const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
+  const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
 
-/* 
- * org.gmetronome.preferences keys
- */
-const Glib::ustring  kKeyPrefsVolume                    {"volume"};
-const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
-const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
-const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
-const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
-const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
-const Glib::ustring  kKeyPrefsSoundMidFrequency         {"sound-mid-frequency"};
-const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
-const Glib::ustring  kKeyPrefsSoundWeakFrequency        {"sound-weak-frequency"};
-const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
-const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
+  /* 
+   * org.gmetronome.preferences.shortcuts keys
+   */
+  const Glib::ustring  kKeyShortcutsQuit                  {"quit"};
+  const Glib::ustring  kKeyShortcutsShowPrimaryMenu       {"show-primary-menu"};
+  const Glib::ustring  kKeyShortcutsShowProfiles          {"show-profiles"};
+  const Glib::ustring  kKeyShortcutsShowPreferences       {"show-preferences"};
+  const Glib::ustring  kKeyShortcutsShowShortcuts         {"show-shortcuts"};
+  const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
+  const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
+  const Glib::ustring  kKeyShortcutsShowMeter             {"show-meter"};
+  const Glib::ustring  kKeyShortcutsShowTrainer           {"show-trainer"};
+  const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
+  const Glib::ustring  kKeyShortcutsStart                 {"start"};
+  const Glib::ustring  kKeyShortcutsVolumeIncrease1       {"volume-increase-1"};
+  const Glib::ustring  kKeyShortcutsVolumeDecrease1       {"volume-decrease-1"};
+  const Glib::ustring  kKeyShortcutsVolumeIncrease10      {"volume-increase-10"};
+  const Glib::ustring  kKeyShortcutsVolumeDecrease10      {"volume-decrease-10"};
+  const Glib::ustring  kKeyShortcutsTempoIncrease1        {"tempo-increase-1"};
+  const Glib::ustring  kKeyShortcutsTempoDecrease1        {"tempo-decrease-1"};
+  const Glib::ustring  kKeyShortcutsTempoIncrease10       {"tempo-increase-10"};
+  const Glib::ustring  kKeyShortcutsTempoDecrease10       {"tempo-decrease-10"};
+  const Glib::ustring  kKeyShortcutsTempoTap              {"tempo-tap"};
+  const Glib::ustring  kKeyShortcutsMeterEnabled          {"meter-enabled"};
+  const Glib::ustring  kKeyShortcutsMeterSelect1Simple    {"meter-select-1-simple"};
+  const Glib::ustring  kKeyShortcutsMeterSelect2Simple    {"meter-select-2-simple"};
+  const Glib::ustring  kKeyShortcutsMeterSelect3Simple    {"meter-select-3-simple"};
+  const Glib::ustring  kKeyShortcutsMeterSelect4Simple    {"meter-select-4-simple"};
+  const Glib::ustring  kKeyShortcutsMeterSelect1Compound  {"meter-select-1-compound"};
+  const Glib::ustring  kKeyShortcutsMeterSelect2Compound  {"meter-select-2-compound"};
+  const Glib::ustring  kKeyShortcutsMeterSelect3Compound  {"meter-select-3-compound"};
+  const Glib::ustring  kKeyShortcutsMeterSelect4Compound  {"meter-select-4-compound"};
+  const Glib::ustring  kKeyShortcutsMeterSelectCustom     {"meter-select-custom"};
+  const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
+  
+  /* 
+   * org.gmetronome.state keys
+   */
+  const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
+  const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
+  const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
 
-/* 
- * org.gmetronome.preferences.shortcuts keys
- */
-const Glib::ustring  kKeyShortcutsQuit                  {"quit"};
-const Glib::ustring  kKeyShortcutsShowPrimaryMenu       {"show-primary-menu"};
-const Glib::ustring  kKeyShortcutsShowProfiles          {"show-profiles"};
-const Glib::ustring  kKeyShortcutsShowPreferences       {"show-preferences"};
-const Glib::ustring  kKeyShortcutsShowShortcuts         {"show-shortcuts"};
-const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
-const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
-const Glib::ustring  kKeyShortcutsShowMeter             {"show-meter"};
-const Glib::ustring  kKeyShortcutsShowTrainer           {"show-trainer"};
-const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
-const Glib::ustring  kKeyShortcutsStart                 {"start"};
-const Glib::ustring  kKeyShortcutsVolumeIncrease1       {"volume-increase-1"};
-const Glib::ustring  kKeyShortcutsVolumeDecrease1       {"volume-decrease-1"};
-const Glib::ustring  kKeyShortcutsVolumeIncrease10      {"volume-increase-10"};
-const Glib::ustring  kKeyShortcutsVolumeDecrease10      {"volume-decrease-10"};
-const Glib::ustring  kKeyShortcutsTempoIncrease1        {"tempo-increase-1"};
-const Glib::ustring  kKeyShortcutsTempoDecrease1        {"tempo-decrease-1"};
-const Glib::ustring  kKeyShortcutsTempoIncrease10       {"tempo-increase-10"};
-const Glib::ustring  kKeyShortcutsTempoDecrease10       {"tempo-decrease-10"};
-const Glib::ustring  kKeyShortcutsTempoTap              {"tempo-tap"};
-const Glib::ustring  kKeyShortcutsMeterEnabled          {"meter-enabled"};
-const Glib::ustring  kKeyShortcutsMeterSelect1Simple    {"meter-select-1-simple"};
-const Glib::ustring  kKeyShortcutsMeterSelect2Simple    {"meter-select-2-simple"};
-const Glib::ustring  kKeyShortcutsMeterSelect3Simple    {"meter-select-3-simple"};
-const Glib::ustring  kKeyShortcutsMeterSelect4Simple    {"meter-select-4-simple"};
-const Glib::ustring  kKeyShortcutsMeterSelect1Compound  {"meter-select-1-compound"};
-const Glib::ustring  kKeyShortcutsMeterSelect2Compound  {"meter-select-2-compound"};
-const Glib::ustring  kKeyShortcutsMeterSelect3Compound  {"meter-select-3-compound"};
-const Glib::ustring  kKeyShortcutsMeterSelect4Compound  {"meter-select-4-compound"};
-const Glib::ustring  kKeyShortcutsMeterSelectCustom     {"meter-select-custom"};
-const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
-
-/* 
- * org.gmetronome.state keys
- */
-const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
-const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
-const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
-
+}//namespace settings
 #endif//GMetronome_Settings_h

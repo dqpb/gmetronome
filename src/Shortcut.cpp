@@ -27,61 +27,61 @@ const std::vector<ShortcutEntry>& ShortcutList()
       // Group title for shortcuts regarding application actions
       { {}, C_("Shortcut group title", "Application") },
         
-      { kKeyShortcutsShowPrimaryMenu,       C_("Shortcut title", "Show Primary Menu") },
-      { kKeyShortcutsShowProfiles,          C_("Shortcut title", "Show Profiles") },
-      { kKeyShortcutsShowPreferences,       C_("Shortcut title", "Show Preferences") },
-      { kKeyShortcutsShowShortcuts,         C_("Shortcut title", "Show Keyboard Shortcuts") },
-      { kKeyShortcutsShowHelp,              C_("Shortcut title", "Show Help") },
-      { kKeyShortcutsShowAbout,             C_("Shortcut title", "Show About") },
-      { kKeyShortcutsQuit,                  C_("Shortcut title", "Quit") },
+      { settings::kKeyShortcutsShowPrimaryMenu,       C_("Shortcut title", "Show Primary Menu") },
+      { settings::kKeyShortcutsShowProfiles,          C_("Shortcut title", "Show Profiles") },
+      { settings::kKeyShortcutsShowPreferences,       C_("Shortcut title", "Show Preferences") },
+      { settings::kKeyShortcutsShowShortcuts,         C_("Shortcut title", "Show Keyboard Shortcuts") },
+      { settings::kKeyShortcutsShowHelp,              C_("Shortcut title", "Show Help") },
+      { settings::kKeyShortcutsShowAbout,             C_("Shortcut title", "Show About") },
+      { settings::kKeyShortcutsQuit,                  C_("Shortcut title", "Quit") },
         
       // Group title for shortcuts regarding view actions
       { {}, C_("Shortcut group title", "View") },
         
-      { kKeyShortcutsShowMeter,             C_("Shortcut title", "Show Accents") },
-      { kKeyShortcutsShowTrainer,           C_("Shortcut title", "Show Trainer") },
-      { kKeyShortcutsFullScreen,            C_("Shortcut title", "Full Screen") },
+      { settings::kKeyShortcutsShowMeter,             C_("Shortcut title", "Show Accents") },
+      { settings::kKeyShortcutsShowTrainer,           C_("Shortcut title", "Show Trainer") },
+      { settings::kKeyShortcutsFullScreen,            C_("Shortcut title", "Full Screen") },
         
       // Group title for shortcuts regarding transport actions
       { {}, C_("Shortcut group title", "Transport") },
 
-      { kKeyShortcutsStart,                  C_("Shortcut title", "Start / Stop") },
+      { settings::kKeyShortcutsStart,                  C_("Shortcut title", "Start / Stop") },
         
       // Group title for shortcuts regarding volume actions
       { {}, C_("Shortcut group title", "Volume") },
 
-      { kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1") },
-      { kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1") },
-      { kKeyShortcutsVolumeIncrease10,        C_("Shortcut title", "Volume +10") },
-      { kKeyShortcutsVolumeDecrease10,        C_("Shortcut title", "Volume -10") },
+      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1") },
+      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1") },
+      { settings::kKeyShortcutsVolumeIncrease10,        C_("Shortcut title", "Volume +10") },
+      { settings::kKeyShortcutsVolumeDecrease10,        C_("Shortcut title", "Volume -10") },
 
       // Group title for shortcuts regarding tempo actions
       { {}, C_("Shortcut group title", "Tempo") },
 
-      { kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1") },
-      { kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1") },
-      { kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10") },
-      { kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10") },
-      { kKeyShortcutsTempoTap,               C_("Shortcut title", "Tempo Tap") },
+      { settings::kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1") },
+      { settings::kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1") },
+      { settings::kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10") },
+      { settings::kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10") },
+      { settings::kKeyShortcutsTempoTap,               C_("Shortcut title", "Tempo Tap") },
         
       // Group title for shortcuts regarding accent actions
       { {}, C_("Shortcut group title", "Accents") },
 
-      { kKeyShortcutsMeterEnabled,           C_("Shortcut title", "Enable / Disable Accentuation") },
-      { kKeyShortcutsMeterSelect1Simple,     C_("Shortcut title", "Select Simple 1 Meter") },
-      { kKeyShortcutsMeterSelect2Simple,     C_("Shortcut title", "Select Simple 2 Meter") },
-      { kKeyShortcutsMeterSelect3Simple,     C_("Shortcut title", "Select Simple 3 Meter") },
-      { kKeyShortcutsMeterSelect4Simple,     C_("Shortcut title", "Select Simple 4 Meter") },
-      { kKeyShortcutsMeterSelect1Compound,   C_("Shortcut title", "Select Compound 1 Meter") },
-      { kKeyShortcutsMeterSelect2Compound,   C_("Shortcut title", "Select Compound 2 Meter") },
-      { kKeyShortcutsMeterSelect3Compound,   C_("Shortcut title", "Select Compound 3 Meter") },
-      { kKeyShortcutsMeterSelect4Compound,   C_("Shortcut title", "Select Compound 4 Meter") },
-      { kKeyShortcutsMeterSelectCustom,      C_("Shortcut title", "Select Custom Meter") },
+      { settings::kKeyShortcutsMeterEnabled,           C_("Shortcut title", "Enable / Disable Accentuation") },
+      { settings::kKeyShortcutsMeterSelect1Simple,     C_("Shortcut title", "Select Simple 1 Meter") },
+      { settings::kKeyShortcutsMeterSelect2Simple,     C_("Shortcut title", "Select Simple 2 Meter") },
+      { settings::kKeyShortcutsMeterSelect3Simple,     C_("Shortcut title", "Select Simple 3 Meter") },
+      { settings::kKeyShortcutsMeterSelect4Simple,     C_("Shortcut title", "Select Simple 4 Meter") },
+      { settings::kKeyShortcutsMeterSelect1Compound,   C_("Shortcut title", "Select Compound 1 Meter") },
+      { settings::kKeyShortcutsMeterSelect2Compound,   C_("Shortcut title", "Select Compound 2 Meter") },
+      { settings::kKeyShortcutsMeterSelect3Compound,   C_("Shortcut title", "Select Compound 3 Meter") },
+      { settings::kKeyShortcutsMeterSelect4Compound,   C_("Shortcut title", "Select Compound 4 Meter") },
+      { settings::kKeyShortcutsMeterSelectCustom,      C_("Shortcut title", "Select Custom Meter") },
         
       // Group title for shortcuts regarding trainer actions
       { {}, C_("Shortcut group title", "Trainer") },
         
-      { kKeyShortcutsTrainerEnabled,         C_("Shortcut title", "Enable / Disable Trainer") }
+      { settings::kKeyShortcutsTrainerEnabled,         C_("Shortcut title", "Enable / Disable Trainer") }
     };
 
   return kShortcutList;

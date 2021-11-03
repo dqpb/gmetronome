@@ -97,7 +97,7 @@ namespace audio {
    *
    * @return A std::vector of audio backend identifiers.
    */
-  const std::vector<AudioBackend>& availableBackends();
+  const std::vector<settings::AudioBackend>& availableBackends();
   
   /** 
    * @function createBackend
@@ -105,7 +105,7 @@ namespace audio {
    * @param  An audio backend identifier.
    * @return  A pointer to the audio backend object or nullptr on error.
    */
-  std::unique_ptr<Backend> createBackend(AudioBackend backend);
+  std::unique_ptr<Backend> createBackend(settings::AudioBackend backend);
   
 }//namespace audio
 #endif//GMetronome_AudioBackend_h

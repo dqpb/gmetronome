@@ -43,94 +43,94 @@ struct ShortcutAction
 // map settings keys to action/target
 const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
 {
-  { kKeyShortcutsQuit,
+  { settings::kKeyShortcutsQuit,
     { kActionQuit, {} }
   },
-  { kKeyShortcutsShowPrimaryMenu,
+  { settings::kKeyShortcutsShowPrimaryMenu,
     { kActionShowPrimaryMenu, {} }
   },
-  { kKeyShortcutsShowProfiles,
+  { settings::kKeyShortcutsShowProfiles,
     { kActionShowProfiles, {} }
   },
-  { kKeyShortcutsShowPreferences,
+  { settings::kKeyShortcutsShowPreferences,
     { kActionShowPreferences, {} }
   },
-  { kKeyShortcutsShowShortcuts,
+  { settings::kKeyShortcutsShowShortcuts,
     { kActionShowShortcuts, {} }
   },
-  { kKeyShortcutsShowHelp,
+  { settings::kKeyShortcutsShowHelp,
     { kActionShowHelp, {} }
   },
-  { kKeyShortcutsShowAbout,
+  { settings::kKeyShortcutsShowAbout,
     { kActionShowAbout, {} }
   },
-  { kKeyShortcutsShowMeter,
+  { settings::kKeyShortcutsShowMeter,
     { kActionShowMeter, {} }
   },
-  { kKeyShortcutsShowTrainer,
+  { settings::kKeyShortcutsShowTrainer,
     { kActionShowTrainer, {} }
   },
-  { kKeyShortcutsStart,
+  { settings::kKeyShortcutsStart,
     { kActionStart, {} }
   },
-  { kKeyShortcutsVolumeIncrease1,
+  { settings::kKeyShortcutsVolumeIncrease1,
     { kActionVolumeIncrease, Glib::Variant<double>::create(1.) }
   },
-  { kKeyShortcutsVolumeDecrease1,
+  { settings::kKeyShortcutsVolumeDecrease1,
     { kActionVolumeDecrease, Glib::Variant<double>::create(1.) }
   },
-  { kKeyShortcutsVolumeIncrease10,
+  { settings::kKeyShortcutsVolumeIncrease10,
     { kActionVolumeIncrease, Glib::Variant<double>::create(10.) }
   },
-  { kKeyShortcutsVolumeDecrease10,
+  { settings::kKeyShortcutsVolumeDecrease10,
     { kActionVolumeDecrease, Glib::Variant<double>::create(10.) }
   },
-  { kKeyShortcutsTempoIncrease1,
+  { settings::kKeyShortcutsTempoIncrease1,
     { kActionTempoIncrease, Glib::Variant<double>::create(1.) }
   },
-  { kKeyShortcutsTempoDecrease1,
+  { settings::kKeyShortcutsTempoDecrease1,
     { kActionTempoDecrease, Glib::Variant<double>::create(1.) }
   },
-  { kKeyShortcutsTempoIncrease10,
+  { settings::kKeyShortcutsTempoIncrease10,
     { kActionTempoIncrease, Glib::Variant<double>::create(10.) }
   },
-  { kKeyShortcutsTempoDecrease10,
+  { settings::kKeyShortcutsTempoDecrease10,
     { kActionTempoDecrease, Glib::Variant<double>::create(10.) }
   },
-  { kKeyShortcutsTempoTap,
+  { settings::kKeyShortcutsTempoTap,
     { kActionTempoTap, {} }
   },
-  { kKeyShortcutsTrainerEnabled,
+  { settings::kKeyShortcutsTrainerEnabled,
     { kActionTrainerEnabled, {} }
   },
-  { kKeyShortcutsMeterEnabled,
+  { settings::kKeyShortcutsMeterEnabled,
     { kActionMeterEnabled, {} }
   },
-  { kKeyShortcutsMeterSelect1Simple,
+  { settings::kKeyShortcutsMeterSelect1Simple,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter1Simple) }
   },
-  { kKeyShortcutsMeterSelect2Simple,
+  { settings::kKeyShortcutsMeterSelect2Simple,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter2Simple) }
   },
-  { kKeyShortcutsMeterSelect3Simple,
+  { settings::kKeyShortcutsMeterSelect3Simple,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter3Simple) }
   },
-  { kKeyShortcutsMeterSelect4Simple,
+  { settings::kKeyShortcutsMeterSelect4Simple,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter4Simple) }
   },
-  { kKeyShortcutsMeterSelect1Compound,
+  { settings::kKeyShortcutsMeterSelect1Compound,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter1Compound) }
   },
-  { kKeyShortcutsMeterSelect2Compound,
+  { settings::kKeyShortcutsMeterSelect2Compound,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter2Compound) }
   },
-  { kKeyShortcutsMeterSelect3Compound,
+  { settings::kKeyShortcutsMeterSelect3Compound,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter3Compound) }
   },
-  { kKeyShortcutsMeterSelect4Compound,
+  { settings::kKeyShortcutsMeterSelect4Compound,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter4Compound) }
   },
-  { kKeyShortcutsMeterSelectCustom,
+  { settings::kKeyShortcutsMeterSelectCustom,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCustom) }
   }
 };

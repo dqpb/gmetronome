@@ -30,32 +30,32 @@
 
 namespace audio {
   
-  const std::vector<AudioBackend>& availableBackends()
+  const std::vector<settings::AudioBackend>& availableBackends()
   {
-    static const std::vector<AudioBackend> backends = {
-      kAudioBackendNone,
+    static const std::vector<settings::AudioBackend> backends = {
+      settings::kAudioBackendNone,
 #ifdef HAVE_ALSA
-      kAudioBackendAlsa,
+      settings::kAudioBackendAlsa,
 #endif
 #ifdef HAVE_PULSEAUDIO
-      kAudioBackendPulseaudio,
+      settings::kAudioBackendPulseaudio,
 #endif
     };
     return backends;
   }
   
-  std::unique_ptr<Backend> createBackend(AudioBackend id)
+  std::unique_ptr<Backend> createBackend(settings::AudioBackend id)
   {
     std::unique_ptr<Backend> backend = nullptr;
     
     switch (id)
     {
 #ifdef HAVE_PULSEAUDIO
-    case kAudioBackendPulseaudio:
+    case settings::kAudioBackendPulseaudio:
       backend = std::make_unique<PulseAudioBackend>();
       break;
 #endif
-    case kAudioBackendNone:
+    case settings::kAudioBackendNone:
       backend = std::make_unique<DummyBackend>();
       break;
       
