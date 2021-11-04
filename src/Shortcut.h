@@ -70,6 +70,9 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsShowTrainer,
     { kActionShowTrainer, {} }
   },
+  { settings::kKeyShortcutsFullScreen,
+    { kActionFullScreen, {} }
+  },
   { settings::kKeyShortcutsStart,
     { kActionStart, {} }
   },
