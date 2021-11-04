@@ -26,25 +26,33 @@
 #include <vector>
 
 namespace audio {
-
+  
   /**
-   * @class BackendStateTransitionError
-   * @brief A generic exception for an invalid backend state transition.
+   * @class BackendError
+   * @brief A generic backend error.
    */
-  class BackendStateTransitionError : public GMetronomeError {
+  class BackendError : public GMetronomeError {
+  public:
+    BackendError(const std::string& message = "")
+      : GMetronomeError("Audio backend error: " + message) {} 
+  };
+  
+  class BackendStateTransitionError : public BackendError {
   public:
     BackendStateTransitionError()
-      : GMetronomeError("Invalid state transition in audio backend.") {} 
+      : BackendError("invalid state transition") {} 
   };
-
-  /**
-   * @class BackendConfigurationError
-   * @brief A generic exception for an invalid backend configuration.
-   */
-  class BackendConfigurationError : public GMetronomeError {
+  
+  class BackendConfigurationError : public BackendError {
   public:
     BackendConfigurationError()
-      : GMetronomeError("Invalid configuration of audio backend.") {} 
+      : BackendError("invalid configuration") {} 
+  };
+  
+  class BackendWriteError : public BackendError {
+  public:
+    BackendWriteError()
+      : BackendError("could not write data stream") {} 
   };
 
   enum class BackendState
@@ -61,7 +69,7 @@ namespace audio {
    *
    * 1) Config:  This state is used to configure the audio::Backend 
    * 2) Open:    After configuration call open() to check configuration and
-   *             open the audio device.
+   *             open the audio device on success.
    * 3) Running: Call start() to reach the Running mode from the Open mode.
    *             In this state you can use the blocking i/o operations (write).
    *
@@ -72,6 +80,8 @@ namespace audio {
    *   III) Open    --> Running   [start()]
    *   IV)  Running --> Open      [stop()]
    *   V)   Open    --> Config    [close()]
+   *
+   * All other attempts to change the state result in a BackendStateTransitionError.
    */
   class Backend {
   public:

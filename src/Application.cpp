@@ -272,12 +272,12 @@ void Application::setAccelerator(const ActionScope& scope,
 void Application::onHideWindow(Gtk::Window* window)
 {
   saveSelectedProfile();
-  
+
   bool start_state;
   get_action_state(kActionStart, start_state);
   
   if (start_state)
-    activate_action(kActionStart);
+    change_action_state(kActionStart, Glib::Variant<bool>::create(false));
   
   delete window;
 }
@@ -290,7 +290,7 @@ void Application::onQuit(const Glib::VariantBase& parameter)
   // destructors will be called, because there will be remaining reference
   // counts in both of them. If we want the destructors to be called, we
   // must remove the window from the application. One way of doing this
-  // is to hide the window. See comment in create_appwindow().
+  // is to hide the window. 
   auto windows = get_windows();
   
   for (auto window : windows)
@@ -934,13 +934,29 @@ void Application::onStart(const Glib::VariantBase& value)
       
       ticker_.setTempo(trainer_start_tempo);
     }
-    ticker_.start();
-    startTimer();
+    try {
+      ticker_.start();
+      startTimer();
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << std::endl;
+      ticker_.reset();
+      new_state = Glib::Variant<bool>::create(false);
+    }
   }
   else
   {
     stopTimer();
-    ticker_.stop();
+    try {
+      ticker_.stop();
+     }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << std::endl;
+      ticker_.reset();
+      new_state = Glib::Variant<bool>::create(false);
+    }
   }
 
   lookup_simple_action(kActionStart)->set_state(new_state);
@@ -1019,18 +1035,28 @@ bool Application::onTimer()
 {
   using std::literals::chrono_literals::operator""us;
 
-  audio::Ticker::Statistics stats = ticker_.getStatistics();
-
-  bool meter_enabled;
-  get_action_state(kActionMeterEnabled, meter_enabled);
-  
-  if (!meter_enabled)
+  // check the ticker state
+  audio::TickerState state = ticker_.state();
+  if (state == audio::TickerState::kError)
   {
-    stats.generator.next_accent = -1;
-    stats.generator.next_accent_time = 0us;
-  }  
-  
-  signal_ticker_statistics_.emit(stats);
-  
-  return true;
+    // this will handle the error
+    change_action_state(kActionStart, Glib::Variant<bool>::create(false));
+    return false;
+  }
+  else
+  {
+    audio::Ticker::Statistics stats = ticker_.getStatistics();
+    
+    bool meter_enabled;
+    get_action_state(kActionMeterEnabled, meter_enabled);
+    
+    if (!meter_enabled)
+    {
+      stats.generator.next_accent = -1;
+      stats.generator.next_accent_time = 0us;
+    }  
+    
+    signal_ticker_statistics_.emit(stats);
+    return true;
+  }
 }

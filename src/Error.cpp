@@ -20,6 +20,6 @@
 #include "Error.h"
 
 GMetronomeError::GMetronomeError(const std::string& message)
-  : message_(message)
+  : msg_(message)
 {}
 

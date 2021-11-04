@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020, 2021 The GMetronome Team
  * 
  * This file is part of GMetronome.
  *
@@ -21,42 +21,19 @@
 #define GMetronome_PulseAudio_h
 
 #include "AudioBackend.h"
-#include <exception>
-#include <string>
 #include <memory>
 #include <pulse/sample.h>
 #include <pulse/simple.h>
 #include <pulse/error.h>
 
 namespace audio {
-
-  /**
-   * Exception for PulseAudio connections.
-   */
-  class PulseAudioError : public std::exception {
-  public:
-    explicit PulseAudioError(int error) noexcept
-      : pa_error_(error) {}
-    PulseAudioError(const PulseAudioError&) = default;
-    PulseAudioError(PulseAudioError&&) = default;
-    PulseAudioError& operator=(const PulseAudioError&) = default;
-    PulseAudioError& operator=(PulseAudioError&&) = default;
-    ~PulseAudioError() noexcept override {}
-    
-    const char* what() const noexcept override {
-      return pa_strerror(pa_error_);
-    }    
-  private:
-    std::string msg_;
-    int pa_error_;
-  };
   
   /**
    * PulseAudio connection resource.
    */
   class PulseAudioConnection {
   public:
-    PulseAudioConnection(const audio::SampleSpec& spec);  // may throw PulseAudioError
+    PulseAudioConnection(const audio::SampleSpec& spec);  // may throw
     ~PulseAudioConnection();
     PulseAudioConnection(PulseAudioConnection&&);
     PulseAudioConnection(const PulseAudioConnection&) = delete;
@@ -72,7 +49,7 @@ namespace audio {
     pa_buffer_attr pa_buffer_attr_;
     pa_simple*     pa_simple_;
   };
-
+  
   /**
    * PulseAudio Backend
    */ 

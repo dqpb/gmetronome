@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020, 2021 The GMetronome Team
  * 
  * This file is part of GMetronome.
  *
@@ -21,6 +21,7 @@
 #include "Synthesizer.h"
 #include "PulseAudio.h"
 #include <mutex>
+#include <cassert>
 #include <iostream>
 
 namespace audio {
@@ -52,12 +53,12 @@ namespace audio {
     : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
       audio_backend_(nullptr),
       state_(TickerState::kReady),
-      except_(nullptr)
+      audio_thread_error_(nullptr)
   {}
   
   Ticker::~Ticker()
   {
-    stop();
+    reset();
   }  
   
   void Ticker::setAudioBackend(std::unique_ptr<Backend> new_backend)
@@ -135,63 +136,99 @@ namespace audio {
   {
     TickerState state = state_.load();
 
-    if (state == TickerState::kPlaying) 
-      return;
-    if (state == TickerState::kError)
-      return;
-    
-    state_ = TickerState::kPlaying;
-    startWorker();
+    switch ( state ) {
+
+    case TickerState::kReady:
+      startAudioThread();
+      break;
+      
+    case TickerState::kPlaying:
+      // nothing to do
+      break;
+      
+    case TickerState::kError:
+      std::rethrow_exception(audio_thread_error_);
+      break;
+      
+    default:
+      break;
+    }
   }
     
   void Ticker::stop()
   {
     TickerState state = state_.load();
-    if (state == TickerState::kError)
-      return;
-    
-    stopWorker();
+    switch ( state ) {
+      
+    case TickerState::kReady:
+      break;
+      
+    case TickerState::kPlaying:
+      stopAudioThread();
+      break;
+      
+    case TickerState::kError:
+      assert(audio_thread_ != nullptr);
+      assert(audio_thread_error_ != nullptr);      
+      std::rethrow_exception(audio_thread_error_);
+      break;
+      
+    default:
+      break;
+    }
   }
-    
+
+  void Ticker::reset() noexcept
+  {
+    try {      
+      if (audio_thread_)
+        stopAudioThread();
+      
+      state_ = TickerState::kReady;
+    }
+    catch (...) {
+      // we can't stop the audio thread, so we keep the current state,
+      // which should be TickerState::kPlaying or TickerState::kError
+    }
+  }
+  
   TickerState Ticker::state() const noexcept
   {
     return state_.load();
   }
-
-  void Ticker::reset()
+  
+  void Ticker::startAudioThread()
   {
-    if (except_ != nullptr) {
-      try {
-	std::rethrow_exception(except_);
-      }
-      catch (...) {
-	// handle error
-      }
+    assert( audio_thread_ == nullptr );
+    assert( state_ == TickerState::kReady );
+
+    TickerState old_state = state_;
+
+    try {      
+      state_ = TickerState::kPlaying;
+      audio_thread_ =
+        std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
+    } catch(...) {
+      state_ = old_state;
+      throw GMetronomeError("couldn't start audio thread");
     }
-    stopWorker();
-  }
-    
-  void Ticker::startWorker() noexcept
-  {
-    if (worker_thread_ != nullptr)
-      return;
-    
-    try {
-      
-      worker_thread_ = std::make_unique<std::thread>(&Ticker::worker, this);
-
-    } catch(...) {}
   }
   
-  void Ticker::stopWorker() noexcept
+  void Ticker::stopAudioThread()
   {
-    if (!worker_thread_)
-      return;
+    assert( audio_thread_ != nullptr );
+    assert( state_ == TickerState::kPlaying || state_ == TickerState::kError );
+
+    TickerState old_state = state_;
     
-    state_ = TickerState::kReady;
-    try { worker_thread_->join(); } catch(...) {}
-    worker_thread_.reset();  
-    except_ = nullptr;
+    try {
+      state_ = TickerState::kReady;
+      audio_thread_->join();
+      audio_thread_.reset();
+    } catch(...) {
+      state_ = old_state; 
+      throw GMetronomeError("couldn't stop audio thread");
+    }
   }
   
   void Ticker::importTempo()
@@ -242,14 +279,24 @@ namespace audio {
     }
     else sound_weak_imported_flag_.clear();
   }
-
+  
   void Ticker::importAudioBackend()
   {
     if (std::unique_lock<SpinLock> lck(mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      stopAudioBackend();
-      swap(audio_backend_, in_audio_backend_);
+      try { stopAudioBackend(); }
+      catch(...)
+      {
+        // if we can't stop the old backend, we will continue anyway
+        // and release the old backend resource
+      }
+      std::swap(audio_backend_, in_audio_backend_);
+      
+      // since we switch the audio backend, we have no realtime
+      // contraints here and can safely release the old backend 
+      in_audio_backend_ = nullptr;
+      
       startAudioBackend();
     }
     else audio_backend_imported_flag_.clear();
@@ -288,7 +335,7 @@ namespace audio {
       out_stats_.generator = generator_.getStatistics();
     }
   }
-
+  
   void Ticker::startAudioBackend()
   {
     if (audio_backend_)
@@ -308,13 +355,13 @@ namespace audio {
       }
     }
   }
-
+  
   void Ticker::writeAudioBackend(const void* data, size_t bytes)
   {
     if (audio_backend_ && bytes > 0)
       audio_backend_->write(data, bytes);
   }
-
+  
   void Ticker::stopAudioBackend()
   {
     if (audio_backend_)
@@ -322,11 +369,11 @@ namespace audio {
       switch (audio_backend_->state())
       {
       case BackendState::kRunning:
-        audio_backend_->drain();
         audio_backend_->stop();
+        [[fallthrough]];
       case BackendState::kOpen:
-        // we keep audio backend open ...
-        // audio_backend_->close();
+        audio_backend_->close();
+        [[fallthrough]];
       case BackendState::kConfig:
         // do nothing
       default:
@@ -334,19 +381,16 @@ namespace audio {
       }
     }
   }
-
-  void Ticker::worker() noexcept
+  
+  void Ticker::audioThreadFunction() noexcept
   {
     const void* data;
     size_t bytes;
     
     try {
       importSettings();
-      
       generator_.start(data, bytes);
-      
       exportStatistics();
-
       startAudioBackend();
       writeAudioBackend(data, bytes);
       
@@ -354,24 +398,27 @@ namespace audio {
       while ( state_.load() != TickerState::kReady )
       {                
         importSettings();
-
         generator_.cycle(data, bytes);
-
         exportStatistics();
-
         writeAudioBackend(data, bytes);
       }
       
       generator_.stop(data, bytes);
-      
       exportStatistics();
-      
       writeAudioBackend(data, bytes);
       stopAudioBackend();
     }
     catch(...)
     {
-      except_ = std::current_exception();
+      try { stopAudioBackend(); }
+      catch(...)
+      {
+        // nop;
+        // the client might need to change the audio backend which
+        // will forcefully release the old backend resource in case
+        // of an error during shutdown
+      };
+      audio_thread_error_ = std::current_exception();
       state_ = TickerState::kError;
     }
   }

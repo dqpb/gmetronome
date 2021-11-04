@@ -26,13 +26,11 @@ class GMetronomeError : public std::exception {
 public:
   GMetronomeError(const std::string& message = "");
   
-  const char* what() const noexcept
-    { return message_.data(); }
+  const char* what() const noexcept override
+    { return msg_.data(); }
   
 private:
-  const std::string message_;
+  const std::string msg_;
 };
-
-const GMetronomeError kGenericError {"An unspecified error occured."};
 
 #endif//GMetronome_Error_h

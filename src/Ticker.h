@@ -31,7 +31,7 @@
 #include "SpinLock.h"
 
 namespace audio {
-
+  
   enum class TickerState
   {
     kReady,
@@ -40,9 +40,7 @@ namespace audio {
   };
     
   class Ticker {
-
   public:
-
     struct Statistics
     {
       microseconds timestamp;
@@ -51,16 +49,14 @@ namespace audio {
     };
 
   public:
-    
-    Ticker();
-    
+    Ticker();    
     ~Ticker();
     
     void setAudioBackend(std::unique_ptr<Backend> backend);
     
     void start();
     void stop();
-    void reset();
+    void reset() noexcept;
     
     TickerState state() const noexcept;
     
@@ -82,7 +78,7 @@ namespace audio {
     
     std::atomic<TickerState> state_;
     
-    std::exception_ptr except_;
+    std::exception_ptr audio_thread_error_;
     
     std::atomic<double> in_tempo_;
     std::atomic<double> in_target_tempo_;
@@ -123,11 +119,11 @@ namespace audio {
     void writeAudioBackend(const void* data, size_t bytes);
     void stopAudioBackend();
 
-    std::unique_ptr<std::thread> worker_thread_;
+    std::unique_ptr<std::thread> audio_thread_;
     
-    void startWorker() noexcept;
-    void stopWorker() noexcept;
-    void worker() noexcept;
+    void startAudioThread();
+    void stopAudioThread();
+    void audioThreadFunction() noexcept;
   };
   
 }//namespace audio

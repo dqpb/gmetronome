@@ -18,6 +18,7 @@
  */
 
 #include "PulseAudio.h"
+#include "config.h"
 #include <iostream>
 
 namespace audio {
@@ -64,7 +65,7 @@ namespace audio {
     
     int error;
     pa_simple_ = pa_simple_new( NULL,
-                                "gmetronome",
+                                PACKAGE_NAME,
                                 PA_STREAM_PLAYBACK,
                                 NULL,
                                 "playback",
@@ -73,7 +74,7 @@ namespace audio {
                                 &pa_buffer_attr_,
                                 &error);
     if (!pa_simple_)
-      throw PulseAudioError(error);
+      throw BackendError( pa_strerror(error) );
   }
   
   PulseAudioConnection::~PulseAudioConnection()
@@ -94,21 +95,21 @@ namespace audio {
   {
     int error;
     if (pa_simple_write(pa_simple_, data, bytes, &error) < 0)
-      throw PulseAudioError(error);
+      throw BackendError( pa_strerror(error) );
   }
 
   void PulseAudioConnection::flush()
   {
     int error;
     if (pa_simple_flush(pa_simple_, &error) < 0)
-      throw PulseAudioError(error);    
+      throw BackendError( pa_strerror(error) );
   }
 
   void PulseAudioConnection::drain()
   {
     int error;
     if (pa_simple_drain(pa_simple_, &error) < 0)
-      throw PulseAudioError(error);    
+      throw BackendError( pa_strerror(error) );
   }
 
   uint64_t PulseAudioConnection::latency()
@@ -117,7 +118,7 @@ namespace audio {
     uint64_t latency = pa_simple_get_latency(pa_simple_, &error);
 
     if (error != PA_OK) {
-      //   throw PulseAudioError(error);
+      // throw BackendError( pa_strerror(error) );
     }    
     return latency;
   }
@@ -138,12 +139,16 @@ namespace audio {
     if (state_ == BackendState::kConfig)
       // TODO: check configuration
       state_ = BackendState::kOpen;
+    else
+      throw BackendStateTransitionError();
   }
   
   void PulseAudioBackend::close()
   {
     if (state_ == BackendState::kOpen)
       state_ = BackendState::kConfig;
+    else
+      throw BackendStateTransitionError();
   }
   
   void PulseAudioBackend::start()
@@ -153,6 +158,8 @@ namespace audio {
       pa_connection_ = std::make_unique<PulseAudioConnection>(spec_);
       state_ = BackendState::kRunning;
     }
+    else
+      throw BackendStateTransitionError();
   }
   
   void PulseAudioBackend::stop()
@@ -162,6 +169,8 @@ namespace audio {
       pa_connection_ = nullptr;
       state_ = BackendState::kOpen;
     }
+    else
+      throw BackendStateTransitionError();
   }
   
   void PulseAudioBackend::write(const void* data, size_t bytes)
