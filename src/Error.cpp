@@ -19,7 +19,7 @@
 
 #include "Error.h"
 
-GMetronomeError::GMetronomeError(const std::string& message)
-  : msg_(message)
+GMetronomeError::GMetronomeError(const std::string& text, MessageCategory category)
+  : message_ {category, text}
 {}
 

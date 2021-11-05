@@ -343,8 +343,14 @@ void MainWindow::initBindings()
   profiles_popover_->signal_hide()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfilesHide));
 
+  app->signal_message()
+    .connect(sigc::mem_fun(*this, &MainWindow::onMessage));
+
+  info_bar_->signal_response()
+    .connect(sigc::mem_fun(*this, &MainWindow::onMessageResponse));
+
   app->signal_ticker_statistics()
-    .connect(sigc::mem_fun(*this, &MainWindow::updateTickerStatistics));
+    .connect(sigc::mem_fun(*this, &MainWindow::onTickerStatistics));
 }
 
 MainWindow::~MainWindow()
@@ -925,12 +931,44 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
     tempo_divider_label_->set_text(text);
 }
 
-void MainWindow::updateTickerStatistics(const audio::Ticker::Statistics& stats)
+void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
 {
   updateCurrentTempo(stats);
   
   if (meter_animation_ != settings::kMeterAnimationOff)
     updateAccentAnimation(stats);
+}
+
+void MainWindow::onMessage(const Message& message)
+{
+  info_label_->set_text(message.text);
+
+  switch ( message.category )
+  {
+  case MessageCategory::kInformation:
+    info_bar_->set_message_type(Gtk::MESSAGE_INFO);
+    info_image_->set_from_icon_name("dialog-information", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+    break;
+  case MessageCategory::kError:
+    info_bar_->set_message_type(Gtk::MESSAGE_ERROR);
+    info_image_->set_from_icon_name("dialog-error", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+    break;
+  case MessageCategory::kWarning:
+    [[fallthrough]];
+  default:
+    info_bar_->set_message_type(Gtk::MESSAGE_WARNING);
+    info_image_->set_from_icon_name("dialog-warning", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+  }
+
+  info_revealer_->set_reveal_child(true);
+}
+
+void MainWindow::onMessageResponse(int response)
+{
+  if (response == Gtk::RESPONSE_CLOSE)
+  {
+    info_revealer_->set_reveal_child(false);
+  }
 }
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)

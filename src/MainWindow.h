@@ -175,7 +175,10 @@ protected:
 
   void updateAccentAnimation(const audio::Ticker::Statistics& stats);
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
-  void updateTickerStatistics(const audio::Ticker::Statistics& stats);
+  void onTickerStatistics(const audio::Ticker::Statistics& stats);
+
+  void onMessage(const Message& message);
+  void onMessageResponse(int response);
   
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);

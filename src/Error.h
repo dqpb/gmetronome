@@ -20,17 +20,41 @@
 #ifndef GMetronome_Error_h
 #define GMetronome_Error_h
 
+#include <exception>
 #include <string>
+
+enum class MessageCategory
+{
+  kInformation = 0,
+  kWarning = 1,
+  kError = 2
+};
+
+struct Message
+{
+  const MessageCategory category;
+  const std::string text;
+};
 
 class GMetronomeError : public std::exception {
 public:
-  GMetronomeError(const std::string& message = "");
+  GMetronomeError(const std::string& text = "",
+                  MessageCategory category = MessageCategory::kWarning);
+
+  const Message& message() const noexcept
+    { return message_; }
   
   const char* what() const noexcept override
-    { return msg_.data(); }
+    { return message_.text.data(); }
+  
+  const std::string& text() const noexcept
+    { return message_.text; }
+  
+  MessageCategory category() const noexcept
+    { return message_.category; }
   
 private:
-  const std::string msg_;
+  Message message_;
 };
 
 #endif//GMetronome_Error_h

@@ -938,6 +938,13 @@ void Application::onStart(const Glib::VariantBase& value)
       ticker_.start();
       startTimer();
     }
+    catch(const GMetronomeError& e)
+    {
+      std::cerr << e.text() << std::endl;
+      ticker_.reset();
+      new_state = Glib::Variant<bool>::create(false);
+      signal_message_.emit(e.message());
+    }
     catch(const std::exception& e)
     {
       std::cerr << e.what() << std::endl;
@@ -951,6 +958,13 @@ void Application::onStart(const Glib::VariantBase& value)
     try {
       ticker_.stop();
      }
+    catch(const GMetronomeError& e)
+    {
+      std::cerr << e.text() << std::endl;
+      ticker_.reset();
+      new_state = Glib::Variant<bool>::create(false);
+      signal_message_.emit(e.message());
+    }
     catch(const std::exception& e)
     {
       std::cerr << e.what() << std::endl;

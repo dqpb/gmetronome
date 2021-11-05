@@ -35,6 +35,9 @@ public:
   
   static Glib::RefPtr<Application> create();
   
+  sigc::signal<void, const Message&> signal_message()
+    { return signal_message_; }
+
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics()
     { return signal_ticker_statistics_; }
   
@@ -59,6 +62,7 @@ private:
   
   sigc::connection timer_connection_;
   
+  sigc::signal<void, const Message&> signal_message_;
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics_;
 
   // Main window
