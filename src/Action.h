@@ -798,6 +798,24 @@ const ActionDescriptionMap kActionDescriptions =
       {},
       true
     }
+  },
+
+  /* Action         : kActionFullScreen
+   * Scope          : Window
+   * Parameter type : bool
+   * State type     : bool
+   * State value    : false
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionFullScreen,
+    {
+      ActionScope::kWin,
+      {},//Glib::Variant<bool>::variant_type(),
+      Glib::Variant<bool>::create( false ),
+      {},
+      true
+    }
   }
 };
 

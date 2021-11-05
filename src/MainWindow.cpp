@@ -49,7 +49,6 @@ MainWindow* MainWindow::create()
   return window;
 }
 
-
 MainWindow::MainWindow(BaseObjectType* cobject,
                        const Glib::RefPtr<Gtk::Builder>& builder)
   : Gtk::ApplicationWindow(cobject),
@@ -57,6 +56,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
     shortcuts_window_(nullptr),
     animation_sync_usecs_(0)
 {
+  builder_->get_widget("titlebarBox", titlebar_box_);
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
   builder_->get_widget("tempoFractionLabel", tempo_fraction_label_);
@@ -69,6 +69,15 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("profilesTreeView", profiles_tree_view_);
   builder_->get_widget("profilesNewButton", profiles_new_button_);
   builder_->get_widget("profilesDeleteButton", profiles_delete_button_);
+  builder_->get_widget("mainBox", main_box_);
+  builder_->get_widget("infoOverlay", info_overlay_);
+  builder_->get_widget("infoRevealer", info_revealer_);
+  builder_->get_widget("infoBar", info_bar_);
+  builder_->get_widget("infoContentBox", info_content_box_);
+  builder_->get_widget("infoButtonBox", info_button_box_);
+  builder_->get_widget("infoImage", info_image_);
+  builder_->get_widget("infoLabel", info_label_);
+  builder_->get_widget("contentBox", content_box_);
   builder_->get_widget("volumeButton", volume_button_);
   builder_->get_widget("startButton", start_button_);
   builder_->get_widget("trainerToggleButtonRevealer", trainer_toggle_button_revealer_);
@@ -124,7 +133,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   updatePrefMeterAnimation();
 }
 
-
 void MainWindow::initSettings()
 {
   settings_ = Gio::Settings::create(settings::kSchemaId);
@@ -135,7 +143,6 @@ void MainWindow::initSettings()
   settings_prefs_->signal_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 }
-
 
 void MainWindow::initActions()
 {
@@ -148,12 +155,12 @@ void MainWindow::initActions()
       {kActionShowHelp,                sigc::mem_fun(*this, &MainWindow::onShowHelp)},
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowMeter,               settings_state_},
-      {kActionShowTrainer,             settings_state_}
+      {kActionShowTrainer,             settings_state_},
+      {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
     };
   
   install_actions(*this, kActionDescriptions, kWinActionHandler);
 }
-
 
 void MainWindow::initUI()
 {
@@ -161,6 +168,10 @@ void MainWindow::initUI()
 
   // initialize header bar
   updateCurrentTempo( { 0us, 0us, { 0, 0, -1, 0us } } );
+
+  // initialize info bar
+  info_overlay_->add_overlay(*info_revealer_);
+  info_revealer_->set_reveal_child(false);
   
   // initialize tempo interface
   Glib::ustring markup_30 = Glib::ustring::format(30);
@@ -203,7 +214,6 @@ void MainWindow::initUI()
   updateProfilesTitle(title);
 }
 
-
 void MainWindow::initAbout()
 {
   about_dialog_.set_program_name(Glib::get_application_name());
@@ -233,7 +243,6 @@ void MainWindow::initAbout()
     Gdk::Pixbuf::create_from_resource("/org/gmetronome/icons/gmetronome.svg",128,128));
 
 }
-
 
 void MainWindow::initBindings()
 {
@@ -338,7 +347,6 @@ void MainWindow::initBindings()
     .connect(sigc::mem_fun(*this, &MainWindow::updateTickerStatistics));
 }
 
-
 MainWindow::~MainWindow()
 {
   if (preferences_dialog_ != nullptr)
@@ -348,6 +356,31 @@ MainWindow::~MainWindow()
     delete shortcuts_window_;
 }
 
+bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
+{
+  Gtk::ApplicationWindow::on_window_state_event(window_state_event);
+
+  if (window_state_event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
+  {
+    bool new_state;
+    if (window_state_event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
+    {
+      header_bar_->reparent(*main_box_);
+      main_box_->reorder_child(*header_bar_, 0);
+      new_state = true;
+    }
+    else
+    {
+      header_bar_->reparent(*titlebar_box_);
+      new_state = false;
+    }
+
+    Glib::RefPtr<Gio::Action> action = lookup_action(kActionFullScreen);
+    auto simple_action =  Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(action);
+    simple_action->set_state(Glib::Variant<bool>::create(new_state));
+  }
+  return true;
+}
 
 void MainWindow::onProfilesShow()
 {
@@ -359,30 +392,25 @@ void MainWindow::onProfilesShow()
     profiles_new_button_->property_has_focus() = true;
 }
 
-
 void MainWindow::onProfilesHide()
 {
   profiles_tree_view_->set_can_focus(false);  
 }
-
 
 void MainWindow::onShowPrimaryMenu(const Glib::VariantBase& value)
 {
   menu_button_->activate();
 }
 
-
 void MainWindow::onShowProfiles(const Glib::VariantBase& value)
 {
   profiles_button_->activate();
 }
 
-
 void MainWindow::onShowPreferences(const Glib::VariantBase& parameter)
 {
   preferences_dialog_->present();
 }
-
 
 void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
 {
@@ -492,14 +520,23 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
   shortcuts_window_->present();
 }
 
-
 void MainWindow::onShowHelp(const Glib::VariantBase& parameter)
 {}
-
 
 void MainWindow::onShowAbout(const Glib::VariantBase& parameter)
 {
   about_dialog_.present();
+}
+
+void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
+{
+  auto new_state
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(parameter);
+
+  if (new_state.get())
+    fullscreen();
+  else
+    unfullscreen();
 }
 
 void MainWindow::onMeterChanged()
@@ -509,7 +546,6 @@ void MainWindow::onMeterChanged()
   Gtk::Application::get_default()
     ->activate_action(kActionMeterSelect, Glib::Variant<Glib::ustring>::create(param_str));  
 }
-
 
 void MainWindow::onBeatsChanged()
 {
@@ -528,7 +564,6 @@ void MainWindow::onBeatsChanged()
   app->activate_action(meter_slot, new_state);
 }
 
-
 void MainWindow::onSubdivChanged()
 {
   auto app = Gtk::Application::get_default();
@@ -545,7 +580,6 @@ void MainWindow::onSubdivChanged()
   auto new_state = Glib::Variant<Meter>::create(meter);
   app->activate_action(meter_slot, new_state);
 }
-
 
 void MainWindow::onAccentChanged(std::size_t button_index)
 {
@@ -567,7 +601,6 @@ void MainWindow::onAccentChanged(std::size_t button_index)
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();    
   Gtk::Application::get_default()->activate_action(meter_slot, state);
 }
-
 
 void MainWindow::onProfilesSelectionChanged()
 {
@@ -626,7 +659,6 @@ void MainWindow::onProfilesRowInserted(const Gtk::TreeModel::Path& path,
 void MainWindow::onProfilesRowDeleted(const Gtk::TreeModel::Path& path)
 {}
 
-
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
@@ -682,7 +714,6 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   }
 }
 
-
 void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& meter)
 {
   std::for_each(meter_connections_.begin(), meter_connections_.end(), 
@@ -715,7 +746,6 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
   std::for_each(meter_connections_.begin(), meter_connections_.end(), 
                 std::mem_fn(&sigc::connection::unblock));
 }
-
 
 void MainWindow::updateAccentButtons(const Meter& meter)
 {
@@ -754,7 +784,6 @@ void MainWindow::updateAccentButtons(const Meter& meter)
   }  
 }
 
-
 void MainWindow::updateProfilesList(const ProfilesList& list)
 {
   profiles_selection_changed_connection_.block();
@@ -778,7 +807,6 @@ void MainWindow::updateProfilesList(const ProfilesList& list)
   profiles_selection_changed_connection_.unblock();
 }
 
-
 void MainWindow::updateProfilesSelect(const Glib::ustring& id)
 {
   auto rows = profiles_list_store_->children();
@@ -797,7 +825,6 @@ void MainWindow::updateProfilesSelect(const Glib::ustring& id)
   }
   profiles_selection_changed_connection_.unblock();
 }
-
 
 void MainWindow::updateProfilesTitle(const Glib::ustring& title)
 {

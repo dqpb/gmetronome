@@ -663,7 +663,7 @@
             <property name="halign">center</property>
             <property name="valign">center</property>
             <property name="margin-start">15</property>
-            <property name="stock">gtk-preferences</property>
+            <property name="icon-name">gtk-preferences</property>
             <property name="icon_size">3</property>
           </object>
         </child>

@@ -69,6 +69,7 @@ protected:
   Gtk::ShortcutsWindow* shortcuts_window_;
 
   // MainWindow UI elements
+  Gtk::Box* titlebar_box_;
   Gtk::HeaderBar* header_bar_;
   Gtk::Label* tempo_integral_label_;
   Gtk::Label* tempo_fraction_label_;
@@ -81,6 +82,15 @@ protected:
   Gtk::TreeView* profiles_tree_view_;
   Gtk::Button* profiles_new_button_;
   Gtk::Button* profiles_delete_button_;
+  Gtk::Box* main_box_;
+  Gtk::Overlay* info_overlay_;
+  Gtk::Revealer* info_revealer_;
+  Gtk::InfoBar* info_bar_;
+  Gtk::Box* info_content_box_;
+  Gtk::ButtonBox* info_button_box_;
+  Gtk::Image* info_image_;
+  Gtk::Label* info_label_;
+  Gtk::Box* content_box_;
   Gtk::VolumeButton* volume_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::Revealer* trainer_toggle_button_revealer_;
@@ -119,7 +129,10 @@ protected:
   void initUI();
   void initAbout();
   void initBindings();
-  
+
+  // Default window signal handler
+  bool on_window_state_event(GdkEventWindowState* window_state_event) override;
+
   // Window actions
   void onShowPrimaryMenu(const Glib::VariantBase& value);
   void onShowProfiles(const Glib::VariantBase& value);
@@ -127,6 +140,7 @@ protected:
   void onShowShortcuts(const Glib::VariantBase& value);
   void onShowHelp(const Glib::VariantBase& value);
   void onShowAbout(const Glib::VariantBase& value);
+  void onToggleFullScreen(const Glib::VariantBase& value);
   
   // UI handler
   void onMeterChanged();
