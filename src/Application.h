@@ -24,6 +24,7 @@
 #include "ProfilesManager.h"
 #include "Action.h"
 #include "Ticker.h"
+#include "Message.h"
 
 class MainWindow;
 

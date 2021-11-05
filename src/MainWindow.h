@@ -22,6 +22,7 @@
 
 #include "Action.h"
 #include "Ticker.h"
+#include "Message.h"
 #include "AccentButtonGrid.h"
 
 #include <gtkmm.h>
@@ -89,7 +90,11 @@ protected:
   Gtk::Box* info_content_box_;
   Gtk::ButtonBox* info_button_box_;
   Gtk::Image* info_image_;
-  Gtk::Label* info_label_;
+  Gtk::Box* info_label_box_;
+  Gtk::Label* info_topic_label_;
+  Gtk::Label* info_text_label_;
+  Gtk::Label* info_details_label_;
+  Gtk::Expander* info_details_expander_;
   Gtk::Box* content_box_;
   Gtk::VolumeButton* volume_button_;
   Gtk::ToggleButton* start_button_;

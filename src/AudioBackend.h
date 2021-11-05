@@ -33,8 +33,8 @@ namespace audio {
    */
   class BackendError : public GMetronomeError {
   public:
-    BackendError(const std::string& message = "")
-      : GMetronomeError("Audio backend error: " + message) {} 
+    BackendError(const std::string& text = "")
+      : GMetronomeError(text) {} 
   };
   
   class BackendStateTransitionError : public BackendError {
@@ -54,7 +54,7 @@ namespace audio {
     BackendWriteError()
       : BackendError("could not write data stream") {} 
   };
-
+  
   enum class BackendState
   {
     kConfig   = 0,

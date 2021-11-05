@@ -76,7 +76,11 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("infoContentBox", info_content_box_);
   builder_->get_widget("infoButtonBox", info_button_box_);
   builder_->get_widget("infoImage", info_image_);
-  builder_->get_widget("infoLabel", info_label_);
+  builder_->get_widget("infoLabelBox", info_label_box_);  
+  builder_->get_widget("infoTopicLabel", info_topic_label_);
+  builder_->get_widget("infoTextLabel", info_text_label_);
+  builder_->get_widget("infoDetailsLabel", info_details_label_);
+  builder_->get_widget("infoDetailsExpander", info_details_expander_);
   builder_->get_widget("contentBox", content_box_);
   builder_->get_widget("volumeButton", volume_button_);
   builder_->get_widget("startButton", start_button_);
@@ -174,13 +178,13 @@ void MainWindow::initUI()
   info_revealer_->set_reveal_child(false);
   
   // initialize tempo interface
-  Glib::ustring markup_30 = Glib::ustring::format(30);
-  Glib::ustring markup_120= Glib::ustring::format(120);
-  Glib::ustring markup_250 = Glib::ustring::format(250);
+  Glib::ustring mark_30 = Glib::ustring::format(30);
+  Glib::ustring mark_120= Glib::ustring::format(120);
+  Glib::ustring mark_250 = Glib::ustring::format(250);
 
-  tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, markup_30);
-  tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, markup_120);
-  tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, markup_250);
+  tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, mark_30);
+  tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, mark_120);
+  tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, mark_250);
 
   tempo_scale_->set_round_digits(0); 
   
@@ -941,7 +945,9 @@ void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
 
 void MainWindow::onMessage(const Message& message)
 {
-  info_label_->set_text(message.text);
+  info_topic_label_->set_text(message.topic);
+  info_text_label_->set_markup(message.text);
+  info_details_label_->set_text(message.details);
 
   switch ( message.category )
   {
@@ -960,6 +966,12 @@ void MainWindow::onMessage(const Message& message)
     info_image_->set_from_icon_name("dialog-warning", Gtk::ICON_SIZE_LARGE_TOOLBAR);
   }
 
+  if ( message.details.empty() )
+    info_details_expander_->hide();
+  else
+    info_details_expander_->show();
+
+  info_details_expander_->set_expanded(false);
   info_revealer_->set_reveal_child(true);
 }
 

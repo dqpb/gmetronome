@@ -1,7 +1,8 @@
 AC_INIT([GMetronome],
 	[0.1],
 	[dqpb@mailbox.org],
-	[gmetronome])
+	[gmetronome],
+	[https://gitlab.gnome.org/dqpb/gmetronome])
 
 AM_INIT_AUTOMAKE([foreign -Wall])
 

@@ -922,55 +922,49 @@ void Application::onStart(const Glib::VariantBase& value)
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
 
-  if (new_state.get() && ticker_.state() == audio::TickerState::kReady)
-  {
-    bool trainer_enabled;
-    get_action_state(kActionTrainerEnabled, trainer_enabled);
-    
-    if (trainer_enabled)
+  bool error = false;
+  Message error_message;
+  
+  try {
+    if (new_state.get() && ticker_.state() == audio::TickerState::kReady)
     {
-      double trainer_start_tempo;
-      get_action_state(kActionTrainerStart, trainer_start_tempo);
+      bool trainer_enabled;
+      get_action_state(kActionTrainerEnabled, trainer_enabled);
       
-      ticker_.setTempo(trainer_start_tempo);
-    }
-    try {
+      if (trainer_enabled)
+      {
+        double trainer_start_tempo;
+        get_action_state(kActionTrainerStart, trainer_start_tempo);
+        
+        ticker_.setTempo(trainer_start_tempo);
+      }
       ticker_.start();
-      startTimer();
+      startTimer();    
     }
-    catch(const GMetronomeError& e)
+    else
     {
-      std::cerr << e.text() << std::endl;
-      ticker_.reset();
-      new_state = Glib::Variant<bool>::create(false);
-      signal_message_.emit(e.message());
-    }
-    catch(const std::exception& e)
-    {
-      std::cerr << e.what() << std::endl;
-      ticker_.reset();
-      new_state = Glib::Variant<bool>::create(false);
+      stopTimer();
+      ticker_.stop();
     }
   }
-  else
+  catch(const audio::BackendError& e)
   {
-    stopTimer();
-    try {
-      ticker_.stop();
-     }
-    catch(const GMetronomeError& e)
-    {
-      std::cerr << e.text() << std::endl;
-      ticker_.reset();
-      new_state = Glib::Variant<bool>::create(false);
-      signal_message_.emit(e.message());
-    }
-    catch(const std::exception& e)
-    {
-      std::cerr << e.what() << std::endl;
-      ticker_.reset();
-      new_state = Glib::Variant<bool>::create(false);
-    }
+    error = true;
+    error_message = kAudioBackendErrorMessage;
+    error_message.details = e.what();
+  }
+  catch(const std::exception& e)
+  {
+    error = true;
+    error_message = kGenericErrorMessage;
+    error_message.details = e.what();
+  }
+  
+  if (error)
+  {
+    ticker_.reset();
+    new_state = Glib::Variant<bool>::create(false);
+    signal_message_.emit(error_message);
   }
 
   lookup_simple_action(kActionStart)->set_state(new_state);

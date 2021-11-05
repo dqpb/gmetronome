@@ -18,15 +18,13 @@
       <object class="GtkInfoBar" id="infoBar">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="valign">start</property>
         <property name="show-close-button">True</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="infoButtonBox">
             <property name="can-focus">False</property>
             <property name="spacing">6</property>
             <property name="layout-style">end</property>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <placeholder/>
             </child>
@@ -48,6 +46,8 @@
               <object class="GtkImage" id="infoImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
                 <property name="icon-name">dialog-information-symbolic</property>
                 <property name="icon_size">3</property>
               </object>
@@ -58,10 +58,78 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="infoLabel">
+              <object class="GtkBox" id="infoLabelBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Info message</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">10</property>
+                <child>
+                  <object class="GtkLabel" id="infoTopicLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Topic label</property>
+                    <property name="wrap">True</property>
+                    <property name="xalign">0</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="infoTextLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Text label</property>
+                    <property name="use-markup">True</property>
+                    <property name="wrap">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkExpander" id="infoDetailsExpander">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="valign">start</property>
+                    <property name="hexpand">True</property>
+                    <child>
+                      <object class="GtkLabel" id="infoDetailsLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="hexpand">True</property>
+                        <property name="label" translatable="yes">Details label</property>
+                        <property name="wrap">True</property>
+                        <property name="xalign">0</property>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Details</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -984,30 +1052,6 @@ audio-volume-medium-symbolic</property>
               </packing>
             </child>
             <child>
-              <object class="GtkMenuButton" id="profilesButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="focus-on-click">False</property>
-                <property name="receives-default">True</property>
-                <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
-                <property name="valign">center</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="popover">profilesPopover</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="icon-name">document-save-symbolic</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkMenuButton" id="menuButton">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -1023,6 +1067,30 @@ audio-volume-medium-symbolic</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="icon-name">open-menu-symbolic</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="profilesButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="focus-on-click">False</property>
+                <property name="receives-default">True</property>
+                <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
+                <property name="valign">center</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <property name="popover">profilesPopover</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">document-save-symbolic</property>
                   </object>
                 </child>
               </object>

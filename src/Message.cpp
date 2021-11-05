@@ -17,24 +17,25 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_Error_h
-#define GMetronome_Error_h
+#include "Message.h"
+#include "config.h"
 
-#include <exception>
-#include <string>
-
-class GMetronomeError : public std::exception {
-public:
-  GMetronomeError(const std::string& text = "");
-
-  const char* what() const noexcept override
-    { return text_.data(); }
-  
-  const std::string& text() const noexcept
-    { return text_; }
-  
-private:
-  std::string text_;
+const Message kGenericErrorMessage
+{
+  MessageCategory::kError,
+  "Oops! Something went wrong.",
+  PACKAGE_NAME " has encountered an unknown error. Please check the details below "
+  "and file a bug report on the <a href=\"" PACKAGE_URL "\">project page</a> to help "
+  "to improve " PACKAGE_NAME ".",
+  ""
 };
 
-#endif//GMetronome_Error_h
+const Message kAudioBackendErrorMessage
+{
+  MessageCategory::kError,
+  "Audio backend error",
+  "An error occured in the audio backend. Please try again or "
+  "check the audio configuration in the preferences dialog.",
+  ""
+};
+

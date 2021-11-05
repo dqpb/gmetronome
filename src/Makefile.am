@@ -16,6 +16,7 @@ gmetronome_SOURCES = \
 	Generator.cpp \
 	main.cpp \
 	MainWindow.cpp \
+	Message.cpp \
 	Meter.cpp \
 	Profile.cpp \
 	ProfilesIOBase.cpp \
@@ -44,6 +45,7 @@ noinst_HEADERS = \
 	Error.h \
 	Generator.h \
 	MainWindow.h \
+	Message.h \
 	Meter.h \
 	Profile.h \
 	ProfilesIOBase.h \

@@ -17,24 +17,28 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_Error_h
-#define GMetronome_Error_h
+#ifndef GMetronome_Message_h
+#define GMetronome_Message_h
 
-#include <exception>
-#include <string>
+#include <glibmm/ustring.h>
 
-class GMetronomeError : public std::exception {
-public:
-  GMetronomeError(const std::string& text = "");
-
-  const char* what() const noexcept override
-    { return text_.data(); }
-  
-  const std::string& text() const noexcept
-    { return text_; }
-  
-private:
-  std::string text_;
+enum class MessageCategory
+{
+  kInformation = 0,
+  kWarning = 1,
+  kError = 2,
+  kOther = 3
 };
 
-#endif//GMetronome_Error_h
+struct Message
+{
+  MessageCategory category;
+  Glib::ustring topic;
+  Glib::ustring text;
+  Glib::ustring details;
+};
+
+extern const Message kGenericErrorMessage;
+extern const Message kAudioBackendErrorMessage;
+
+#endif//GMetronome_Message_h
