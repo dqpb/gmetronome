@@ -83,6 +83,14 @@ protected:
   Gtk::Button* profiles_new_button_;
   Gtk::Button* profiles_delete_button_;
   Gtk::Box* main_box_;
+  Gtk::Overlay* info_overlay_;
+  Gtk::Revealer* info_revealer_;
+  Gtk::InfoBar* info_bar_;
+  Gtk::Box* info_content_box_;
+  Gtk::ButtonBox* info_button_box_;
+  Gtk::Image* info_image_;
+  Gtk::Label* info_label_;
+  Gtk::Box* content_box_;
   Gtk::VolumeButton* volume_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::Revealer* trainer_toggle_button_revealer_;

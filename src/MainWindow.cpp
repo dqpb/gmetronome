@@ -68,8 +68,16 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("profilesPopover", profiles_popover_);
   builder_->get_widget("profilesTreeView", profiles_tree_view_);
   builder_->get_widget("profilesNewButton", profiles_new_button_);
-  builder_->get_widget("profilesDeleteButton", profiles_delete_button_);  
+  builder_->get_widget("profilesDeleteButton", profiles_delete_button_);
   builder_->get_widget("mainBox", main_box_);
+  builder_->get_widget("infoOverlay", info_overlay_);
+  builder_->get_widget("infoRevealer", info_revealer_);
+  builder_->get_widget("infoBar", info_bar_);
+  builder_->get_widget("infoContentBox", info_content_box_);
+  builder_->get_widget("infoButtonBox", info_button_box_);
+  builder_->get_widget("infoImage", info_image_);
+  builder_->get_widget("infoLabel", info_label_);
+  builder_->get_widget("contentBox", content_box_);
   builder_->get_widget("volumeButton", volume_button_);
   builder_->get_widget("startButton", start_button_);
   builder_->get_widget("trainerToggleButtonRevealer", trainer_toggle_button_revealer_);
@@ -158,6 +166,10 @@ void MainWindow::initUI()
 {
   // initialize header bar
   updateCurrentTempo({0,0,0,0,0});
+
+  // initialize info bar
+  info_overlay_->add_overlay(*info_revealer_);
+  info_revealer_->set_reveal_child(false);
   
   // initialize tempo interface
   Glib::ustring markup_30 = Glib::ustring::format(30);
