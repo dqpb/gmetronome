@@ -188,21 +188,24 @@ void Application::configureTickerSoundStrong()
 {
   ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongFrequency),
                          settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
-                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
+                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance)); 
 }
 
 void Application::configureTickerSoundMid()
 {
   ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidFrequency),
                       settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
-                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
+                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance)); 
 }
 
 void Application::configureTickerSoundWeak()
 {
   ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakFrequency),
                        settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
-                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.); 
+                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance)); 
 }
 
 void Application::configureTickerAudioBackend()
@@ -976,15 +979,21 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
   {
     configureTickerSound();
   }
-  else if (key == settings::kKeyPrefsSoundStrongFrequency || key == settings::kKeyPrefsSoundStrongVolume)
+  else if (key == settings::kKeyPrefsSoundStrongFrequency
+           || key == settings::kKeyPrefsSoundStrongVolume
+           || key == settings::kKeyPrefsSoundStrongBalance)
   {
     configureTickerSoundStrong();
   }
-  else if (key == settings::kKeyPrefsSoundMidFrequency || key == settings::kKeyPrefsSoundMidVolume)
+  else if (key == settings::kKeyPrefsSoundMidFrequency
+           || key == settings::kKeyPrefsSoundMidVolume
+           || key == settings::kKeyPrefsSoundMidBalance)
   {
     configureTickerSoundMid();
   }
-  else if (key == settings::kKeyPrefsSoundWeakFrequency || key == settings::kKeyPrefsSoundWeakVolume)
+  else if (key == settings::kKeyPrefsSoundWeakFrequency
+           || key == settings::kKeyPrefsSoundWeakVolume
+           || key == settings::kKeyPrefsSoundWeakBalance)
   {
     configureTickerSoundWeak();
   }

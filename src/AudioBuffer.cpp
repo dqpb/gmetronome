@@ -23,8 +23,6 @@
 
 namespace audio {
   
-  constexpr SampleSpec Buffer::DefaultSpec;
-  
   Buffer::Buffer(size_type nbytes, const SampleSpec& spec)
     : data_(nbytes,0),
       spec_(spec)

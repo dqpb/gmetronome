@@ -42,19 +42,17 @@ namespace audio {
     using  iterator        = byte_container::iterator;
     using  const_iterator  = byte_container::const_iterator;
     
-    static constexpr SampleSpec DefaultSpec { SampleFormat::S16LE, 44100, 2 };
-    
   public:
 
     /** Constructs a buffer of nbytes zero initialized bytes. */
-    Buffer(size_type nbytes = 0, const SampleSpec& spec = DefaultSpec);
+    Buffer(size_type nbytes = 0, const SampleSpec& spec = kDefaultSpec);
 
     /** Constructs a zero initialized buffer capable of holding 
 	the specified time of audio data. */
-    Buffer(microseconds duration, const SampleSpec& spec = DefaultSpec);
+    Buffer(microseconds duration, const SampleSpec& spec = kDefaultSpec);
 
     /** Constructs a buffer with a byte_container. */
-    Buffer(byte_container data, const SampleSpec& spec = DefaultSpec);
+    Buffer(byte_container data, const SampleSpec& spec = kDefaultSpec);
 
     /** Construct the buffer with the contents of an audio file. */
     Buffer(const std::string& filename);

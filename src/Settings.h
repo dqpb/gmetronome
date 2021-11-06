@@ -86,10 +86,13 @@ namespace settings {
   const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
   const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
   const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
+  const Glib::ustring  kKeyPrefsSoundStrongBalance        {"sound-strong-balance"};
   const Glib::ustring  kKeyPrefsSoundMidFrequency         {"sound-mid-frequency"};
   const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
+  const Glib::ustring  kKeyPrefsSoundMidBalance           {"sound-mid-balance"};
   const Glib::ustring  kKeyPrefsSoundWeakFrequency        {"sound-weak-frequency"};
   const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
+  const Glib::ustring  kKeyPrefsSoundWeakBalance          {"sound-weak-balance"};
   const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
 
   /* 

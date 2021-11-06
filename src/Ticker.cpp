@@ -97,29 +97,29 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
   
-  void Ticker::setSoundStrong(double frequency, double volume)
+  void Ticker::setSoundStrong(double frequency, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);
-      in_sound_strong_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+      in_sound_strong_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
     }
     sound_strong_imported_flag_.clear(std::memory_order_release);
   }
   
-  void Ticker::setSoundMid(double frequency, double volume)
+  void Ticker::setSoundMid(double frequency, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);
-      in_sound_mid_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+      in_sound_mid_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
     }
     sound_mid_imported_flag_.clear(std::memory_order_release);
   }
   
-  void Ticker::setSoundWeak(double frequency, double volume)
+  void Ticker::setSoundWeak(double frequency, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(mutex_);
-      in_sound_weak_ = generateSound( frequency, volume, kDefaultSpec, kSineDuration );
+      in_sound_weak_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
     }
     sound_weak_imported_flag_.clear(std::memory_order_release);
   }
