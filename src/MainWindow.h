@@ -76,6 +76,8 @@ protected:
   Gtk::Label* tempo_fraction_label_;
   Gtk::Label* tempo_divider_label_;
   Gtk::Label* current_profile_label_;
+  Gtk::Button* full_screen_button_;
+  Gtk::Image* full_screen_image_;
   Gtk::MenuButton* menu_button_;
   Gtk::PopoverMenu* popover_menu_;
   Gtk::MenuButton* profiles_button_;

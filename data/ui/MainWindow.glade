@@ -1052,6 +1052,27 @@ audio-volume-medium-symbolic</property>
               </packing>
             </child>
             <child>
+              <object class="GtkButton" id="fullScreenButton">
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <property name="action-name">win.full-screen</property>
+                <property name="always-show-image">True</property>
+                <child>
+                  <object class="GtkImage" id="fullScreenImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">view-fullscreen-symbolic</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkMenuButton" id="menuButton">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -1072,7 +1093,7 @@ audio-volume-medium-symbolic</property>
               </object>
               <packing>
                 <property name="pack-type">end</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -1096,7 +1117,7 @@ audio-volume-medium-symbolic</property>
               </object>
               <packing>
                 <property name="pack-type">end</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>

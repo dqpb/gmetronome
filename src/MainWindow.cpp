@@ -62,6 +62,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("tempoFractionLabel", tempo_fraction_label_);
   builder_->get_widget("tempoDividerLabel", tempo_divider_label_);
   builder_->get_widget("currentProfileLabel", current_profile_label_);
+  builder_->get_widget("fullScreenButton", full_screen_button_);
+  builder_->get_widget("fullScreenImage", full_screen_image_);
   builder_->get_widget("menuButton", menu_button_);
   builder_->get_widget("popoverMenu", popover_menu_);
   builder_->get_widget("profilesButton", profiles_button_);
@@ -376,12 +378,20 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
     if (window_state_event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
     {
       header_bar_->reparent(*main_box_);
+      header_bar_->set_decoration_layout(":minimize,close");
       main_box_->reorder_child(*header_bar_, 0);
+      full_screen_image_->set_from_icon_name("view-restore-symbolic",
+                                             Gtk::ICON_SIZE_BUTTON);
+      full_screen_button_->show();
       new_state = true;
     }
     else
     {
       header_bar_->reparent(*titlebar_box_);
+      header_bar_->unset_decoration_layout();
+      full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
+                                             Gtk::ICON_SIZE_BUTTON);
+      full_screen_button_->hide();
       new_state = false;
     }
 
