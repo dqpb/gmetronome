@@ -959,10 +959,6 @@ void MainWindow::onMessage(const Message& message)
   info_text_label_->set_markup(message.text);
   info_details_label_->set_text(message.details);
 
-  info_topic_label_->set_size_request(info_label_box_->get_width(),-1);
-  info_text_label_->set_size_request(info_label_box_->get_width(),-1);
-  info_details_label_->set_size_request(info_label_box_->get_width(),-1);
-  
   switch ( message.category )
   {
   case MessageCategory::kInformation:
