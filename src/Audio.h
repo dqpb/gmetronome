@@ -70,7 +70,7 @@ namespace audio {
     uint8_t      channels;
   };
 
-  constexpr SampleSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 1 };
+  constexpr SampleSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 2 };
 
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);

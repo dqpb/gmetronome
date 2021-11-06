@@ -65,9 +65,9 @@ namespace audio {
     void setAccel(double accel);
     void setMeter(Meter meter);
     
-    void setSoundStrong(double frequency, double volume);
-    void setSoundMid(double frequency, double volume);
-    void setSoundWeak(double frequency, double volume);
+    void setSoundStrong(double frequency, double volume, double balance);
+    void setSoundMid(double frequency, double volume, double balance);
+    void setSoundWeak(double frequency, double volume, double balance);
     
     Ticker::Statistics getStatistics() const;
     

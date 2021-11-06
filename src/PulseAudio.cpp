@@ -57,7 +57,7 @@ namespace audio {
     pa_spec_ = convertSpecToPA(spec);
 
     //pa_buffer_attr_.maxlength = 7056;
-    pa_buffer_attr_.maxlength = 8056;
+    pa_buffer_attr_.maxlength = spec.channels * 8056;
     pa_buffer_attr_.tlength   = -1;
     pa_buffer_attr_.prebuf    = -1;
     pa_buffer_attr_.minreq    = -1;

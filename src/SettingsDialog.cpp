@@ -43,14 +43,20 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongFreqAdjustment"));
   sound_strong_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongVolAdjustment"));
+  sound_strong_bal_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongBalAdjustment"));
   sound_mid_freq_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidFreqAdjustment"));
   sound_mid_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidVolAdjustment"));
+  sound_mid_bal_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidBalAdjustment"));
   sound_weak_freq_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakFreqAdjustment"));
   sound_weak_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakVolAdjustment"));
+  sound_weak_bal_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));
 
   settings_ = Gio::Settings::create(settings::kSchemaId);
   settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
@@ -90,10 +96,13 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundMidFrequency, sound_mid_freq_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
 
   shortcuts_reset_button_->signal_clicked()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onResetShortcuts) );
