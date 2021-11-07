@@ -1070,7 +1070,7 @@ bool Application::onTimer()
     if (!meter_enabled)
     {
       stats.generator.next_accent = -1;
-      stats.generator.next_accent_time = 0us;
+      stats.generator.next_accent_delay = 0us;
     }  
     
     signal_ticker_statistics_.emit(stats);

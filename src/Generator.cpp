@@ -255,7 +255,7 @@ namespace audio {
 
     int frames_left = std::max(0, frames_total_ - frames_done_);
     
-    stats_.next_accent_time
+    stats_.next_accent_delay
       = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio_));
   }
   
@@ -280,7 +280,7 @@ namespace audio {
     stats_.current_tempo = 0;
     stats_.current_accel = 0;
     stats_.next_accent = 0;
-    stats_.next_accent_time = 0us;
+    stats_.next_accent_delay = 0us;
 
     data = &(sound_zero_[0]);
     bytes = 0;

@@ -885,7 +885,7 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
   
   uint64_t time = stats.timestamp.count()
     + stats.backend_latency.count()
-    + stats.generator.next_accent_time.count();
+    + stats.generator.next_accent_delay.count();
 
   time += animation_sync_usecs_;
   

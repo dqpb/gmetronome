@@ -35,7 +35,7 @@ namespace audio {
       double  current_tempo;
       double  current_accel;
       int     next_accent;
-      microseconds  next_accent_time;
+      microseconds  next_accent_delay;
     };
 
   public:    
