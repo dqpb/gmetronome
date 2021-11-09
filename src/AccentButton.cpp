@@ -407,7 +407,6 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
   Gdk::Cairo::set_source_rgba(cairo_context, color1);
 
   double surface_width = surface->get_width();
-  double surface_height = surface->get_width();
   
   double L = 0;
   double R = surface_width;
@@ -422,9 +421,6 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
     cairo_context->line_to(R,10);
     cairo_context->line_to(R,6);
     cairo_context->line_to(M,1);
-
-    // cairo_context->set_line_width(1.0);
-    // cairo_context->stroke_preserve();
 
     Gdk::Cairo::set_source_rgba(cairo_context, color2);
     cairo_context->fill();

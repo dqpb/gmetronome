@@ -52,7 +52,6 @@ namespace audio {
       double volume_drop_exp = 2. / volume;
       
       auto frameSize = audio::frameSize(spec);
-      auto sampleSize = audio::sampleSize(spec.format);
       
       for(size_t frame = 0; frame < n_frames; ++frame)
       {
