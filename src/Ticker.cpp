@@ -390,8 +390,8 @@ namespace audio {
     try {
       importSettings();
       generator_.start(data, bytes);
-      exportStatistics();
       startAudioBackend();
+      exportStatistics();
       writeAudioBackend(data, bytes);
       
       // enter the main loop
@@ -399,13 +399,13 @@ namespace audio {
       {                
         importSettings();
         generator_.cycle(data, bytes);
-        exportStatistics();
         writeAudioBackend(data, bytes);
+        exportStatistics();
       }
       
       generator_.stop(data, bytes);
-      exportStatistics();
       writeAudioBackend(data, bytes);
+      exportStatistics();
       stopAudioBackend();
     }
     catch(...)
