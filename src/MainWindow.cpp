@@ -123,10 +123,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   profiles_list_store_ = ProfilesListStore::create();
   profiles_tree_view_->set_model(profiles_list_store_);
   profiles_tree_view_->append_column_editable("Title", profiles_list_store_->columns_.title_);
-  profiles_tree_view_->set_reorderable();
-  // profiles_tree_view_->enable_model_drag_source();
-  // profiles_tree_view_->enable_model_drag_dest();
-  
+  //profiles_tree_view_->set_reorderable();
+  profiles_tree_view_->enable_model_drag_source();
+  profiles_tree_view_->enable_model_drag_dest();
+
   preferences_dialog_ = SettingsDialog::create(*this);
 
   initSettings();
@@ -319,6 +319,12 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onAccentChanged))
       );
 
+  profiles_tree_view_->signal_drag_begin()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesDragBegin));
+  
+  profiles_tree_view_->signal_drag_end()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesDragEnd));
+  
   profiles_selection_changed_connection_ =
     profiles_tree_view_->get_selection()->signal_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfilesSelectionChanged));
@@ -333,12 +339,6 @@ void MainWindow::initBindings()
   profiles_title_changed_connection_ =
     cell_renderer->signal_edited()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfilesTitleChanged));
-
-  profiles_list_store_->signal_row_inserted()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesRowInserted));
-
-  profiles_list_store_->signal_row_deleted()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesRowDeleted));
 
   app->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
@@ -672,12 +672,30 @@ void MainWindow::onProfilesTitleChanged(const Glib::ustring& path_string,
   }
 }
 
-void MainWindow::onProfilesRowInserted(const Gtk::TreeModel::Path& path,
-                                       const Gtk::TreeModel::iterator& iter)
-{}
+void MainWindow::onProfilesDragBegin(const Glib::RefPtr<Gdk::DragContext>& context)
+{
+  profiles_selection_changed_connection_.block();
+}
 
-void MainWindow::onProfilesRowDeleted(const Gtk::TreeModel::Path& path)
-{}
+void MainWindow::onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
+{
+  profiles_selection_changed_connection_.unblock();
+
+  auto rows = profiles_list_store_->children();
+  ProfilesIdentifierList id_list;
+  for (const auto& row :rows)
+    {
+      id_list.push_back(row[profiles_list_store_->columns_.id_]);
+    }
+  Gtk::Application::get_default()
+    ->activate_action(kActionProfilesReorder, Glib::Variant<ProfilesIdentifierList>::create(id_list));
+
+  auto app = Gtk::Application::get_default();
+  Glib::ustring id;
+  app->get_action_state(kActionProfilesSelect, id);
+	       
+  updateProfilesSelect(id);
+}
 
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)

@@ -55,6 +55,8 @@ public:
   
   void setProfileHeader(Profile::Identifier id, const Profile::Header& header);
 
+  void reorderProfiles(const std::vector<Profile::Identifier>& order);
+  
   sigc::signal<void> signal_changed()
   { return signal_changed_; }
   

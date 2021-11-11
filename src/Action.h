@@ -61,6 +61,7 @@ const Glib::ustring  kActionProfilesDelete       {"profiles-delete"};
 const Glib::ustring  kActionProfilesReset        {"profiles-reset"};
 const Glib::ustring  kActionProfilesTitle        {"profiles-title"};
 const Glib::ustring  kActionProfilesDescription  {"profiles-description"};
+const Glib::ustring  kActionProfilesReorder      {"profiles-reorder"};
 
 // Window actions
 const Glib::ustring kActionShowPrimaryMenu       {"show-primary-menu"};
@@ -125,6 +126,7 @@ constexpr int kProfilesListEntryTitle = 1;
 constexpr int kProfilesListEntryDescription = 2;
 
 using ProfilesList = std::vector<ProfilesListEntry>;
+using ProfilesIdentifierList = std::vector<Glib::ustring>;
 
 using ActionDescriptionMap = std::map<Glib::ustring, ActionDescription>;
 
@@ -579,13 +581,13 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         : kActionProfilesList
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type : - 
+   * State type     : ProfilesList
+   * State value    : {}
+   * State hint     : -
+   * Enabled        : true
    */
   { kActionProfilesList,
     {
@@ -683,7 +685,25 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
+  /* Action         : kActionProfilesReorder
+   * Scope          : Application
+   * Parameter type : ProfilesIdentifierList
+   * State type     : -
+   * State value    : -
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionProfilesReorder,
+    {
+      ActionScope::kApp, 
+      Glib::Variant<ProfilesIdentifierList>::variant_type(),
+      Glib::Variant<ProfilesIdentifierList>::create({}),
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionShowPrimaryMenu
    * Scope          : Window
    * Parameter type : -

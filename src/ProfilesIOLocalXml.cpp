@@ -85,10 +85,11 @@ void ProfilesIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
   
   if (auto it = std::adjacent_find(b.begin(), b.end()); it == b.end())
   {
-    auto new_porder = porder_;
+    decltype(porder_) new_porder;
+    new_porder.reserve(porder_.size());
     
     for (const auto& idx : a)
-      new_porder[idx] = porder_[idx];
+      new_porder.push_back(porder_[idx]);
     
     std::swap(porder_, new_porder);
   }

@@ -92,3 +92,9 @@ void ProfilesManager::setProfileHeader(Profile::Identifier id, const Profile::He
   p.header = header;
   setProfile(id, p);  
 }
+
+void ProfilesManager::reorderProfiles(const std::vector<Profile::Identifier>& order)
+{
+  io_->reorder(order);
+  signal_changed_.emit();
+}

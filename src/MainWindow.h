@@ -157,12 +157,11 @@ protected:
   void onProfilesSelectionChanged();
   void onProfilesTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
   void onProfilesTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
-  void onProfilesRowInserted(const Gtk::TreeModel::Path& path,
-                             const Gtk::TreeModel::iterator& iter);
-  void onProfilesRowDeleted(const Gtk::TreeModel::Path& path);
+  void onProfilesDragBegin(const Glib::RefPtr<Gdk::DragContext>& context);
+  void onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context);
   void onProfilesShow();
   void onProfilesHide();
-    
+  
   // Action handler
   void onActionStateChanged(const Glib::ustring& action_name,
 			    const Glib::VariantBase& variant);

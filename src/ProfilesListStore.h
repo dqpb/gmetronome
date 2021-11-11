@@ -25,56 +25,35 @@
 
 class ProfilesListStore : public Gtk::ListStore
 {
- protected:
+protected:
   ProfilesListStore();
   
- public:
-  
+public: 
   //Tree model columns
   class ModelColumns : public Gtk::TreeModel::ColumnRecord
-   {
-   public:
+  {
+  public:
      
-     ModelColumns()
-       {
-	 add(id_);
-	 add(title_);
-	 add(description_);
-	 add(draggable_);
-	 add(receivesdrags_);
-       }
+    ModelColumns()
+    {
+      add(id_);
+      add(title_);
+      add(description_);
+      add(draggable_);
+      add(receivesdrags_);
+    }
 
-     Gtk::TreeModelColumn<Glib::ustring> id_;
-     Gtk::TreeModelColumn<Glib::ustring> title_;
-     Gtk::TreeModelColumn<Glib::ustring> description_;
+    Gtk::TreeModelColumn<Glib::ustring> id_;
+    Gtk::TreeModelColumn<Glib::ustring> title_;
+    Gtk::TreeModelColumn<Glib::ustring> description_;
      
-     Gtk::TreeModelColumn<bool> draggable_;
-     Gtk::TreeModelColumn<bool> receivesdrags_;
-   };
+    Gtk::TreeModelColumn<bool> draggable_;
+    Gtk::TreeModelColumn<bool> receivesdrags_;
+  };
   
   ModelColumns columns_;
   
- 
- static Glib::RefPtr<ProfilesListStore> create();
-
- protected:
- //Overridden virtual functions:
- // bool row_draggable_vfunc(const Gtk::TreeModel::Path& path) const override
- //    {
- //      return true;
- //    }
-
- //  bool row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest,
- //                               const Gtk::SelectionData& selection_data) const override
- //    {
- //      return true;
- //    }
-  
- //  bool drag_data_get_vfunc(const Gtk::TreeModel::Path& path,
- //                           Gtk::SelectionData& selection_data) const
- //    {
- //      return true;
- //    }
+  static Glib::RefPtr<ProfilesListStore> create();
 };
 
 #endif//GMetronome_ProfilesListStore_h

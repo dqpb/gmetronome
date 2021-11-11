@@ -104,7 +104,8 @@ void Application::initActions()
       {kActionProfilesDelete,       sigc::mem_fun(*this, &Application::onProfilesDelete)},
       {kActionProfilesReset,        sigc::mem_fun(*this, &Application::onProfilesReset)},
       {kActionProfilesTitle,        sigc::mem_fun(*this, &Application::onProfilesTitle)},
-      {kActionProfilesDescription,  sigc::mem_fun(*this, &Application::onProfilesDescription)}
+      {kActionProfilesDescription,  sigc::mem_fun(*this, &Application::onProfilesDescription)},
+      {kActionProfilesReorder,      sigc::mem_fun(*this, &Application::onProfilesReorder)}
     };
 
   install_actions(*this, kActionDescriptions, kAppActionHandler);
@@ -661,10 +662,10 @@ void Application::onProfilesManagerChanged()
 
 void Application::onProfilesList(const Glib::VariantBase& value)
 {
-  // The "profiles-list" action state is modified in response to the "changed"
-  // signal (signal_changed) of the profiles manager (i.e. the underlying storage)
-  // and therefore gives clients access to an up-to-date list of all available
-  // profiles. Currently it cannot be modified directly.
+  // The "profiles-list" action state is modified in response to "signal_changed"
+  // of the profiles manager. (see onProfilesManagerChanged() signal handler)
+  // It gives clients access to an up-to-date list of all available profiles
+  // but can not be modified by clients via activate_action() or change_action_state().
 }
 
 void Application::onProfilesSelect(const Glib::VariantBase& value)
@@ -918,6 +919,24 @@ void Application::onProfilesDescription(const Glib::VariantBase& value)
 
     lookup_simple_action(kActionProfilesDescription)->set_state(out_value);
   }
+}
+
+void Application::onProfilesReorder(const Glib::VariantBase& value)
+{
+  Glib::Variant<ProfilesIdentifierList> in_list
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<ProfilesIdentifierList>>(value);
+  
+  std::vector<Profile::Identifier> out_list;
+  
+  // convert ProfilesIdentifierList to std::vector<Profile::Identifier>
+  auto iter = in_list.get_iter();
+  out_list.reserve(in_list.get_n_children());
+  
+  Glib::Variant<ProfilesIdentifierList::value_type> id;
+  while (iter.next_value(id))
+      out_list.push_back(id.get());
+  
+  profiles_manager_.reorderProfiles(out_list);
 }
 
 void Application::onStart(const Glib::VariantBase& value)

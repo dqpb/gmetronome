@@ -137,6 +137,7 @@ private:
   void onProfilesReset(const Glib::VariantBase& value);
   void onProfilesTitle(const Glib::VariantBase& value);
   void onProfilesDescription(const Glib::VariantBase& value);
+  void onProfilesReorder(const Glib::VariantBase& value);
   
   void loadSelectedProfile();
   void loadDefaultProfile();
