@@ -25,6 +25,7 @@
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
+#include "TapAnalyser.h"
 
 class MainWindow;
 
@@ -50,6 +51,7 @@ protected:
 private:
   audio::Ticker ticker_;
   ProfilesManager profiles_manager_;
+  TapAnalyser tap_analyser_;
   
   // GSettings
   Glib::RefPtr<Gio::Settings> settings_;

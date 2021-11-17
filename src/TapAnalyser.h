@@ -21,6 +21,8 @@
 #define GMetronome_TapAnalyser_h
 
 #include "Meter.h"
+#include <vector>
+#include <chrono>
 
 template<typename T>
 struct Estimate
@@ -31,12 +33,27 @@ struct Estimate
 
 class TapAnalyser {
 public:
-
+  TapAnalyser();
+  
+  void tap();
   void reset();
-
+  
   Estimate<double> tempo();
   Estimate<Meter> meter();
-  Estimate<double> beat();
+  
+  double beat();
+  
+private:
+  std::chrono::time_point<std::chrono::steady_clock> tap_start_;
+  struct Tap_
+  {
+    int slot;
+    double value;
+  };
+  std::vector<Tap_> taps_;
+  std::vector<Tap_> corr_;
+  
+  void correlate();
 };
 
 #endif//GMetronome_TapAnalyser_h

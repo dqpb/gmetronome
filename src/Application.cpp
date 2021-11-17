@@ -553,6 +553,8 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 {
   using std::literals::chrono_literals::operator""min;
 
+  tap_analyser_.tap();
+
   static auto now = std::chrono::steady_clock::now();
   static auto last_timepoint = now;
 
