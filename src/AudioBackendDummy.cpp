@@ -22,6 +22,17 @@
 
 namespace audio {
 
+  namespace {
+    
+    class TransitionError : public BackendError {
+    public:
+      TransitionError(BackendState state)
+	: BackendError(settings::kAudioBackendNone, state, "invalid state transition")
+      {}
+    };
+    
+  }//unnamed namespace
+  
   DummyBackend::DummyBackend(const audio::SampleSpec& spec)
     : spec_(spec)
   {}
@@ -36,7 +47,7 @@ namespace audio {
     if (state_ == BackendState::kConfig)
       state_ = BackendState::kOpen;
     else
-      throw BackendStateTransitionError();
+      throw TransitionError(state_);
   }
 
   void DummyBackend::close()
@@ -44,7 +55,7 @@ namespace audio {
     if (state_ == BackendState::kOpen)
       state_ = BackendState::kConfig;
     else
-      throw BackendStateTransitionError();
+      throw TransitionError(state_);
   }
 
   void DummyBackend::start()
@@ -52,7 +63,7 @@ namespace audio {
     if (state_ == BackendState::kOpen)
       state_ = BackendState::kRunning;
     else
-      throw BackendStateTransitionError();
+      throw TransitionError(state_);
   }
 
   void DummyBackend::stop()
@@ -60,7 +71,7 @@ namespace audio {
     if (state_ == BackendState::kRunning)
       state_ = BackendState::kOpen;
     else
-      throw BackendStateTransitionError();
+      throw TransitionError(state_);
   }
 
   void DummyBackend::write(const void* data, size_t bytes)
@@ -73,7 +84,7 @@ namespace audio {
       }
     }
     else
-      throw BackendStateTransitionError();
+      throw TransitionError(state_);
   }
 
   void DummyBackend::flush() {}

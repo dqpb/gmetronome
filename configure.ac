@@ -28,6 +28,9 @@ PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
 
+#
+# Pulseaudio
+#
 AC_ARG_WITH([pulseaudio],
             [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
             [],
@@ -38,6 +41,23 @@ AS_IF([test "x$with_pulseaudio" != "xno"],
      AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
      AS_IF([test "x$with_pulseaudio" != "xcheck"], 
       	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
+     )
+  )]
+)
+
+#
+# Alsa
+#
+AC_ARG_WITH([alsa],
+            [AS_HELP_STRING([--with-alsa], [enable alsa support])],
+            [],
+            [with_alsa=check])
+
+AS_IF([test "x$with_alsa" != "xno"],
+  [PKG_CHECK_MODULES([ALSA], [alsa],
+     AC_DEFINE([HAVE_ALSA], [1], [Define if you have alsa support]),
+     AS_IF([test "x$with_alsa" != "xcheck"], 
+      	AC_MSG_FAILURE([--with-alsa was given, but test for libasound failed])
      )
   )]
 )
