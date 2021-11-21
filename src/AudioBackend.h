@@ -39,9 +39,8 @@ namespace audio {
    */
   class BackendError : public GMetronomeError {
   public:
-    BackendError(settings::AudioBackend backend, BackendState state,
-		 const std::string& text = "")
-      : GMetronomeError(text),
+    BackendError(settings::AudioBackend backend, BackendState state, const char* what = "")
+      : GMetronomeError(what),
 	backend_(backend),
 	state_(state)
     {}
@@ -51,12 +50,12 @@ namespace audio {
     
     BackendState state() const noexcept
     { return state_; }
-    
+
   private:
     settings::AudioBackend backend_;
     BackendState state_;
   };
-  
+
   /**
    * @class Backend
    *

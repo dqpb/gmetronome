@@ -12,7 +12,7 @@ $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
 appicondir = $(datadir)/icons/hicolor/48x48/apps
 appicon_DATA = icons/gmetronome.png
 
-### Application resources
+### Resources files
 resource_files = \
 	css/global.css \
 	ui/SettingsDialog.glade \
@@ -22,19 +22,45 @@ resource_files = \
 	icons/gmetronome.svg
 
 gresource_xml_file = gmetronome.gresource.xml
+resources_file = resources.cpp
 
-nodist_noinst_DATA = resources.cpp
+### GSchema files
+gschema_in_file = org.gmetronome.gschema.xml.in
+gschema_file = $(gschema_in_file:.xml.in=.xml)
 
-resources.cpp: $(gresource_xml_file) $(resource_files)
+nodist_noinst_DATA = \
+	$(resources_file) \
+	$(gschema_file)
+
+$(resources_file): $(gresource_xml_file) $(resource_files)
 	$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
 		--target=$@ --sourcedir=$(srcdir) --generate-source
+
+gschema_sed_script=;
+
+if HAVE_ALSA
+gschema_sed_script+=;/HAVE_ALSA/d
+else
+gschema_sed_script+=;/HAVE_ALSA_BEGIN/,/HAVE_ALSA_END/d
+endif
+if HAVE_PULSEAUDIO
+gschema_sed_script+=;/HAVE_PULSEAUDIO/d
+else
+gschema_sed_script+=;/HAVE_PULSEAUDIO_BEGIN/,/HAVE_PULSEAUDIO_END/d
+endif
+
+gschema_sed_script+=;/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/c \'@DEFAULT_AUDIO_BACKEND@\'
+
+$(gschema_file): $(gschema_in_file)
+	$(SED) -e "$(gschema_sed_script)" $< > $@
 
 ### GSettings
 gsettings_SCHEMAS = org.gmetronome.gschema.xml
 @GSETTINGS_RULES@
 
 CLEANFILES = \
-	resources.cpp \
+	$(resources_file) \
+	$(gschema_file) \
 	$(desktop_file)
 
 EXTRA_DIST = \

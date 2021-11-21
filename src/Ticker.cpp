@@ -168,7 +168,6 @@ namespace audio {
       break;
       
     case TickerState::kError:
-      assert(audio_thread_ != nullptr);
       assert(audio_thread_error_ != nullptr);      
       std::rethrow_exception(audio_thread_error_);
       break;

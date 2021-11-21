@@ -24,9 +24,10 @@ const Message kGenericErrorMessage
 {
   MessageCategory::kError,
   "Oops! Something went wrong.",
-  PACKAGE_NAME " has encountered an unknown error. Please check the details below "
-  "and file a bug report on the <a href=\"" PACKAGE_URL "\">project page</a> to help "
-  "to improve " PACKAGE_NAME ".",
+  PACKAGE_NAME " has encountered an unknown error. Please check the "
+  "details below. Since this error might be due to a bug in the software "
+  "package, you can help us to improve " PACKAGE_NAME " and file a bug "
+  "report on the <a href=\"" PACKAGE_URL "\">project page</a>.",
   ""
 };
 
@@ -38,4 +39,3 @@ const Message kAudioBackendErrorMessage
   "check the audio configuration in the preferences dialog.",
   ""
 };
-

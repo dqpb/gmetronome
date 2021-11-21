@@ -23,11 +23,11 @@
 namespace audio {
 
   namespace {
-
+    
     class AlsaError : public BackendError {
     public:
-      AlsaError(BackendState state, const std::string& text = "")
-	: BackendError(settings::kAudioBackendAlsa, state, text)
+      AlsaError(BackendState state, const char* what = "")
+	: BackendError(settings::kAudioBackendAlsa, state, what)
       {}
       AlsaError(BackendState state, int error)
 	: BackendError(settings::kAudioBackendAlsa, state, snd_strerror(error))
@@ -67,6 +67,9 @@ namespace audio {
       
       return alsa_format;
     }
+
+    const microseconds kRequiredLatency = 100000us;
+
   }//unnamed namespace
 
   
@@ -74,7 +77,9 @@ namespace audio {
     : state_(BackendState::kConfig),
       spec_(spec),
       hdl_(nullptr)
-  {}
+  {
+      throw TransitionError(state_);
+  }
 
   AlsaBackend::~AlsaBackend()
   {
@@ -98,14 +103,14 @@ namespace audio {
     error = snd_pcm_open(&hdl_, device, SND_PCM_STREAM_PLAYBACK, 0);
     if (error < 0)
       throw AlsaError(state_, error);
-
+    
     error = snd_pcm_set_params(hdl_,
 			       convertSampleFormatToAlsa(spec_.format),
 			       SND_PCM_ACCESS_RW_INTERLEAVED,
 			       spec_.channels,
 			       spec_.rate,
 			       1,
-			       200000);   /* 0.2sec */
+			       kRequiredLatency.count());
     if (error < 0)
       throw AlsaError(state_, error);
     
@@ -160,7 +165,6 @@ namespace audio {
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
-    int error;
     snd_pcm_sframes_t n_data_frames = bytes / frameSize(spec_);
     snd_pcm_sframes_t frames_written;
     
@@ -196,11 +200,17 @@ namespace audio {
 
   uint64_t AlsaBackend::latency()
   {
-    if (!hdl_)
-      return 0;
-
-    // not implemented yet
-    return 200000;
+    if (!hdl_) return 0;
+    
+    int error;
+    snd_pcm_sframes_t delayp;    
+    
+    error = snd_pcm_delay(hdl_, &delayp);
+    
+    if (error < 0)
+      return kRequiredLatency.count();
+    else
+      return framesToUsecs(delayp, spec_).count();
   }
 
   BackendState AlsaBackend::state() const

@@ -7,7 +7,6 @@ gmetronome_SOURCES = \
 	AccentButtonGrid.cpp \
 	ActionBinding.cpp \
 	Action.cpp \
-	Alsa.cpp \
 	Application.cpp \
 	Audio.cpp \
 	AudioBackend.cpp \
@@ -24,11 +23,17 @@ gmetronome_SOURCES = \
 	ProfilesIOLocalXml.cpp \
 	ProfilesListStore.cpp \
 	ProfilesManager.cpp \
-	PulseAudio.cpp \
 	Shortcut.cpp \
 	SettingsDialog.cpp \
 	Synthesizer.cpp \
 	Ticker.cpp
+
+if HAVE_PULSEAUDIO
+gmetronome_SOURCES += PulseAudio.cpp
+endif
+if HAVE_ALSA
+gmetronome_SOURCES += Alsa.cpp
+endif
 
 nodist_gmetronome_SOURCES = \
 	../data/resources.cpp

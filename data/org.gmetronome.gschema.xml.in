@@ -21,8 +21,12 @@
   
   <enum id="org.gmetronome.AudioBackend">
     <value nick='none' value='0'/>
-    <value nick='alsa' value='1'/>
-    <value nick='pulseaudio' value='2'/>
+    <!--HAVE_ALSA_BEGIN-->
+    <value nick='alsa' value='1'/> 
+    <!--HAVE_ALSA_END-->
+    <!--HAVE_PULSEAUDIO_BEGIN-->
+    <value nick='pulseaudio' value='2'/> 
+    <!--HAVE_PULSEAUDIO_END-->
   </enum>
   
   <enum id="org.gmetronome.MeterAnimation">
@@ -264,7 +268,11 @@
       <description></description>  
     </key>    
     <key name="audio-backend" enum="org.gmetronome.AudioBackend">
-      <default>'pulseaudio'</default> 
+      <default>
+	<!--DEFAULT_AUDIO_BACKEND_BEGIN-->
+	'none'
+	<!--DEFAULT_AUDIO_BACKEND_END-->
+      </default> 
       <summary>Audio backend</summary>
       <description></description>
     </key>    
