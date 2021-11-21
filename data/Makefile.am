@@ -55,7 +55,7 @@ $(gschema_file): $(gschema_in_file)
 	$(SED) -e "$(gschema_sed_script)" $< > $@
 
 ### GSettings
-gsettings_SCHEMAS = org.gmetronome.gschema.xml
+gsettings_SCHEMAS = $(gschema_file)
 @GSETTINGS_RULES@
 
 CLEANFILES = \
@@ -65,7 +65,7 @@ CLEANFILES = \
 
 EXTRA_DIST = \
 	$(gresource_xml_file) \
-	$(gsettings_SCHEMAS) \
+	$(gschema_in_file) \
 	$(resource_files) \
 	$(desktop_in_file)
 
