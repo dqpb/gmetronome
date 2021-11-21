@@ -27,8 +27,8 @@ namespace audio {
 
     class PulseaudioError : public BackendError {
     public:
-      PulseaudioError(BackendState state, const std::string& text = "")
-	: BackendError(settings::kAudioBackendPulseaudio, state, text)
+      PulseaudioError(BackendState state, const char* what = "")
+	: BackendError(settings::kAudioBackendPulseaudio, state, what)
       {}
       PulseaudioError(BackendState state, int error)
 	: BackendError(settings::kAudioBackendPulseaudio, state, pa_strerror(error))

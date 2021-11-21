@@ -77,9 +77,7 @@ namespace audio {
     : state_(BackendState::kConfig),
       spec_(spec),
       hdl_(nullptr)
-  {
-      throw TransitionError(state_);
-  }
+  {}
 
   AlsaBackend::~AlsaBackend()
   {
