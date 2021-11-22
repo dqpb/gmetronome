@@ -340,11 +340,6 @@ namespace {
   };
 
   
-  Glib::RefPtr<Gio::FileOutputStream> createInputStream( Glib::RefPtr<Gio::File> file )
-  {
-    //not implemented yet
-  }
-  
   Glib::RefPtr<Gio::FileOutputStream> createOutputStream( Glib::RefPtr<Gio::File> file )
   {
     static const Gio::FileCreateFlags flags = Gio::FILE_CREATE_PRIVATE;
