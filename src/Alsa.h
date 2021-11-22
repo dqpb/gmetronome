@@ -21,7 +21,7 @@
 #define GMetronome_Alsa_h
 
 #include "AudioBackend.h"
-#include "asoundlib.h"
+#include <alsa/asoundlib.h>
 
 namespace audio {
   
