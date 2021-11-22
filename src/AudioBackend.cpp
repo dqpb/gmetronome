@@ -50,6 +50,11 @@ namespace audio {
     
     switch (id)
     {
+#ifdef HAVE_ALSA
+    case settings::kAudioBackendAlsa:
+      backend = std::make_unique<AlsaBackend>();
+      break;
+#endif
 #ifdef HAVE_PULSEAUDIO
     case settings::kAudioBackendPulseaudio:
       backend = std::make_unique<PulseAudioBackend>();

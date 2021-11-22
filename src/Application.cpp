@@ -25,6 +25,42 @@
 #include "Settings.h"
 #include <iostream>
 
+namespace {
+
+  std::string getErrorDetails(std::exception_ptr eptr)
+  {
+    std::string details;    
+    try
+    {
+      if (eptr) std::rethrow_exception(eptr);
+    }
+    catch(const audio::BackendError& e)
+    {
+      details += "Audio backend: ";
+      switch(e.backend()) {
+      case settings::kAudioBackendNone: details += "none ("; break;
+      case settings::kAudioBackendAlsa: details += "alsa ("; break;
+      case settings::kAudioBackendPulseaudio: details += "pulseaudio ("; break;
+      default: details += "unknown ("; break;
+      };
+
+      switch(e.state()) {
+      case audio::BackendState::kConfig: details += "config): "; break;
+      case audio::BackendState::kOpen: details += "open): "; break;
+      case audio::BackendState::kRunning: details += "running): "; break;
+      default: details += "unknown): "; break;
+      };
+      details += e.what();
+    }
+    catch(const std::exception& e)
+    {
+      details += e.what() + '\n';
+    }
+    return details;
+  }
+  
+}//unnamed namespace
+
 Glib::RefPtr<Application> Application::create()
 {
   return Glib::RefPtr<Application>(new Application());
@@ -53,12 +89,12 @@ void Application::on_startup()
   initSettings();
   // initialize application actions
   initActions();
+  // initialize UI (i.e.MainWindow)
+  initUI();
   // initialize profile manager
   initProfiles();
   // initialize ticker
   initTicker();
-  // initialize UI (i.e.MainWindow)
-  initUI();
 }
 
 void Application::on_activate()
@@ -214,21 +250,51 @@ void Application::configureTickerAudioBackend()
   int backend_id = settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
 
   if (auto& backends = audio::availableBackends();
-      std::find(backends.begin(), backends.end(), backend_id) != backends.end())
+      std::find(backends.begin(), backends.end(), backend_id) == backends.end())
   {
-    auto new_backend = audio::createBackend( (settings::AudioBackend) backend_id );
+    backend_id = settings::kAudioBackendNone;      
+    settings_prefs_->set_enum(settings::kKeyPrefsAudioBackend, backend_id);
+  }
 
+  bool error = false;
+  Message error_message;
+
+  try {
+    auto new_backend = audio::createBackend( (settings::AudioBackend) backend_id );
+    
     if (new_backend)
       new_backend->configure(audio::kDefaultSpec);
     
-    ticker_.setAudioBackend( std::move(new_backend) );
+    ticker_.setAudioBackend( std::move(new_backend) );  
   }
-  else
+  catch(const audio::BackendError& e)
   {
-    std::cerr << "Audio Backend (" << backend_id
-              << ") is not available on this platform." << std::endl;
+    error = true;
+    error_message = kAudioBackendErrorMessage;
+    error_message.details = getErrorDetails(std::current_exception());
+  }
+  catch(const std::exception& e)
+  {
+    error = true;
+    error_message = kAudioBackendErrorMessage;
+    error_message.details = getErrorDetails(std::current_exception());
+  }
 
-    settings_prefs_->set_enum(settings::kKeyPrefsAudioBackend, settings::kAudioBackendNone);
+  if (error)
+  {
+    // in case of an error we fall back to the dummy backend and emit
+    // the error message
+    try {
+      auto dummy_backend = audio::createBackend( settings::kAudioBackendNone );
+    
+      if (dummy_backend)
+	dummy_backend->configure(audio::kDefaultSpec);
+      
+      ticker_.setAudioBackend( std::move(dummy_backend) );  
+    }
+    catch(...) {}
+    
+    signal_message_.emit(error_message);
   }
 }
 
@@ -948,7 +1014,7 @@ void Application::onStart(const Glib::VariantBase& value)
   Message error_message;
   
   try {
-    if (new_state.get() && ticker_.state() == audio::TickerState::kReady)
+    if (new_state.get())
     {
       bool trainer_enabled;
       get_action_state(kActionTrainerEnabled, trainer_enabled);
@@ -973,13 +1039,13 @@ void Application::onStart(const Glib::VariantBase& value)
   {
     error = true;
     error_message = kAudioBackendErrorMessage;
-    error_message.details = e.what();
+    error_message.details = getErrorDetails(std::current_exception());
   }
   catch(const std::exception& e)
   {
     error = true;
     error_message = kGenericErrorMessage;
-    error_message.details = e.what();
+    error_message.details = getErrorDetails(std::current_exception());
   }
   
   if (error)

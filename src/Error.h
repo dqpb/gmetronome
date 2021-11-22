@@ -25,16 +25,13 @@
 
 class GMetronomeError : public std::exception {
 public:
-  GMetronomeError(const std::string& text = "");
-
-  const char* what() const noexcept override
-    { return text_.data(); }
+  GMetronomeError(const char* what = "");
   
-  const std::string& text() const noexcept
-    { return text_; }
+  const char* what() const noexcept override
+    { return what_; }
   
 private:
-  std::string text_;
+  const char* what_;
 };
 
 #endif//GMetronome_Error_h

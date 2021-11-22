@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, 2021 The GMetronome Team
+ * Copyright (C) 2021 The GMetronome Team
  * 
  * This file is part of GMetronome.
  *
@@ -17,25 +17,22 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_PulseAudio_h
-#define GMetronome_PulseAudio_h
+#ifndef GMetronome_Alsa_h
+#define GMetronome_Alsa_h
 
 #include "AudioBackend.h"
-#include <memory>
-#include <pulse/sample.h>
-#include <pulse/simple.h>
-#include <pulse/error.h>
+#include "asoundlib.h"
 
 namespace audio {
-    
+  
   /**
-   * PulseAudio Backend
+   * Alsa Backend
    */ 
-  class PulseAudioBackend : public Backend
+  class AlsaBackend : public Backend
   {
   public:
-    PulseAudioBackend(const audio::SampleSpec& spec = kDefaultSpec); 
-    ~PulseAudioBackend();
+    AlsaBackend(const audio::SampleSpec& spec = kDefaultSpec); 
+    ~AlsaBackend();
     
     void configure(const SampleSpec& spec) override;
     void open() override;
@@ -47,14 +44,12 @@ namespace audio {
     void drain() override;
     uint64_t latency() override;
     BackendState state() const override;
-
+    
   private:
     BackendState state_;
     audio::SampleSpec spec_;
-    pa_sample_spec pa_spec_;
-    pa_buffer_attr pa_buffer_attr_;
-    pa_simple*     pa_simple_;
-};
+    snd_pcm_t *hdl_;
+  };
   
 }//namespace audio
-#endif//GMetronome_PulseAudio_h
+#endif//GMetronome_Alsa_h

@@ -8,6 +8,7 @@ AM_INIT_AUTOMAKE([foreign -Wall])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+AC_PROG_SED
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX(17)
 
@@ -28,6 +29,30 @@ PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
 
+#
+# Alsa
+#
+AC_ARG_WITH([alsa],
+            [AS_HELP_STRING([--with-alsa], [enable alsa support])],
+            [],
+            [with_alsa=check])
+
+AS_IF([test "x$with_alsa" != "xno"],
+  [PKG_CHECK_MODULES([ALSA], [alsa],
+     have_alsa=true
+     AC_DEFINE([HAVE_ALSA], [1], [Define if you have alsa support]),
+     have_alsa=false
+     AS_IF([test "x$with_alsa" != "xcheck"], 
+      	AC_MSG_FAILURE([--with-alsa was given, but test for libasound failed])
+     )
+  )]
+)
+
+AM_CONDITIONAL([HAVE_ALSA], [test "x$have_alsa" = "xtrue"])
+
+#
+# Pulseaudio
+#
 AC_ARG_WITH([pulseaudio],
             [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
             [],
@@ -35,11 +60,23 @@ AC_ARG_WITH([pulseaudio],
 
 AS_IF([test "x$with_pulseaudio" != "xno"],
   [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
+     have_pulseaudio=true
      AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
+     have_pulseaudio=false
      AS_IF([test "x$with_pulseaudio" != "xcheck"], 
       	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
      )
   )]
+)
+
+AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xtrue"])
+
+AS_IF([test "x$have_alsa" = "xtrue"],
+  AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa]),
+  AS_IF([test "x$have_pulseaudio" = "xtrue"],
+    AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio]),
+    AC_SUBST([DEFAULT_AUDIO_BACKEND],[none])
+  )
 )
 
 #

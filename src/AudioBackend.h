@@ -26,40 +26,34 @@
 #include <vector>
 
 namespace audio {
-  
-  /**
-   * @class BackendError
-   * @brief A generic backend error.
-   */
-  class BackendError : public GMetronomeError {
-  public:
-    BackendError(const std::string& text = "")
-      : GMetronomeError(text) {} 
-  };
-  
-  class BackendStateTransitionError : public BackendError {
-  public:
-    BackendStateTransitionError()
-      : BackendError("invalid state transition") {} 
-  };
-  
-  class BackendConfigurationError : public BackendError {
-  public:
-    BackendConfigurationError()
-      : BackendError("invalid configuration") {} 
-  };
-  
-  class BackendWriteError : public BackendError {
-  public:
-    BackendWriteError()
-      : BackendError("could not write data stream") {} 
-  };
-  
+
   enum class BackendState
   {
     kConfig   = 0,
     kOpen     = 1,
     kRunning  = 2
+  };
+
+  /**
+   * @class BackendError
+   */
+  class BackendError : public GMetronomeError {
+  public:
+    BackendError(settings::AudioBackend backend, BackendState state, const char* what = "")
+      : GMetronomeError(what),
+	backend_(backend),
+	state_(state)
+    {}
+    
+    settings::AudioBackend backend() const noexcept
+    { return backend_; }
+    
+    BackendState state() const noexcept
+    { return state_; }
+
+  private:
+    settings::AudioBackend backend_;
+    BackendState state_;
   };
 
   /**

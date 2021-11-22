@@ -23,11 +23,17 @@ gmetronome_SOURCES = \
 	ProfilesIOLocalXml.cpp \
 	ProfilesListStore.cpp \
 	ProfilesManager.cpp \
-	PulseAudio.cpp \
 	Shortcut.cpp \
 	SettingsDialog.cpp \
 	Synthesizer.cpp \
 	Ticker.cpp
+
+if HAVE_PULSEAUDIO
+gmetronome_SOURCES += PulseAudio.cpp
+endif
+if HAVE_ALSA
+gmetronome_SOURCES += Alsa.cpp
+endif
 
 nodist_gmetronome_SOURCES = \
 	../data/resources.cpp
@@ -37,6 +43,7 @@ noinst_HEADERS = \
 	AccentButtonGrid.h \
 	ActionBinding.h \
 	Action.h \
+	Alsa.h \
 	Application.h \
 	Audio.h \
 	AudioBackend.h \
@@ -60,7 +67,7 @@ noinst_HEADERS = \
 	Synthesizer.h \
 	Ticker.h 
 
-gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
-gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@
-gmetronome_LDADD = @GTKMM_LIBS@ @PULSEAUDIO_LIBS@
+gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
+gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@
+gmetronome_LDADD = @GTKMM_LIBS@ @PULSEAUDIO_LIBS@ @ALSA_LIBS@
 
