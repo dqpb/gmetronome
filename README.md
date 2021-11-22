@@ -8,14 +8,13 @@ Features
 --------
 * Tempo range from 30 to 250 beats per minute
 * Custom accentuation patterns
-* Animated markers to highlight current position in the accentuation pattern
 * Divisible beats for simple and compound meters
-* Pre defined patterns for widely used meters (e.g. simple triple meter) and 
-  time signatures
-* Configurable accentuation levels for strong, middle and weak accents
+* Three accentuation levels for strong, middle and weak accents
+* Pre defined patterns for widely used meters and time signatures
 * Accurate trainer function to smoothly raise or lower tempo
 * Profiles to (automatically) save and restore metronome settings
 * Customizable keyboard shortcuts for nearly all metronome functions
+* Support for different audio backends 
 
 Download, building and installation
 -----------------------------------
