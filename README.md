@@ -27,7 +27,8 @@ It depends on the following packages:
 
 * gtk+-3.0
 * gtkmm-3.0
-* pulseaudio
+* pulseaudio (optional)
+* alsa (optional)
 
 Since there is no official release yet, clone the project's repository:
 
@@ -35,7 +36,7 @@ Since there is no official release yet, clone the project's repository:
 $ git clone https://gitlab.gnome.org/dqpb/gmetronome.git
 ```
 
-Now change to the gmetronome directory and generate the makefiles. 
+Change to the gmetronome directory and generate the makefiles. 
 The autogen.sh script requires a working autotools (autoconf, automake) 
 installation to succeed.
 
