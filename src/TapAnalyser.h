@@ -21,6 +21,7 @@
 #define GMetronome_TapAnalyser_h
 
 #include "Meter.h"
+#include <list>
 #include <vector>
 #include <chrono>
 
@@ -35,7 +36,7 @@ class TapAnalyser {
 public:
   TapAnalyser();
   
-  void tap();
+  void tap(double value = 1.0);
   void reset();
   
   Estimate<double> tempo();
@@ -44,16 +45,30 @@ public:
   double beat();
   
 private:
-  std::chrono::time_point<std::chrono::steady_clock> tap_start_;
-  struct Tap_
+
+  struct Tap_ 
   {
-    int slot;
+    std::chrono::time_point<std::chrono::steady_clock> time;
     double value;
   };
-  std::vector<Tap_> taps_;
-  std::vector<Tap_> corr_;
   
+  struct DataPoint_
+  {
+    int    time_slot;
+    double value;
+    double weighted_value;
+  };
+  
+  std::list<Tap_> taps_;
+  std::vector<DataPoint_> corr_;
+
   void correlate();
+
+  // enum {
+  //   kUndefined = -2,
+  //   kNoise = -1
+  // };
+  //void dbscan();
 };
 
 #endif//GMetronome_TapAnalyser_h
