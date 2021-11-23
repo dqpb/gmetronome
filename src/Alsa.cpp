@@ -82,7 +82,12 @@ namespace audio {
   AlsaBackend::~AlsaBackend()
   {
     if (hdl_)
+    {
+      if (snd_pcm_state(hdl_) == SND_PCM_STATE_RUNNING)
+        snd_pcm_drop(hdl_);
+      
       snd_pcm_close(hdl_);
+    }
   }
 
   void AlsaBackend::configure(const SampleSpec& spec)
@@ -182,11 +187,15 @@ namespace audio {
       frames_written = snd_pcm_recover(hdl_, frames_written, 0);
 
     if (frames_written < 0)
+    {
       throw AlsaError(state_, snd_strerror(frames_written));
+    }
     else if (frames_written > 0 && frames_written < n_data_frames)
+    {
       std::cerr << "Short write (expected " << n_data_frames
 		<< ", wrote " << frames_written << " frames)"
 		<< std::endl;
+    }
   }
 
   void AlsaBackend::flush()
