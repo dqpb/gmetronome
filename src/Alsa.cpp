@@ -101,7 +101,7 @@ namespace audio {
     error = snd_pcm_open(&hdl_, device, SND_PCM_STREAM_PLAYBACK, 0);
     if (error < 0)
       throw AlsaError(state_, error);
-    
+
     error = snd_pcm_set_params(hdl_,
 			       convertSampleFormatToAlsa(spec_.format),
 			       SND_PCM_ACCESS_RW_INTERLEAVED,
@@ -110,7 +110,11 @@ namespace audio {
 			       1,
 			       kRequiredLatency.count());
     if (error < 0)
+    {
+      error = snd_pcm_close(hdl_);
+      hdl_ = nullptr;
       throw AlsaError(state_, error);
+    }
     
     state_ = BackendState::kOpen;
   }
@@ -121,7 +125,7 @@ namespace audio {
       throw TransitionError(state_);
 
     int error;
-        
+    
     error = snd_pcm_close(hdl_);
     if (error < 0)
       throw AlsaError(state_, error);

@@ -395,7 +395,7 @@ namespace audio {
       
       // enter the main loop
       while ( state_.load() != TickerState::kReady )
-      {                
+      {
         importSettings();
         generator_.cycle(data, bytes);
         writeAudioBackend(data, bytes);
@@ -412,10 +412,8 @@ namespace audio {
       try { stopAudioBackend(); }
       catch(...)
       {
-        // nop;
         // the client might need to change the audio backend which
-        // will forcefully release the old backend resource in case
-        // of an error during shutdown
+        // will forcefully release the old backend resource
       };
       audio_thread_error_ = std::current_exception();
       state_ = TickerState::kError;
