@@ -144,6 +144,12 @@ namespace audio {
     
     if (pa_simple_)
     {
+      int error;
+      if (pa_simple_drain(pa_simple_, &error) < 0)
+      {
+        // do nothing in case of an error and try to close
+        // the connection and free resources
+      }
       pa_simple_free(pa_simple_);
       pa_simple_ = nullptr;
     }
