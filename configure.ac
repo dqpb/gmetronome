@@ -30,7 +30,28 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
 
 #
-# Alsa
+# Audio backend: Pulseaudio
+#
+AC_ARG_WITH([pulseaudio],
+            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
+            [],
+            [with_pulseaudio=check])
+
+AS_IF([test "x$with_pulseaudio" != "xno"],
+  [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
+     have_pulseaudio=true
+     AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
+     have_pulseaudio=false
+     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
+      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
+     )
+  )]
+)
+
+AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xtrue"])
+
+#
+# Audio backend: Alsa
 #
 AC_ARG_WITH([alsa],
             [AS_HELP_STRING([--with-alsa], [enable alsa support])],
@@ -51,30 +72,12 @@ AS_IF([test "x$with_alsa" != "xno"],
 AM_CONDITIONAL([HAVE_ALSA], [test "x$have_alsa" = "xtrue"])
 
 #
-# Pulseaudio
+# Default audio backend
 #
-AC_ARG_WITH([pulseaudio],
-            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
-            [],
-            [with_pulseaudio=check])
-
-AS_IF([test "x$with_pulseaudio" != "xno"],
-  [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
-     have_pulseaudio=true
-     AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
-     have_pulseaudio=false
-     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
-     )
-  )]
-)
-
-AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xtrue"])
-
-AS_IF([test "x$have_alsa" = "xtrue"],
-  AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa]),
-  AS_IF([test "x$have_pulseaudio" = "xtrue"],
-    AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio]),
+AS_IF([test "x$have_pulseaudio" = "xtrue"],
+  AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio]),
+  AS_IF([test "x$have_alsa" = "xtrue"],
+    AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa]),
     AC_SUBST([DEFAULT_AUDIO_BACKEND],[none])
   )
 )
