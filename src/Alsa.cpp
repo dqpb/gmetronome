@@ -97,11 +97,14 @@ namespace audio {
     
     static const char *device = "default";
     int error;
-    
-    error = snd_pcm_open(&hdl_, device, SND_PCM_STREAM_PLAYBACK, 0);
-    if (error < 0)
-      throw AlsaError(state_, error);
 
+    if (hdl_ == nullptr)
+    {
+      error = snd_pcm_open(&hdl_, device, SND_PCM_STREAM_PLAYBACK, 0);
+      if (error < 0)
+        throw AlsaError(state_, error);
+    }
+    
     error = snd_pcm_set_params(hdl_,
 			       convertSampleFormatToAlsa(spec_.format),
 			       SND_PCM_ACCESS_RW_INTERLEAVED,
@@ -112,7 +115,9 @@ namespace audio {
     if (error < 0)
     {
       error = snd_pcm_close(hdl_);
-      hdl_ = nullptr;
+      if (error >= 0)
+        hdl_ = nullptr;
+
       throw AlsaError(state_, error);
     }
     
@@ -157,6 +162,7 @@ namespace audio {
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
+    // wait for all pending frames and then stop the PCM
     snd_pcm_drain(hdl_);
     
     state_ = BackendState::kOpen;
