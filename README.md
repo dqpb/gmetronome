@@ -35,13 +35,12 @@ Since there is no official release yet, clone the project's repository:
 $ git clone https://gitlab.gnome.org/dqpb/gmetronome.git
 ```
 
-Change to the gmetronome directory and generate the makefiles. 
-The autogen.sh script requires a working autotools (autoconf, automake) 
-installation to succeed.
+Change to the gmetronome directory and call autoreconf to generate the makefiles. 
+This requires a working autotools (autoconf, automake) installation to succeed.
 
 ```
 $ cd gmetronome
-$ NOCONFIGURE=1 ./autogen.sh
+$ autoreconf --install
 ```
 
 Then run the traditional GNU triplet:
