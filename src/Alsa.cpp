@@ -222,9 +222,9 @@ namespace audio {
       throw AlsaError(state_, error);
   }
 
-  uint64_t AlsaBackend::latency()
+  microseconds AlsaBackend::latency()
   {
-    if (!hdl_) return 0;
+    if (!hdl_) return 0us;
     
     int error;
     snd_pcm_sframes_t delayp;    
@@ -232,9 +232,9 @@ namespace audio {
     error = snd_pcm_delay(hdl_, &delayp);
     
     if (error < 0)
-      return kRequiredLatency.count();
+      return kRequiredLatency;
     else
-      return framesToUsecs(delayp, spec_).count();
+      return framesToUsecs(delayp, spec_);
   }
 
   BackendState AlsaBackend::state() const

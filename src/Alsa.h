@@ -42,7 +42,7 @@ namespace audio {
     void write(const void* data, size_t bytes) override;
     void flush() override;
     void drain() override;
-    uint64_t latency() override;
+    microseconds latency() override;
     BackendState state() const override;
     
   private:

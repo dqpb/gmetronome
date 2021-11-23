@@ -89,7 +89,7 @@ namespace audio {
     virtual void write(const void* data, size_t bytes) = 0;
     virtual void flush() = 0;
     virtual void drain() = 0;
-    virtual uint64_t latency() { return 0; }
+    virtual microseconds latency() { return 0us; }
     virtual BackendState state() const = 0;
   };
   

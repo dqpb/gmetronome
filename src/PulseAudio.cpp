@@ -181,10 +181,10 @@ namespace audio {
       throw PulseaudioError(state_, error);
   }
   
-  uint64_t PulseAudioBackend::latency()
+  microseconds PulseAudioBackend::latency()
   {
     if ( ! pa_simple_ )
-      return 0;
+      return 0us;
     
     int error;
     uint64_t latency = pa_simple_get_latency(pa_simple_, &error);
@@ -192,7 +192,7 @@ namespace audio {
     if (error != PA_OK) {
       // throw BackendError( pa_strerror(error) );
     }    
-    return latency;
+    return microseconds(latency);
   }
 
   BackendState PulseAudioBackend::state() const

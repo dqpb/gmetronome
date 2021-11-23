@@ -329,7 +329,7 @@ namespace audio {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
       
       if (audio_backend_)
-        out_stats_.backend_latency = microseconds( audio_backend_->latency() );
+        out_stats_.backend_latency = audio_backend_->latency();
       
       out_stats_.generator = generator_.getStatistics();
     }
