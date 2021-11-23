@@ -76,8 +76,8 @@ namespace audio {
 
     std::unique_ptr<Backend> audio_backend_;
     
-    std::atomic<TickerState> state_;
-    
+    TickerState state_;
+
     std::exception_ptr audio_thread_error_;
     
     std::atomic<double> in_tempo_;
@@ -120,6 +120,7 @@ namespace audio {
     void stopAudioBackend();
 
     std::unique_ptr<std::thread> audio_thread_;
+    std::atomic<bool> stop_audio_thread_flag_;
     
     void startAudioThread();
     void stopAudioThread();

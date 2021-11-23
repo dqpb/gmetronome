@@ -53,7 +53,8 @@ namespace audio {
     : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
       audio_backend_(nullptr),
       state_(TickerState::kReady),
-      audio_thread_error_(nullptr)
+      audio_thread_error_(nullptr),
+      stop_audio_thread_flag_(false)
   {}
   
   Ticker::~Ticker()
@@ -63,11 +64,21 @@ namespace audio {
   
   void Ticker::setAudioBackend(std::unique_ptr<Backend> new_backend)
   {
+    if ( state_ == TickerState::kPlaying )
     {
-      std::lock_guard<SpinLock> guard(mutex_);
-      in_audio_backend_ = std::move(new_backend);
+      {
+        std::lock_guard<SpinLock> guard(mutex_);
+        in_audio_backend_ = std::move(new_backend);
+      }
+      audio_backend_imported_flag_.clear(std::memory_order_release);
     }
-    audio_backend_imported_flag_.clear(std::memory_order_release);
+    else
+    {
+      if (!audio_backend_imported_flag_.test_and_set(std::memory_order_acquire))
+        in_audio_backend_ = nullptr;
+      
+      audio_backend_ = std::move(new_backend);
+    }
   }
     
   void Ticker::setTempo(double tempo)
@@ -134,10 +145,8 @@ namespace audio {
     
   void Ticker::start()
   {
-    TickerState state = state_.load();
-
-    switch ( state ) {
-
+    switch ( state_ )
+    {
     case TickerState::kReady:
       startAudioThread();
       break;
@@ -157,9 +166,8 @@ namespace audio {
     
   void Ticker::stop()
   {
-    TickerState state = state_.load();
-    switch ( state ) {
-      
+    switch ( state_ )
+    {
     case TickerState::kReady:
       break;
       
@@ -193,7 +201,7 @@ namespace audio {
   
   TickerState Ticker::state() const noexcept
   {
-    return state_.load();
+    return state_;
   }
   
   void Ticker::startAudioThread()
@@ -201,16 +209,17 @@ namespace audio {
     assert( audio_thread_ == nullptr );
     assert( state_ == TickerState::kReady );
 
-    TickerState old_state = state_;
+    stop_audio_thread_flag_ = false;
 
-    try {      
-      state_ = TickerState::kPlaying;
+    try {
       audio_thread_ =
         std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
-    } catch(...) {
-      state_ = old_state;
-      throw GMetronomeError("couldn't start audio thread");
     }
+    catch(...) {
+      throw GMetronomeError("could not start audio thread");
+    }
+    
+    state_ = TickerState::kPlaying;
   }
   
   void Ticker::stopAudioThread()
@@ -218,16 +227,17 @@ namespace audio {
     assert( audio_thread_ != nullptr );
     assert( state_ == TickerState::kPlaying || state_ == TickerState::kError );
 
-    TickerState old_state = state_;
+    stop_audio_thread_flag_ = true;
     
     try {
-      state_ = TickerState::kReady;
       audio_thread_->join();
       audio_thread_.reset();
-    } catch(...) {
-      state_ = old_state; 
-      throw GMetronomeError("couldn't stop audio thread");
     }
+    catch(...) {
+      throw GMetronomeError("could not stop audio thread");
+    }
+    
+    state_ = TickerState::kReady;
   }
   
   void Ticker::importTempo()
@@ -394,7 +404,7 @@ namespace audio {
       writeAudioBackend(data, bytes);
       
       // enter the main loop
-      while ( state_.load() != TickerState::kReady )
+      while ( ! stop_audio_thread_flag_ )
       {
         importSettings();
         generator_.cycle(data, bytes);
