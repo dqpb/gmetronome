@@ -181,7 +181,14 @@ namespace audio {
 
   void AlsaBackend::flush()
   {
-    // not implemented yet
+    if ( state_ != BackendState::kRunning )
+      throw TransitionError(state_);
+    
+    int error;
+    
+    error = snd_pcm_drop(hdl_);
+    if (error < 0)
+      throw AlsaError(state_, error);
   }
 
   void AlsaBackend::drain()
