@@ -32,8 +32,8 @@ using std::literals::chrono_literals::operator""us;
 using std::literals::chrono_literals::operator""s;
 
 const seconds kTapTimeout = 2s;
-const std::size_t kMaxTaps = 20;
-const milliseconds kTimeSlotDuration = 5ms;
+const std::size_t kMaxTaps = 30;
+const milliseconds kTimeSlotDuration = 10ms;
 
 TapAnalyser::TapAnalyser()
 {}
@@ -54,7 +54,7 @@ void TapAnalyser::tap(double value)
   
   if (taps_.size() > kMaxTaps)
     taps_.pop_front();
-    
+  
   correlate();
 
   /*
@@ -189,7 +189,7 @@ void TapAnalyser::correlate()
         value += (lhs->value * rhs->value);
     }
     
-    if (k > 20 && value != 0)
+    if (k > 10 && value != 0)
     {
       // apply Rayleigh weighting function
       double normalized_value = value / n;
@@ -204,47 +204,65 @@ void TapAnalyser::correlate()
         {
           k,
           normalized_value,
-          normalized_value * weight
+          normalized_value * weight,
+          1. / (k * kTimeSlotDuration.count() / 1000. / 60.)
         });
     }
   }
 
   if (corr_.size() > 2)
   {
+    std::vector<DataPoint_> peaks;
     auto pt = corr_.begin() + 2;
     do {
       if ( (pt-2)->value < (pt-1)->value && (pt-1)->value > (pt)->value )
-        std::cout << "Peak at " << (pt-1)->time_slot
-                  << " \tvalue: " << (pt-1)->value 
-                  << " \tweighted_value: " << (pt-1)->weighted_value << std::endl;
-      
+        peaks.push_back(*(pt-1));      
     } while ( ++pt != corr_.end() );
-  }
-
-
-  auto comp_tap_tap = [] (const DataPoint_& a, const DataPoint_& b) -> bool
-    { return a.weighted_value > b.weighted_value; };
-  
-  if (corr_.size() > 5)
-  {
-    std::sort(corr_.begin(), corr_.end(), comp_tap_tap);
-
-    std::cout << "CAND: ";
+    
+    std::sort(peaks.begin(), peaks.end(),
+              [] (const auto& lhs, const auto& rhs)
+                { return lhs.value > rhs.value; });
+    
     int i=0;
-    for (auto& cand : corr_)
+    for (auto& pt : peaks)
     {
-      double tempo = 1. / (cand.time_slot * kTimeSlotDuration.count() / 1000. / 60.);
-//      if (tempo>0 && tempo<250)
+      double ratio_weight = 0;
+      int n = 0;
+      for (const auto& c : corr_)
       {
-        std::cout << cand.time_slot << "[" << cand.value << ", " << cand.weighted_value << "] "
-                  << tempo
-                  << " | ";
+        if (c.time_slot % pt.time_slot == 0)
+        {
+          ratio_weight += c.value;
+          n++;
+        }
+        if (c.time_slot % (pt.time_slot / 2) == 0)
+        {
+          ratio_weight += c.value;
+          n++;
+        }
+        if (c.time_slot % (pt.time_slot / 3) == 0)
+        {
+          ratio_weight += c.value;
+          n++;
+        }
+        if (c.time_slot % (pt.time_slot / 4) == 0)
+        {
+          ratio_weight += c.value;
+          n++;
+        }
       }
+
+      ratio_weight /= n;
       
-      if (++i==20)
+      std::cout << "Peak at " << pt.time_slot
+                << " \tvalue: " << pt.value 
+                << " \tweighted_value: " << pt.weighted_value
+                << " \tratio_weight: " << ratio_weight * pt.value
+                << " \ttempo: " << pt.tempo << std::endl;
+      
+      if (++i==15)
         break;
     }
-    std::cout << std::endl ;
   }
   
   std::cout << std::endl ;

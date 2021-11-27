@@ -57,6 +57,7 @@ private:
     int    time_slot;
     double value;
     double weighted_value;
+    double tempo;
   };
   
   std::list<Tap_> taps_;
