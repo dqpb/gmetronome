@@ -19,7 +19,6 @@
 
 #include "Ticker.h"
 #include "Synthesizer.h"
-#include "PulseAudio.h"
 #include <mutex>
 #include <cassert>
 #include <iostream>
