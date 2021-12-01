@@ -18,7 +18,7 @@
  */
 
 #ifndef GMetronome_SpinLock_h
-#define Gmetronome_SpinLock_h
+#define GMetronome_SpinLock_h
 
 #include <atomic>
 
@@ -38,4 +38,4 @@ private:
   std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
 };
 
-#endif//Gmetronome_SpinLock_h
+#endif//GMetronome_SpinLock_h
