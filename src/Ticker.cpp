@@ -19,6 +19,7 @@
 
 #include "Ticker.h"
 #include "Synthesizer.h"
+#include <array>
 #include <mutex>
 #include <cassert>
 #include <iostream>
