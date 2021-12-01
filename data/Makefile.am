@@ -36,23 +36,23 @@ $(resources_file): $(gresource_xml_file) $(resource_files)
 	$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
 		--target=$@ --sourcedir=$(srcdir) --generate-source
 
-gschema_sed_script=;
+gschema_sed_script=
 
 if HAVE_ALSA
-gschema_sed_script+=;/HAVE_ALSA/d
+gschema_sed_script+=-e "/HAVE_ALSA/d"
 else
-gschema_sed_script+=;/HAVE_ALSA_BEGIN/,/HAVE_ALSA_END/d
+gschema_sed_script+=-e "/HAVE_ALSA_BEGIN/,/HAVE_ALSA_END/d"
 endif
 if HAVE_PULSEAUDIO
-gschema_sed_script+=;/HAVE_PULSEAUDIO/d
+gschema_sed_script+=-e "/HAVE_PULSEAUDIO/d"
 else
-gschema_sed_script+=;/HAVE_PULSEAUDIO_BEGIN/,/HAVE_PULSEAUDIO_END/d
+gschema_sed_script+=-e "/HAVE_PULSEAUDIO_BEGIN/,/HAVE_PULSEAUDIO_END/d"
 endif
 
-gschema_sed_script+=;/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/c \'@DEFAULT_AUDIO_BACKEND@\'
+gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/!b" -e "s/.*DEFAULT_AUDIO_BACKEND_END.*/'@DEFAULT_AUDIO_BACKEND@'/;t" -e "d"
 
 $(gschema_file): $(gschema_in_file)
-	$(SED) -e "$(gschema_sed_script)" $< > $@
+	$(SED) $(gschema_sed_script) $< > $@
 
 ### GSettings
 gsettings_SCHEMAS = $(gschema_file)
