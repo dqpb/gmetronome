@@ -6,7 +6,7 @@ desktopdir = $(datadir)/applications
 desktop_DATA = $(desktop_file)
 
 $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
-	$(AM_V_GEN)$(MSGFMT) --desktop --template $(desktop_in_file) -d $(top_srcdir)/po -o $@
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $(srcdir)/$(desktop_in_file) -d $(top_srcdir)/po -o $@
 
 # The application icon
 appicondir = $(datadir)/icons/hicolor/48x48/apps
@@ -54,7 +54,7 @@ gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_EN
                      -e "d"
 
 $(gschema_file): $(gschema_in_file)
-	$(AM_V_GEN)$(SED) $(gschema_sed_script) $(gschema_in_file) > $@
+	$(AM_V_GEN)$(SED) $(gschema_sed_script) $(srcdir)/$(gschema_in_file) > $@
 
 gschema_valid_file = $(gschema_file:.xml=.valid)
 
