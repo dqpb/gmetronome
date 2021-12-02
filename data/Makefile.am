@@ -33,7 +33,7 @@ nodist_noinst_DATA = \
 	$(gschema_file)
 
 $(resources_file): $(gresource_xml_file) $(resource_files)
-	$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
+	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
 		--target=$@ --sourcedir=$(srcdir) --generate-source
 
 gschema_sed_script=
@@ -49,10 +49,12 @@ else
 gschema_sed_script+=-e "/HAVE_PULSEAUDIO_BEGIN/,/HAVE_PULSEAUDIO_END/d"
 endif
 
-gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/!b" -e "s/.*DEFAULT_AUDIO_BACKEND_END.*/'@DEFAULT_AUDIO_BACKEND@'/;t" -e "d"
+gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/!b" \
+                     -e "s/.*DEFAULT_AUDIO_BACKEND_END.*/'@DEFAULT_AUDIO_BACKEND@'/;t" \
+                     -e "d"
 
 $(gschema_file): $(gschema_in_file)
-	$(SED) $(gschema_sed_script) $< > $@
+	$(AM_V_GEN)$(SED) $(gschema_sed_script) $< > $@
 
 ### GSettings
 gsettings_SCHEMAS = $(gschema_file)
