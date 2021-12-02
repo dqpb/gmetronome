@@ -6,7 +6,7 @@ desktopdir = $(datadir)/applications
 desktop_DATA = $(desktop_file)
 
 $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
-	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $(desktop_in_file) -d $(top_srcdir)/po -o $@
 
 # The application icon
 appicondir = $(datadir)/icons/hicolor/48x48/apps
@@ -24,6 +24,10 @@ resource_files = \
 gresource_xml_file = gmetronome.gresource.xml
 resources_file = resources.cpp
 
+$(resources_file): $(gresource_xml_file) $(resource_files)
+	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
+		--target=$@ --sourcedir=$(srcdir) --generate-source
+
 ### GSchema files
 gschema_in_file = org.gmetronome.gschema.xml.in
 gschema_file = $(gschema_in_file:.xml.in=.xml)
@@ -31,10 +35,6 @@ gschema_file = $(gschema_in_file:.xml.in=.xml)
 nodist_noinst_DATA = \
 	$(resources_file) \
 	$(gschema_file)
-
-$(resources_file): $(gresource_xml_file) $(resource_files)
-	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
-		--target=$@ --sourcedir=$(srcdir) --generate-source
 
 gschema_sed_script=
 
@@ -54,11 +54,41 @@ gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_EN
                      -e "d"
 
 $(gschema_file): $(gschema_in_file)
-	$(AM_V_GEN)$(SED) $(gschema_sed_script) $< > $@
+	$(AM_V_GEN)$(SED) $(gschema_sed_script) $(gschema_in_file) > $@
 
-### GSettings
-gsettings_SCHEMAS = $(gschema_file)
-@GSETTINGS_RULES@
+gschema_valid_file = $(gschema_file:.xml=.valid)
+
+$(gschema_valid_file): $(gschema_file)
+	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) --strict --dry-run --schema-file=$(gschema_file) && touch $@
+
+install-gsettings-schemas: $(gschema_file) $(gschema_valid_file)
+	@$(NORMAL_INSTALL)
+	if test -n "$(gschema_file)"; then \
+		test -z "$(gsettingsschemadir)" || $(MKDIR_P) "$(DESTDIR)$(gsettingsschemadir)"; \
+		$(INSTALL_DATA) $(gschema_file) "$(DESTDIR)$(gsettingsschemadir)"; \
+		test -n "$(GSETTINGS_DISABLE_SCHEMAS_COMPILE)$(DESTDIR)" || $(GLIB_COMPILE_SCHEMAS) $(gsettingsschemadir); \
+	fi
+
+uninstall-gsettings-schemas:
+	@$(NORMAL_UNINSTALL)
+	file=`echo "$(gschema_file)" | sed -e "s|^.*/||"`; \
+	test -n "$$file" || exit 0; \
+	echo " ( cd '\''$(DESTDIR)$(gsettingsschemadir)'\'' && rm -f" $$file ")"; \
+	cd "$(DESTDIR)$(gsettingsschemadir)" && rm -f "$$file"
+	test -n "$(GSETTINGS_DISABLE_SCHEMAS_COMPILE)$(DESTDIR)" || $(GLIB_COMPILE_SCHEMAS) $(gsettingsschemadir)
+
+clean-gsettings-schemas:
+	rm -f $(gschema_valid_file)
+
+.PHONY : uninstall-gsettings-schemas install-gsettings-schemas clean-gsettings-schemas
+
+all-local: $(gschema_valid_file)
+
+uninstall-local: uninstall-gsettings-schemas
+
+install-data-local: install-gsettings-schemas
+
+mostlyclean-local: clean-gsettings-schemas
 
 CLEANFILES = \
 	$(resources_file) \
