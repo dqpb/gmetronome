@@ -89,12 +89,12 @@ void Application::on_startup()
   initSettings();
   // initialize application actions
   initActions();
-  // initialize UI (i.e.MainWindow)
-  initUI();
-  // initialize profile manager
-  initProfiles();
   // initialize ticker
   initTicker();
+  // initialize profile manager
+  initProfiles();
+  // initialize UI (i.e.MainWindow)
+  initUI();
 }
 
 void Application::on_activate()
@@ -171,15 +171,18 @@ void Application::initProfiles()
   
   profiles_manager_.setIOModule(std::make_unique<ProfilesIOLocalXml>());
 
+  Glib::ustring restore_profile_id = "";
+  
   if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
-  {
-    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
+    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
+  
+  Glib::Variant<Glib::ustring> state
+    = Glib::Variant<Glib::ustring>::create(restore_profile_id);
     
-    Glib::Variant<Glib::ustring> state
-      = Glib::Variant<Glib::ustring>::create(profile_id);
-    
-    activate_action(kActionProfilesSelect, state);
-  }
+  activate_action(kActionProfilesSelect, state);
+  
+  if ( restore_profile_id.empty() )
+    loadDefaultProfile();
 }
 
 void Application::initUI()
