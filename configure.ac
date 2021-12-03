@@ -1,9 +1,8 @@
 AC_INIT([GMetronome],
 	[0.1],
-	[dqpb@mailbox.org],
+	[https://gitlab.gnome.org/dqpb/gmetronome/issues/new],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
-
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -98,7 +97,6 @@ AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
 PGRM_LOCALEDIR=[${datadir}/locale]
 AC_SUBST(PGRM_LOCALEDIR)
 
-
 AC_CONFIG_FILES([
  Makefile
  src/Makefile
@@ -106,7 +104,4 @@ AC_CONFIG_FILES([
  po/Makefile.in
 ])
 
-#
-# Create Makefiles
-#
 AC_OUTPUT
