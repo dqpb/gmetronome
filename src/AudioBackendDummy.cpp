@@ -34,7 +34,8 @@ namespace audio {
   }//unnamed namespace
   
   DummyBackend::DummyBackend(const audio::SampleSpec& spec)
-    : spec_(spec)
+    : state_(BackendState::kConfig),
+      spec_(spec)
   {}
 
   void DummyBackend::configure(const SampleSpec& spec)
