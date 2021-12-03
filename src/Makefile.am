@@ -28,11 +28,14 @@ gmetronome_SOURCES = \
 	Synthesizer.cpp \
 	Ticker.cpp
 
-if HAVE_PULSEAUDIO
-gmetronome_SOURCES += PulseAudio.cpp
-endif
 if HAVE_ALSA
 gmetronome_SOURCES += Alsa.cpp
+endif
+if HAVE_OSS
+gmetronome_SOURCES += Oss.cpp
+endif
+if HAVE_PULSEAUDIO
+gmetronome_SOURCES += PulseAudio.cpp
 endif
 
 nodist_gmetronome_SOURCES = \
@@ -54,6 +57,7 @@ noinst_HEADERS = \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
+	Oss.h \
 	Profile.h \
 	ProfilesIOBase.h \
 	ProfilesIOLocalXml.h \

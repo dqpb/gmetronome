@@ -62,6 +62,11 @@ gschema_sed_script+=-e "/HAVE_ALSA/d"
 else
 gschema_sed_script+=-e "/HAVE_ALSA_BEGIN/,/HAVE_ALSA_END/d"
 endif
+if HAVE_OSS
+gschema_sed_script+=-e "/HAVE_OSS/d"
+else
+gschema_sed_script+=-e "/HAVE_OSS_BEGIN/,/HAVE_OSS_END/d"
+endif
 if HAVE_PULSEAUDIO
 gschema_sed_script+=-e "/HAVE_PULSEAUDIO/d"
 else

@@ -33,27 +33,6 @@ PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
 AM_PATH_GLIB_2_0
 
 #
-# Audio backend: Pulseaudio
-#
-AC_ARG_WITH([pulseaudio],
-            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
-            [],
-            [with_pulseaudio=check])
-
-AS_IF([test "x$with_pulseaudio" != "xno"],
-  [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
-     have_pulseaudio=true
-     AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
-     have_pulseaudio=false
-     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
-     )
-  )]
-)
-
-AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xtrue"])
-
-#
 # Audio backend: Alsa
 #
 AC_ARG_WITH([alsa],
@@ -94,6 +73,27 @@ AS_IF([test "x$with_oss" != "xno"],
 )
 
 AM_CONDITIONAL([HAVE_OSS], [test "x$have_oss" = "xtrue"])
+
+#
+# Audio backend: Pulseaudio
+#
+AC_ARG_WITH([pulseaudio],
+            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
+            [],
+            [with_pulseaudio=check])
+
+AS_IF([test "x$with_pulseaudio" != "xno"],
+  [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
+     have_pulseaudio=true
+     AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
+     have_pulseaudio=false
+     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
+      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
+     )
+  )]
+)
+
+AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xtrue"])
 
 #
 # Default audio backend

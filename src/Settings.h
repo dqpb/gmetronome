@@ -67,7 +67,8 @@ namespace settings {
   {
     kAudioBackendNone       = 0,
     kAudioBackendAlsa       = 1,
-    kAudioBackendPulseaudio = 2
+    kAudioBackendOss        = 2,
+    kAudioBackendPulseaudio = 3
   };
 
   enum MeterAnimation
