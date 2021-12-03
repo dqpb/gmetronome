@@ -8,9 +8,24 @@ desktop_DATA = $(desktop_file)
 $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
 	$(AM_V_GEN)$(MSGFMT) --desktop --template $(srcdir)/$(desktop_in_file) -d $(top_srcdir)/po -o $@
 
-# The application icon
-appicondir = $(datadir)/icons/hicolor/48x48/apps
-appicon_DATA = icons/gmetronome.png
+### Icons
+icons16dir = $(datadir)/icons/hicolor/16x16/apps
+icons16_DATA = icons/16x16/gmetronome.png
+
+icons32dir = $(datadir)/icons/hicolor/32x32/apps
+icons32_DATA = icons/32x32/gmetronome.png
+
+icons48dir = $(datadir)/icons/hicolor/48x48/apps
+icons48_DATA = icons/48x48/gmetronome.png
+
+icons64dir = $(datadir)/icons/hicolor/64x64/apps
+icons64_DATA = icons/64x64/gmetronome.png
+
+icons256dir = $(datadir)/icons/hicolor/256x256/apps
+icons256_DATA = icons/256x256/gmetronome.png
+
+iconsscalabledir = $(datadir)/icons/hicolor/scalable/apps
+iconsscalable_DATA = icons/scalable/gmetronome.svg
 
 ### Resources files
 resource_files = \
@@ -18,8 +33,7 @@ resource_files = \
 	ui/SettingsDialog.glade \
 	ui/MainWindow.glade \
 	ui/ShortcutDialog.glade \
-	icons/gmetronome.png \
-	icons/gmetronome.svg
+	icons/scalable/gmetronome.svg
 
 gresource_xml_file = gmetronome.gresource.xml
 resources_file = resources.cpp

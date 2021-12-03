@@ -4,7 +4,7 @@
     <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
-    <file>icons/gmetronome.svg</file>
+    <file>icons/scalable/gmetronome.svg</file>
     <file>css/global.css</file>
   </gresource>
 </gresources>
