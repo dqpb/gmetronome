@@ -33,7 +33,12 @@ resource_files = \
 	ui/SettingsDialog.glade \
 	ui/MainWindow.glade \
 	ui/ShortcutDialog.glade \
-	icons/scalable/gmetronome.svg
+	icons/16x16/gmetronome.png \
+	icons/32x32/gmetronome.png \
+	icons/48x48/gmetronome.png \
+	icons/64x64/gmetronome.png \
+	icons/256x256/gmetronome.png \
+	icons/scalable/gmetronome.svg 
 
 gresource_xml_file = gmetronome.gresource.xml
 resources_file = resources.cpp
