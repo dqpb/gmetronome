@@ -7,14 +7,18 @@ AC_INIT([GMetronome],
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
+AC_CANONICAL_HOST
+
 AM_INIT_AUTOMAKE([foreign -Wall])
 
 #
 # Programs
 #
 AC_PROG_SED
-AC_PROG_CXX
+AC_PROG_INSTALL
+AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
+AC_PROG_CXX
 
 #
 # Compiler
@@ -71,6 +75,27 @@ AS_IF([test "x$with_alsa" != "xno"],
 AM_CONDITIONAL([HAVE_ALSA], [test "x$have_alsa" = "xtrue"])
 
 #
+# Audio backend: OSS
+#
+AC_ARG_WITH([oss],
+            [AS_HELP_STRING([--with-oss], [enable oss support])],
+            [],
+            [with_oss=check])
+
+AS_IF([test "x$with_oss" != "xno"],
+  [AC_CHECK_HEADER([sys/soundcard.h],
+     have_oss=true
+     AC_DEFINE([HAVE_OSS], [1], [Define if you have oss support]),
+     have_oss=false
+     AS_IF([test "x$with_oss" != "xcheck"],
+        AC_MSG_FAILURE([--with-oss was given, but test for sys/soundcard.h failed])
+     )
+  )]
+)
+
+AM_CONDITIONAL([HAVE_OSS], [test "x$have_oss" = "xtrue"])
+
+#
 # Default audio backend
 #
 AS_IF([test "x$have_pulseaudio" = "xtrue"],
@@ -105,3 +130,18 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+
+summary_msg="
+Building AC_PACKAGE_NAME with the following settings:
+
+General:
+  prefix             : $prefix
+  datarootdir        : $datarootdir
+
+Audio backends:
+  Alsa               : $have_alsa
+  OSS                : $have_oss
+  Pulseaudio         : $have_pulseaudio
+"
+
+AC_MSG_RESULT($summary_msg)
