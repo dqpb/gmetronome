@@ -41,19 +41,12 @@ resource_files = \
 	icons/scalable/gmetronome.svg 
 
 gresource_xml_file = gmetronome.gresource.xml
-resources_file = resources.cpp
-
-$(resources_file): $(gresource_xml_file) $(resource_files)
-	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(srcdir)/$(gresource_xml_file) \
-		--target=$@ --sourcedir=$(srcdir) --generate-source
 
 ### GSchema files
 gschema_in_file = org.gmetronome.gschema.xml.in
 gschema_file = $(gschema_in_file:.xml.in=.xml)
 
-nodist_noinst_DATA = \
-	$(resources_file) \
-	$(gschema_file)
+nodist_noinst_DATA = $(gschema_file)
 
 gschema_sed_script=
 
@@ -110,7 +103,6 @@ install-data-local: install-gsettings-schemas
 mostlyclean-local: clean-gsettings-schemas
 
 CLEANFILES = \
-	$(resources_file) \
 	$(gschema_file) \
 	$(desktop_file)
 
