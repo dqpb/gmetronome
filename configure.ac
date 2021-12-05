@@ -82,7 +82,7 @@ AS_IF([test "x$with_alsa" != "xno"],
      AC_DEFINE([HAVE_ALSA], [1], [Define if you have alsa support]),
      have_alsa=no
      AS_IF([test "x$with_alsa" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-alsa was given, but test for libasound failed])
+      	AC_MSG_FAILURE([--with-alsa was given but test for libasound failed])
      )
   )],
   [have_alsa=no]
@@ -104,7 +104,7 @@ AS_IF([test "x$with_oss" != "xno"],
      AC_DEFINE([HAVE_OSS], [1], [Define if you have oss support]),
      have_oss=no
      AS_IF([test "x$with_oss" != "xcheck"],
-        AC_MSG_FAILURE([--with-oss was given, but test for sys/soundcard.h failed])
+        AC_MSG_FAILURE([--with-oss was given but test for sys/soundcard.h failed])
      )
   )],
   [have_oss=no]
@@ -126,7 +126,7 @@ AS_IF([test "x$with_pulseaudio" != "xno"],
      AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
      have_pulseaudio=no
      AS_IF([test "x$with_pulseaudio" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-pulseaudio was given, but test for libpulse-simple failed])
+      	AC_MSG_FAILURE([--with-pulseaudio was given but test for libpulse-simple failed])
      )
   )],
   [have_pulseaudio=no]
@@ -137,7 +137,7 @@ AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xyes"])
 #
 # Default audio backend
 #
-AS_IF([AS_VAR_TEST_SET([have_], [$preferred_audio_backend])],
+AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
         [AC_SUBST([DEFAULT_AUDIO_BACKEND],[$preferred_audio_backend])],
       [test "x$have_pulseaudio" = "xyes"],
         [AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio])],
