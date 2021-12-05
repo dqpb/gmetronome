@@ -22,10 +22,13 @@
   <enum id="org.gmetronome.AudioBackend">
     <value nick='none' value='0'/>
     <!--HAVE_ALSA_BEGIN-->
-    <value nick='alsa' value='1'/> 
+    <value nick='alsa' value='1'/>
     <!--HAVE_ALSA_END-->
+    <!--HAVE_OSS_BEGIN-->
+    <value nick='oss' value='2'/>
+    <!--HAVE_OSS_END-->
     <!--HAVE_PULSEAUDIO_BEGIN-->
-    <value nick='pulseaudio' value='2'/> 
+    <value nick='pulseaudio' value='3'/>
     <!--HAVE_PULSEAUDIO_END-->
   </enum>
   

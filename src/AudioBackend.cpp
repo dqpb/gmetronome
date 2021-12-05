@@ -21,8 +21,11 @@
 #include "AudioBackend.h"
 #include "AudioBackendDummy.h"
 
-#ifdef HAVE_ALSA 
+#ifdef HAVE_ALSA
 #include "Alsa.h"
+#endif
+#ifdef HAVE_OSS
+#include "Oss.h"
 #endif
 #ifdef HAVE_PULSEAUDIO
 #include "PulseAudio.h"
@@ -36,6 +39,9 @@ namespace audio {
       settings::kAudioBackendNone,
 #ifdef HAVE_ALSA
       settings::kAudioBackendAlsa,
+#endif
+#ifdef HAVE_OSS
+      settings::kAudioBackendOss,
 #endif
 #ifdef HAVE_PULSEAUDIO
       settings::kAudioBackendPulseaudio,
@@ -53,6 +59,11 @@ namespace audio {
 #ifdef HAVE_ALSA
     case settings::kAudioBackendAlsa:
       backend = std::make_unique<AlsaBackend>();
+      break;
+#endif
+#ifdef HAVE_OSS
+    case settings::kAudioBackendOss:
+      backend = std::make_unique<OssBackend>();
       break;
 #endif
 #ifdef HAVE_PULSEAUDIO
