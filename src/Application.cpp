@@ -40,16 +40,18 @@ namespace {
       switch(e.backend()) {
       case settings::kAudioBackendNone: details += "none ("; break;
       case settings::kAudioBackendAlsa: details += "alsa ("; break;
+      case settings::kAudioBackendOss: details += "oss ("; break;
       case settings::kAudioBackendPulseaudio: details += "pulseaudio ("; break;
       default: details += "unknown ("; break;
       };
 
       switch(e.state()) {
-      case audio::BackendState::kConfig: details += "config): "; break;
-      case audio::BackendState::kOpen: details += "open): "; break;
-      case audio::BackendState::kRunning: details += "running): "; break;
-      default: details += "unknown): "; break;
+      case audio::BackendState::kConfig: details += "config)"; break;
+      case audio::BackendState::kOpen: details += "open)"; break;
+      case audio::BackendState::kRunning: details += "running)"; break;
+      default: details += "unknown) : "; break;
       };
+      details += "\nWhat: ";
       details += e.what();
     }
     catch(const std::exception& e)

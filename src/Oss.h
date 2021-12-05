@@ -48,6 +48,11 @@ namespace audio {
   private:
     BackendState state_;
     audio::SampleSpec spec_;
+    int fd_;
+    
+    void openAudioDevice();
+    void configureAudioDevice();
+    void closeAudioDevice();
   };
   
 }//namespace audio
