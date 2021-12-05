@@ -34,20 +34,24 @@ AM_PATH_GLIB_2_0
 
 GLIB_GSETTINGS
 
-default_with_alsa=check
-default_with_oss=check
-default_with_pulseaudio=check
-
 #
 # Host OS specific configuration
 #
+default_with_alsa=check
+default_with_oss=check
+default_with_pulseaudio=check
+preferred_audio_backend=pulseaudio
+
 case "$host_os" in
      linux*)
 	default_with_alsa=check
 	default_with_oss=no
 	default_with_pulseaudio=check
+	preferred_audio_backend=pulseaudio
+	platform_linux=yes
 	;;
      *)
+	platform_linux=no
 	;;
 esac
 
@@ -56,8 +60,11 @@ case "$host_os" in
 	default_with_alsa=no
 	default_with_oss=check
 	default_with_pulseaudio=check
+	preferred_audio_backend=oss
+	platform_freebsd=yes
 	;;
      *)
+	platform_freebsd=no
 	;;
 esac
 
@@ -130,9 +137,14 @@ AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xyes"])
 #
 # Default audio backend
 #
-AS_IF([test "x$have_pulseaudio" = "xyes"], [AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio])],
-      [test "x$have_alsa" = "xyes"], [AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa])],
-      [test "x$have_oss" = "xyes"], [AC_SUBST([DEFAULT_AUDIO_BACKEND],[oss])],
+AS_IF([AS_VAR_TEST_SET([have_], [$preferred_audio_backend])],
+        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[$preferred_audio_backend])],
+      [test "x$have_pulseaudio" = "xyes"],
+        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio])],
+      [test "x$have_alsa" = "xyes"],
+        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa])],
+      [test "x$have_oss" = "xyes"],
+        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[oss])],
       [AC_SUBST([DEFAULT_AUDIO_BACKEND],[none])]
 )
 
