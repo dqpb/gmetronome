@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -23,29 +23,29 @@
 namespace audio {
 
   namespace {
-    
+
     class AlsaError : public BackendError {
     public:
       AlsaError(BackendState state, const char* what = "")
-	: BackendError(settings::kAudioBackendAlsa, state, what)
+        : BackendError(settings::kAudioBackendAlsa, state, what)
       {}
       AlsaError(BackendState state, int error)
-	: BackendError(settings::kAudioBackendAlsa, state, snd_strerror(error))
+        : BackendError(settings::kAudioBackendAlsa, state, snd_strerror(error))
       {}
     };
-    
+
     class TransitionError : public AlsaError {
     public:
       TransitionError(BackendState state)
-	: AlsaError(state, "invalid state transition")
+        : AlsaError(state, "invalid state transition")
       {}
     };
-    
+
     // Helper
     snd_pcm_format_t  convertSampleFormatToAlsa(const SampleFormat& format)
     {
       snd_pcm_format_t alsa_format;
-      
+
       switch(format) {
       case SampleFormat::U8        : alsa_format = SND_PCM_FORMAT_U8;    break;
       case SampleFormat::ALAW      : alsa_format = SND_PCM_FORMAT_A_LAW;  break;
@@ -61,10 +61,10 @@ namespace audio {
       case SampleFormat::S24_32LE  : alsa_format = SND_PCM_FORMAT_S32_LE; break;
       case SampleFormat::S24_32BE  : alsa_format = SND_PCM_FORMAT_S32_BE; break;
       default:
-	alsa_format = SND_PCM_FORMAT_UNKNOWN;
-	break;
+        alsa_format = SND_PCM_FORMAT_UNKNOWN;
+        break;
       };
-      
+
       return alsa_format;
     }
 
@@ -72,10 +72,9 @@ namespace audio {
 
   }//unnamed namespace
 
-  
-  AlsaBackend::AlsaBackend(const audio::StreamSpec& spec)
+
+  AlsaBackend::AlsaBackend()
     : state_(BackendState::kConfig),
-      spec_(spec),
       hdl_(nullptr)
   {}
 
@@ -85,7 +84,7 @@ namespace audio {
     {
       if (snd_pcm_state(hdl_) == SND_PCM_STATE_RUNNING)
         snd_pcm_drop(hdl_);
-      
+
       snd_pcm_close(hdl_);
     }
   }
@@ -96,16 +95,16 @@ namespace audio {
     return {};
   }
 
-  void AlsaBackend::configure(const StreamSpec& spec)
+  void AlsaBackend::configure(const DeviceConfig& config)
   {
-    spec_ = spec;
+    config_ = config;
   }
-  
-  void AlsaBackend::open()
+
+  DeviceConfig AlsaBackend::open()
   {
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
-    
+
     static const char *device = "default";
     int error;
 
@@ -115,14 +114,14 @@ namespace audio {
       if (error < 0)
         throw AlsaError(state_, error);
     }
-    
+
     error = snd_pcm_set_params(hdl_,
-			       convertSampleFormatToAlsa(spec_.format),
-			       SND_PCM_ACCESS_RW_INTERLEAVED,
-			       spec_.channels,
-			       spec_.rate,
-			       1,
-			       kRequiredLatency.count());
+                               convertSampleFormatToAlsa(spec_.format),
+                               SND_PCM_ACCESS_RW_INTERLEAVED,
+                               spec_.channels,
+                               spec_.rate,
+                               1,
+                               kRequiredLatency.count());
     if (error < 0)
     {
       error = snd_pcm_close(hdl_);
@@ -131,8 +130,10 @@ namespace audio {
 
       throw AlsaError(state_, error);
     }
-    
+
     state_ = BackendState::kOpen;
+
+    return {};
   }
 
   void AlsaBackend::close()
@@ -141,7 +142,7 @@ namespace audio {
       throw TransitionError(state_);
 
     int error;
-    
+
     error = snd_pcm_close(hdl_);
     if (error < 0)
       throw AlsaError(state_, error);
@@ -175,7 +176,7 @@ namespace audio {
 
     // wait for all pending frames and then stop the PCM
     snd_pcm_drain(hdl_);
-    
+
     state_ = BackendState::kOpen;
   }
 
@@ -186,7 +187,7 @@ namespace audio {
 
     snd_pcm_sframes_t n_data_frames = bytes / frameSize(spec_);
     snd_pcm_sframes_t frames_written;
-    
+
     frames_written = snd_pcm_writei(hdl_, data, n_data_frames);
 
     if (frames_written < 0)
@@ -199,8 +200,8 @@ namespace audio {
     else if (frames_written > 0 && frames_written < n_data_frames)
     {
       std::cerr << "Short write (expected " << n_data_frames
-		<< ", wrote " << frames_written << " frames)"
-		<< std::endl;
+                << ", wrote " << frames_written << " frames)"
+                << std::endl;
     }
   }
 
@@ -208,9 +209,9 @@ namespace audio {
   {
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
-    
+
     int error;
-    
+
     error = snd_pcm_drop(hdl_);
     if (error < 0)
       throw AlsaError(state_, error);
@@ -220,9 +221,9 @@ namespace audio {
   {
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
-    
+
     int error;
-    
+
     error = snd_pcm_drain(hdl_);
     if (error < 0)
       throw AlsaError(state_, error);
@@ -231,12 +232,12 @@ namespace audio {
   microseconds AlsaBackend::latency()
   {
     if (!hdl_) return 0us;
-    
+
     int error;
-    snd_pcm_sframes_t delayp;    
-    
+    snd_pcm_sframes_t delayp;
+
     error = snd_pcm_delay(hdl_, &delayp);
-    
+
     if (error < 0)
       return kRequiredLatency;
     else
@@ -247,5 +248,5 @@ namespace audio {
   {
     return state_;
   }
- 
+
 }//namespace audio

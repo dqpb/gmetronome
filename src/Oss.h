@@ -35,8 +35,8 @@ namespace audio {
     ~OssBackend();
     
     std::vector<DeviceInfo> devices() override;
-    void configure(const StreamSpec& spec) override;
-    void open() override;
+    void configure(const DeviceConfig& config) override;
+    DeviceConfig open() override;
     void close() override;
     void start() override;
     void stop() override;

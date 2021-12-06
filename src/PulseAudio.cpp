@@ -92,12 +92,12 @@ namespace audio {
     return {};
   }
 
-  void PulseAudioBackend::configure(const StreamSpec& spec)
+  void PulseAudioBackend::configure(const DeviceConfig& config)
   {
     spec_ = spec;
   }
 
-  void PulseAudioBackend::open()
+  DeviceInfo PulseAudioBackend::open()
   {
     if (state_ != BackendState::kConfig)
       throw TransitionError(state_);
@@ -112,6 +112,8 @@ namespace audio {
     pa_buffer_attr_.fragsize  = -1;
     
     state_ = BackendState::kOpen;
+
+    return {};
   }
   
   void PulseAudioBackend::close()

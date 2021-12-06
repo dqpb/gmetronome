@@ -27,11 +27,11 @@ namespace audio {
   class DummyBackend : public Backend{
 
   public:
-    DummyBackend(const audio::StreamSpec& spec = kDefaultSpec);
+    DummyBackend();
 
     std::vector<DeviceInfo> devices() override;
-    void configure(const StreamSpec& spec) override;
-    void open() override;
+    void configure(const DeviceConfig& config) override;
+    DeviceConfig open() override;
     void close() override;
     void start() override;
     void stop() override;
@@ -42,7 +42,6 @@ namespace audio {
 
   private:
     BackendState state_;
-    StreamSpec spec_;
   };
   
 }//namespace audio

@@ -268,7 +268,7 @@ void Application::configureTickerAudioBackend()
     auto new_backend = audio::createBackend( (settings::AudioBackend) backend_id );
     
     if (new_backend)
-      new_backend->configure(audio::kDefaultSpec);
+      new_backend->configure(audio::kDefaultConfig);
     
     ticker_.setAudioBackend( std::move(new_backend) );  
   }
@@ -293,7 +293,7 @@ void Application::configureTickerAudioBackend()
       auto dummy_backend = audio::createBackend( settings::kAudioBackendNone );
     
       if (dummy_backend)
-	dummy_backend->configure(audio::kDefaultSpec);
+	dummy_backend->configure(audio::kDefaultConfig);
       
       ticker_.setAudioBackend( std::move(dummy_backend) );  
     }

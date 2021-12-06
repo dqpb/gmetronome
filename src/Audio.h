@@ -56,6 +56,8 @@ namespace audio {
 
   using SampleRate = uint32_t;
 
+  constexpr SampleRate kDefaultRate = 44100;
+
   enum class Endianness
   {
     Little,
@@ -70,7 +72,7 @@ namespace audio {
     uint8_t      channels;
   };
 
-  constexpr StreamSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 2 };
+  constexpr StreamSpec kDefaultSpec = { SampleFormat::S16LE, kDefaultRate, 2 };
 
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);

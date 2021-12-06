@@ -27,14 +27,22 @@
 
 namespace audio {
 
+  using DeviceId = int32_t;
+
+  constexpr DeviceId kDefaultDevice  = - (0x0001 << 0);
+  constexpr DeviceId kAnyDevice      = - (0x0001 << 1);
+  constexpr DeviceId kNoDevice       = - (0x0001 << 2);
+
   /** A structure providing information and capabilities of playback devices. */
   struct DeviceInfo
   {
+    DeviceId       id;               //!< Unique device identifier
     std::string    name;             //!< Name of the device
-    int            id;               //!< Id may be used with struct DeviceConfig
+
     int            min_channels;
     int            max_channels;
     int            pref_channels;
+
     SampleRate     min_rate;
     SampleRate     max_rate;
     SampleRate     pref_rate;
@@ -43,10 +51,12 @@ namespace audio {
   /** A structure to configure an audio device. */
   struct DeviceConfig
   {
-    int         id;       // use negative index for "no device"
+    DeviceId    id;
     StreamSpec  spec;
   };
 
+  constexpr DeviceConfig kDefaultConfig = { kDefaultDevice, kDefaultSpec };
+  
   enum class BackendState
   {
     kConfig   = 0,
@@ -73,15 +83,15 @@ namespace audio {
    *   IV)  Running --> Open      [stop()]
    *   V)   Open    --> Config    [close()]
    *
-   * All other attempts to change the state result in a BackendStateTransitionError.
+   * All other attempts to change the state result in a state transition error.
    */
   class Backend {
   public:
     virtual ~Backend() {}
-
+    
     virtual std::vector<DeviceInfo> devices() = 0;
-    virtual void configure(const StreamSpec& spec) = 0;
-    virtual void open() = 0;
+    virtual void configure(const DeviceConfig& config) = 0;
+    virtual DeviceConfig open() = 0;
     virtual void close() = 0;
     virtual void start() = 0;
     virtual void stop() = 0;

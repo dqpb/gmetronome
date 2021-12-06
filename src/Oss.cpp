@@ -91,12 +91,12 @@ namespace audio {
     return {};
   }
 
-  void OssBackend::configure(const StreamSpec& spec)
+  void OssBackend::configure(const DeviceConfig& config)
   {
     spec_ = spec;
   }
 
-  void OssBackend::open()
+  DeviceInfo OssBackend::open()
   {
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
@@ -113,6 +113,8 @@ namespace audio {
     }
 
     state_ = BackendState::kOpen;
+
+    return {};
   }
 
   void OssBackend::close()

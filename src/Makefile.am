@@ -77,10 +77,10 @@ nodist_gmetronome_SOURCES = $(resources_file)
 BUILT_SOURCES = $(resources_file)
 
 gresources_deps = \
-	$(top_src_datadir)/ui/ShortcutDialog.glade
-	$(top_src_datadir)/icons/scalable/gmetronome.svg
-	$(top_src_datadir)/ui/MainWindow.glade
-	$(top_src_datadir)/ui/SettingsDialog.glade
+	$(top_src_datadir)/ui/ShortcutDialog.glade \
+	$(top_src_datadir)/icons/scalable/gmetronome.svg \
+	$(top_src_datadir)/ui/MainWindow.glade \
+	$(top_src_datadir)/ui/SettingsDialog.glade \
 	$(top_src_datadir)/css/global.css
 
 $(resources_file): $(gresource_xml_file) $(gresources_deps)
