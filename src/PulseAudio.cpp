@@ -85,7 +85,13 @@ namespace audio {
     if (pa_simple_)
       pa_simple_free(pa_simple_);
   }
-  
+
+  std::vector<DeviceInfo> PulseAudioBackend::devices()
+  {
+    // not implemented yet
+    return {};
+  }
+
   void PulseAudioBackend::configure(const SampleSpec& spec)
   {
     spec_ = spec;

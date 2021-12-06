@@ -38,6 +38,12 @@ namespace audio {
       spec_(spec)
   {}
 
+  std::vector<DeviceInfo> DummyBackend::devices()
+  {
+    // not implemented yet
+    return {};
+  }
+
   void DummyBackend::configure(const SampleSpec& spec)
   {
     spec_ = spec;

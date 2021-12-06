@@ -34,6 +34,7 @@ namespace audio {
     AlsaBackend(const audio::SampleSpec& spec = kDefaultSpec); 
     ~AlsaBackend();
     
+    std::vector<DeviceInfo> devices() override;
     void configure(const SampleSpec& spec) override;
     void open() override;
     void close() override;

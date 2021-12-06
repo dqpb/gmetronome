@@ -28,6 +28,8 @@ namespace audio {
 
   public:
     DummyBackend(const audio::SampleSpec& spec = kDefaultSpec);
+
+    std::vector<DeviceInfo> devices() override;
     void configure(const SampleSpec& spec) override;
     void open() override;
     void close() override;

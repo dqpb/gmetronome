@@ -85,6 +85,12 @@ namespace audio {
     } catch(...) {}
   }
 
+  std::vector<DeviceInfo> OssBackend::devices()
+  {
+    // not implemented yet
+    return {};
+  }
+
   void OssBackend::configure(const SampleSpec& spec)
   {
     spec_ = spec;

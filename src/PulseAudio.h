@@ -37,6 +37,7 @@ namespace audio {
     PulseAudioBackend(const audio::SampleSpec& spec = kDefaultSpec); 
     ~PulseAudioBackend();
     
+    std::vector<DeviceInfo> devices() override;
     void configure(const SampleSpec& spec) override;
     void open() override;
     void close() override;

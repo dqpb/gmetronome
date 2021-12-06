@@ -90,6 +90,12 @@ namespace audio {
     }
   }
 
+  std::vector<DeviceInfo> AlsaBackend::devices()
+  {
+    // not implemented yet
+    return {};
+  }
+
   void AlsaBackend::configure(const SampleSpec& spec)
   {
     spec_ = spec;
