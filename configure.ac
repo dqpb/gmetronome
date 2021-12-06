@@ -149,6 +149,25 @@ AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
 )
 
 #
+# Create gschema.xml from template
+#
+AC_SUBST([GSCHEMAXML_DEFAULT_AUDIO_BACKEND],[\'$DEFAULT_AUDIO_BACKEND\'])
+
+AS_IF([test "x$have_alsa" = "xyes"],
+      [AC_SUBST([GSCHEMAXML_ALSA_BEGIN],[""]) AC_SUBST([GSCHEMAXML_ALSA_END],[""])],
+      [AC_SUBST([GSCHEMAXML_ALSA_BEGIN],["<!-- "]) AC_SUBST([GSCHEMAXML_ALSA_END],[" -->"])]
+)
+AS_IF([test "x$have_oss" = "xyes"],
+      [AC_SUBST([GSCHEMAXML_OSS_BEGIN],[""]) AC_SUBST([GSCHEMAXML_OSS_END],[""])],
+      [AC_SUBST([GSCHEMAXML_OSS_BEGIN],["<!-- "]) AC_SUBST([GSCHEMAXML_OSS_END],[" -->"])]
+)
+AS_IF([test "x$have_pulseaudio" = "xyes"],
+      [AC_SUBST([GSCHEMAXML_PULSE_BEGIN],[""]) AC_SUBST([GSCHEMAXML_PULSE_END],[""])],
+      [AC_SUBST([GSCHEMAXML_PULSE_BEGIN],["<!-- "]) AC_SUBST([GSCHEMAXML_PULSE_END],[" -->"])]
+)
+AC_CONFIG_FILES([data/org.gmetronome.gschema.xml])
+
+#
 # Gettext i18n support
 #
 GETTEXT_PACKAGE=gmetronome

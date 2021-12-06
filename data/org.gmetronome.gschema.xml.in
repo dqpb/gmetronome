@@ -21,15 +21,9 @@
   
   <enum id="org.gmetronome.AudioBackend">
     <value nick='none' value='0'/>
-    <!--HAVE_ALSA_BEGIN-->
-    <value nick='alsa' value='1'/>
-    <!--HAVE_ALSA_END-->
-    <!--HAVE_OSS_BEGIN-->
-    <value nick='oss' value='2'/>
-    <!--HAVE_OSS_END-->
-    <!--HAVE_PULSEAUDIO_BEGIN-->
-    <value nick='pulseaudio' value='3'/>
-    <!--HAVE_PULSEAUDIO_END-->
+    @GSCHEMAXML_ALSA_BEGIN@<value nick='alsa' value='1'/>@GSCHEMAXML_ALSA_END@
+    @GSCHEMAXML_OSS_BEGIN@<value nick='oss' value='2'/>@GSCHEMAXML_OSS_END@
+    @GSCHEMAXML_PULSE_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSE_END@
   </enum>
   
   <enum id="org.gmetronome.MeterAnimation">
@@ -271,11 +265,7 @@
       <description></description>  
     </key>    
     <key name="audio-backend" enum="org.gmetronome.AudioBackend">
-      <default>
-	<!--DEFAULT_AUDIO_BACKEND_BEGIN-->
-	'none'
-	<!--DEFAULT_AUDIO_BACKEND_END-->
-      </default> 
+      <default>@GSCHEMAXML_DEFAULT_AUDIO_BACKEND@</default>
       <summary>Audio backend</summary>
       <description></description>
     </key>    

@@ -45,34 +45,6 @@ gresource_xml_file = gmetronome.gresource.xml
 ### GSchema files
 gschema_in_file = org.gmetronome.gschema.xml.in
 gschema_file = $(gschema_in_file:.xml.in=.xml)
-
-nodist_noinst_DATA = $(gschema_file)
-
-gschema_sed_script=
-
-if HAVE_ALSA
-gschema_sed_script+=-e "/HAVE_ALSA/d"
-else
-gschema_sed_script+=-e "/HAVE_ALSA_BEGIN/,/HAVE_ALSA_END/d"
-endif
-if HAVE_OSS
-gschema_sed_script+=-e "/HAVE_OSS/d"
-else
-gschema_sed_script+=-e "/HAVE_OSS_BEGIN/,/HAVE_OSS_END/d"
-endif
-if HAVE_PULSEAUDIO
-gschema_sed_script+=-e "/HAVE_PULSEAUDIO/d"
-else
-gschema_sed_script+=-e "/HAVE_PULSEAUDIO_BEGIN/,/HAVE_PULSEAUDIO_END/d"
-endif
-
-gschema_sed_script+= -e "/DEFAULT_AUDIO_BACKEND_BEGIN/,/DEFAULT_AUDIO_BACKEND_END/!b" \
-                     -e "s/.*DEFAULT_AUDIO_BACKEND_END.*/'@DEFAULT_AUDIO_BACKEND@'/;t" \
-                     -e "d"
-
-$(gschema_file): $(gschema_in_file)
-	$(AM_V_GEN)$(SED) $(gschema_sed_script) $(srcdir)/$(gschema_in_file) > $@
-
 gschema_valid_file = $(gschema_file:.xml=.valid)
 
 $(gschema_valid_file): $(gschema_file)
@@ -108,7 +80,6 @@ install-data-local: install-gsettings-schemas
 mostlyclean-local: clean-gsettings-schemas
 
 CLEANFILES = \
-	$(gschema_file) \
 	$(desktop_file)
 
 EXTRA_DIST = \
@@ -116,4 +87,3 @@ EXTRA_DIST = \
 	$(gschema_in_file) \
 	$(resource_files) \
 	$(desktop_in_file)
-
