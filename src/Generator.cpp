@@ -25,16 +25,16 @@
 
 namespace audio {
 
-  Generator::Generator(SampleSpec spec,
+  Generator::Generator(StreamSpec spec,
                        microseconds maxChunkDuration,
                        microseconds avgChunkDuration)
-    : kSampleSpec_(spec),
+    : kStreamSpec_(spec),
       kMaxChunkDuration_(maxChunkDuration),
       kAvgChunkDuration_(avgChunkDuration),
-      kMaxChunkFrames_(usecsToFrames(kMaxChunkDuration_, kSampleSpec_)),
-      kAvgChunkFrames_(usecsToFrames(kAvgChunkDuration_, kSampleSpec_)),
-      kMinutesFramesRatio_(1. / (60. * kSampleSpec_.rate)),
-      kMicrosecondsFramesRatio_(1000000. / kSampleSpec_.rate),
+      kMaxChunkFrames_(usecsToFrames(kMaxChunkDuration_, kStreamSpec_)),
+      kAvgChunkFrames_(usecsToFrames(kAvgChunkDuration_, kStreamSpec_)),
+      kMinutesFramesRatio_(1. / (60. * kStreamSpec_.rate)),
+      kMicrosecondsFramesRatio_(1000000. / kStreamSpec_.rate),
       kFramesMinutesRatio_(1. / kMinutesFramesRatio_),
       kFramesMicrosecondsRatio_(1. / kMicrosecondsFramesRatio_),
       tempo_(convertTempoToFrameTime(120.)),
@@ -42,7 +42,7 @@ namespace audio {
       accel_(convertAccelToFrameTime(0)),
       accel_saved_(accel_),
       meter_({kSingleMeter, kNoDivision, {kAccentMid}}),
-      sound_zero_(2 * kMaxChunkDuration_, kSampleSpec_),
+      sound_zero_(2 * kMaxChunkDuration_, kStreamSpec_),
       sound_strong_(sound_zero_),
       sound_mid_(sound_zero_),
       sound_weak_(sound_zero_),
@@ -269,7 +269,7 @@ namespace audio {
     updateStatistics();
     
     data = &(sound_zero_[0]);
-    bytes = frames_total_ * frameSize(kSampleSpec_);
+    bytes = frames_total_ * frameSize(kStreamSpec_);
     
     frames_total_ = 0;
     frames_done_ = 0;
@@ -300,19 +300,19 @@ namespace audio {
         switch (accents[next_accent_])
         {
         case kAccentStrong:
-          frames_chunk = sound_strong_.size() / frameSize(kSampleSpec_); 
+          frames_chunk = sound_strong_.size() / frameSize(kStreamSpec_); 
           data = &(sound_strong_[0]);
           bytes = sound_strong_.size();
           break;
 
         case kAccentMid:
-          frames_chunk = sound_mid_.size() / frameSize(kSampleSpec_); 
+          frames_chunk = sound_mid_.size() / frameSize(kStreamSpec_); 
           data = &(sound_mid_[0]);
           bytes = sound_mid_.size();
           break;
 
         case kAccentWeak:
-          frames_chunk = sound_weak_.size() / frameSize(kSampleSpec_); 
+          frames_chunk = sound_weak_.size() / frameSize(kStreamSpec_); 
           data = &(sound_weak_[0]);
           bytes = sound_weak_.size();
           break;
@@ -320,7 +320,7 @@ namespace audio {
         default:
           frames_chunk = kAvgChunkFrames_;
           data = &(sound_zero_[0]);
-          bytes = kAvgChunkFrames_ * frameSize(kSampleSpec_);
+          bytes = kAvgChunkFrames_ * frameSize(kStreamSpec_);
           break;
         };
         if (++next_accent_ == accents.size())
@@ -333,12 +333,12 @@ namespace audio {
     else if (frames_left <= kMaxChunkFrames_) {
       frames_chunk = frames_left;
       data = &(sound_zero_[0]);
-      bytes = frames_left * frameSize(kSampleSpec_);
+      bytes = frames_left * frameSize(kStreamSpec_);
     }
     else {
       frames_chunk = frames_left / lround( (double) frames_left / kAvgChunkFrames_ );
       data = &(sound_zero_[0]);
-      bytes = frames_chunk * frameSize(kSampleSpec_);
+      bytes = frames_chunk * frameSize(kStreamSpec_);
     }
 
     frames_done_ += frames_chunk;

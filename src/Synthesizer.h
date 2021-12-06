@@ -27,7 +27,7 @@ namespace audio {
   Buffer generateSound(double frequency,
                        double volume,
                        double balance,
-                       SampleSpec spec,
+                       StreamSpec spec,
                        microseconds duration);
 
 }//namespace audio

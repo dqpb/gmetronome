@@ -33,7 +33,7 @@ namespace audio {
     
   }//unnamed namespace
   
-  DummyBackend::DummyBackend(const audio::SampleSpec& spec)
+  DummyBackend::DummyBackend(const audio::StreamSpec& spec)
     : state_(BackendState::kConfig),
       spec_(spec)
   {}
@@ -44,7 +44,7 @@ namespace audio {
     return {};
   }
 
-  void DummyBackend::configure(const SampleSpec& spec)
+  void DummyBackend::configure(const StreamSpec& spec)
   {
     spec_ = spec;
   }

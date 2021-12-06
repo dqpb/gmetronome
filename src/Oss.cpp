@@ -72,7 +72,7 @@ namespace audio {
 
   }//unnamed namespace
 
-  OssBackend::OssBackend(const audio::SampleSpec& spec)
+  OssBackend::OssBackend(const audio::StreamSpec& spec)
     : state_(BackendState::kConfig),
       spec_(spec),
       fd_(-1)
@@ -91,7 +91,7 @@ namespace audio {
     return {};
   }
 
-  void OssBackend::configure(const SampleSpec& spec)
+  void OssBackend::configure(const StreamSpec& spec)
   {
     spec_ = spec;
   }

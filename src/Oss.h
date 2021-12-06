@@ -31,11 +31,11 @@ namespace audio {
   class OssBackend : public Backend
   {
   public:
-    OssBackend(const audio::SampleSpec& spec = kDefaultSpec); 
+    OssBackend(const audio::StreamSpec& spec = kDefaultSpec); 
     ~OssBackend();
     
     std::vector<DeviceInfo> devices() override;
-    void configure(const SampleSpec& spec) override;
+    void configure(const StreamSpec& spec) override;
     void open() override;
     void close() override;
     void start() override;
@@ -48,7 +48,7 @@ namespace audio {
     
   private:
     BackendState state_;
-    audio::SampleSpec spec_;
+    audio::StreamSpec spec_;
     int fd_;
     
     void openAudioDevice();

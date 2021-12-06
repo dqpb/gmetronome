@@ -23,17 +23,17 @@
 
 namespace audio {
   
-  Buffer::Buffer(size_type nbytes, const SampleSpec& spec)
+  Buffer::Buffer(size_type nbytes, const StreamSpec& spec)
     : data_(nbytes,0),
       spec_(spec)
   {}
   
-  Buffer::Buffer(microseconds duration, const SampleSpec& spec)
+  Buffer::Buffer(microseconds duration, const StreamSpec& spec)
     : data_(usecsToBytes(duration,spec),0),
       spec_(spec)
   {}
 
-  Buffer::Buffer(byte_container data, const SampleSpec& spec) {
+  Buffer::Buffer(byte_container data, const StreamSpec& spec) {
     std::swap(data_,data);
     spec_ = spec;
   }
@@ -58,7 +58,7 @@ namespace audio {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
   }
 
-  Buffer Buffer::resample(const SampleSpec& spec) {
+  Buffer Buffer::resample(const StreamSpec& spec) {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
   }
 

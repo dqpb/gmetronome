@@ -73,7 +73,7 @@ namespace audio {
   }//unnamed namespace
 
   
-  AlsaBackend::AlsaBackend(const audio::SampleSpec& spec)
+  AlsaBackend::AlsaBackend(const audio::StreamSpec& spec)
     : state_(BackendState::kConfig),
       spec_(spec),
       hdl_(nullptr)
@@ -96,7 +96,7 @@ namespace audio {
     return {};
   }
 
-  void AlsaBackend::configure(const SampleSpec& spec)
+  void AlsaBackend::configure(const StreamSpec& spec)
   {
     spec_ = spec;
   }

@@ -40,7 +40,7 @@ namespace audio {
 
   public:    
 
-    Generator(SampleSpec spec = kDefaultSpec,
+    Generator(StreamSpec spec = kDefaultSpec,
               microseconds maxChunkDuration = 80ms,
               microseconds avgChunkDuration = 50ms);
     
@@ -62,7 +62,7 @@ namespace audio {
     void cycle(const void*& data, size_t& bytes);
     
   private:
-    const SampleSpec kSampleSpec_;
+    const StreamSpec kStreamSpec_;
     const microseconds kMaxChunkDuration_;
     const microseconds kAvgChunkDuration_;
     const int kMaxChunkFrames_;

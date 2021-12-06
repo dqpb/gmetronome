@@ -44,7 +44,7 @@ namespace audio {
   struct DeviceConfig
   {
     int         id;       // use negative index for "no device"
-    SampleSpec  spec;
+    StreamSpec  spec;
   };
 
   enum class BackendState
@@ -80,7 +80,7 @@ namespace audio {
     virtual ~Backend() {}
 
     virtual std::vector<DeviceInfo> devices() = 0;
-    virtual void configure(const SampleSpec& spec) = 0;
+    virtual void configure(const StreamSpec& spec) = 0;
     virtual void open() = 0;
     virtual void close() = 0;
     virtual void start() = 0;

@@ -43,7 +43,7 @@ namespace audio {
     };
 
     // Helper
-    pa_sample_spec convertSpecToPA(const SampleSpec& spec)
+    pa_sample_spec convertSpecToPA(const StreamSpec& spec)
     {
       pa_sample_spec pa_spec;
       pa_spec.rate = spec.rate;
@@ -74,7 +74,7 @@ namespace audio {
   }//unnamed namespace
 
 
-  PulseAudioBackend::PulseAudioBackend(const SampleSpec& spec)
+  PulseAudioBackend::PulseAudioBackend(const StreamSpec& spec)
     : state_(BackendState::kConfig),
       spec_(spec),
       pa_simple_(nullptr)
@@ -92,7 +92,7 @@ namespace audio {
     return {};
   }
 
-  void PulseAudioBackend::configure(const SampleSpec& spec)
+  void PulseAudioBackend::configure(const StreamSpec& spec)
   {
     spec_ = spec;
   }
