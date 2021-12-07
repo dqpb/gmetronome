@@ -31,10 +31,12 @@ namespace audio {
       {}
     };
 
+    const std::string kDummyDeviceName = "Default";
+    
     const DeviceInfo kDummyInfo =
     {
-      kDefaultDevice,
-      "Default",
+      kDummyDeviceName,
+      "Dummy Audio Output Device",
       2,
       2,
       2,
@@ -43,8 +45,8 @@ namespace audio {
       kDefaultRate
     };
 
-    constexpr DeviceConfig kDummyConfig = kDefaultConfig;
-
+    const DeviceConfig kDummyConfig = { kDummyDeviceName, kDefaultSpec };
+    
   }//unnamed namespace
 
   DummyBackend::DummyBackend()

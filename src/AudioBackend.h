@@ -27,35 +27,29 @@
 
 namespace audio {
 
-  using DeviceId = int32_t;
-
-  constexpr DeviceId kDefaultDevice  = - (0x0001 << 0);
-  constexpr DeviceId kAnyDevice      = - (0x0001 << 1);
-  constexpr DeviceId kNoDevice       = - (0x0001 << 2);
-
   /** A structure providing information and capabilities of playback devices. */
   struct DeviceInfo
   {
-    DeviceId       id;               //!< Unique device identifier
-    std::string    name;             //!< Name of the device
-
+    std::string    name;   //!< Unique name of the device
+    std::string    descr;
+    
     int            min_channels;
     int            max_channels;
-    int            pref_channels;
+    int            channels;
 
     SampleRate     min_rate;
     SampleRate     max_rate;
-    SampleRate     pref_rate;
+    SampleRate     rate;
   };
 
   /** A structure to configure an audio device. */
   struct DeviceConfig
   {
-    DeviceId    id;
+    std::string name;
     StreamSpec  spec;
   };
-
-  constexpr DeviceConfig kDefaultConfig = { kDefaultDevice, kDefaultSpec };
+  
+  const DeviceConfig kDefaultConfig = { "", kDefaultSpec };
   
   enum class BackendState
   {
