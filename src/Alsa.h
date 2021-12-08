@@ -48,9 +48,11 @@ namespace audio {
     
   private:
     BackendState state_;
-    audio::DeviceConfig config_;
-    std::vector<DeviceInfo> devices_;
+    audio::DeviceConfig cfg_;
+    std::vector<DeviceInfo> devs_;
     snd_pcm_t *hdl_;
+
+    void scanDevices();
   };
   
 }//namespace audio

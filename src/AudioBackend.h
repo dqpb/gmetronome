@@ -30,16 +30,14 @@ namespace audio {
   /** A structure providing information and capabilities of playback devices. */
   struct DeviceInfo
   {
-    std::string    name;   //!< Unique name of the device
-    std::string    descr;
-    
-    int            min_channels;
-    int            max_channels;
-    int            channels;
-
-    SampleRate     min_rate;
-    SampleRate     max_rate;
-    SampleRate     rate;
+    std::string    name;          //!< Unique name of the device
+    std::string    descr;         //!< Device description
+    int            min_channels;  //!< Minimum number of channels
+    int            max_channels;  //!< Maximum number of channels
+    int            channels;      //!< Preferred number of channels
+    SampleRate     min_rate;      //!< Minimum sample rate
+    SampleRate     max_rate;      //!< Maximum sample rate
+    SampleRate     rate;          //!< Preferred sample rate
   };
 
   /** A structure to configure an audio device. */
