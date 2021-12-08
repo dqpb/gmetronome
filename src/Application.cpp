@@ -1142,9 +1142,8 @@ bool Application::onTimer()
 {
   using std::literals::chrono_literals::operator""us;
 
-  // check the ticker state
   audio::TickerState state = ticker_.state();
-  if (state == audio::TickerState::kError)
+  if (state.test(audio::TickerStateFlag::kError))
   {
     // this will handle the error
     change_action_state(kActionStart, Glib::Variant<bool>::create(false));

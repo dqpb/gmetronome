@@ -20,25 +20,28 @@
 #ifndef GMetronome_Ticker_h
 #define GMetronome_Ticker_h
 
-#include <memory>
-#include <thread>
-#include <atomic>
-
 #include "Generator.h"
 #include "AudioBackend.h"
 #include "AudioBuffer.h"
 #include "Meter.h"
 #include "SpinLock.h"
 
+#include <memory>
+#include <thread>
+#include <atomic>
+#include <bitset>
+
 namespace audio {
-  
-  enum class TickerState
+
+  enum TickerStateFlag
   {
-    kReady,
-    kPlaying,
-    kError
+    kStarted      = 0,
+    kRunning      = 1,
+    kError        = 2
   };
-    
+
+  using TickerState = std::bitset<16>;
+  
   class Ticker {
   public:
     struct Statistics
@@ -77,8 +80,6 @@ namespace audio {
     std::unique_ptr<Backend> audio_backend_;
     
     TickerState state_;
-
-    std::exception_ptr audio_thread_error_;
     
     std::atomic<double> in_tempo_;
     std::atomic<double> in_target_tempo_;
@@ -121,9 +122,11 @@ namespace audio {
 
     std::unique_ptr<std::thread> audio_thread_;
     std::atomic<bool> stop_audio_thread_flag_;
+    std::exception_ptr audio_thread_error_;
+    std::atomic<bool> audio_thread_error_flag_;
     
     void startAudioThread();
-    void stopAudioThread();
+    void stopAudioThread(bool join = false);
     void audioThreadFunction() noexcept;
   };
   
