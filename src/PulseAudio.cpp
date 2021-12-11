@@ -104,6 +104,7 @@ namespace audio {
 
   std::vector<DeviceInfo> PulseAudioBackend::devices()
   {
+    // TODO: scan pulseaudio server for sinks
     return {kPAInfo};
   }
 
