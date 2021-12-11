@@ -20,6 +20,7 @@
 #include "Alsa.h"
 #include <map>
 #include <algorithm>
+#include <thread>
 #include <iostream>
 
 namespace audio {
@@ -90,7 +91,7 @@ namespace audio {
       unsigned long max_buffer_size {0};
     };
 
-    std::ostream& operator<<(std::ostream& os, const AlsaDeviceInfo& dev)
+    [[maybe_unused]] std::ostream& operator<<(std::ostream& os, const AlsaDeviceInfo& dev)
     {
       std::string headline = "Device [" + dev.name + "]";
 
@@ -146,7 +147,7 @@ namespace audio {
       if (err < 0)
       {
         std::cerr << "AlsaBackend: could not open output device "
-                  << "[" << device.name << "]" << std::endl;
+                  << "[" << device.name << "]: " << snd_strerror(err) << std::endl;
         return false;
       }
 
@@ -299,16 +300,16 @@ namespace audio {
 
       return success;
     }
-
+    
     std::vector<AlsaDeviceInfo> scanAlsaDevices()
     {
       std::vector<AlsaDeviceInfo> devices;
-
+      
       void **hints, **n;
-      char *name, *descr, *descr1, *io;
-
+      char *name, *descr, *io;
+      
       if (snd_device_name_hint(-1, "pcm", &hints) < 0)
-        return {};
+        throw std::runtime_error("failed to scan alsa pcm devices [snd_device_name_hint]");
 
       n = hints;
 
@@ -320,7 +321,7 @@ namespace audio {
 
         if (io == NULL || strcmp(io, "Output") == 0)
         {
-          if (! ignoreAlsaDevice(name) )
+          if (name != NULL && !ignoreAlsaDevice(name) )
           {
             AlsaDeviceInfo device;
 
@@ -379,20 +380,27 @@ namespace audio {
   void AlsaBackend::configure(const DeviceConfig& config)
   {
     cfg_ = config;
-    scanDevices();
   }
 
   DeviceConfig AlsaBackend::open()
   {
+    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
+
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
 
-    int error;
     const char* pcm_name = ( cfg_.name.empty() ? "default" : cfg_.name.c_str() );
 
+    int error = 0;
+    
     if (hdl_ == nullptr)
     {
       error = snd_pcm_open(&hdl_, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
+      for (int retry = 0; error == -EBUSY && retry < 4 ; ++retry)
+      {
+        error = snd_pcm_open(&hdl_, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
+        std::this_thread::sleep_for(400ms);
+      }
       if (error < 0)
         throw AlsaError(state_, error, "open() [snd_pcm_open]");
     }
@@ -456,6 +464,9 @@ namespace audio {
 
   void AlsaBackend::close()
   {
+    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
+    std::this_thread::sleep_for(400ms);
+    
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
@@ -471,6 +482,8 @@ namespace audio {
 
   void AlsaBackend::start()
   {
+    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
+
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
@@ -485,6 +498,8 @@ namespace audio {
 
   void AlsaBackend::stop()
   {
+    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
+
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
@@ -560,8 +575,15 @@ namespace audio {
 
   void AlsaBackend::scanDevices()
   {
-    auto alsa_device_list = scanAlsaDevices();
-
+    std::vector<AlsaDeviceInfo> alsa_device_list;
+    
+    try {
+      alsa_device_list = scanAlsaDevices();
+    }
+    catch(std::exception& e) {
+      throw AlsaError(state_, e.what());
+    }
+    
     std::vector<DeviceInfo> device_list;
     device_list.reserve( alsa_device_list.size() );
 
@@ -569,8 +591,6 @@ namespace audio {
     {      
       if ( gropeAlsaDevice(alsa_device) )
       {
-        std::cout << alsa_device << std::endl;
-        
         audio::DeviceInfo device_info;
 
         device_info.name = alsa_device.name;

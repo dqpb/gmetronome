@@ -17,6 +17,7 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Application.h"
 #include "SettingsDialog.h"
 #include "Settings.h"
 #include "Shortcut.h"
@@ -33,6 +34,9 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);  
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);  
   builder_->get_widget("audioBackendComboBox", audio_backend_combo_box_);
+  builder_->get_widget("audioDeviceComboBox", audio_device_combo_box_);
+  builder_->get_widget("audioDeviceEntry", audio_device_entry_);
+  builder_->get_widget("audioDeviceSpinner", audio_device_spinner_);
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);  
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
   builder_->get_widget("soundGrid", sound_grid_);  
@@ -56,17 +60,41 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   sound_weak_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakVolAdjustment"));
   sound_weak_bal_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));  
 
+  initSettings();
+  initActions();
+  initUI();
+  initBindings();
+}
+
+//static
+SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
+{
+  // load the Builder file and instantiate its widgets
+  auto builder = Gtk::Builder::create_from_resource("/org/gmetronome/ui/SettingsDialog.glade");
+
+  SettingsDialog* dialog = nullptr;
+  builder->get_widget_derived("settingsDialog", dialog);
+  if (!dialog)
+    throw std::runtime_error("No \"settingsDialog\" object in SettingsDialog.glade");
+
+  dialog->set_transient_for(parent);
+  return dialog;
+}
+
+void SettingsDialog::initSettings()
+{
   settings_ = Gio::Settings::create(settings::kSchemaId);
   settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
   settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
+}
 
-  settings_prefs_->bind(settings::kKeyPrefsRestoreProfile,
-                        restore_profile_switch_,
-                        "state",
-                        Gio::SETTINGS_BIND_DEFAULT);
+void SettingsDialog::initActions() {}
 
+void SettingsDialog::initUI()
+{
+  // init sound section
   strong_accent_drawing_.setAccentState(kAccentStrong);
   mid_accent_drawing_.setAccentState(kAccentMid);
   weak_accent_drawing_.setAccentState(kAccentWeak);
@@ -79,9 +107,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   sound_grid_->attach(mid_accent_drawing_, 2, 1);
   sound_grid_->attach(weak_accent_drawing_, 3, 1);  
 
-  animation_sync_spin_button_->signal_value_changed()
-    .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
-  
+  // init audio device section
   // remove unavailable audio backends from combo box
   const auto& backends = audio::availableBackends();
   auto n_backends = audio_backend_combo_box_->get_model()->children().size();
@@ -90,28 +116,12 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
     if (std::find(backends.begin(), backends.end(), index) == backends.end())
       audio_backend_combo_box_->remove_text(index);
   }
-  
-  settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidFrequency, sound_mid_freq_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
+  updateAudioDeviceList();
+  updateAudioDevice();
 
-  shortcuts_reset_button_->signal_clicked()
-    .connect( sigc::mem_fun(*this, &SettingsDialog::onResetShortcuts) );
-  
-  //settings_prefs->signal_changed()
-  //  .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsPrefsChanged));
-  settings_shortcuts_->signal_changed()
-    .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsShortcutsChanged));
+  audio_device_spinner_->stop();
 
+  // shortcuts section
   shortcuts_tree_store_ = Gtk::TreeStore::create(shortcuts_model_columns_);
 
   Gtk::TreeIter top_iter;
@@ -132,12 +142,6 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
     row[shortcuts_model_columns_.key] = entry.key;
   }
 
-  accel_cell_renderer_.signal_accel_cleared()
-    .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelCleared));
-
-  accel_cell_renderer_.signal_accel_edited()
-    .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelEdited));
-  
   shortcuts_tree_view_->append_column(
     // Shortcuts table header title (first column)
     _("Action"), 
@@ -155,19 +159,136 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   shortcuts_tree_view_->expand_all();
 }
 
-//static
-SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
+void SettingsDialog::initBindings()
 {
-  // load the Builder file and instantiate its widgets
-  auto builder = Gtk::Builder::create_from_resource("/org/gmetronome/ui/SettingsDialog.glade");
+  auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
 
-  SettingsDialog* dialog = nullptr;
-  builder->get_widget_derived("settingsDialog", dialog);
-  if (!dialog)
-    throw std::runtime_error("No \"settingsDialog\" object in SettingsDialog.glade");
+  settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
+  settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
+  settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidFrequency, sound_mid_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_, "state", Gio::SETTINGS_BIND_DEFAULT);
 
-  dialog->set_transient_for(parent);
-  return dialog;
+  settings_prefs_->signal_changed()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsPrefsChanged));
+
+  settings_shortcuts_->signal_changed()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsShortcutsChanged));
+
+  app->signal_action_state_changed()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAppActionStateChanged));
+
+  animation_sync_spin_button_->signal_value_changed()
+    .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
+
+  // audio device section
+  audio_device_connections.push_back(
+    audio_device_combo_box_->property_active_id().signal_changed()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceChanged) )
+  );
+  
+  audio_device_entry_->add_events(Gdk::FOCUS_CHANGE_MASK);
+    
+  audio_device_connections.push_back(
+    audio_device_entry_->signal_activate()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceEntryActivate) )
+  );
+
+  audio_device_connections.push_back(
+    audio_device_entry_->signal_focus_out_event()
+    .connect( [this] (GdkEventFocus* gdk_event)->bool
+      {
+        this->onAudioDeviceEntryFocusOut();
+        return false;
+      })
+  ); 
+
+  // shortcuts section
+  shortcuts_reset_button_->signal_clicked()
+    .connect( sigc::mem_fun(*this, &SettingsDialog::onResetShortcuts) );
+
+  accel_cell_renderer_.signal_accel_cleared()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelCleared));
+
+  accel_cell_renderer_.signal_accel_edited()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelEdited));
+}
+
+void SettingsDialog::onAnimationSyncChanged()
+{
+  if (animation_sync_spin_button_->get_value() != 0)
+    animation_sync_spin_button_
+      ->set_icon_from_icon_name("dialog-warning", Gtk::ENTRY_ICON_PRIMARY);
+  else
+    animation_sync_spin_button_->unset_icon(Gtk::ENTRY_ICON_PRIMARY);
+}
+
+void SettingsDialog::onAudioDeviceEntryActivate()
+{
+  audio_device_combo_box_->grab_focus();
+  onAudioDeviceChanged();
+}
+
+void SettingsDialog::onAudioDeviceEntryFocusOut()
+{
+  onAudioDeviceChanged();
+}
+
+void SettingsDialog::onAudioDeviceChanged()
+{
+  settings::AudioBackend backend = (settings::AudioBackend)
+    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+
+  if (auto it = settings::kBackendToDeviceMap.find(backend);
+      it != settings::kBackendToDeviceMap.end())
+  {
+    settings_prefs_->set_string(it->second, audio_device_entry_->get_text());
+  }
+}
+
+void SettingsDialog::updateAudioDeviceList()
+{
+  auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
+
+  std::vector<Glib::ustring> dev_list;
+  app->get_action_state(kActionAudioDeviceList, dev_list);
+
+  audio_device_combo_box_->remove_all();
+
+  for (auto& dev : dev_list)
+  {
+    audio_device_combo_box_->append(dev, dev);
+  }
+}
+
+void SettingsDialog::updateAudioDevice()
+{
+  settings::AudioBackend backend = (settings::AudioBackend)
+    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+  
+  if (auto it = settings::kBackendToDeviceMap.find(backend);
+      it != settings::kBackendToDeviceMap.end())
+  {
+    auto device = settings_prefs_->get_string(it->second);
+    
+    for ( auto& c : audio_device_connections )
+      c.block();
+
+    if (!audio_device_combo_box_->set_active_id(device))
+      audio_device_entry_->set_text(device);
+
+    for ( auto& c : audio_device_connections )
+      c.unblock();    
+  }
+  else audio_device_entry_->set_text("");
 }
 
 void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
@@ -246,16 +367,19 @@ void SettingsDialog::onResetShortcuts()
       settings_shortcuts_->reset(entry.key);
 }
 
-void SettingsDialog::onAnimationSyncChanged()
+void SettingsDialog::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (animation_sync_spin_button_->get_value() != 0)
+  settings::AudioBackend backend = (settings::AudioBackend)
+    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+
+  if (key == settings::kKeyPrefsAudioBackend)
   {
-    animation_sync_spin_button_->set_icon_from_icon_name("dialog-warning",
-                                                         Gtk::ENTRY_ICON_PRIMARY);
+    updateAudioDevice();
   }
-  else
+  if (auto it = settings::kDeviceToBackendMap.find(key);
+      it != settings::kDeviceToBackendMap.end() && backend == it->second)
   {
-    animation_sync_spin_button_->unset_icon(Gtk::ENTRY_ICON_PRIMARY);
+    updateAudioDevice();
   }
 }
 
@@ -278,3 +402,11 @@ void SettingsDialog::onSettingsShortcutsChanged(const Glib::ustring& key)
   shortcuts_tree_store_->foreach_iter(foreach_slot);
 }
 
+void SettingsDialog::onAppActionStateChanged(const Glib::ustring& action_name,
+                                             const Glib::VariantBase& variant)
+{
+  if (action_name == kActionAudioDeviceList)
+  {
+    updateAudioDeviceList();
+  }
+}

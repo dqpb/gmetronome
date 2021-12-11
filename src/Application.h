@@ -59,8 +59,7 @@ private:
   
   sigc::connection settings_prefs_connection_;
   sigc::connection settings_state_connection_;
-  sigc::connection settings_shortcuts_connection_;
-  
+  sigc::connection settings_shortcuts_connection_;  
   sigc::connection timer_connection_;
   
   sigc::signal<void, const Message&> signal_message_;
@@ -79,7 +78,8 @@ private:
   void configureTickerSoundStrong();
   void configureTickerSoundMid();
   void configureTickerSoundWeak();
-  void configureTickerAudioBackend();
+  void configureAudioBackend();
+  void configureAudioDevice();
   
   Glib::RefPtr<Gio::SimpleAction> lookup_simple_action(const Glib::ustring& name);
 
@@ -145,8 +145,12 @@ private:
   
   // Transport and Volume
   void onStart(const Glib::VariantBase& value);
-  //void onVolumeChanged();
-  
+
+  // Audio Device
+  void onAudioDeviceList(const Glib::VariantBase& value);
+  Glib::ustring currentAudioDeviceKey();
+  Glib::ustring currentAudioDevice();
+
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void onSettingsStateChanged(const Glib::ustring& key);

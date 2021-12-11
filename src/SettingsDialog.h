@@ -42,13 +42,13 @@ private:
   Glib::RefPtr<Gio::Settings> settings_prefs_;
   Glib::RefPtr<Gio::Settings> settings_shortcuts_;
 
-  // General 
+  // General tab
   Gtk::Switch* restore_profile_switch_;
   Gtk::ComboBoxText* animation_combo_box_;
   Gtk::SpinButton* animation_sync_spin_button_;
   Glib::RefPtr<Gtk::Adjustment> animation_sync_adjustment_;
 
-  // Sound and Audio 
+  // Sound tab
   Gtk::Grid* sound_grid_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_freq_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_vol_adjustment_;
@@ -64,12 +64,15 @@ private:
   AccentButtonDrawingArea mid_accent_drawing_;
   AccentButtonDrawingArea weak_accent_drawing_;
 
+  // Audio Settings tab
   Gtk::ComboBoxText* audio_backend_combo_box_;
+  Gtk::ComboBoxText* audio_device_combo_box_;
+  Gtk::Entry* audio_device_entry_;
+  Gtk::Spinner *audio_device_spinner_;
 
-  // Shortcuts
-  Gtk::TreeView* shortcuts_tree_view_;
-  Gtk::Button* shortcuts_reset_button_;
-  
+  std::vector<sigc::connection> audio_device_connections;
+
+  // Shortcuts tab
   class ShortcutsModelColumns : public Gtk::TreeModel::ColumnRecord {
   public:
     ShortcutsModelColumns() { add(action_name); add(key); }
@@ -77,10 +80,19 @@ private:
     Gtk::TreeModelColumn<Glib::ustring> action_name;
     Gtk::TreeModelColumn<Glib::ustring> key;
   } shortcuts_model_columns_;
-  
+
+  Gtk::TreeView* shortcuts_tree_view_;
+  Gtk::Button* shortcuts_reset_button_;
   Glib::RefPtr<Gtk::TreeStore> shortcuts_tree_store_;
   Gtk::CellRendererAccel accel_cell_renderer_;
   
+  // Initialization
+  void initSettings();
+  void initActions();
+  void initUI();
+  void initBindings();
+
+  // Callbacks 
   void onAccelCellData(Gtk::CellRenderer* cell,
                        const Gtk::TreeModel::iterator& iter);
 
@@ -92,10 +104,20 @@ private:
                      guint hardware_keycode);
 
   void onResetShortcuts();
+
   void onAnimationSyncChanged();
   
-  //void onSettingsPrefsChanged(const Glib::ustring& key);
+  void onAudioDeviceEntryActivate();
+  void onAudioDeviceEntryFocusOut();
+  void onAudioDeviceChanged();
+
+  void updateAudioDeviceList();
+  void updateAudioDevice();
+  
+  void onSettingsPrefsChanged(const Glib::ustring& key);
   void onSettingsShortcutsChanged(const Glib::ustring& key);
+  void onAppActionStateChanged(const Glib::ustring& action_name,
+                               const Glib::VariantBase& variant);
 };
 
 #endif//GMetronome_SettingsDialog_h

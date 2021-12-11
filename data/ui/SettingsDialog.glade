@@ -212,7 +212,7 @@
                   <object class="GtkSpinButton" id="animationSyncSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="primary-icon-tooltip-text" translatable="yes" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">Be cautious! An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it also may cause major problems up to total animation failure, especially on large (absolute) values.</property>
+                    <property name="primary-icon-tooltip-text" translatable="yes" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on large (absolute) values.</property>
                     <property name="input-purpose">number</property>
                     <property name="adjustment">animationSyncAdjustment</property>
                     <property name="numeric">True</property>
@@ -407,6 +407,7 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">0</property>
+                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
@@ -456,9 +457,6 @@
                     <property name="left-attach">3</property>
                     <property name="top-attach">4</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -594,25 +592,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText" id="audioBackendDeviceComboBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="has-entry">True</property>
-                    <items>
-                      <item translatable="yes">Default</item>
-                    </items>
-                    <child internal-child="entry">
-                      <object class="GtkEntry">
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkComboBoxText" id="audioBackendComboBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -642,13 +621,38 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">0</property>
+                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="audioDeviceComboBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="button-sensitivity">on</property>
+                    <property name="has-entry">True</property>
+                    <child internal-child="entry">
+                      <object class="GtkEntry" id="audioDeviceEntry">
+                        <property name="can-focus">True</property>
+                        <property name="placeholder-text" translatable="yes">Default</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkSpinner" id="audioDeviceSpinner">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="active">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">2</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>

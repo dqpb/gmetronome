@@ -29,6 +29,8 @@
 #include <memory>
 #include <thread>
 #include <atomic>
+#include <mutex>
+#include <condition_variable>
 #include <bitset>
 
 namespace audio {
@@ -55,7 +57,9 @@ namespace audio {
     Ticker();    
     ~Ticker();
     
+    std::unique_ptr<Backend> getAudioBackend();
     void setAudioBackend(std::unique_ptr<Backend> backend);
+    void swapAudioBackend(std::unique_ptr<Backend>& backend);
     
     void start();
     void stop();
@@ -88,7 +92,6 @@ namespace audio {
     Buffer in_sound_strong_;
     Buffer in_sound_mid_;
     Buffer in_sound_weak_;
-    std::unique_ptr<Backend> in_audio_backend_;
 
     Ticker::Statistics out_stats_;
     
@@ -101,7 +104,8 @@ namespace audio {
     std::atomic_flag sound_weak_imported_flag_;
     std::atomic_flag audio_backend_imported_flag_;
 
-    mutable SpinLock mutex_;
+    mutable std::mutex std_mutex_;
+    mutable SpinLock spin_mutex_;
     
     void importTempo();
     void importTargetTempo();
@@ -118,12 +122,15 @@ namespace audio {
     
     void startAudioBackend();
     void writeAudioBackend(const void* data, size_t bytes);
-    void stopAudioBackend();
+    void closeAudioBackend();
 
     std::unique_ptr<std::thread> audio_thread_;
     std::atomic<bool> stop_audio_thread_flag_;
     std::exception_ptr audio_thread_error_;
     std::atomic<bool> audio_thread_error_flag_;
+    std::condition_variable_any cond_var_;
+    bool ready_to_swap_;
+    bool audio_backend_swapped_;
     
     void startAudioThread();
     void stopAudioThread(bool join = false);

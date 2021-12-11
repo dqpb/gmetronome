@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020, 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -20,7 +20,12 @@
 #ifndef GMetronome_Settings_h
 #define GMetronome_Settings_h
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <glibmm/ustring.h>
+#include <map>
 
 namespace settings {
 
@@ -41,7 +46,7 @@ namespace settings {
   const Glib::ustring kSchemaIdShortcuts {
     kSchemaIdPrefs + "." + kSchemaIdShortcutsBasename
   };
-  
+
   /*
    * GSettings schema paths
    */
@@ -59,16 +64,22 @@ namespace settings {
   const Glib::ustring kSchemaPathShortcuts {
     kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
   };
-  
+
   /*
    * org.gmetronome enum types
    */
   enum AudioBackend
   {
     kAudioBackendNone       = 0,
+#if HAVE_ALSA
     kAudioBackendAlsa       = 1,
+#endif
+#if HAVE_OSS
     kAudioBackendOss        = 2,
-    kAudioBackendPulseaudio = 3
+#endif
+#if HAVE_PULSEAUDIO
+    kAudioBackendPulseaudio = 3,
+#endif
   };
 
   enum MeterAnimation
@@ -78,7 +89,7 @@ namespace settings {
     kMeterAnimationAll  = 2,
   };
 
-  /* 
+  /*
    * org.gmetronome.preferences keys
    */
   const Glib::ustring  kKeyPrefsVolume                    {"volume"};
@@ -96,7 +107,23 @@ namespace settings {
   const Glib::ustring  kKeyPrefsSoundWeakBalance          {"sound-weak-balance"};
   const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
 
-  /* 
+#if HAVE_ALSA
+  const Glib::ustring  kKeyPrefsAudioDeviceAlsa           {"audio-device-alsa"};
+#endif
+#if HAVE_OSS
+  const Glib::ustring  kKeyPrefsAudioDeviceOss            {"audio-device-oss"};
+#endif
+#if HAVE_PULSEAUDIO
+  const Glib::ustring  kKeyPrefsAudioDevicePulseaudio     {"audio-device-pulseaudio"};
+#endif
+
+  // map audio backend identifier (w/o kAudioBackendNone) to the corresponding
+  // audio device settings key (e.g. kAudioBackendAlsa -> "audio-device-alsa")
+  // and vice versa
+  extern const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap;
+  extern const std::map<Glib::ustring, settings::AudioBackend> kDeviceToBackendMap;
+
+  /*
    * org.gmetronome.preferences.shortcuts keys
    */
   const Glib::ustring  kKeyShortcutsQuit                  {"quit"};
@@ -130,8 +157,8 @@ namespace settings {
   const Glib::ustring  kKeyShortcutsMeterSelect4Compound  {"meter-select-4-compound"};
   const Glib::ustring  kKeyShortcutsMeterSelectCustom     {"meter-select-custom"};
   const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
-  
-  /* 
+
+  /*
    * org.gmetronome.state keys
    */
   const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
