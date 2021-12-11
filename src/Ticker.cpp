@@ -213,8 +213,6 @@ namespace audio {
 
   void Ticker::start()
   {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     auto current_state = state();
 
     if (current_state.test(TickerStateFlag::kError))
@@ -233,8 +231,6 @@ namespace audio {
 
   void Ticker::stop()
   {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     auto current_state = state();
 
     if (current_state.test(TickerStateFlag::kError))
@@ -251,8 +247,6 @@ namespace audio {
 
   void Ticker::reset() noexcept
   {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     try {
       if (audio_thread_) stopAudioThread(true);
 
@@ -277,8 +271,6 @@ namespace audio {
 
   void Ticker::startAudioThread()
   {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     assert( audio_thread_ == nullptr );
 
     stop_audio_thread_flag_ = false;
@@ -297,8 +289,6 @@ namespace audio {
 
   void Ticker::stopAudioThread(bool join)
   {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     assert( audio_thread_ != nullptr );
 
     stop_audio_thread_flag_ = true;
@@ -543,7 +533,7 @@ namespace audio {
         // the client might need to change the audio backend which
         // will forcefully release the old backend resource
       };
-      std::cout << "ERROR in audio thread: set error_flag_" << std::endl;
+      std::cerr << "*** Error in audio thread (set error_flag_)" << std::endl;
       audio_thread_error_ = std::current_exception();
       audio_thread_error_flag_.store(true, std::memory_order_release);
     }

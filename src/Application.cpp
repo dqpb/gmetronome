@@ -1019,8 +1019,6 @@ void Application::onProfilesReorder(const Glib::VariantBase& value)
 
 void Application::onStart(const Glib::VariantBase& value)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-  
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
 
