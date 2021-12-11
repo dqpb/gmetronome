@@ -31,12 +31,12 @@ namespace audio {
       {}
     };
 
-    const std::string kDummyDeviceName = "Default";
+    const std::string kDummyDeviceName = ""; // Default
     
     const DeviceInfo kDummyInfo =
     {
       kDummyDeviceName,
-      "Dummy Audio Output Device",
+      "No Audio Output",
       2,
       2,
       2,
@@ -50,16 +50,18 @@ namespace audio {
   }//unnamed namespace
 
   DummyBackend::DummyBackend()
-    : state_(BackendState::kConfig)
+    : state_(BackendState::kConfig),
+      cfg_(kDummyConfig)
   {}
 
   std::vector<DeviceInfo> DummyBackend::devices()
-  {
-    return {kDummyInfo};
-  }
+  { return {kDummyInfo}; }
 
   void DummyBackend::configure(const DeviceConfig& config)
-  {}
+  { cfg_ = config; }
+
+  DeviceConfig DummyBackend::configuration()
+  { return cfg_; }
 
   DeviceConfig DummyBackend::open()
   {

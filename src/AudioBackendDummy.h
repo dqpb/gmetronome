@@ -31,6 +31,7 @@ namespace audio {
 
     std::vector<DeviceInfo> devices() override;
     void configure(const DeviceConfig& config) override;
+    DeviceConfig configuration() override;
     DeviceConfig open() override;
     void close() override;
     void start() override;
@@ -42,6 +43,7 @@ namespace audio {
 
   private:
     BackendState state_;
+    DeviceConfig cfg_;
   };
   
 }//namespace audio

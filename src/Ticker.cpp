@@ -27,10 +27,11 @@ namespace audio {
 
   namespace
   {
-    static constexpr microseconds  kMaxChunkDuration = 80ms;
-    static constexpr microseconds  kAvgChunkDuration = 50ms;
-    static constexpr double        kSineVolume       = 1.;
-    static constexpr microseconds  kSineDuration     = 60ms;
+    static constexpr microseconds  kMaxChunkDuration   = 80ms;
+    static constexpr microseconds  kAvgChunkDuration   = 50ms;
+    static constexpr double        kSineVolume         = 1.;
+    static constexpr microseconds  kSineDuration       = 60ms;
+    static constexpr microseconds  kSwapBackendTimeout = 1s;
 
     template<class T>
     using Range = std::array<T,2>;
@@ -50,31 +51,52 @@ namespace audio {
   // Ticker
   Ticker::Ticker()
     : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
-      audio_backend_(nullptr),
+      backend_(nullptr),
+      actual_device_config_(kDefaultConfig),
       state_(0),
       stop_audio_thread_flag_(true),
       audio_thread_error_(nullptr),
-      audio_thread_error_flag_(false)
-  {}
+      audio_thread_error_flag_(false),
+      using_dummy_(false),
+      ready_to_swap_(false),
+      backend_swapped_(false)
+  {
+    backend_ = createBackend(settings::kAudioBackendNone); // dummy backend
+
+    tempo_imported_flag_.test_and_set();
+    target_tempo_imported_flag_.test_and_set();
+    accel_imported_flag_.test_and_set();
+    meter_imported_flag_.test_and_set();
+    sound_strong_imported_flag_.test_and_set();
+    sound_mid_imported_flag_.test_and_set();
+    sound_weak_imported_flag_.test_and_set();
+    sync_swap_backend_flag_.test_and_set();
+    device_config_imported_flag_.test_and_set();
+  }
 
   Ticker::~Ticker()
   {
     reset();
   }
 
-  std::unique_ptr<Backend> Ticker::getAudioBackend()
+  std::unique_ptr<Backend> Ticker::getBackend(const microseconds& timeout)
   {
     std::unique_ptr<audio::Backend> tmp = nullptr;
-    swapAudioBackend(tmp);
+    swapBackend(tmp, timeout);
     return tmp;
   }
 
-  void Ticker::setAudioBackend(std::unique_ptr<Backend> backend)
+  void Ticker::setBackend(std::unique_ptr<Backend> backend)
   {
-    swapAudioBackend(backend);
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_backend_ = std::move(backend);
+    }
+    backend_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::swapAudioBackend(std::unique_ptr<Backend>& backend)
+  void Ticker::swapBackend(std::unique_ptr<Backend>& backend,
+                           const microseconds& timeout)
   {
     auto cur_state = state();
 
@@ -90,36 +112,41 @@ namespace audio {
       std::unique_lock<SpinLock> lck(spin_mutex_);
 
       // initiate backend swap
-      std::cout << "M: initiate backend swap" << std::endl;
-      audio_backend_imported_flag_.clear(std::memory_order_release);
+      sync_swap_backend_flag_.clear(std::memory_order_release);
 
       // wait for the audio thread to be ready
       ready_to_swap_ = false;
-      std::cout << "M: wait for audio thread to be ready" << std::endl;
-      bool success =  cond_var_.wait_for( lck, 500ms, [&] { return ready_to_swap_; });
+      bool success =  cond_var_.wait_for( lck, timeout, [&] { return ready_to_swap_; });
 
       if (success)
       {
         // swap and notify the audio thread
-        std::cout << "M: swap and notify audio thread" << std::endl;
-        std::swap(audio_backend_, backend);
-        audio_backend_swapped_ = true;
+        std::swap(backend_, backend);
+        backend_swapped_ = true;
         lck.unlock();
         cond_var_.notify_one();
       }
       else
       {
         // audio thread did not respond (no swap)
-        std::cout << "M: audio thread did not respond (no swap)" << std::endl;
-        audio_backend_imported_flag_.test_and_set();
+        sync_swap_backend_flag_.test_and_set();
         throw GMetronomeError {"failed to swap audio backend (audio thread not responding)"};
       }
     }
     else
     {
-      audio_backend_imported_flag_.test_and_set();
-      std::swap(audio_backend_, backend);
+      sync_swap_backend_flag_.test_and_set();
+      std::swap(backend_, backend);
     }
+  }
+
+  void Ticker::configureAudioDevice(const audio::DeviceConfig& config)
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_device_config_ = config;
+    }
+    device_config_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setTempo(double tempo)
@@ -339,39 +366,57 @@ namespace audio {
     else sound_weak_imported_flag_.clear();
   }
 
-  void Ticker::importAudioBackend()
+  void Ticker::importBackend()
   {
-    // first, we close the old backend
-    closeAudioBackend();
+    closeBackend();
+    {
+      std::lock_guard<SpinLock> lck(spin_mutex_);
+      backend_ = std::move(in_backend_);
+    }
+    startBackend();
+  }
 
+  void Ticker::syncSwapBackend()
+  {
+    closeBackend();
+
+    // after closing the backend, we have no time contraints anymore
     std::unique_lock<SpinLock> lck(spin_mutex_);
 
-    audio_backend_swapped_ = false;
+    backend_swapped_ = false;
 
-    // signal, that we are ready to swap the backends
-    std::cout << "T: ready to swap" << std::endl;
+    // signal the client, that we are ready to swap the backends
     ready_to_swap_ = true;
     lck.unlock();
     cond_var_.notify_one();
 
     // wait for the new backend
     lck.lock();
-    std::cout << "T: waiting for the new backend" << std::endl;
-    bool success = cond_var_.wait_for(lck, 500ms, [&] {return audio_backend_swapped_;});
-
+    bool success = cond_var_.wait_for(lck, kSwapBackendTimeout,
+                                      [&] {return backend_swapped_;});
     lck.unlock();
 
     if (success) {
       // swap succeeded: start new backend
-      std::cout << "T: swap succeeded; start new audio backend" << std::endl;
-      startAudioBackend();
+      startBackend();
     }
     else {
       // swap failed: will continue with the old backend
-      std::cout << "T: swap failed; restart old audio backend" << std::endl;
-      startAudioBackend();
+      startBackend();
     }
-    std::cout << "T: backend started" << std::endl;
+  }
+
+  void Ticker::importDeviceConfig()
+  {
+    if (!backend_)
+      return;
+
+    closeBackend();
+    {
+      std::lock_guard<SpinLock> lck(spin_mutex_);
+      backend_->configure(in_device_config_);
+    }
+    startBackend();
   }
 
   void Ticker::importSettings()
@@ -390,8 +435,12 @@ namespace audio {
       importSoundMid();
     if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
       importSoundWeak();
-    if (!audio_backend_imported_flag_.test_and_set(std::memory_order_acquire))
-      importAudioBackend();
+    if (!backend_imported_flag_.test_and_set(std::memory_order_acquire))
+      importBackend();
+    if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
+      syncSwapBackend();
+    if (!device_config_imported_flag_.test_and_set(std::memory_order_acquire))
+      importDeviceConfig();
   }
 
   void Ticker::exportStatistics()
@@ -401,57 +450,63 @@ namespace audio {
     {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
 
-      if (audio_backend_)
-        out_stats_.backend_latency = audio_backend_->latency();
+      if (backend_)
+        out_stats_.backend_latency = backend_->latency();
 
       out_stats_.generator = generator_.getStatistics();
     }
   }
 
-  void Ticker::startAudioBackend()
+  void Ticker::startBackend()
   {
-    if (audio_backend_)
+    if (!backend_)
     {
-      switch (audio_backend_->state())
+      backend_ = createBackend(settings::kAudioBackendNone);
+      using_dummy_ = true;
+    }
+    else using_dummy_ = false;
+
+    switch (backend_->state())
+    {
+    case BackendState::kConfig:
+      actual_device_config_ = backend_->open();
+      [[fallthrough]];
+    case BackendState::kOpen:
+      backend_->start();
+      [[fallthrough]];
+    case BackendState::kRunning:
+      // do nothing
+    default:
+      break;
+    }
+  }
+
+  void Ticker::writeBackend(const void* data, size_t bytes)
+  {
+    if (backend_ && bytes > 0)
+      backend_->write(data, bytes);
+  }
+
+  void Ticker::closeBackend()
+  {
+    if (backend_)
+    {
+      switch (backend_->state())
       {
-      case BackendState::kConfig:
-        audio_backend_->open();
+      case BackendState::kRunning:
+        backend_->stop();
         [[fallthrough]];
       case BackendState::kOpen:
-        audio_backend_->start();
+        backend_->close();
         [[fallthrough]];
-      case BackendState::kRunning:
+      case BackendState::kConfig:
         // do nothing
       default:
         break;
       }
     }
-  }
-
-  void Ticker::writeAudioBackend(const void* data, size_t bytes)
-  {
-    if (audio_backend_ && bytes > 0)
-      audio_backend_->write(data, bytes);
-  }
-
-  void Ticker::closeAudioBackend()
-  {
-    if (audio_backend_)
-    {
-      switch (audio_backend_->state())
-      {
-      case BackendState::kRunning:
-        audio_backend_->stop();
-        [[fallthrough]];
-      case BackendState::kOpen:
-        audio_backend_->close();
-        [[fallthrough]];
-      case BackendState::kConfig:
-        // do nothing
-      default:
-        break;
-      }
-    }
+    if (using_dummy_)
+      backend_ = nullptr;
   }
 
   void Ticker::audioThreadFunction() noexcept
@@ -462,27 +517,27 @@ namespace audio {
     try {
       importSettings();
       generator_.start(data, bytes);
-      startAudioBackend();
+      startBackend();
       exportStatistics();
-      writeAudioBackend(data, bytes);
+      writeBackend(data, bytes);
 
       // enter the main loop
       while ( ! stop_audio_thread_flag_ )
       {
         importSettings();
         generator_.cycle(data, bytes);
-        writeAudioBackend(data, bytes);
+        writeBackend(data, bytes);
         exportStatistics();
       }
 
       generator_.stop(data, bytes);
-      writeAudioBackend(data, bytes);
+      writeBackend(data, bytes);
       exportStatistics();
-      closeAudioBackend();
+      closeBackend();
     }
     catch(...)
     {
-      try { closeAudioBackend(); }
+      try { closeBackend(); }
       catch(...)
       {
         // the client might need to change the audio backend which

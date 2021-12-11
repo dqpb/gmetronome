@@ -28,8 +28,11 @@
 
 namespace audio {
 
+  using std::chrono::seconds;  
   using std::chrono::microseconds;  
-  using std::chrono::milliseconds;  
+  using std::chrono::milliseconds;
+  
+  using std::literals::chrono_literals::operator""s;
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""us;
 

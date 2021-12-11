@@ -233,8 +233,8 @@ void SettingsDialog::onAnimationSyncChanged()
 
 void SettingsDialog::onAudioDeviceEntryActivate()
 {
-  audio_device_combo_box_->grab_focus();
-  onAudioDeviceChanged();
+  audio_backend_combo_box_->grab_focus();
+  //onAudioDeviceChanged();
 }
 
 void SettingsDialog::onAudioDeviceEntryFocusOut()
@@ -265,7 +265,8 @@ void SettingsDialog::updateAudioDeviceList()
 
   for (auto& dev : dev_list)
   {
-    audio_device_combo_box_->append(dev, dev);
+    if (!dev.empty())
+      audio_device_combo_box_->append(dev, dev);
   }
 }
 

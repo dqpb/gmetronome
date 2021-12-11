@@ -291,7 +291,7 @@ void Application::configureAudioBackend()
 
       new_backend->configure(device_config);
     }
-    ticker_.setAudioBackend( std::move(new_backend) );
+    ticker_.setBackend( std::move(new_backend) );
   }
   catch(const audio::BackendError& e)
   {
@@ -308,60 +308,16 @@ void Application::configureAudioBackend()
 
   if (error)
   {
-    // in case of an error we fall back to the dummy backend and emit
-    // the error message
-    try {
-      auto dummy = audio::createBackend( settings::kAudioBackendNone );
-
-      if (dummy)
-        dummy->configure(audio::kDefaultConfig);
-
-      ticker_.setAudioBackend( std::move(dummy) );
-    }
-    catch(...) {}
-
+    ticker_.setBackend( nullptr ); // use dummy backend
     signal_message_.emit(error_message);
   }
 }
 
 void Application::configureAudioDevice()
 {
-  try {
-    // create dummy
-    auto backend = audio::createBackend( settings::kAudioBackendNone );
-    
-    if (backend)
-      backend->configure(audio::kDefaultConfig);
-
-    ticker_.swapAudioBackend( backend );
-    assert(backend != nullptr);
-
-    auto cfg = audio::kDefaultConfig;
-    cfg.name = currentAudioDevice();
-
-    backend->configure(cfg);
-    
-    ticker_.swapAudioBackend( backend );
-    assert(backend != nullptr);
-  }
-  //
-  // TODO:
-  // regain well-defined state after exception:
-  // return to the old backend device configuration? 
-  //
-  catch(const audio::BackendError& e)
-  {
-    Message error_message;
-    error_message = kAudioBackendErrorMessage;
-    error_message.details = getErrorDetails(std::current_exception());
-    signal_message_.emit(error_message);
-  }
-  catch(std::exception& e) {
-    Message error_message;
-    error_message = kAudioBackendErrorMessage;
-    error_message.details = getErrorDetails(std::current_exception());
-    signal_message_.emit(error_message);
-  }
+  auto cfg = audio::kDefaultConfig;
+  cfg.name = currentAudioDevice();
+  ticker_.configureAudioDevice(cfg);
 }
 
 Glib::RefPtr<Gio::SimpleAction> Application::lookup_simple_action(const Glib::ustring& name)
@@ -1063,6 +1019,8 @@ void Application::onProfilesReorder(const Glib::VariantBase& value)
 
 void Application::onStart(const Glib::VariantBase& value)
 {
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  
   Glib::Variant<bool> new_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
 

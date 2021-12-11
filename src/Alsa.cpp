@@ -379,12 +379,21 @@ namespace audio {
 
   void AlsaBackend::configure(const DeviceConfig& config)
   {
+    std::cout << __PRETTY_FUNCTION__ << " : " << config.name << std::endl;
     cfg_ = config;
   }
+
+  DeviceConfig AlsaBackend::configuration()
+  { return cfg_; }
 
   DeviceConfig AlsaBackend::open()
   {
     std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
+
+    std::cout << "Open-config [" << cfg_.name << "]" << std::endl;
+    std::cout << " format   : " << snd_pcm_format_name(convertSampleFormatToAlsa(cfg_.spec.format)) << std::endl;
+    std::cout << " rate     : " << cfg_.spec.rate << std::endl;
+    std::cout << " channels : " << cfg_.spec.channels << std::endl;
 
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
@@ -396,10 +405,10 @@ namespace audio {
     if (hdl_ == nullptr)
     {
       error = snd_pcm_open(&hdl_, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
-      for (int retry = 0; error == -EBUSY && retry < 4 ; ++retry)
+      for (int retry = 0; error == -EBUSY && retry < 2 ; ++retry)
       {
+        std::this_thread::sleep_for(500ms);
         error = snd_pcm_open(&hdl_, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
-        std::this_thread::sleep_for(400ms);
       }
       if (error < 0)
         throw AlsaError(state_, error, "open() [snd_pcm_open]");
@@ -459,13 +468,17 @@ namespace audio {
     actual_cfg.spec.rate = rate;
     actual_cfg.spec.channels = channels;
 
+    std::cout << "Actual config [" << actual_cfg.name << "]" << std::endl;
+    std::cout << " format   : " << snd_pcm_format_name(format) << std::endl;
+    std::cout << " rate     : " << actual_cfg.spec.rate << std::endl;
+    std::cout << " channels : " << actual_cfg.spec.channels << std::endl;
+
     return actual_cfg;
   }
 
   void AlsaBackend::close()
   {
     std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
-    std::this_thread::sleep_for(400ms);
     
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);

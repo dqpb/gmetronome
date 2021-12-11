@@ -46,9 +46,9 @@ namespace audio {
     std::string name;
     StreamSpec  spec;
   };
-  
+
   const DeviceConfig kDefaultConfig = { "", kDefaultSpec };
-  
+
   enum class BackendState
   {
     kConfig   = 0,
@@ -80,9 +80,10 @@ namespace audio {
   class Backend {
   public:
     virtual ~Backend() {}
-    
+
     virtual std::vector<DeviceInfo> devices() = 0;
     virtual void configure(const DeviceConfig& config) = 0;
+    virtual DeviceConfig configuration() = 0;
     virtual DeviceConfig open() = 0;
     virtual void close() = 0;
     virtual void start() = 0;
