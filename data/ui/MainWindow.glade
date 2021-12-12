@@ -418,6 +418,7 @@
               <object class="GtkLabel" id="tempoDividerLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="valign">center</property>
                 <property name="margin-start">5</property>
                 <property name="margin-end">5</property>
                 <property name="label">•</property>
@@ -433,6 +434,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">end</property>
+                <property name="valign">center</property>
                 <property name="hexpand">True</property>
                 <property name="label">120</property>
                 <property name="track-visited-links">False</property>
@@ -452,6 +454,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
+                <property name="valign">center</property>
                 <property name="hexpand">False</property>
                 <property name="label">00</property>
                 <property name="track-visited-links">False</property>
@@ -504,6 +507,7 @@
             <property name="focus-on-click">False</property>
             <property name="receives-default">True</property>
             <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle accentuation</property>
+            <property name="valign">center</property>
             <property name="action-name">app.meter-enabled</property>
             <property name="use-underline">True</property>
           </object>
@@ -524,6 +528,7 @@
             <property name="focus-on-click">False</property>
             <property name="receives-default">True</property>
             <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle tempo trainer</property>
+            <property name="valign">center</property>
             <property name="action-name">app.trainer-enabled</property>
             <property name="use-underline">True</property>
           </object>
@@ -537,6 +542,7 @@
       <object class="GtkButton" id="fullScreenButton">
         <property name="can-focus">True</property>
         <property name="receives-default">True</property>
+        <property name="valign">center</property>
         <property name="action-name">win.full-screen</property>
         <property name="always-show-image">True</property>
         <child>
@@ -559,6 +565,7 @@
         <property name="focus-on-click">False</property>
         <property name="receives-default">True</property>
         <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Application menu</property>
+        <property name="valign">center</property>
         <property name="popover">popoverMenu</property>
         <child>
           <object class="GtkImage">
@@ -580,6 +587,7 @@
         <property name="focus-on-click">False</property>
         <property name="receives-default">True</property>
         <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
+        <property name="valign">center</property>
         <property name="popover">profilesPopover</property>
         <child>
           <object class="GtkImage">

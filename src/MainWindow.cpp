@@ -411,9 +411,9 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
 
 void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)
 {
-  // make sure that there is always enough space for the tempo label
-  // and the profile name label
-  header_bar_->set_size_request(-1, 2 * alloc.get_height());
+  // make sure that the header bar is always high enough
+  // for the tempo label and the profile name label
+  header_bar_->set_size_request(-1, 2 * alloc.get_height() + 10);
 }
 
 void MainWindow::onProfilesShow()
