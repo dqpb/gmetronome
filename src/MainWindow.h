@@ -68,9 +68,9 @@ protected:
 
   // Shortcuts window
   Gtk::ShortcutsWindow* shortcuts_window_;
-
+  
   // MainWindow UI elements
-  Gtk::Box* titlebar_box_;
+  class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
   Gtk::Label* tempo_integral_label_;
   Gtk::Label* tempo_fraction_label_;

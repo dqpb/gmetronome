@@ -397,6 +397,208 @@
       </object>
     </child>
   </object>
+  <object class="GtkHeaderBar" id="headerBar">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="spacing">5</property>
+    <property name="show-close-button">True</property>
+    <child type="title">
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child type="center">
+              <object class="GtkLabel" id="tempoDividerLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">5</property>
+                <property name="margin-end">5</property>
+                <property name="label">•</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="tempoIntegralLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">end</property>
+                <property name="hexpand">True</property>
+                <property name="label">120</property>
+                <property name="track-visited-links">False</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="1.3999999999999999"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="tempoFractionLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="hexpand">False</property>
+                <property name="label">00</property>
+                <property name="track-visited-links">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="pack-type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="currentProfileLabel">
+            <property name="sensitive">False</property>
+            <property name="can-focus">False</property>
+            <property name="label">Default</property>
+            <property name="ellipsize">end</property>
+            <property name="max-width-chars">30</property>
+            <attributes>
+              <attribute name="scale" value="0.90000000000000002"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack-type">end</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRevealer" id="accentToggleButtonRevealer">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="transition-type">slide-left</property>
+        <property name="reveal-child">True</property>
+        <child>
+          <object class="GtkToggleButton" id="accentToggleButton">
+            <property name="label" translatable="yes" context="Main window">_Accents</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle accentuation</property>
+            <property name="action-name">app.meter-enabled</property>
+            <property name="use-underline">True</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRevealer" id="trainerToggleButtonRevealer">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="transition-type">slide-left</property>
+        <property name="reveal-child">True</property>
+        <child>
+          <object class="GtkToggleButton" id="trainerToggleButton">
+            <property name="label" translatable="yes" context="Main window">_Trainer</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle tempo trainer</property>
+            <property name="action-name">app.trainer-enabled</property>
+            <property name="use-underline">True</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButton" id="fullScreenButton">
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">5</property>
+        <property name="action-name">win.full-screen</property>
+        <property name="always-show-image">True</property>
+        <child>
+          <object class="GtkImage" id="fullScreenImage">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="icon-name">view-fullscreen-symbolic</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="pack-type">end</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkMenuButton" id="menuButton">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Application menu</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">5</property>
+        <property name="popover">popoverMenu</property>
+        <child>
+          <object class="GtkImage">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="icon-name">open-menu-symbolic</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="pack-type">end</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkMenuButton" id="profilesButton">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">5</property>
+        <property name="popover">profilesPopover</property>
+        <child>
+          <object class="GtkImage">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="icon-name">document-save-symbolic</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="pack-type">end</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+  </object>
   <object class="GtkAdjustment" id="tempoAdjustment">
     <property name="lower">30</property>
     <property name="upper">250</property>
@@ -450,15 +652,17 @@
               <object class="GtkBox" id="contentBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="margin-top">10</property>
+                <property name="margin-bottom">10</property>
                 <property name="orientation">vertical</property>
+                <property name="spacing">10</property>
                 <child>
                   <object class="GtkFrame" id="tempoFrame">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">10</property>
-                    <property name="margin-top">5</property>
-                    <property name="label-xalign">0.009999999776482582</property>
+                    <property name="label-xalign">0.019999999552965164</property>
                     <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
@@ -467,7 +671,7 @@
                         <property name="margin-end">10</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
-                        <property name="spacing">5</property>
+                        <property name="spacing">10</property>
                         <child>
                           <object class="GtkScale" id="tempoScale">
                             <property name="visible">True</property>
@@ -544,10 +748,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="label-xalign">0.009999999776482582</property>
+                        <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="accentBox">
                             <property name="visible">True</property>
@@ -562,11 +763,12 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="spacing">10</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="margin-end">5</property>
+                                    <property name="halign">start</property>
                                     <property name="label" translatable="yes" context="Main window">Meter</property>
                                   </object>
                                   <packing>
@@ -603,12 +805,11 @@
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="can-focus">False</property>
-                                    <property name="margin-start">15</property>
-                                    <property name="margin-end">5</property>
+                                    <property name="halign">end</property>
                                     <property name="label" translatable="yes" context="Main window">Beats</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
+                                    <property name="expand">True</property>
                                     <property name="fill">True</property>
                                     <property name="position">2</property>
                                   </packing>
@@ -634,12 +835,11 @@
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="can-focus">False</property>
-                                    <property name="margin-start">15</property>
-                                    <property name="margin-end">5</property>
+                                    <property name="halign">end</property>
                                     <property name="label" translatable="yes" context="Main window">Division</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
+                                    <property name="expand">True</property>
                                     <property name="fill">True</property>
                                     <property name="position">4</property>
                                   </packing>
@@ -701,10 +901,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="label-xalign">0.009999999776482582</property>
+                        <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="trainerBox">
                             <property name="visible">True</property>
@@ -713,12 +910,12 @@
                             <property name="margin-end">10</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
+                            <property name="spacing">10</property>
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="halign">end</property>
-                                <property name="margin-end">5</property>
                                 <property name="label" translatable="yes" context="Main window">Start</property>
                                 <property name="justify">fill</property>
                               </object>
@@ -749,8 +946,6 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="halign">end</property>
-                                <property name="margin-start">15</property>
-                                <property name="margin-end">5</property>
                                 <property name="label" translatable="yes" context="Main window">Target</property>
                                 <property name="justify">fill</property>
                               </object>
@@ -781,8 +976,6 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="halign">end</property>
-                                <property name="margin-start">15</property>
-                                <property name="margin-end">5</property>
                                 <property name="label" translatable="yes" context="Main window">Accel</property>
                                 <property name="justify">fill</property>
                               </object>
@@ -830,10 +1023,7 @@
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">10</property>
-                    <property name="margin-top">15</property>
-                    <property name="margin-bottom">10</property>
+                    <property name="margin-top">10</property>
                     <child type="center">
                       <object class="GtkToggleButton" id="startButton">
                         <property name="label" translatable="yes" context="Main window">_Start</property>
@@ -906,229 +1096,6 @@ audio-volume-medium-symbolic</property>
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-      <object class="GtkBox" id="titlebarBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkHeaderBar" id="headerBar">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="show-close-button">True</property>
-            <child type="title">
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child type="center">
-                      <object class="GtkLabel" id="tempoDividerLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-end">5</property>
-                        <property name="label">•</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="tempoIntegralLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">end</property>
-                        <property name="hexpand">True</property>
-                        <property name="label">120</property>
-                        <property name="track-visited-links">False</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                          <attribute name="scale" value="1.3999999999999999"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="tempoFractionLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="hexpand">False</property>
-                        <property name="label">00</property>
-                        <property name="track-visited-links">False</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="pack-type">end</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="currentProfileLabel">
-                    <property name="sensitive">False</property>
-                    <property name="can-focus">False</property>
-                    <property name="label">Default</property>
-                    <property name="ellipsize">end</property>
-                    <property name="max-width-chars">30</property>
-                    <attributes>
-                      <attribute name="scale" value="0.90000000000000002"/>
-                    </attributes>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="pack-type">end</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkRevealer" id="accentToggleButtonRevealer">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="transition-type">slide-left</property>
-                <property name="reveal-child">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="accentToggleButton">
-                    <property name="label" translatable="yes" context="Main window">_Accents</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle accentuation</property>
-                    <property name="valign">center</property>
-                    <property name="margin-top">5</property>
-                    <property name="margin-bottom">5</property>
-                    <property name="action-name">app.meter-enabled</property>
-                    <property name="use-underline">True</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkRevealer" id="trainerToggleButtonRevealer">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="transition-type">slide-left</property>
-                <property name="reveal-child">True</property>
-                <child>
-                  <object class="GtkToggleButton" id="trainerToggleButton">
-                    <property name="label" translatable="yes" context="Main window">_Trainer</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle tempo trainer</property>
-                    <property name="valign">center</property>
-                    <property name="margin-top">5</property>
-                    <property name="margin-bottom">5</property>
-                    <property name="action-name">app.trainer-enabled</property>
-                    <property name="use-underline">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="fullScreenButton">
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="action-name">win.full-screen</property>
-                <property name="always-show-image">True</property>
-                <child>
-                  <object class="GtkImage" id="fullScreenImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="icon-name">view-fullscreen-symbolic</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkMenuButton" id="menuButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="focus-on-click">False</property>
-                <property name="receives-default">True</property>
-                <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Application menu</property>
-                <property name="valign">center</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="popover">popoverMenu</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="icon-name">open-menu-symbolic</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkMenuButton" id="profilesButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="focus-on-click">False</property>
-                <property name="receives-default">True</property>
-                <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
-                <property name="valign">center</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="popover">profilesPopover</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="icon-name">document-save-symbolic</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
           </packing>
         </child>
       </object>

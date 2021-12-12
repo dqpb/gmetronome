@@ -56,7 +56,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
     shortcuts_window_(nullptr),
     animation_sync_usecs_(0)
 {
-  builder_->get_widget("titlebarBox", titlebar_box_);
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
   builder_->get_widget("tempoFractionLabel", tempo_fraction_label_);
@@ -172,6 +171,11 @@ void MainWindow::initUI()
 {
   using std::literals::chrono_literals::operator""us;
 
+  // initialize title bar
+  titlebar_bin_.add(*header_bar_);
+  set_titlebar(titlebar_bin_);
+  titlebar_bin_.show();
+  
   // initialize header bar
   updateCurrentTempo( { 0us, 0us, { 0, 0, -1, 0us } } );
 
@@ -387,7 +391,7 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
     }
     else
     {
-      header_bar_->reparent(*titlebar_box_);
+      header_bar_->reparent(titlebar_bin_);
       header_bar_->unset_decoration_layout();
       full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
                                              Gtk::ICON_SIZE_BUTTON);
