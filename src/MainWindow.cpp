@@ -805,7 +805,7 @@ void MainWindow::updateAccentButtons(const Meter& meter)
   std::size_t new_size = meter.beats() * new_grouping;
   auto& new_accents = meter.accents();
 
-  bool need_relabel;
+  bool need_relabel = false;
 
   if (new_size > accent_button_grid_.size()
       || new_grouping != accent_button_grid_.grouping())
