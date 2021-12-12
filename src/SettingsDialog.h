@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -23,20 +23,22 @@
 #include "AccentButton.h"
 #include <gtkmm.h>
 
-/** 
+/**
  * Main settings dialog
  */
 class SettingsDialog : public Gtk::Dialog
 {
 public:
   SettingsDialog(BaseObjectType* cobject,
-		 const Glib::RefPtr<Gtk::Builder>& builder);
-  
+                 const Glib::RefPtr<Gtk::Builder>& builder);
+
+  ~SettingsDialog();
+
   static SettingsDialog* create(Gtk::Window& parent);
-  
+
 private:
   Glib::RefPtr<Gtk::Builder> builder_;
-  
+
   // GSettings
   Glib::RefPtr<Gio::Settings> settings_;
   Glib::RefPtr<Gio::Settings> settings_prefs_;
@@ -59,7 +61,7 @@ private:
   Glib::RefPtr<Gtk::Adjustment> sound_weak_freq_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_weak_vol_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_weak_bal_adjustment_;
-  
+
   AccentButtonDrawingArea strong_accent_drawing_;
   AccentButtonDrawingArea mid_accent_drawing_;
   AccentButtonDrawingArea weak_accent_drawing_;
@@ -70,13 +72,13 @@ private:
   Gtk::Entry* audio_device_entry_;
   Gtk::Spinner *audio_device_spinner_;
 
-  std::vector<sigc::connection> audio_device_connections;
+  sigc::connection audio_device_entry_changed_connection_;
 
   // Shortcuts tab
   class ShortcutsModelColumns : public Gtk::TreeModel::ColumnRecord {
   public:
     ShortcutsModelColumns() { add(action_name); add(key); }
-    
+
     Gtk::TreeModelColumn<Glib::ustring> action_name;
     Gtk::TreeModelColumn<Glib::ustring> key;
   } shortcuts_model_columns_;
@@ -85,19 +87,31 @@ private:
   Gtk::Button* shortcuts_reset_button_;
   Glib::RefPtr<Gtk::TreeStore> shortcuts_tree_store_;
   Gtk::CellRendererAccel accel_cell_renderer_;
-  
+
   // Initialization
   void initSettings();
   void initActions();
   void initUI();
   void initBindings();
 
-  // Callbacks 
+  // Callbacks
+  bool onKeyPressEvent(GdkEventKey* key_event);
+
+  void onAnimationSyncChanged();
+
+  void onAudioDeviceEntryActivate();
+  void onAudioDeviceEntryChanged();
+  void onAudioDeviceEntryFocusIn();
+  void onAudioDeviceEntryFocusOut();
+  void onAudioDeviceChanged();
+  void updateAudioDeviceList();
+  void updateAudioDevice();
+
   void onAccelCellData(Gtk::CellRenderer* cell,
                        const Gtk::TreeModel::iterator& iter);
 
   void onAccelCleared(const Glib::ustring& path_string);
-  
+
   void onAccelEdited(const Glib::ustring& path_string,
                      guint accel_key,
                      Gdk::ModifierType accel_mods,
@@ -105,15 +119,6 @@ private:
 
   void onResetShortcuts();
 
-  void onAnimationSyncChanged();
-  
-  void onAudioDeviceEntryActivate();
-  void onAudioDeviceEntryFocusOut();
-  void onAudioDeviceChanged();
-
-  void updateAudioDeviceList();
-  void updateAudioDevice();
-  
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void onSettingsShortcutsChanged(const Glib::ustring& key);
   void onAppActionStateChanged(const Glib::ustring& action_name,

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -26,21 +26,21 @@
 #include <iostream>
 
 SettingsDialog::SettingsDialog(BaseObjectType* cobject,
-			       const Glib::RefPtr<Gtk::Builder>& builder)
+                               const Glib::RefPtr<Gtk::Builder>& builder)
 : Gtk::Dialog(cobject),
   builder_(builder)
 {
   builder_->get_widget("animationComboBox", animation_combo_box_);
-  builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);  
-  builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);  
+  builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
+  builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
   builder_->get_widget("audioBackendComboBox", audio_backend_combo_box_);
   builder_->get_widget("audioDeviceComboBox", audio_device_combo_box_);
   builder_->get_widget("audioDeviceEntry", audio_device_entry_);
   builder_->get_widget("audioDeviceSpinner", audio_device_spinner_);
-  builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);  
+  builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
-  builder_->get_widget("soundGrid", sound_grid_);  
-  
+  builder_->get_widget("soundGrid", sound_grid_);
+
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
   sound_strong_freq_adjustment_ =
@@ -60,13 +60,15 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   sound_weak_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakVolAdjustment"));
   sound_weak_bal_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));  
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));
 
   initSettings();
   initActions();
   initUI();
   initBindings();
 }
+
+SettingsDialog::~SettingsDialog() {}
 
 //static
 SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
@@ -105,7 +107,7 @@ void SettingsDialog::initUI()
 
   sound_grid_->attach(strong_accent_drawing_, 1, 1);
   sound_grid_->attach(mid_accent_drawing_, 2, 1);
-  sound_grid_->attach(weak_accent_drawing_, 3, 1);  
+  sound_grid_->attach(weak_accent_drawing_, 3, 1);
 
   // init audio device section
   // remove unavailable audio backends from combo box
@@ -135,25 +137,25 @@ void SettingsDialog::initUI()
       iter = shortcuts_tree_store_->append(top_iter->children());
     else
       continue;
-    
+
     auto row = *iter;
-    
+
     row[shortcuts_model_columns_.action_name] = entry.title;
     row[shortcuts_model_columns_.key] = entry.key;
   }
 
   shortcuts_tree_view_->append_column(
     // Shortcuts table header title (first column)
-    _("Action"), 
+    _("Action"),
     shortcuts_model_columns_.action_name );
-  
+
   shortcuts_tree_view_->insert_column_with_data_func(
     -1,
     // Shortcuts table header title (second column)
     _("Shortcut"),
     accel_cell_renderer_,
     sigc::mem_fun(*this, &SettingsDialog::onAccelCellData) );
-  
+
   shortcuts_tree_view_->get_column(0)->set_expand();
   shortcuts_tree_view_->set_model(shortcuts_tree_store_);
   shortcuts_tree_view_->expand_all();
@@ -162,6 +164,9 @@ void SettingsDialog::initUI()
 void SettingsDialog::initBindings()
 {
   auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
+
+  signal_key_press_event()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onKeyPressEvent));
 
   settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
@@ -189,27 +194,28 @@ void SettingsDialog::initBindings()
   animation_sync_spin_button_->signal_value_changed()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
 
-  // audio device section
-  audio_device_connections.push_back(
-    audio_device_combo_box_->property_active_id().signal_changed()
-    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceChanged) )
-  );
-  
   audio_device_entry_->add_events(Gdk::FOCUS_CHANGE_MASK);
-    
-  audio_device_connections.push_back(
-    audio_device_entry_->signal_activate()
-    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceEntryActivate) )
-  );
 
-  audio_device_connections.push_back(
-    audio_device_entry_->signal_focus_out_event()
+  audio_device_entry_->signal_activate()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceEntryActivate));
+
+  audio_device_entry_changed_connection_ =
+    audio_device_entry_->property_text().signal_changed()
+    .connect(sigc::mem_fun(*this, &SettingsDialog::onAudioDeviceEntryChanged));
+
+  audio_device_entry_->signal_focus_out_event()
     .connect( [this] (GdkEventFocus* gdk_event)->bool
       {
         this->onAudioDeviceEntryFocusOut();
         return false;
-      })
-  ); 
+      });
+
+  audio_device_entry_->signal_focus_in_event()
+    .connect( [this] (GdkEventFocus* gdk_event)->bool
+      {
+        this->onAudioDeviceEntryFocusIn();
+        return false;
+      });
 
   // shortcuts section
   shortcuts_reset_button_->signal_clicked()
@@ -220,6 +226,19 @@ void SettingsDialog::initBindings()
 
   accel_cell_renderer_.signal_accel_edited()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelEdited));
+}
+
+bool SettingsDialog::onKeyPressEvent(GdkEventKey* event)
+{
+  switch (event->keyval) {
+  case GDK_KEY_Escape:
+  {
+    close();
+    return TRUE;
+  }
+  default:
+    return FALSE;
+  };
 }
 
 void SettingsDialog::onAnimationSyncChanged()
@@ -234,12 +253,22 @@ void SettingsDialog::onAnimationSyncChanged()
 void SettingsDialog::onAudioDeviceEntryActivate()
 {
   audio_backend_combo_box_->grab_focus();
-  //onAudioDeviceChanged();
+}
+
+void SettingsDialog::onAudioDeviceEntryChanged()
+{
+  onAudioDeviceChanged();
+}
+
+void SettingsDialog::onAudioDeviceEntryFocusIn()
+{
+  audio_device_entry_changed_connection_.block();
 }
 
 void SettingsDialog::onAudioDeviceEntryFocusOut()
 {
   onAudioDeviceChanged();
+  audio_device_entry_changed_connection_.unblock();
 }
 
 void SettingsDialog::onAudioDeviceChanged()
@@ -274,20 +303,18 @@ void SettingsDialog::updateAudioDevice()
 {
   settings::AudioBackend backend = (settings::AudioBackend)
     settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
-  
+
   if (auto it = settings::kBackendToDeviceMap.find(backend);
       it != settings::kBackendToDeviceMap.end())
   {
     auto device = settings_prefs_->get_string(it->second);
-    
-    for ( auto& c : audio_device_connections )
-      c.block();
+
+    audio_device_entry_changed_connection_.block();
 
     if (!audio_device_combo_box_->set_active_id(device))
       audio_device_entry_->set_text(device);
 
-    for ( auto& c : audio_device_connections )
-      c.unblock();    
+    audio_device_entry_changed_connection_.unblock();
   }
   else audio_device_entry_->set_text("");
 }
@@ -297,9 +324,9 @@ void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
 {
   auto row = *iter;
   const Glib::ustring& key = row[shortcuts_model_columns_.key];
-  
+
   auto accel_cell = static_cast<Gtk::CellRendererAccel*>(cell);
-  
+
   if (key.empty())
   {
     // title row
@@ -312,24 +339,24 @@ void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
   else
   {
     Glib::ustring accel = settings_shortcuts_->get_string(key);
-    
+
     guint accel_key;
     GdkModifierType accel_mods;
-    
+
     gtk_accelerator_parse(accel.c_str(), &accel_key, &accel_mods);
-    
+
     bool writable = settings_shortcuts_->is_writable(key);
-    
+
     Glib::Variant<Glib::ustring> variant;
-    
+
     bool custom = settings_shortcuts_->get_user_value(key, variant);
-    
+
     accel_cell->property_accel_key() = accel_key;
     accel_cell->property_accel_mods() = (Gdk::ModifierType) accel_mods;
     accel_cell->property_visible() = true;
     accel_cell->property_sensitive() = writable;
     accel_cell->property_editable() = writable;
-    
+
     if (custom)
       accel_cell->property_weight() = Pango::WEIGHT_BOLD;
     else
@@ -341,7 +368,7 @@ void SettingsDialog::onAccelCleared(const Glib::ustring& path_string)
 {
   onAccelEdited(path_string, 0, Gdk::ModifierType(0), 0);
 }
-  
+
 void SettingsDialog::onAccelEdited(const Glib::ustring& path_string,
                                    guint accel_key,
                                    Gdk::ModifierType accel_mods,

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ class MainWindow : public Gtk::ApplicationWindow
 public:
   MainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
   virtual ~MainWindow();
-  
+
   static MainWindow* create();
 
 protected:
@@ -55,11 +55,11 @@ protected:
   std::list<Glib::RefPtr<Glib::Binding>> bindings_;
   std::list<Glib::RefPtr<ActionBinding>> action_bindings_;
   std::vector<sigc::connection> meter_connections_;
-  sigc::connection profiles_selection_changed_connection_;  
+  sigc::connection profiles_selection_changed_connection_;
   sigc::connection profiles_title_start_editing_connection_;
   sigc::connection profiles_title_changed_connection_;
   sigc::connection profiles_popover_show_connection_;
-  
+
   // Settings
   SettingsDialog* preferences_dialog_;
 
@@ -68,7 +68,7 @@ protected:
 
   // Shortcuts window
   Gtk::ShortcutsWindow* shortcuts_window_;
-  
+
   // MainWindow UI elements
   class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
@@ -123,13 +123,13 @@ protected:
   Glib::RefPtr<Gtk::Adjustment> trainer_target_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_accel_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> beats_adjustment_;
-  
+
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
-  
+
   // cached preferences
   int meter_animation_;
   double animation_sync_usecs_;
-  
+
   // Initialization
   void initSettings();
   void initActions();
@@ -137,7 +137,7 @@ protected:
   void initAbout();
   void initBindings();
 
-  // Default window signal handler
+  // Override window signal handler
   bool on_window_state_event(GdkEventWindowState* window_state_event) override;
 
   // Window actions
@@ -148,12 +148,13 @@ protected:
   void onShowHelp(const Glib::VariantBase& value);
   void onShowAbout(const Glib::VariantBase& value);
   void onToggleFullScreen(const Glib::VariantBase& value);
-  
+
   // UI handler
+  void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void onMeterChanged();
   void onBeatsChanged();
   void onSubdivChanged();
-  void onAccentChanged(std::size_t button_index);  
+  void onAccentChanged(std::size_t button_index);
   void onProfilesSelectionChanged();
   void onProfilesTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
   void onProfilesTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
@@ -161,16 +162,16 @@ protected:
   void onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context);
   void onProfilesShow();
   void onProfilesHide();
-  
+
   // Action handler
   void onActionStateChanged(const Glib::ustring& action_name,
-			    const Glib::VariantBase& variant);
+                            const Glib::VariantBase& variant);
 
   void updateMeterInterface(const Glib::ustring& slot, const Meter& meter);
-  
+
   void updateAccentButtons(const Meter& meter);
   void updateFlowBoxMaxChildren(int width);
-  
+
   void updateProfilesList(const ProfilesList& list);
   void updateProfilesSelect(const Glib::ustring& id);
   void updateProfilesTitle(const Glib::ustring& title);
@@ -185,7 +186,7 @@ protected:
 
   void onMessage(const Message& message);
   void onMessageResponse(int response);
-  
+
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void updatePrefAnimationSync();
