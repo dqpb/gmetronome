@@ -31,11 +31,13 @@ namespace audio {
   class AlsaBackend : public Backend
   {
   public:
-    AlsaBackend(const audio::SampleSpec& spec = kDefaultSpec); 
+    AlsaBackend(); 
     ~AlsaBackend();
-    
-    void configure(const SampleSpec& spec) override;
-    void open() override;
+
+    std::vector<DeviceInfo> devices() override;
+    void configure(const DeviceConfig& config) override;
+    DeviceConfig configuration() override;
+    DeviceConfig open() override;
     void close() override;
     void start() override;
     void stop() override;
@@ -47,8 +49,11 @@ namespace audio {
     
   private:
     BackendState state_;
-    audio::SampleSpec spec_;
+    audio::DeviceConfig cfg_;
+    std::vector<DeviceInfo> devs_;
     snd_pcm_t *hdl_;
+
+    void scanDevices();
   };
   
 }//namespace audio

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  Copyright (C) 2020 The GMetronome Team
- 
+
  This file is part of GMetronome.
 
  GMetronome is free software: you can redistribute it and/or modify
@@ -18,14 +18,14 @@
  along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <schemalist>
-  
+
   <enum id="org.gmetronome.AudioBackend">
     <value nick='none' value='0'/>
     @GSCHEMAXML_ALSA_BEGIN@<value nick='alsa' value='1'/>@GSCHEMAXML_ALSA_END@
     @GSCHEMAXML_OSS_BEGIN@<value nick='oss' value='2'/>@GSCHEMAXML_OSS_END@
-    @GSCHEMAXML_PULSE_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSE_END@
+    @GSCHEMAXML_PULSEAUDIO_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSEAUDIO_END@
   </enum>
-  
+
   <enum id="org.gmetronome.MeterAnimation">
     <value nick='off' value='0'/>
     <value nick='beat' value='1'/>
@@ -35,28 +35,28 @@
   <!--
   <schema id="org.gmetronome.preferences.custom-shortcut" >
     <key name="action-name" type="s">
-      <default>''</default> 
+      <default>''</default>
       <summary></summary>
       <description></description>
     </key>
     <key name="action-target" type="s">
       <default>''</default>
       <summary></summary>
-      <description></description>  
+      <description></description>
     </key>
     <key name="accelerator" type="s">
-      <default>''</default> 
+      <default>''</default>
       <summary></summary>
       <description></description>
     </key>
   </schema>
   -->
-  
+
   <schema id="org.gmetronome.preferences.shortcuts"
 	  path="/org/gmetronome/preferences/shortcuts/">
-    
+
     <key name="quit" type="s">
-      <default>'&lt;Primary&gt;q'</default> 
+      <default>'&lt;Primary&gt;q'</default>
       <summary>Keyboard shortcut to quit the application</summary>
     </key>
     <key name="show-primary-menu" type="s">
@@ -64,216 +64,237 @@
       <summary>Keyboard shortcut to show the primary menu</summary>
     </key>
     <key name="show-profiles" type="s">
-      <default>'F9'</default> 
+      <default>'F9'</default>
       <summary>Keyboard shortcut to show the profiles menu</summary>
     </key>
     <key name="show-preferences" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to show the preferences dialog</summary>
     </key>
     <key name="show-shortcuts" type="s">
-      <default>'&lt;Primary&gt;question'</default> 
+      <default>'&lt;Primary&gt;question'</default>
       <summary>Keyboard shortcut to show the help for keyboard shortcuts</summary>
     </key>
     <key name="show-help" type="s">
-      <default>'F1'</default> 
+      <default>'F1'</default>
       <summary>Keyboard shortcut to show the help</summary>
     </key>
     <key name="show-about" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to show the about dialog</summary>
     </key>
     <key name="show-meter" type="s">
-      <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default> 
+      <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default>
       <summary>Keyboard shortcut to toggle meter interface</summary>
     </key>
     <key name="show-trainer" type="s">
-      <default>'&lt;Primary&gt;&lt;Shift&gt;t'</default> 
+      <default>'&lt;Primary&gt;&lt;Shift&gt;t'</default>
       <summary>Keyboard shortcut to toggle trainer interface</summary>
     </key>
     <key name="full-screen" type="s">
-      <default>'F11'</default> 
+      <default>'F11'</default>
       <summary>Keyboard shortcut to toggle full screen mode</summary>
     </key>
     <key name="start" type="s">
-      <default>'&lt;Primary&gt;s'</default> 
+      <default>'&lt;Primary&gt;s'</default>
       <summary>Keyboard shortcut to start or stop the metronome</summary>
     </key>
     <key name="volume-increase-1" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to increase the volume by 1 percent</summary>
     </key>
     <key name="volume-decrease-1" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to decrease the volume by 1 percent</summary>
     </key>
     <key name="volume-increase-10" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to increase the volume by 10 percent</summary>
     </key>
     <key name="volume-decrease-10" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
     </key>
     <key name="tempo-increase-1" type="s">
-      <default>'&lt;Primary&gt;Up'</default> 
+      <default>'&lt;Primary&gt;Up'</default>
       <summary>Keyboard shortcut to increase the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-decrease-1" type="s">
-      <default>'&lt;Primary&gt;Down'</default> 
+      <default>'&lt;Primary&gt;Down'</default>
       <summary>Keyboard shortcut to decrease the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-increase-10" type="s">
-      <default>'&lt;Primary&gt;Page_Up'</default> 
+      <default>'&lt;Primary&gt;Page_Up'</default>
       <summary>Keyboard shortcut to increase the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-decrease-10" type="s">
-      <default>'&lt;Primary&gt;Page_Down'</default> 
+      <default>'&lt;Primary&gt;Page_Down'</default>
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-tap" type="s">
-      <default>'disabled'</default> 
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to tap the tempo</summary>
     </key>
     <key name="meter-enabled" type="s">
-      <default>'&lt;Primary&gt;a'</default> 
+      <default>'&lt;Primary&gt;a'</default>
       <summary>Keyboard shortcut to toggle metric accentuation</summary>
     </key>
     <key name="meter-select-1-simple" type="s">
-      <default>'&lt;Primary&gt;1'</default> 
+      <default>'&lt;Primary&gt;1'</default>
       <summary>Keyboard shortcut to select the simple single meter</summary>
     </key>
     <key name="meter-select-2-simple" type="s">
-      <default>'&lt;Primary&gt;2'</default> 
+      <default>'&lt;Primary&gt;2'</default>
       <summary>Keyboard shortcut to select the simple duple meter</summary>
     </key>
     <key name="meter-select-3-simple" type="s">
-      <default>'&lt;Primary&gt;3'</default> 
+      <default>'&lt;Primary&gt;3'</default>
       <summary>Keyboard shortcut to select the simple triple meter</summary>
     </key>
     <key name="meter-select-4-simple" type="s">
-      <default>'&lt;Primary&gt;4'</default> 
+      <default>'&lt;Primary&gt;4'</default>
       <summary>Keyboard shortcut to select the simple quadruple meter</summary>
     </key>
     <key name="meter-select-1-compound" type="s">
-      <default>'&lt;Primary&gt;5'</default> 
+      <default>'&lt;Primary&gt;5'</default>
       <summary>Keyboard shortcut to select the compound single meter</summary>
     </key>
     <key name="meter-select-2-compound" type="s">
-      <default>'&lt;Primary&gt;6'</default> 
+      <default>'&lt;Primary&gt;6'</default>
       <summary>Keyboard shortcut to select the compound duple meter</summary>
     </key>
     <key name="meter-select-3-compound" type="s">
-      <default>'&lt;Primary&gt;7'</default> 
+      <default>'&lt;Primary&gt;7'</default>
       <summary>Keyboard shortcut to select the compound triple meter</summary>
     </key>
     <key name="meter-select-4-compound" type="s">
-      <default>'&lt;Primary&gt;8'</default> 
+      <default>'&lt;Primary&gt;8'</default>
       <summary>Keyboard shortcut to select the compound quadruple meter</summary>
     </key>
     <key name="meter-select-custom" type="s">
-      <default>'&lt;Primary&gt;0'</default> 
+      <default>'&lt;Primary&gt;0'</default>
       <summary>Keyboard shortcut to select the custom meter</summary>
     </key>
     <key name="trainer-enabled" type="s">
-      <default>'&lt;Primary&gt;t'</default> 
+      <default>'&lt;Primary&gt;t'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
     <key name="custom-shortcuts" type="as">
-      <default>[]</default> 
+      <default>[]</default>
       <summary></summary>
       <description></description>
     </key>
   </schema>
-  
+
   <schema id="org.gmetronome.preferences" path="/org/gmetronome/preferences/">
-    
+
     <key name="volume" type="d">
       <range min="0." max="100."/>
-      <default>80.</default> 
+      <default>80.</default>
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="restore-profile" type="b">
       <default>true</default>
       <summary></summary>
       <description></description>
     </key>
     <key name="meter-animation" enum="org.gmetronome.MeterAnimation">
-      <default>'all'</default> 
+      <default>'all'</default>
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="animation-sync" type="d">
       <range min="-10000." max="10000."/>
-      <default>0.0</default> 
+      <default>0.0</default>
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="sound-strong-frequency" type="d">
       <range min="20." max="20000."/>
       <default>1479.978</default> <!-- F#6 -->
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="sound-strong-volume" type="d">
       <range min="0." max="100."/>
       <default>100.0</default>
       <summary></summary>
-      <description></description>  
+      <description></description>
     </key>
     <key name="sound-strong-balance" type="d">
       <range min="-1." max="1."/>
       <default>0.0</default>
       <summary></summary>
-      <description></description>  
-    </key>    
+      <description></description>
+    </key>
     <key name="sound-mid-frequency" type="d">
       <range min="20." max="20000."/>
       <default>1108.731</default> <!-- C#6 -->
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="sound-mid-volume" type="d">
       <range min="0." max="100."/>
       <default>100.0</default>
       <summary></summary>
-      <description></description>  
-    </key>    
+      <description></description>
+    </key>
     <key name="sound-mid-balance" type="d">
       <range min="-1." max="1."/>
       <default>0.0</default>
       <summary></summary>
-      <description></description>  
-    </key>    
+      <description></description>
+    </key>
     <key name="sound-weak-frequency" type="d">
       <range min="20." max="20000."/>
       <default>1108.731</default> <!-- C#6 -->
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
     <key name="sound-weak-volume" type="d">
       <range min="0." max="100."/>
       <default>40</default>
       <summary></summary>
-      <description></description>  
-    </key>    
+      <description></description>
+    </key>
     <key name="sound-weak-balance" type="d">
       <range min="-1." max="1."/>
       <default>0.0</default>
       <summary></summary>
-      <description></description>  
-    </key>    
+      <description></description>
+    </key>
     <key name="audio-backend" enum="org.gmetronome.AudioBackend">
       <default>@GSCHEMAXML_DEFAULT_AUDIO_BACKEND@</default>
       <summary>Audio backend</summary>
       <description></description>
-    </key>    
-
+    </key>
+    @GSCHEMAXML_ALSA_BEGIN@
+    <key name="audio-device-alsa" type="s">
+      <default>'default'</default>
+      <summary>Audio device for the ALSA backend</summary>
+      <description>
+	ALSA compliant string representation for names of pcm devices
+      </description>
+    </key>
+    @GSCHEMAXML_ALSA_END@
+    @GSCHEMAXML_OSS_BEGIN@
+    <key name="audio-device-oss" type="s">
+      <default>'/dev/dsp'</default>
+      <summary>Audio device for the OSS backend</summary>
+      <description></description>
+    </key>
+    @GSCHEMAXML_OSS_END@
+    @GSCHEMAXML_PULSEAUDIO_BEGIN@
+    <key name="audio-device-pulseaudio" type="s">
+      <default>''</default>
+      <summary>Name of a sink for the pulseaudio backend</summary>
+      <description></description>
+    </key>
+    @GSCHEMAXML_PULSEAUDIO_END@
     <child name="shortcuts" schema="org.gmetronome.preferences.shortcuts"/>
-
   </schema>
-  
+
   <schema id="org.gmetronome.state" path="/org/gmetronome/state/">
     <key name="profiles-select" type="s">
       <default>''</default>
@@ -289,9 +310,9 @@
       <default>false</default>
       <summary></summary>
       <description></description>
-    </key>    
+    </key>
   </schema>
-  
+
   <schema id="org.gmetronome" path="/org/gmetronome/">
     <child name="preferences" schema="org.gmetronome.preferences"/>
     <child name="state" schema="org.gmetronome.state"/>

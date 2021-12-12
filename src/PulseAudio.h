@@ -34,11 +34,13 @@ namespace audio {
   class PulseAudioBackend : public Backend
   {
   public:
-    PulseAudioBackend(const audio::SampleSpec& spec = kDefaultSpec); 
+    PulseAudioBackend(); 
     ~PulseAudioBackend();
     
-    void configure(const SampleSpec& spec) override;
-    void open() override;
+    std::vector<DeviceInfo> devices() override;
+    void configure(const DeviceConfig& config) override;
+    DeviceConfig configuration() override;
+    DeviceConfig open() override;
     void close() override;
     void start() override;
     void stop() override;
@@ -50,7 +52,7 @@ namespace audio {
 
   private:
     BackendState state_;
-    audio::SampleSpec spec_;
+    audio::DeviceConfig cfg_;
     pa_sample_spec pa_spec_;
     pa_buffer_attr pa_buffer_attr_;
     pa_simple*     pa_simple_;

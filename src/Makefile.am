@@ -21,8 +21,9 @@ gmetronome_SOURCES = \
 	ProfilesIOLocalXml.cpp \
 	ProfilesListStore.cpp \
 	ProfilesManager.cpp \
-	Shortcut.cpp \
+	Settings.cpp \
 	SettingsDialog.cpp \
+	Shortcut.cpp \
 	Synthesizer.cpp \
 	Ticker.cpp
 

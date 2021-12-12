@@ -45,14 +45,14 @@ namespace audio {
   public:
 
     /** Constructs a buffer of nbytes zero initialized bytes. */
-    Buffer(size_type nbytes = 0, const SampleSpec& spec = kDefaultSpec);
+    Buffer(size_type nbytes = 0, const StreamSpec& spec = kDefaultSpec);
 
     /** Constructs a zero initialized buffer capable of holding 
 	the specified time of audio data. */
-    Buffer(microseconds duration, const SampleSpec& spec = kDefaultSpec);
+    Buffer(microseconds duration, const StreamSpec& spec = kDefaultSpec);
 
     /** Constructs a buffer with a byte_container. */
-    Buffer(byte_container data, const SampleSpec& spec = kDefaultSpec);
+    Buffer(byte_container data, const StreamSpec& spec = kDefaultSpec);
 
     /** Construct the buffer with the contents of an audio file. */
     Buffer(const std::string& filename);
@@ -70,11 +70,11 @@ namespace audio {
     const byte_container& data() const
     { return data_; }
     /** Returns a reference to the sample specification. */
-    const SampleSpec& spec() const
+    const StreamSpec& spec() const
     { return spec_; }
     
     void load(const std::string& filename);
-    Buffer resample(const SampleSpec& spec);
+    Buffer resample(const StreamSpec& spec);
     microseconds time() const;
 
     Buffer& operator=(const Buffer&);
@@ -114,7 +114,7 @@ namespace audio {
     
   private:
     byte_container data_;
-    SampleSpec spec_;
+    StreamSpec spec_;
   };
 
 }//namespace audio

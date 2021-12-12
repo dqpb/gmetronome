@@ -28,8 +28,11 @@
 
 namespace audio {
 
+  using std::chrono::seconds;  
   using std::chrono::microseconds;  
-  using std::chrono::milliseconds;  
+  using std::chrono::milliseconds;
+  
+  using std::literals::chrono_literals::operator""s;
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""us;
 
@@ -63,14 +66,23 @@ namespace audio {
     Invalid
   };
   
-  struct SampleSpec
+  struct StreamSpec
   {
-    SampleFormat format;
-    SampleRate   rate;
-    uint8_t      channels;
+    SampleFormat  format;
+    SampleRate    rate;
+    unsigned int  channels;
   };
+  
+  constexpr SampleRate kDefaultRate = 44100;
 
-  constexpr SampleSpec kDefaultSpec = { SampleFormat::S16LE, 44100, 2 };
+  constexpr unsigned int kDefaultChannels = 2;
+  
+  constexpr StreamSpec kDefaultSpec =
+  {
+    SampleFormat::S16LE,
+    kDefaultRate,
+    kDefaultChannels
+  };
 
   /** Returns the size of a sample with the specific sample type. */
   size_t sampleSize(SampleFormat format);
@@ -79,35 +91,35 @@ namespace audio {
   Endianness endianness(SampleFormat format);
   
   /** Return the size of a frame with a given sample specification. */
-  size_t frameSize(SampleSpec spec);
+  size_t frameSize(StreamSpec spec);
   
   /** 
    * Calculates the number of frames that are required for the specified 
    * time. The return value will always be rounded down for non-integral 
    * return values. 
    */
-  size_t usecsToFrames(microseconds usecs, const SampleSpec& spec);
+  size_t usecsToFrames(microseconds usecs, const StreamSpec& spec);
   
   /**
    * Calculate the time the number of frames take to play with the 
    * specified sample type. The return value will always be rounded 
    * down for non-integral return values.
    */
-  microseconds framesToUsecs(size_t frames, const SampleSpec& spec);
+  microseconds framesToUsecs(size_t frames, const StreamSpec& spec);
   
   /** 
    * Calculates the number of bytes that are required for the specified 
    * time. The return value will always be rounded down for non-integral 
    * return values. 
    */
-  size_t usecsToBytes(microseconds usecs, const SampleSpec& spec);
+  size_t usecsToBytes(microseconds usecs, const StreamSpec& spec);
   
   /**
    * Calculate the time the number of bytes take to play with the 
    * specified sample type. The return value will always be rounded 
    * down for non-integral return values.
    */
-  microseconds bytesToUsecs(size_t bytes, const SampleSpec& spec);
+  microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec);
 
 }//namespace audio
 #endif//GMetronome_Audio_h

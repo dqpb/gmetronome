@@ -68,13 +68,29 @@ namespace audio {
       return oss_format;
     }
 
-    const char* kDeviceName = "/dev/dsp";
+    const char* kDefaultDevice = "/dev/dsp";
+
+    const std::string kOssDeviceName = "/dev/dsp"; 
+    
+    const DeviceInfo kOssDeviceInfo =
+    {
+      kOssDeviceName,
+      "Default Output Device",
+      2,
+      2,
+      2,
+      kDefaultRate,
+      kDefaultRate,
+      kDefaultRate
+    };
+
+    const DeviceConfig kOssConfig = { kOssDeviceName, kDefaultSpec };
 
   }//unnamed namespace
 
-  OssBackend::OssBackend(const audio::SampleSpec& spec)
+  OssBackend::OssBackend()
     : state_(BackendState::kConfig),
-      spec_(spec),
+      cfg_(kOssConfig),
       fd_(-1)
   {}
 
@@ -85,12 +101,19 @@ namespace audio {
     } catch(...) {}
   }
 
-  void OssBackend::configure(const SampleSpec& spec)
+  std::vector<DeviceInfo> OssBackend::devices()
   {
-    spec_ = spec;
+    // TODO: scan for output audio devices
+    return {kOssDeviceInfo};
   }
 
-  void OssBackend::open()
+  void OssBackend::configure(const DeviceConfig& config)
+  { cfg_ = config; }
+
+  DeviceConfig OssBackend::configuration()
+  { return cfg_; }
+
+  DeviceConfig OssBackend::open()
   {
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
@@ -107,6 +130,8 @@ namespace audio {
     }
 
     state_ = BackendState::kOpen;
+
+    return {};
   }
 
   void OssBackend::close()
@@ -186,8 +211,8 @@ namespace audio {
       return r;
 
     int delay;
-    if (ioctl(fd_, SNDCTL_DSP_GETODELAY, &delay) != -1)
-      r = bytesToUsecs(delay,spec_);
+    if ( ioctl(fd_, SNDCTL_DSP_GETODELAY, &delay) != -1)
+      r = bytesToUsecs(delay, cfg_.spec);
 
     return r;
   }
@@ -202,7 +227,9 @@ namespace audio {
     if (fd_ >= 0)
       return;
 
-    if ((fd_ = ::open (kDeviceName, O_WRONLY, 0)) == -1)
+    const char* device = cfg_.name.empty() ? kDefaultDevice : cfg_.name.c_str();
+    
+    if ((fd_ = ::open (device, O_WRONLY, 0)) == -1)
       throw OssError(state_, "failed to open audio device");
   }
 
@@ -224,7 +251,7 @@ namespace audio {
     //
     // set sample format
     //
-    int in_tmp = convertSampleFormatToOss(spec_.format);
+    int in_tmp = convertSampleFormatToOss(cfg_.spec.format);
     int out_tmp = in_tmp;
 
     if (in_tmp < 0)
@@ -239,7 +266,7 @@ namespace audio {
     //
     // set numer of channels
     //
-    in_tmp = spec_.channels;
+    in_tmp = cfg_.spec.channels;
     out_tmp = in_tmp;
 
     if (ioctl (fd_, SNDCTL_DSP_CHANNELS, &out_tmp) == -1)
@@ -251,7 +278,7 @@ namespace audio {
     //
     // set sample rate
     //
-    in_tmp = spec_.rate;
+    in_tmp = cfg_.spec.rate;
     out_tmp = in_tmp;
 
     if (ioctl (fd_, SNDCTL_DSP_SPEED, &out_tmp) == -1)

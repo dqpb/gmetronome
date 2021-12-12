@@ -27,9 +27,12 @@ namespace audio {
   class DummyBackend : public Backend{
 
   public:
-    DummyBackend(const audio::SampleSpec& spec = kDefaultSpec);
-    void configure(const SampleSpec& spec) override;
-    void open() override;
+    DummyBackend();
+
+    std::vector<DeviceInfo> devices() override;
+    void configure(const DeviceConfig& config) override;
+    DeviceConfig configuration() override;
+    DeviceConfig open() override;
     void close() override;
     void start() override;
     void stop() override;
@@ -40,7 +43,7 @@ namespace audio {
 
   private:
     BackendState state_;
-    SampleSpec spec_;
+    DeviceConfig cfg_;
   };
   
 }//namespace audio

@@ -62,6 +62,9 @@ const Glib::ustring  kActionProfilesReset        {"profiles-reset"};
 const Glib::ustring  kActionProfilesTitle        {"profiles-title"};
 const Glib::ustring  kActionProfilesDescription  {"profiles-description"};
 const Glib::ustring  kActionProfilesReorder      {"profiles-reorder"};
+const Glib::ustring  kActionAudioBackend         {"audio-backend"};
+const Glib::ustring  kActionAudioDevice          {"audio-device"};
+const Glib::ustring  kActionAudioDeviceList      {"audio-device-list"};
 
 // Window actions
 const Glib::ustring kActionShowPrimaryMenu       {"show-primary-menu"};
@@ -713,13 +716,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Enabled        : true
    */
   { kActionShowPrimaryMenu,
-    {
-      ActionScope::kWin,
-      {},
-      {},
-      {},
-      true
-    }
+    { ActionScope::kWin, {}, {}, {}, true }
   },
 
   /* Action         : kActionShowProfiles
@@ -730,14 +727,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowProfiles,
-    {
-      ActionScope::kWin,
-      {},
-      {},
-      {},
-      true
-    }
+  { kActionShowProfiles, { ActionScope::kWin, {}, {}, {}, true }
   },
   
   /* Action         : kActionShowPreferences
@@ -836,27 +826,53 @@ const ActionDescriptionMap kActionDescriptions =
       {},
       true
     }
+  },
+  
+  /* Action         : kActionAudioDeviceList
+   * Scope          : Application
+   * Parameter type : 
+   * State type     : 
+   * State value    : 
+   * State hint     : 
+   * Enabled        : 
+   */
+  { kActionAudioDeviceList,
+    {
+      ActionScope::kApp,
+      Glib::Variant<std::vector<Glib::ustring>>::variant_type(),
+      Glib::Variant<std::vector<Glib::ustring>>::create({}),
+      {},
+      true
+    }
   }
 };
 
-// There are two types of mutually exclusive action handler:
+// There are two posibilities to setup and install actions:
 //
-// 1) ActionHandlerSettings: Uses Gio::Settings::create_action method to create the action.
+// 1) ActionHandlerSlot:     Creates a Gio::SimpleAction according to the parameters given
+//                           in ActionDescription; connects the given handler slot to
+//                           signal_activate() or signal_change_state() and adds the action
+//                           to the given Gio::ActionMap
+//
+// 2) ActionHandlerSettings: Uses Gio::Settings::create_action method to create the action
+//                           and adds it to the given Gio::ActionMap.
 //                           See glibmm documentation for details.
-//
-// 2) ActionHandlerSlot:     Creates a Gio::SimpleAction according to the ActionDescription
-//                           and connects the given handler slot to signal_activate() or
-//                           signal_change_state().
 //                           
-using ActionHandlerSettings = Glib::RefPtr<Gio::Settings>;
 using ActionHandlerSlot     = sigc::slot<void, const Glib::VariantBase&>;
-using ActionHandler         = std::variant<ActionHandlerSettings, ActionHandlerSlot>;
+using ActionHandlerSettings = Glib::RefPtr<Gio::Settings>;
+using ActionHandler         = std::variant<ActionHandlerSlot, ActionHandlerSettings>;
 
 // map action names to action handler
 using ActionHandlerMap      = std::map<Glib::ustring, ActionHandler>;
 
+void install_action(Gio::ActionMap& gmap,
+                    const Glib::ustring action_name,
+                    const ActionDescription& action_descr,
+                    const ActionHandler& handler);
+
 void install_actions(Gio::ActionMap& gmap,
                      const ActionDescriptionMap& descriptions,
                      const ActionHandlerMap& handler);
+
 
 #endif//GMetronome_Action_h

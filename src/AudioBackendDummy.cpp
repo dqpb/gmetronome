@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -23,32 +23,54 @@
 namespace audio {
 
   namespace {
-    
+
     class TransitionError : public BackendError {
     public:
       TransitionError(BackendState state)
-	: BackendError(settings::kAudioBackendNone, state, "invalid state transition")
+        : BackendError(settings::kAudioBackendNone, state, "invalid state transition")
       {}
     };
+
+    const std::string kDummyDeviceName = ""; // Default
+    
+    const DeviceInfo kDummyInfo =
+    {
+      kDummyDeviceName,
+      "No Audio Output",
+      2,
+      2,
+      2,
+      kDefaultRate,
+      kDefaultRate,
+      kDefaultRate
+    };
+
+    const DeviceConfig kDummyConfig = { kDummyDeviceName, kDefaultSpec };
     
   }//unnamed namespace
-  
-  DummyBackend::DummyBackend(const audio::SampleSpec& spec)
+
+  DummyBackend::DummyBackend()
     : state_(BackendState::kConfig),
-      spec_(spec)
+      cfg_(kDummyConfig)
   {}
 
-  void DummyBackend::configure(const SampleSpec& spec)
-  {
-    spec_ = spec;
-  }
+  std::vector<DeviceInfo> DummyBackend::devices()
+  { return {kDummyInfo}; }
 
-  void DummyBackend::open()
+  void DummyBackend::configure(const DeviceConfig& config)
+  { cfg_ = config; }
+
+  DeviceConfig DummyBackend::configuration()
+  { return cfg_; }
+
+  DeviceConfig DummyBackend::open()
   {
     if (state_ == BackendState::kConfig)
       state_ = BackendState::kOpen;
     else
       throw TransitionError(state_);
+
+    return kDummyConfig;
   }
 
   void DummyBackend::close()
@@ -81,7 +103,7 @@ namespace audio {
     {
       if ( bytes > 0 )
       {
-        std::this_thread::sleep_for( audio::bytesToUsecs(bytes, spec_) );
+        std::this_thread::sleep_for( audio::bytesToUsecs(bytes, kDummyConfig.spec) );
       }
     }
     else

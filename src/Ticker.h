@@ -20,25 +20,30 @@
 #ifndef GMetronome_Ticker_h
 #define GMetronome_Ticker_h
 
-#include <memory>
-#include <thread>
-#include <atomic>
-
 #include "Generator.h"
 #include "AudioBackend.h"
 #include "AudioBuffer.h"
 #include "Meter.h"
 #include "SpinLock.h"
 
+#include <memory>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
+#include <bitset>
+
 namespace audio {
-  
-  enum class TickerState
+
+  enum TickerStateFlag
   {
-    kReady,
-    kPlaying,
-    kError
+    kStarted      = 0,
+    kRunning      = 1,
+    kError        = 2
   };
-    
+
+  using TickerState = std::bitset<16>;
+  
   class Ticker {
   public:
     struct Statistics
@@ -52,7 +57,14 @@ namespace audio {
     Ticker();    
     ~Ticker();
     
-    void setAudioBackend(std::unique_ptr<Backend> backend);
+    void setBackend(std::unique_ptr<Backend> backend);
+
+    std::unique_ptr<Backend> getBackend(const microseconds& timeout = 500ms);
+
+    void swapBackend(std::unique_ptr<Backend>& backend,
+                     const microseconds& timeout = 500ms);
+
+    void configureAudioDevice(const audio::DeviceConfig& config);
     
     void start();
     void stop();
@@ -74,11 +86,10 @@ namespace audio {
   private:
     Generator generator_;
 
-    std::unique_ptr<Backend> audio_backend_;
+    std::unique_ptr<Backend> backend_;
+    DeviceConfig actual_device_config_;
     
     TickerState state_;
-
-    std::exception_ptr audio_thread_error_;
     
     std::atomic<double> in_tempo_;
     std::atomic<double> in_target_tempo_;
@@ -87,8 +98,9 @@ namespace audio {
     Buffer in_sound_strong_;
     Buffer in_sound_mid_;
     Buffer in_sound_weak_;
-    std::unique_ptr<Backend> in_audio_backend_;
-
+    std::unique_ptr<Backend> in_backend_;    
+    audio::DeviceConfig in_device_config_;
+    
     Ticker::Statistics out_stats_;
     
     std::atomic_flag tempo_imported_flag_;
@@ -98,9 +110,12 @@ namespace audio {
     std::atomic_flag sound_strong_imported_flag_;
     std::atomic_flag sound_mid_imported_flag_;
     std::atomic_flag sound_weak_imported_flag_;
-    std::atomic_flag audio_backend_imported_flag_;
+    std::atomic_flag backend_imported_flag_;
+    std::atomic_flag sync_swap_backend_flag_;
+    std::atomic_flag device_config_imported_flag_;
 
-    mutable SpinLock mutex_;
+    mutable std::mutex std_mutex_;
+    mutable SpinLock spin_mutex_;
     
     void importTempo();
     void importTargetTempo();
@@ -109,21 +124,29 @@ namespace audio {
     void importSoundStrong();
     void importSoundMid();
     void importSoundWeak();
-    void importAudioBackend();
+    void importBackend();
+    void importDeviceConfig();
+    void syncSwapBackend();
 
     void importSettings();
 
     void exportStatistics();
     
-    void startAudioBackend();
-    void writeAudioBackend(const void* data, size_t bytes);
-    void stopAudioBackend();
+    void startBackend();
+    void writeBackend(const void* data, size_t bytes);
+    void closeBackend();
 
     std::unique_ptr<std::thread> audio_thread_;
     std::atomic<bool> stop_audio_thread_flag_;
+    std::exception_ptr audio_thread_error_;
+    std::atomic<bool> audio_thread_error_flag_;
+    std::condition_variable_any cond_var_;
+    bool using_dummy_;
+    bool ready_to_swap_;
+    bool backend_swapped_;
     
     void startAudioThread();
-    void stopAudioThread();
+    void stopAudioThread(bool join = false);
     void audioThreadFunction() noexcept;
   };
   
