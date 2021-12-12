@@ -379,7 +379,6 @@ namespace audio {
 
   void AlsaBackend::configure(const DeviceConfig& config)
   {
-    std::cout << __PRETTY_FUNCTION__ << " : " << config.name << std::endl;
     cfg_ = config;
   }
 
@@ -388,13 +387,6 @@ namespace audio {
 
   DeviceConfig AlsaBackend::open()
   {
-    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
-
-    std::cout << "Open-config [" << cfg_.name << "]" << std::endl;
-    std::cout << " format   : " << snd_pcm_format_name(convertSampleFormatToAlsa(cfg_.spec.format)) << std::endl;
-    std::cout << " rate     : " << cfg_.spec.rate << std::endl;
-    std::cout << " channels : " << cfg_.spec.channels << std::endl;
-
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
 
@@ -468,18 +460,11 @@ namespace audio {
     actual_cfg.spec.rate = rate;
     actual_cfg.spec.channels = channels;
 
-    std::cout << "Actual config [" << actual_cfg.name << "]" << std::endl;
-    std::cout << " format   : " << snd_pcm_format_name(format) << std::endl;
-    std::cout << " rate     : " << actual_cfg.spec.rate << std::endl;
-    std::cout << " channels : " << actual_cfg.spec.channels << std::endl;
-
     return actual_cfg;
   }
 
   void AlsaBackend::close()
   {
-    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
-    
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
@@ -495,8 +480,6 @@ namespace audio {
 
   void AlsaBackend::start()
   {
-    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
-
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
@@ -511,8 +494,6 @@ namespace audio {
 
   void AlsaBackend::stop()
   {
-    std::cout << __PRETTY_FUNCTION__ << " : " << cfg_.name << std::endl;
-
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
