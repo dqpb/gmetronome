@@ -64,7 +64,7 @@ namespace {
     }
     catch(const std::exception& e)
     {
-      details += e.what() + '\n';
+      details += e.what();
     }
     return details;
   }
