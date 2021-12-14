@@ -38,7 +38,7 @@ namespace {
     }
     catch(const audio::BackendError& e)
     {
-      details += "Audio backend: ";
+      details += "Backend: ";
       switch(e.backend()) {
       case settings::kAudioBackendNone: details += "none ("; break;
 #if HAVE_ALSA

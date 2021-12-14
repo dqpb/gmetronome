@@ -19,7 +19,7 @@
 
 #include "Error.h"
 
-GMetronomeError::GMetronomeError(const char* what)
+GMetronomeError::GMetronomeError(const std::string& what)
   : what_(what)
 {}
 

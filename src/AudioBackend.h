@@ -115,11 +115,11 @@ namespace audio {
 
   /**
    * @class BackendError
-   * @brief A generic audio backend error.
+   * @brief A generic error for audio backends
    */
   class BackendError : public GMetronomeError {
   public:
-    BackendError(settings::AudioBackend backend, BackendState state, const char* what = "")
+    BackendError(settings::AudioBackend backend, BackendState state, const std::string& what = "")
       : GMetronomeError(what),
         backend_(backend),
         state_(state)
