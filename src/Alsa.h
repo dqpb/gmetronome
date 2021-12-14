@@ -21,10 +21,11 @@
 #define GMetronome_Alsa_h
 
 #include "AudioBackend.h"
-#include <alsa/asoundlib.h>
 
 namespace audio {
-  
+
+  class AlsaDevice;
+
   /**
    * Alsa Backend
    */ 
@@ -50,9 +51,9 @@ namespace audio {
   private:
     BackendState state_;
     audio::DeviceConfig cfg_;
-    std::vector<DeviceInfo> devs_;
-    snd_pcm_t *hdl_;
-
+    std::vector<DeviceInfo> device_infos_;
+    std::unique_ptr<AlsaDevice> alsa_device_;
+    
     void scanDevices();
   };
   
