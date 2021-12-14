@@ -93,7 +93,10 @@ void Application::on_startup()
     auto name = desktop_info->get_locale_string("Name");
     if (!name.empty())
       Glib::set_application_name(name);
+    else
+      Glib::set_application_name(PACKAGE_NAME);
   }
+  else Glib::set_application_name(PACKAGE_NAME);
 
   // initialize application settings (GSettings)
   initSettings();
