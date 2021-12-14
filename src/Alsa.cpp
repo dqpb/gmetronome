@@ -660,7 +660,12 @@ namespace audio {
     try {
       latency = alsa_device_->delay();
     }
-    catch(...) {};
+    catch(...) {
+#ifndef NDEBUG
+      std::cerr << "AlsaBackend: couldn't get latency (continue using "
+                << latency.count() << "us)" << std::endl;
+#endif
+    };
     return latency;
   }
 
@@ -672,11 +677,9 @@ namespace audio {
   void AlsaBackend::scanDevices()
   {
 #ifndef NDEBUG
-      std::cout << "AlsaBackend: scan devices" << std::endl;
+    std::cout << "AlsaBackend: scan devices" << std::endl;
 #endif
-
-      std::vector<AlsaDeviceDescription> device_descriptions;
-
+    std::vector<AlsaDeviceDescription> device_descriptions;
     try {
       device_descriptions = scanAlsaDevices();
     }
