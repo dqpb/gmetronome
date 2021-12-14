@@ -278,9 +278,6 @@ namespace audio {
 
     try {
       state_.set(TickerStateFlag::kRunning);
-#ifndef NDEBUG
-    std::cout << "Ticker: start audio thread" << std::endl;
-#endif
       audio_thread_ = std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
     }
     catch(...)
@@ -300,9 +297,6 @@ namespace audio {
     if (join && audio_thread_->joinable())
     {
       try {
-#ifndef NDEBUG
-    std::cout << "Ticker: stop (join) audio thread" << std::endl;
-#endif
         audio_thread_->join();
         audio_thread_.reset(); //noexcept
       }
@@ -478,6 +472,8 @@ namespace audio {
     default:
       break;
     }
+
+    need_restart_backend_ = false;
   }
 
   void Ticker::writeBackend(const void* data, size_t bytes)
@@ -542,7 +538,9 @@ namespace audio {
         // the client might need to change the audio backend which
         // will forcefully release the old backend resource
       };
-      std::cerr << "*** Error in audio thread (set error_flag_)" << std::endl;
+#ifndef NDEBUG
+      std::cerr << "Ticker: error in audio thread (setting error_flag_)" << std::endl;
+#endif
       audio_thread_error_ = std::current_exception();
       audio_thread_error_flag_.store(true, std::memory_order_release);
     }

@@ -268,9 +268,9 @@ namespace audio {
     assert(pcm_ != nullptr && "can not write to a closed device");
 
     snd_pcm_sframes_t frames = snd_pcm_bytes_to_frames(pcm_, bytes);
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: write " << frames << " frames" << std::endl;
-#endif
+// #ifndef NDEBUG
+//     std::cout << "AlsaBackend: write " << frames << " frames" << std::endl;
+// #endif
     snd_pcm_sframes_t frames_written = snd_pcm_writei(pcm_, data, frames);
     if (frames_written < 0)
     {
@@ -523,7 +523,7 @@ namespace audio {
     alsa_in_cfg.period_size = 1024;
     
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: prepare config: " << alsa_in_cfg << std::endl;
+    std::cout << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
 #endif
 
     AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
@@ -536,7 +536,7 @@ namespace audio {
     }
 
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: actual config: " << alsa_out_cfg << std::endl;
+    std::cout << "AlsaBackend: act config: " << alsa_out_cfg << std::endl;
 #endif
 
     state_ = BackendState::kOpen;
