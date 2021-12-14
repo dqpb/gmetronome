@@ -41,7 +41,7 @@ namespace audio {
   private:
     int error_;
   };
-  
+
   class AlsaBackendError : public BackendError {
   public:
     AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
@@ -145,7 +145,7 @@ namespace audio {
 
   [[maybe_unused]] std::ostream& operator<<(std::ostream& os, const AlsaDeviceConfig& cfg)
   {
-    os << "[" 
+    os << "["
        << snd_pcm_format_name(cfg.format) << ", "
        << cfg.channels << ", "
        << cfg.rate << ", "
@@ -154,7 +154,7 @@ namespace audio {
     return  os;
   }
 
-  
+
   class AlsaDevice {
   public:
     AlsaDevice(const std::string& name);
@@ -169,7 +169,7 @@ namespace audio {
     AlsaDeviceCaps grope();
     snd_pcm_state_t state();
     microseconds delay();
-    
+
   private:
     std::string name_;
     snd_pcm_t* pcm_;
@@ -191,7 +191,7 @@ namespace audio {
   void AlsaDevice::open()
   {
     if (pcm_) return;
-    
+
     int error = snd_pcm_open(&pcm_, name_.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
     if (error < 0)
       throw AlsaError {"failed to open device '" + name_ + "'", error};
@@ -244,16 +244,16 @@ namespace audio {
     error = snd_pcm_hw_params_set_period_size_near(pcm_, hw_params, &out_cfg.period_size, NULL);
     if (error < 0)
       throw AlsaError {"failed to set minimum period size", error};
-    
+
     error = snd_pcm_hw_params(pcm_, hw_params);
     if (error < 0)
       throw AlsaError {"failed to install pcm hardware configuration", error};
 
     rate_ = out_cfg.rate;
-      
+
     return out_cfg;
   }
-  
+
   void AlsaDevice::start()
   {
     assert(pcm_ != nullptr && "can not start a closed device");
@@ -295,7 +295,7 @@ namespace audio {
     if (error < 0)
       throw AlsaError {"failed to stop (drop) device", error};
   }
-    
+
   void AlsaDevice::drain()
   {
     assert(pcm_ != nullptr && "can not stop (drain) a closed device");
@@ -304,7 +304,7 @@ namespace audio {
     if (error < 0)
       throw AlsaError {"failed to stop (drain) device", error};
   }
-    
+
   AlsaDeviceCaps AlsaDevice::grope()
   {
     assert(pcm_ != nullptr && "can not grope a closed device");
@@ -404,11 +404,11 @@ namespace audio {
     int error = snd_pcm_delay (pcm_, &frames);
     if (error < 0)
       throw AlsaError {"failed to obtain delay", error};
-    
+
     return microseconds((frames * std::micro::den) / rate_);
   }
 
-  bool ignoreAlsaDevice( const std::string& name )
+  bool ignoreAlsaDevice(const std::string& name, const AlsaDeviceCaps& caps)
   {
     static const std::vector<std::string> kPrefixes =
       {
@@ -423,6 +423,8 @@ namespace audio {
         //"oss",
         //"surround"
       };
+
+    // TODO: do some validity checks based on device capabilities
 
     return std::any_of ( kPrefixes.begin(), kPrefixes.end(),
                          [&name] (const auto& prefix) {
@@ -451,7 +453,7 @@ namespace audio {
 
       if (io == NULL || strcmp(io, "Output") == 0)
       {
-        if (name != NULL && !ignoreAlsaDevice(name) )
+        if (name != NULL)
         {
           if (descr != NULL)
             devices.push_back({name, descr});
@@ -493,7 +495,7 @@ namespace audio {
   {
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
-    
+
     cfg_ = config;
   }
 
@@ -519,9 +521,14 @@ namespace audio {
     alsa_in_cfg.format = SND_PCM_FORMAT_S16_LE;
     alsa_in_cfg.rate = cfg_.spec.rate;
     alsa_in_cfg.channels = cfg_.spec.channels;
+
+    // TODO: Do not hardcode this!
+    //       The preferred buffer configuration should depend on the client side
+    //       configuration (audio::DeviceConfig) and might respect the actual
+    //       device capabilities (audio::AlsaDeviceCaps).
     alsa_in_cfg.periods = 4;
     alsa_in_cfg.period_size = 1024;
-    
+
 #ifndef NDEBUG
     std::cout << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
 #endif
@@ -529,7 +536,7 @@ namespace audio {
     AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
 
     try {
-      alsa_device_->prepare(alsa_in_cfg);
+      alsa_out_cfg = alsa_device_->prepare(alsa_in_cfg);
     }
     catch(const AlsaError& e) {
       throw makeAlsaBackendError(state_, e);
@@ -546,7 +553,7 @@ namespace audio {
     actual_cfg.spec.format = SampleFormat::S16LE;
     actual_cfg.spec.rate = alsa_out_cfg.rate;
     actual_cfg.spec.channels = alsa_out_cfg.channels;
-    
+
     return actual_cfg;
   }
 
@@ -558,7 +565,7 @@ namespace audio {
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
-    alsa_device_ = nullptr;    
+    alsa_device_ = nullptr;
     state_ = BackendState::kConfig;
   }
 
@@ -580,7 +587,7 @@ namespace audio {
       std::cerr << "AlsaBackend: could not start device (continue anyway)" << std::endl;
 #endif
     }
-    
+
     state_ = BackendState::kRunning;
   }
 
@@ -689,17 +696,26 @@ namespace audio {
 
         const AlsaDeviceCaps& device_caps = alsa_device.grope();
 
+        if (ignoreAlsaDevice(device_descr.name, device_caps))
+          continue;
+
         audio::DeviceInfo device_info;
+
         device_info.name = device_descr.name;
         device_info.descr = device_descr.descr;
         device_info.min_channels = device_caps.min_channels;
         device_info.max_channels = device_caps.max_channels;
-        //device_info.channels = device_caps.channels;
+
+        device_info.channels = std::max(
+          std::min(kDefaultChannels, device_caps.max_channels),
+          device_caps.min_channels);
+
         device_info.min_rate = device_caps.min_rate;
         device_info.max_rate = device_caps.max_rate;
-        //device_info.rate = device_caps.rate;
 
-        // TODO: do some validity checks
+        device_info.rate = std::max(
+          std::min(kDefaultRate, device_caps.max_rate),
+          device_caps.min_rate);
 
         device_infos.push_back(device_info);
 
@@ -709,7 +725,8 @@ namespace audio {
     }
     std::swap(device_infos_,device_infos);
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: " << device_infos_.size() << " devices found" << std::endl;
+    std::cout << "AlsaBackend: " << device_descriptions.size() << " devices found ("
+              << device_infos_.size() << " usable)" << std::endl;
 #endif
   }
 
