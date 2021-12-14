@@ -51,15 +51,16 @@ namespace audio {
   // Ticker
   Ticker::Ticker()
     : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
-      backend_(nullptr),
-      actual_device_config_(kDefaultConfig),
-      state_(0),
-      stop_audio_thread_flag_(true),
-      audio_thread_error_(nullptr),
-      audio_thread_error_flag_(false),
-      using_dummy_(false),
-      ready_to_swap_(false),
-      backend_swapped_(false)
+      backend_ {nullptr},
+      actual_device_config_ {kDefaultConfig},
+      state_ {0},
+      stop_audio_thread_flag_ {true},
+      audio_thread_error_ {nullptr},
+      audio_thread_error_flag_ {false},
+      using_dummy_ {false},
+      ready_to_swap_ {false},
+      backend_swapped_ {false},
+      need_restart_backend_ {false}
   {
     backend_ = createBackend(settings::kAudioBackendNone); // dummy backend
 
@@ -277,6 +278,9 @@ namespace audio {
 
     try {
       state_.set(TickerStateFlag::kRunning);
+#ifndef NDEBUG
+    std::cout << "Ticker: start audio thread" << std::endl;
+#endif
       audio_thread_ = std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
     }
     catch(...)
@@ -296,6 +300,9 @@ namespace audio {
     if (join && audio_thread_->joinable())
     {
       try {
+#ifndef NDEBUG
+    std::cout << "Ticker: stop (join) audio thread" << std::endl;
+#endif
         audio_thread_->join();
         audio_thread_.reset(); //noexcept
       }
@@ -363,7 +370,7 @@ namespace audio {
       std::lock_guard<SpinLock> lck(spin_mutex_);
       backend_ = std::move(in_backend_);
     }
-    startBackend();
+    need_restart_backend_ = true;;
   }
 
   void Ticker::syncSwapBackend()
@@ -388,11 +395,11 @@ namespace audio {
 
     if (success) {
       // swap succeeded: start new backend
-      startBackend();
+      need_restart_backend_ = true;;
     }
     else {
       // swap failed: will continue with the old backend
-      startBackend();
+      need_restart_backend_ = true;;
     }
   }
 
@@ -406,7 +413,7 @@ namespace audio {
       std::lock_guard<SpinLock> lck(spin_mutex_);
       backend_->configure(in_device_config_);
     }
-    startBackend();
+    need_restart_backend_ = true;;
   }
 
   void Ticker::importSettings()
@@ -431,6 +438,8 @@ namespace audio {
       syncSwapBackend();
     if (!device_config_imported_flag_.test_and_set(std::memory_order_acquire))
       importDeviceConfig();
+    if (need_restart_backend_)
+      startBackend();
   }
 
   void Ticker::exportStatistics()

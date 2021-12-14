@@ -144,6 +144,7 @@ namespace audio {
     bool using_dummy_;
     bool ready_to_swap_;
     bool backend_swapped_;
+    bool need_restart_backend_;
     
     void startAudioThread();
     void stopAudioThread(bool join = false);
