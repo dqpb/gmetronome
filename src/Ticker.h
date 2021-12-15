@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -20,10 +20,10 @@
 #ifndef GMetronome_Ticker_h
 #define GMetronome_Ticker_h
 
-#include "Generator.h"
-#include "AudioBackend.h"
 #include "AudioBuffer.h"
 #include "Meter.h"
+#include "Generator.h"
+#include "AudioBackend.h"
 #include "SpinLock.h"
 
 #include <memory>
@@ -43,7 +43,7 @@ namespace audio {
   };
 
   using TickerState = std::bitset<16>;
-  
+
   class Ticker {
   public:
     struct Statistics
@@ -54,10 +54,11 @@ namespace audio {
     };
 
   public:
-    Ticker();    
+    Ticker();
     ~Ticker();
-    
-    void setBackend(std::unique_ptr<Backend> backend);
+
+    void setBackend(std::unique_ptr<Backend> backend,
+                    const microseconds& timeout = 500ms);
 
     std::unique_ptr<Backend> getBackend(const microseconds& timeout = 500ms);
 
@@ -65,32 +66,34 @@ namespace audio {
                      const microseconds& timeout = 500ms);
 
     void configureAudioDevice(const audio::DeviceConfig& config);
-    
+
     void start();
     void stop();
     void reset() noexcept;
-    
+
     TickerState state() const noexcept;
-    
+
     void setTempo(double tempo);
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void setMeter(Meter meter);
-    
+
     void setSoundStrong(double frequency, double volume, double balance);
     void setSoundMid(double frequency, double volume, double balance);
     void setSoundWeak(double frequency, double volume, double balance);
-    
+
     Ticker::Statistics getStatistics() const;
-    
+
   private:
     Generator generator_;
 
     std::unique_ptr<Backend> backend_;
+    std::unique_ptr<Backend> dummy_;
+    DeviceConfig device_config_;
     DeviceConfig actual_device_config_;
-    
+
     TickerState state_;
-    
+
     std::atomic<double> in_tempo_;
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
@@ -98,11 +101,10 @@ namespace audio {
     Buffer in_sound_strong_;
     Buffer in_sound_mid_;
     Buffer in_sound_weak_;
-    std::unique_ptr<Backend> in_backend_;    
     audio::DeviceConfig in_device_config_;
-    
+
     Ticker::Statistics out_stats_;
-    
+
     std::atomic_flag tempo_imported_flag_;
     std::atomic_flag target_tempo_imported_flag_;
     std::atomic_flag accel_imported_flag_;
@@ -110,13 +112,12 @@ namespace audio {
     std::atomic_flag sound_strong_imported_flag_;
     std::atomic_flag sound_mid_imported_flag_;
     std::atomic_flag sound_weak_imported_flag_;
-    std::atomic_flag backend_imported_flag_;
     std::atomic_flag sync_swap_backend_flag_;
     std::atomic_flag device_config_imported_flag_;
 
     mutable std::mutex std_mutex_;
     mutable SpinLock spin_mutex_;
-    
+
     void importTempo();
     void importTargetTempo();
     void importAccel();
@@ -124,15 +125,17 @@ namespace audio {
     void importSoundStrong();
     void importSoundMid();
     void importSoundWeak();
-    void importBackend();
     void importDeviceConfig();
-    void syncSwapBackend();
+    bool syncSwapBackend();
 
     void importSettings();
 
     void exportStatistics();
-    
+    void exportBackend();
+
     void startBackend();
+    void stopBackend();
+    void configureBackend();
     void writeBackend(const void* data, size_t bytes);
     void closeBackend();
 
@@ -145,11 +148,11 @@ namespace audio {
     bool ready_to_swap_;
     bool backend_swapped_;
     bool need_restart_backend_;
-    
+
     void startAudioThread();
     void stopAudioThread(bool join = false);
     void audioThreadFunction() noexcept;
   };
-  
+
 }//namespace audio
 #endif//GMetronome_Ticker_h

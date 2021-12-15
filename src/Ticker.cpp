@@ -51,16 +51,17 @@ namespace audio {
   // Ticker
   Ticker::Ticker()
     : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
-      backend_ {nullptr},
+      backend_ {createBackend(settings::kAudioBackendNone)},
+      dummy_ {nullptr},
+      device_config_ {kDefaultConfig},
       actual_device_config_ {kDefaultConfig},
       state_ {0},
       stop_audio_thread_flag_ {true},
       audio_thread_error_ {nullptr},
       audio_thread_error_flag_ {false},
-      using_dummy_ {false},
+      using_dummy_ {true},
       ready_to_swap_ {false},
-      backend_swapped_ {false},
-      need_restart_backend_ {false}
+      backend_swapped_ {false}
   {
     backend_ = createBackend(settings::kAudioBackendNone); // dummy backend
 
@@ -87,13 +88,11 @@ namespace audio {
     return tmp;
   }
 
-  void Ticker::setBackend(std::unique_ptr<Backend> backend)
+  void Ticker::setBackend(std::unique_ptr<Backend> backend,
+                          const microseconds& timeout)
   {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_backend_ = std::move(backend);
-    }
-    backend_imported_flag_.clear(std::memory_order_release);
+    swapBackend(backend, timeout);
+    backend = nullptr;
   }
 
   void Ticker::swapBackend(std::unique_ptr<Backend>& backend,
@@ -122,7 +121,7 @@ namespace audio {
       if (success)
       {
         // swap and notify the audio thread
-        std::swap(backend_, backend);
+        std::swap(backend, backend_);
         backend_swapped_ = true;
         lck.unlock();
         cond_var_.notify_one();
@@ -137,7 +136,7 @@ namespace audio {
     else
     {
       sync_swap_backend_flag_.test_and_set();
-      std::swap(backend_, backend);
+      std::swap(backend, backend_);
     }
   }
 
@@ -357,24 +356,17 @@ namespace audio {
     else sound_weak_imported_flag_.clear();
   }
 
-  void Ticker::importBackend()
+  bool Ticker::syncSwapBackend()
   {
-    closeBackend();
-    {
-      std::lock_guard<SpinLock> lck(spin_mutex_);
-      backend_ = std::move(in_backend_);
-    }
-    need_restart_backend_ = true;;
-  }
-
-  void Ticker::syncSwapBackend()
-  {
-    closeBackend();
-
-    // after closing the backend, we have no time contraints anymore
     std::unique_lock<SpinLock> lck(spin_mutex_);
 
     backend_swapped_ = false;
+
+    if (using_dummy_) // hide dummy backend from client
+    {
+      std::swap(dummy_, backend_);
+      using_dummy_ = false;
+    }
 
     // signal the client, that we are ready to swap the backends
     ready_to_swap_ = true;
@@ -387,27 +379,26 @@ namespace audio {
                                       [&] {return backend_swapped_;});
     lck.unlock();
 
-    if (success) {
-      // swap succeeded: start new backend
-      need_restart_backend_ = true;;
+    // check the (possibly) new backend and (re-)install
+    // the dummy backend if necessary
+    if (!backend_)
+    {
+      backend_ = std::move(dummy_);
+      using_dummy_ = true;
     }
-    else {
-      // swap failed: will continue with the old backend
-      need_restart_backend_ = true;;
-    }
+
+    if (success)
+      return true;
+    else
+      return false;
   }
 
   void Ticker::importDeviceConfig()
   {
-    if (!backend_)
-      return;
-
-    closeBackend();
     {
       std::lock_guard<SpinLock> lck(spin_mutex_);
-      backend_->configure(in_device_config_);
+      device_config_ = in_device_config_;
     }
-    need_restart_backend_ = true;;
   }
 
   void Ticker::importSettings()
@@ -426,13 +417,25 @@ namespace audio {
       importSoundMid();
     if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
       importSoundWeak();
-    if (!backend_imported_flag_.test_and_set(std::memory_order_acquire))
-      importBackend();
-    if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
-      syncSwapBackend();
+
+    bool need_restart_backend = false;
+
     if (!device_config_imported_flag_.test_and_set(std::memory_order_acquire))
+    {
+      closeBackend();
       importDeviceConfig();
-    if (need_restart_backend_)
+      configureBackend();
+      need_restart_backend = true;
+    }
+
+    if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
+    {
+      closeBackend();
+      syncSwapBackend();
+      need_restart_backend = true;
+    }
+
+    if (need_restart_backend)
       startBackend();
   }
 
@@ -452,13 +455,7 @@ namespace audio {
 
   void Ticker::startBackend()
   {
-    if (!backend_)
-    {
-      backend_ = createBackend(settings::kAudioBackendNone);
-      using_dummy_ = true;
-    }
-    else using_dummy_ = false;
-
+    assert (backend_ != nullptr);
     switch (backend_->state())
     {
     case BackendState::kConfig:
@@ -472,8 +469,33 @@ namespace audio {
     default:
       break;
     }
+  }
 
-    need_restart_backend_ = false;
+  void Ticker::stopBackend()
+  {
+    assert (backend_ != nullptr);
+    if (backend_)
+    {
+      switch (backend_->state())
+      {
+      case BackendState::kRunning:
+        backend_->stop();
+        [[fallthrough]];
+      case BackendState::kOpen:
+        [[fallthrough]];
+      case BackendState::kConfig:
+        // do nothing
+      default:
+        break;
+      }
+    }
+  }
+
+  void Ticker::configureBackend()
+  {
+    assert (backend_ != nullptr);
+    closeBackend();
+    backend_->configure(in_device_config_);
   }
 
   void Ticker::writeBackend(const void* data, size_t bytes)
@@ -484,6 +506,7 @@ namespace audio {
 
   void Ticker::closeBackend()
   {
+    assert (backend_ != nullptr);
     if (backend_)
     {
       switch (backend_->state())
@@ -500,8 +523,6 @@ namespace audio {
         break;
       }
     }
-    if (using_dummy_)
-      backend_ = nullptr;
   }
 
   void Ticker::audioThreadFunction() noexcept
@@ -528,16 +549,13 @@ namespace audio {
       generator_.stop(data, bytes);
       writeBackend(data, bytes);
       exportStatistics();
-      closeBackend();
+      stopBackend();
     }
     catch(...)
     {
       try { closeBackend(); }
       catch(...)
-      {
-        // the client might need to change the audio backend which
-        // will forcefully release the old backend resource
-      };
+      {};
 #ifndef NDEBUG
       std::cerr << "Ticker: error in audio thread (setting error_flag_)" << std::endl;
 #endif
