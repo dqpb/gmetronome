@@ -154,6 +154,12 @@ namespace audio {
     return  os;
   }
 
+  // debug helper
+  [[maybe_unused]] const char* alsa_name(const snd_pcm_format_t format)
+  { return snd_pcm_format_name(format); }
+
+  [[maybe_unused]] const char* alsa_name(const snd_pcm_state_t state)
+  { return snd_pcm_state_name (state); }
 
   class AlsaDevice {
   public:
@@ -161,7 +167,8 @@ namespace audio {
     ~AlsaDevice();
     void open();
     void close();
-    AlsaDeviceConfig prepare(const AlsaDeviceConfig& config);
+    AlsaDeviceConfig setup(const AlsaDeviceConfig& config);
+    void prepare();
     void start();
     void write(const void* data, size_t bytes);
     void drop();
@@ -208,9 +215,10 @@ namespace audio {
       pcm_ = nullptr;
   }
 
-  AlsaDeviceConfig AlsaDevice::prepare(const AlsaDeviceConfig& in_cfg)
+  AlsaDeviceConfig AlsaDevice::setup(const AlsaDeviceConfig& in_cfg)
   {
     assert(pcm_ != nullptr && "can not prepare a closed device");
+    assert(state() == SND_PCM_STATE_OPEN);
 
     AlsaDeviceConfig out_cfg = in_cfg;
 
@@ -245,6 +253,7 @@ namespace audio {
     if (error < 0)
       throw AlsaError {"failed to set minimum period size", error};
 
+    // enter state SND_PCM_STATE_PREPARED
     error = snd_pcm_hw_params(pcm_, hw_params);
     if (error < 0)
       throw AlsaError {"failed to install pcm hardware configuration", error};
@@ -254,9 +263,20 @@ namespace audio {
     return out_cfg;
   }
 
+  void AlsaDevice::prepare()
+  {
+    assert(pcm_ != nullptr && "can not prepare a closed device");
+    assert(state() == SND_PCM_STATE_PREPARED || state() == SND_PCM_STATE_SETUP);
+
+    int error = snd_pcm_prepare(pcm_);
+    if (error < 0)
+      throw AlsaError {"failed to prepare device", error};
+  }
+
   void AlsaDevice::start()
   {
     assert(pcm_ != nullptr && "can not start a closed device");
+    assert(state() == SND_PCM_STATE_PREPARED);
 
     int error = snd_pcm_start(pcm_);
     if (error < 0)
@@ -308,6 +328,7 @@ namespace audio {
   AlsaDeviceCaps AlsaDevice::grope()
   {
     assert(pcm_ != nullptr && "can not grope a closed device");
+    assert(state() == SND_PCM_STATE_OPEN);
 
     snd_pcm_hw_params_t *hw_params;
     snd_pcm_hw_params_alloca(&hw_params);
@@ -517,6 +538,7 @@ namespace audio {
     catch(const AlsaError& e) {
       throw makeAlsaBackendError(state_, e);
     }
+
     AlsaDeviceConfig alsa_in_cfg;
     alsa_in_cfg.format = SND_PCM_FORMAT_S16_LE;
     alsa_in_cfg.rate = cfg_.spec.rate;
@@ -534,9 +556,8 @@ namespace audio {
 #endif
 
     AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
-
     try {
-      alsa_out_cfg = alsa_device_->prepare(alsa_in_cfg);
+      alsa_out_cfg = alsa_device_->setup(alsa_in_cfg);
     }
     catch(const AlsaError& e) {
       throw makeAlsaBackendError(state_, e);
@@ -580,6 +601,7 @@ namespace audio {
       std::cerr << "AlsaBackend: start device" << std::endl;
 #endif
     try {
+      alsa_device_->prepare();
       alsa_device_->start();
     }
     catch(const AlsaError& e) {
@@ -607,6 +629,7 @@ namespace audio {
     catch(AlsaError& e) {
       throw makeAlsaBackendError(state_, e);
     }
+
     state_ = BackendState::kOpen;
   }
 
