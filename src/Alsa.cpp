@@ -445,30 +445,6 @@ namespace audio {
     return microseconds((frames * std::micro::den) / rate_);
   }
 
-  bool ignoreAlsaDevice(const std::string& name, const AlsaDeviceCaps& caps)
-  {
-    static const std::vector<std::string> kPrefixes =
-      {
-        "null",
-        //"samplerate",
-        //"speexrate",
-        //"pulse",
-        //"speex",
-        //"upmix",
-        //"vdownmix",
-        //"jack",
-        //"oss",
-        //"surround"
-      };
-
-    // TODO: do some validity checks based on device capabilities
-
-    return std::any_of ( kPrefixes.begin(), kPrefixes.end(),
-                         [&name] (const auto& prefix) {
-                           return name.compare(0, prefix.size(), prefix) == 0;
-                         });
-  }
-
   std::vector<AlsaDeviceDescription> scanAlsaDevices()
   {
     std::vector<AlsaDeviceDescription> devices;
@@ -511,6 +487,69 @@ namespace audio {
     snd_device_name_free_hint(hints);
 
     return devices;
+  }
+
+  bool validateAlsaDevice(const std::string& name,
+                          bool grope_succeeded,
+                          const AlsaDeviceCaps& caps)
+  {
+    static const std::vector<std::string> kPrefixes =
+      {
+        "null",
+        //"samplerate",
+        //"speexrate",
+        //"pulse",
+        //"speex",
+        //"upmix",
+        //"vdownmix",
+        //"jack",
+        "oss",
+        //"surround"
+      };
+
+    if (!grope_succeeded)
+    {
+#ifndef NDEBUG
+      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+                << "could not determine device capabilities" << ")" << std::endl;
+#endif
+      return false;
+    }
+
+    // do some validity checks based on device capabilities
+    if (caps.formats.empty())
+    {
+#ifndef NDEBUG
+      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+                << "could not find suitable sample format" << ")" << std::endl;
+#endif
+      return false;
+    }
+
+    if (caps.max_channels == 0 || caps.max_channels < caps.min_channels)
+    {
+#ifndef NDEBUG
+      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+                << "invalid channel configuration ["
+                << caps.min_channels << ", " << caps.max_channels << "])" << std::endl;
+#endif
+      return false;
+    }
+
+    if (caps.max_rate == 0 || caps.max_rate < caps.min_rate)
+    {
+#ifndef NDEBUG
+      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+                << "invalid rate configuration ["
+                << caps.min_channels << ", " << caps.max_channels << "])" << std::endl;
+#endif
+      return false;
+    }
+
+    return ! std::any_of ( kPrefixes.begin(), kPrefixes.end(),
+                           [&name] (const auto& prefix) {
+                             return name.compare(0, prefix.size(), prefix) == 0;
+                           });
   }
 
   AlsaBackend::AlsaBackend()
@@ -736,9 +775,16 @@ namespace audio {
 
         alsa_device.open();
 
-        const AlsaDeviceCaps& device_caps = alsa_device.grope();
+        AlsaDeviceCaps device_caps;
+        bool grope_succeeded = true;
 
-        if (ignoreAlsaDevice(device_descr.name, device_caps))
+        try {
+          device_caps = alsa_device.grope();
+        }
+        catch (...)
+        { grope_succeeded = false; }
+
+        if (!validateAlsaDevice(device_descr.name, grope_succeeded, device_caps))
           continue;
 
         audio::DeviceInfo device_info;
