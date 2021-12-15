@@ -51,11 +51,11 @@ namespace audio {
       int oss_format;
 
       switch(format) {
-      case SampleFormat::U8        : oss_format = AFMT_U8;    break;
-      case SampleFormat::ALAW      : oss_format = AFMT_A_LAW;  break;
-      case SampleFormat::ULAW      : oss_format = AFMT_MU_LAW;  break;
+      // case SampleFormat::U8        : oss_format = AFMT_U8;    break;
+      // case SampleFormat::ALAW      : oss_format = AFMT_A_LAW;  break;
+      // case SampleFormat::ULAW      : oss_format = AFMT_MU_LAW;  break;
       case SampleFormat::S16LE     : oss_format = AFMT_S16_LE; break;
-      case SampleFormat::S16BE     : oss_format = AFMT_S16_BE; break;
+      // case SampleFormat::S16BE     : oss_format = AFMT_S16_BE; break;
       // case SampleFormat::S32LE     : oss_format = AFMT_S32_LE; break;
       // case SampleFormat::S32BE     : oss_format = AFMT_S32_BE; break;
       // case SampleFormat::S24LE     : oss_format = AFMT_S24_LE; break;
@@ -70,8 +70,8 @@ namespace audio {
 
     const char* kDefaultDevice = "/dev/dsp";
 
-    const std::string kOssDeviceName = "/dev/dsp"; 
-    
+    const std::string kOssDeviceName = "/dev/dsp";
+
     const DeviceInfo kOssDeviceInfo =
     {
       kOssDeviceName,
@@ -228,7 +228,7 @@ namespace audio {
       return;
 
     const char* device = cfg_.name.empty() ? kDefaultDevice : cfg_.name.c_str();
-    
+
     if ((fd_ = ::open (device, O_WRONLY, 0)) == -1)
       throw OssError(state_, "failed to open audio device");
   }

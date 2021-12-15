@@ -24,38 +24,38 @@ namespace audio {
 
   size_t sampleSize(SampleFormat format) {
     static const std::map<SampleFormat,size_t> _m = {
-      {SampleFormat::U8, 1},
-      {SampleFormat::ALAW, 1},
-      {SampleFormat::ULAW, 1},
+      // {SampleFormat::U8, 1},
+      // {SampleFormat::ALAW, 1},
+      // {SampleFormat::ULAW, 1},
       {SampleFormat::S16LE, 2},
-      {SampleFormat::S16BE, 2},
-      {SampleFormat::Float32LE, 4},
-      {SampleFormat::Float32BE, 4},
-      {SampleFormat::S32LE, 4},
-      {SampleFormat::S32BE, 4},
-      {SampleFormat::S24LE, 3},
-      {SampleFormat::S24BE, 3},
-      {SampleFormat::S24_32LE, 4},
-      {SampleFormat::S24_32BE, 4}
+      // {SampleFormat::S16BE, 2},
+      // {SampleFormat::Float32LE, 4},
+      // {SampleFormat::Float32BE, 4},
+      // {SampleFormat::S32LE, 4},
+      // {SampleFormat::S32BE, 4},
+      // {SampleFormat::S24LE, 3},
+      // {SampleFormat::S24BE, 3},
+      // {SampleFormat::S24_32LE, 4},
+      // {SampleFormat::S24_32BE, 4}
     };
     return _m.at(format);
   }
 
   Endianness endianness(SampleFormat format) {
     static const std::map<SampleFormat,Endianness> _m = {
-      {SampleFormat::U8, Endianness::Invalid},
-      {SampleFormat::ALAW, Endianness::Invalid},
-      {SampleFormat::ULAW, Endianness::Invalid},
+      // {SampleFormat::U8, Endianness::Invalid},
+      // {SampleFormat::ALAW, Endianness::Invalid},
+      // {SampleFormat::ULAW, Endianness::Invalid},
       {SampleFormat::S16LE, Endianness::Little},
-      {SampleFormat::S16BE, Endianness::Big},
-      {SampleFormat::Float32LE, Endianness::Little},
-      {SampleFormat::Float32BE, Endianness::Big},
-      {SampleFormat::S32LE, Endianness::Little},
-      {SampleFormat::S32BE, Endianness::Big},
-      {SampleFormat::S24LE, Endianness::Little},
-      {SampleFormat::S24BE, Endianness::Big},
-      {SampleFormat::S24_32LE, Endianness::Little},
-      {SampleFormat::S24_32BE, Endianness::Big}
+      // {SampleFormat::S16BE, Endianness::Big},
+      // {SampleFormat::Float32LE, Endianness::Little},
+      // {SampleFormat::Float32BE, Endianness::Big},
+      // {SampleFormat::S32LE, Endianness::Little},
+      // {SampleFormat::S32BE, Endianness::Big},
+      // {SampleFormat::S24LE, Endianness::Little},
+      // {SampleFormat::S24BE, Endianness::Big},
+      // {SampleFormat::S24_32LE, Endianness::Little},
+      // {SampleFormat::S24_32BE, Endianness::Big}
     };
     return _m.at(format);
   }

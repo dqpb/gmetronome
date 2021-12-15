@@ -78,19 +78,19 @@ namespace audio {
     snd_pcm_format_t alsa_format;
 
     switch(format) {
-    case SampleFormat::U8        : alsa_format = SND_PCM_FORMAT_U8;    break;
-    case SampleFormat::ALAW      : alsa_format = SND_PCM_FORMAT_A_LAW;  break;
-    case SampleFormat::ULAW      : alsa_format = SND_PCM_FORMAT_MU_LAW;  break;
+    // case SampleFormat::U8        : alsa_format = SND_PCM_FORMAT_U8; break;
+    // case SampleFormat::ALAW      : alsa_format = SND_PCM_FORMAT_A_LAW; break;
+    // case SampleFormat::ULAW      : alsa_format = SND_PCM_FORMAT_MU_LAW; break;
     case SampleFormat::S16LE     : alsa_format = SND_PCM_FORMAT_S16_LE; break;
-    case SampleFormat::S16BE     : alsa_format = SND_PCM_FORMAT_S16_BE; break;
-    case SampleFormat::Float32LE : alsa_format = SND_PCM_FORMAT_FLOAT_LE; break;
-    case SampleFormat::Float32BE : alsa_format = SND_PCM_FORMAT_FLOAT_BE; break;
-    case SampleFormat::S32LE     : alsa_format = SND_PCM_FORMAT_S32_LE; break;
-    case SampleFormat::S32BE     : alsa_format = SND_PCM_FORMAT_S32_BE; break;
-    case SampleFormat::S24LE     : alsa_format = SND_PCM_FORMAT_S24_LE; break;
-    case SampleFormat::S24BE     : alsa_format = SND_PCM_FORMAT_S24_BE; break;
-    case SampleFormat::S24_32LE  : alsa_format = SND_PCM_FORMAT_S32_LE; break;
-    case SampleFormat::S24_32BE  : alsa_format = SND_PCM_FORMAT_S32_BE; break;
+    // case SampleFormat::S16BE     : alsa_format = SND_PCM_FORMAT_S16_BE; break;
+    // case SampleFormat::Float32LE : alsa_format = SND_PCM_FORMAT_FLOAT_LE; break;
+    // case SampleFormat::Float32BE : alsa_format = SND_PCM_FORMAT_FLOAT_BE; break;
+    // case SampleFormat::S32LE     : alsa_format = SND_PCM_FORMAT_S32_LE; break;
+    // case SampleFormat::S32BE     : alsa_format = SND_PCM_FORMAT_S32_BE; break;
+    // case SampleFormat::S24LE     : alsa_format = SND_PCM_FORMAT_S24_LE; break;
+    // case SampleFormat::S24BE     : alsa_format = SND_PCM_FORMAT_S24_BE; break;
+    // case SampleFormat::S24_32LE  : alsa_format = SND_PCM_FORMAT_S32_LE; break;
+    // case SampleFormat::S24_32BE  : alsa_format = SND_PCM_FORMAT_S32_BE; break;
     default:
       alsa_format = SND_PCM_FORMAT_UNKNOWN;
       break;
@@ -107,6 +107,7 @@ namespace audio {
 
   struct AlsaDeviceCaps
   {
+    std::vector<snd_pcm_format_t> formats;
     unsigned int min_channels {0};
     unsigned int max_channels {0};
     unsigned int min_rate {0};
@@ -337,6 +338,20 @@ namespace audio {
     if (error < 0)
       throw AlsaError {"failed to set up configuration space", error};
 
+    std::vector<snd_pcm_format_t> formats;
+
+    std::vector<snd_pcm_format_t> test_formats = {
+      SND_PCM_FORMAT_S16_LE
+    };
+    for (const auto& fmt : test_formats)
+    {
+      error = snd_pcm_hw_params_test_format(pcm_, hw_params, fmt);
+      if (error < 0)
+        throw AlsaError {"failed to test format ", error};
+
+      formats.push_back(fmt);
+    }
+
     unsigned int min_channels {0};
     unsigned int max_channels {0};
 
@@ -397,6 +412,7 @@ namespace audio {
 
     AlsaDeviceCaps caps;
 
+    caps.formats = formats;
     caps.min_channels = min_channels;
     caps.max_channels = max_channels;
     caps.min_rate = min_rate;
@@ -546,8 +562,8 @@ namespace audio {
 
     // TODO: Do not hardcode this!
     //       The preferred buffer configuration should depend on the client side
-    //       configuration (audio::DeviceConfig) and might respect the actual
-    //       device capabilities (audio::AlsaDeviceCaps).
+    //       configuration (audio::DeviceConfig) and might anticipate a working
+    //       setup by respecting the actual device capabilities (audio::AlsaDeviceCaps).
     alsa_in_cfg.periods = 4;
     alsa_in_cfg.period_size = 1024;
 

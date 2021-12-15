@@ -40,21 +40,21 @@ namespace audio {
    */
   enum class SampleFormat
   {
-    U8,
-    ALAW,
-    ULAW,
+    // U8,
+    // ALAW,
+    // ULAW,
     S16LE,
-    S16BE,
-    Float32LE,
-    Float32BE,
-    S32LE,
-    S32BE,
-    S24LE,
-    S24BE,
-    S24_32LE,
-    S24_32BE
-    //Max,
-    //Invalid = -1
+    // S16BE,
+    // Float32LE,
+    // Float32BE,
+    // S32LE,
+    // S32BE,
+    // S24LE,
+    // S24BE,
+    // S24_32LE,
+    // S24_32BE
+    // Max,
+    // Invalid = -1
   };
 
   using SampleRate = uint32_t;
@@ -72,14 +72,14 @@ namespace audio {
     SampleRate    rate;
     unsigned int  channels;
   };
-  
-  constexpr SampleRate kDefaultRate = 44100;
 
+  constexpr SampleFormat kDefaultFormat   = SampleFormat::S16LE;
+  constexpr SampleRate   kDefaultRate     = 44100;
   constexpr unsigned int kDefaultChannels = 2;
-  
+
   constexpr StreamSpec kDefaultSpec =
   {
-    SampleFormat::S16LE,
+    kDefaultFormat,
     kDefaultRate,
     kDefaultChannels
   };
