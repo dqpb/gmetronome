@@ -53,8 +53,7 @@ namespace audio {
     // S24BE,
     // S24_32LE,
     // S24_32BE
-    // Max,
-    // Invalid = -1
+    kUnknown
   };
 
   using SampleRate = uint32_t;

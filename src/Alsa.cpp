@@ -18,7 +18,6 @@
  */
 
 #include "Alsa.h"
-#include <alsa/asoundlib.h>
 #include <memory>
 #include <algorithm>
 #include <map>
@@ -29,18 +28,20 @@ namespace audio {
 
   const microseconds kRequiredLatency    = 80ms;
 
-  class AlsaError : public GMetronomeError {
+  class AlsaDeviceError : public GMetronomeError {
   public:
-    AlsaError(const std::string& msg = "", int error = 0)
+    AlsaDeviceError(const std::string& msg = "", int error = 0)
       : GMetronomeError {msg},
-        error_(error) {}
+        error_(error)
+      {}
     int alsaErrorCode() const
-      {return error_;}
+      { return error_; }
     const char* alsaErrorString() const
       { return (error_ < 0 ? snd_strerror (error_) : "unknown error"); }
   private:
     int error_;
   };
+
 
   class AlsaBackendError : public BackendError {
   public:
@@ -55,15 +56,8 @@ namespace audio {
     int error_;
   };
 
-  class TransitionError : public AlsaBackendError {
-  public:
-    TransitionError(BackendState state)
-      : AlsaBackendError(state, "invalid state transition")
-      {}
-  };
-
-  // helper to create AlsaBackendError from AlsaError
-  AlsaBackendError makeAlsaBackendError(BackendState state, const AlsaError& e)
+  // helper to create AlsaBackendError from AlsaDeviceError
+  AlsaBackendError makeAlsaBackendError(BackendState state, const AlsaDeviceError& e)
   {
     auto msg = std::string(e.what())
       + " (" + std::to_string(e.alsaErrorCode()) + " '" + std::string(e.alsaErrorString()) + "')";
@@ -73,54 +67,44 @@ namespace audio {
     return AlsaBackendError (state, msg, e.alsaErrorCode());
   }
 
-  snd_pcm_format_t  convertSampleFormatToAlsa(const SampleFormat& format)
+  class TransitionError : public AlsaBackendError {
+  public:
+    TransitionError(BackendState state)
+      : AlsaBackendError(state, "invalid state transition")
+      {}
+  };
+
+  // convert sample formats
+  std::vector<std::pair<SampleFormat,snd_pcm_format_t>> kFormatMapping =
   {
-    snd_pcm_format_t alsa_format;
+    {SampleFormat::S16LE , SND_PCM_FORMAT_S16_LE}
+  };
 
-    switch(format) {
-    // case SampleFormat::U8        : alsa_format = SND_PCM_FORMAT_U8; break;
-    // case SampleFormat::ALAW      : alsa_format = SND_PCM_FORMAT_A_LAW; break;
-    // case SampleFormat::ULAW      : alsa_format = SND_PCM_FORMAT_MU_LAW; break;
-    case SampleFormat::S16LE     : alsa_format = SND_PCM_FORMAT_S16_LE; break;
-    // case SampleFormat::S16BE     : alsa_format = SND_PCM_FORMAT_S16_BE; break;
-    // case SampleFormat::Float32LE : alsa_format = SND_PCM_FORMAT_FLOAT_LE; break;
-    // case SampleFormat::Float32BE : alsa_format = SND_PCM_FORMAT_FLOAT_BE; break;
-    // case SampleFormat::S32LE     : alsa_format = SND_PCM_FORMAT_S32_LE; break;
-    // case SampleFormat::S32BE     : alsa_format = SND_PCM_FORMAT_S32_BE; break;
-    // case SampleFormat::S24LE     : alsa_format = SND_PCM_FORMAT_S24_LE; break;
-    // case SampleFormat::S24BE     : alsa_format = SND_PCM_FORMAT_S24_BE; break;
-    // case SampleFormat::S24_32LE  : alsa_format = SND_PCM_FORMAT_S32_LE; break;
-    // case SampleFormat::S24_32BE  : alsa_format = SND_PCM_FORMAT_S32_BE; break;
-    default:
-      alsa_format = SND_PCM_FORMAT_UNKNOWN;
-      break;
-    };
+  snd_pcm_format_t  sampleFormatToAlsa(const SampleFormat& fmt)
+  {
+    auto it = std::find_if(kFormatMapping.begin(), kFormatMapping.end(),
+                           [&fmt] (const auto& p) -> bool { return p.first == fmt; });
 
-    return alsa_format;
+    if (it != kFormatMapping.end())
+      return it->second;
+    else
+      return SND_PCM_FORMAT_UNKNOWN;
   }
 
-  struct AlsaDeviceDescription
+  SampleFormat sampleFormatFromAlsa(snd_pcm_format_t fmt)
   {
-    std::string name;
-    std::string descr;
-  };
+    auto it = std::find_if(kFormatMapping.begin(), kFormatMapping.end(),
+                           [&fmt] (const auto& p) -> bool { return p.second == fmt; });
 
-  struct AlsaDeviceCaps
-  {
-    std::vector<snd_pcm_format_t> formats;
-    unsigned int min_channels {0};
-    unsigned int max_channels {0};
-    unsigned int min_rate {0};
-    unsigned int max_rate {0};
-    unsigned int min_periods {0};
-    unsigned int max_periods {0};
-    snd_pcm_uframes_t min_period_size {0};
-    snd_pcm_uframes_t max_period_size {0};
-    snd_pcm_uframes_t min_buffer_size {0};
-    snd_pcm_uframes_t max_buffer_size {0};
-  };
+    if (it != kFormatMapping.end())
+      return it->first;
+    else
+      return SampleFormat::kUnknown;
+  }
 
-  [[maybe_unused]] std::ostream& operator<<(std::ostream& os, const AlsaDeviceCaps& dev)
+  // debug helper
+  [[maybe_unused]]
+  std::ostream& operator<<(std::ostream& os, const AlsaBackend::AlsaDeviceCaps& dev)
   {
     os << "Channels    : ["
        << dev.min_channels << "," << dev.max_channels << "]" << std::endl
@@ -135,88 +119,58 @@ namespace audio {
     return  os;
   }
 
-  struct AlsaDeviceConfig
-  {
-    snd_pcm_format_t format;
-    unsigned int channels;
-    unsigned int rate;
-    unsigned int periods;
-    snd_pcm_uframes_t period_size;
-  };
-
-  [[maybe_unused]] std::ostream& operator<<(std::ostream& os, const AlsaDeviceConfig& cfg)
+  [[maybe_unused]]
+  std::ostream& operator<<(std::ostream& os, const AlsaBackend::AlsaDeviceConfig& cfg)
   {
     os << "["
        << snd_pcm_format_name(cfg.format) << ", "
        << cfg.channels << ", "
        << cfg.rate << ", "
-       << cfg.periods << ", "
-       << cfg.period_size << "]";
+       << cfg.period_size << ", "
+       << cfg.buffer_size << "]";
     return  os;
   }
 
-  // debug helper
   [[maybe_unused]] const char* alsa_name(const snd_pcm_format_t format)
   { return snd_pcm_format_name(format); }
 
   [[maybe_unused]] const char* alsa_name(const snd_pcm_state_t state)
   { return snd_pcm_state_name (state); }
 
-  class AlsaDevice {
-  public:
-    AlsaDevice(const std::string& name);
-    ~AlsaDevice();
-    void open();
-    void close();
-    AlsaDeviceConfig setup(const AlsaDeviceConfig& config);
-    void prepare();
-    void start();
-    void write(const void* data, size_t bytes);
-    void drop();
-    void drain();
-    AlsaDeviceCaps grope();
-    snd_pcm_state_t state();
-    microseconds delay();
 
-  private:
-    std::string name_;
-    snd_pcm_t* pcm_;
-    unsigned int rate_; // cache
-  };
-
-  AlsaDevice::AlsaDevice(const std::string& name)
+  AlsaBackend::AlsaDevice::AlsaDevice(const std::string& name)
     : name_ {name},
       pcm_ {nullptr}
   {}
 
-  AlsaDevice::~AlsaDevice()
+  AlsaBackend::AlsaDevice::~AlsaDevice()
   {
     if (pcm_)
       try { close(); }
-      catch(AlsaError& e) {}
+      catch(AlsaDeviceError& e) {}
   }
 
-  void AlsaDevice::open()
+  void AlsaBackend::AlsaDevice::open()
   {
     if (pcm_) return;
 
     int error = snd_pcm_open(&pcm_, name_.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
     if (error < 0)
-      throw AlsaError {"failed to open device '" + name_ + "'", error};
+      throw AlsaDeviceError {"failed to open device '" + name_ + "'", error};
   }
 
-  void AlsaDevice::close()
+  void AlsaBackend::AlsaDevice::close()
   {
     if (!pcm_) return;
 
     int error = snd_pcm_close(pcm_);
     if (error < 0)
-      throw AlsaError {"failed to close device", error};
+      throw AlsaDeviceError {"failed to close device", error};
     else
       pcm_ = nullptr;
   }
 
-  AlsaDeviceConfig AlsaDevice::setup(const AlsaDeviceConfig& in_cfg)
+  AlsaBackend::AlsaDeviceConfig AlsaBackend::AlsaDevice::setup(const AlsaDeviceConfig& in_cfg)
   {
     assert(pcm_ != nullptr && "can not prepare a closed device");
     assert(state() == SND_PCM_STATE_OPEN);
@@ -228,105 +182,164 @@ namespace audio {
 
     int error = snd_pcm_hw_params_any(pcm_, hw_params);
     if (error < 0)
-      throw AlsaError {"failed to set up configuration space", error};
+      throw AlsaDeviceError {"failed to set up configuration space", error};
 
     error = snd_pcm_hw_params_set_access(pcm_, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
     if (error < 0)
-      throw AlsaError {"failed to set the access type", error};
+      throw AlsaDeviceError {"failed to set the access type", error};
 
     error = snd_pcm_hw_params_set_format(pcm_, hw_params, in_cfg.format);
     if (error < 0)
-      throw AlsaError {"failed to set the sample format", error};
+      throw AlsaDeviceError {"failed to set the sample format", error};
 
     error = snd_pcm_hw_params_set_channels_near(pcm_, hw_params, &out_cfg.channels );
     if (error < 0)
-      throw AlsaError {"failed to set the number of channels", error};
+      throw AlsaDeviceError {"failed to set the number of channels", error};
 
     error = snd_pcm_hw_params_set_rate_near(pcm_, hw_params, &out_cfg.rate, NULL);
     if (error < 0)
-      throw AlsaError {"failed to set the sample rate", error};
-
-    error = snd_pcm_hw_params_set_periods_near(pcm_, hw_params, &out_cfg.periods, NULL);
-    if (error < 0)
-      throw AlsaError {"failed to set the number of periods", error};
+      throw AlsaDeviceError {"failed to set the sample rate", error};
 
     error = snd_pcm_hw_params_set_period_size_near(pcm_, hw_params, &out_cfg.period_size, NULL);
     if (error < 0)
-      throw AlsaError {"failed to set minimum period size", error};
+      throw AlsaDeviceError {"failed to set period size", error};
+
+    error = snd_pcm_hw_params_set_buffer_size_near(pcm_, hw_params, &out_cfg.buffer_size);
+    if (error < 0)
+      throw AlsaDeviceError {"failed to set the buffer size", error};
 
     // enter state SND_PCM_STATE_PREPARED
     error = snd_pcm_hw_params(pcm_, hw_params);
     if (error < 0)
-      throw AlsaError {"failed to install pcm hardware configuration", error};
+      throw AlsaDeviceError {"unable to install pcm hw params", error};
 
-    rate_ = out_cfg.rate;
+    rate_ = out_cfg.rate; // cache
+
+    //
+    // TODO: set approriate software parameters
+    //
+
+    // snd_pcm_sw_params_t *sw_params;
+    // snd_pcm_sw_params_alloca(&sw_params);
+
+    // error = snd_pcm_sw_params_current(pcm_, sw_params);
+    // if (error < 0)
+    //   throw AlsaDeviceError {"unable to get current sw params", error};
+
+    // error = snd_pcm_sw_params_set_avail_min(pcm_, sw_params, 1024);
+    // if (error < 0)
+    //   throw AlsaDeviceError {"failed to set sw param avail min", error};
+
+    // error = snd_pcm_sw_params_set_start_threshold(pcm_, sw_params, 1024);
+    // if (error < 0)
+    //   throw AlsaDeviceError {"unable to set sw param start threshold", error};
+
+    // error = snd_pcm_sw_params_set_stop_threshold(pcm_, sw_params, 1024);
+    // if (error < 0)
+    //   throw AlsaDeviceError {"unable to set sw param stop threshold", error};
+
+    // error = snd_pcm_sw_params(pcm_, sw_params);
+    // if (error < 0)
+    //   throw AlsaDeviceError {"unable to install pcm sw params", error};
 
     return out_cfg;
   }
 
-  void AlsaDevice::prepare()
+  void AlsaBackend::AlsaDevice::prepare()
   {
     assert(pcm_ != nullptr && "can not prepare a closed device");
     assert(state() == SND_PCM_STATE_PREPARED || state() == SND_PCM_STATE_SETUP);
 
     int error = snd_pcm_prepare(pcm_);
     if (error < 0)
-      throw AlsaError {"failed to prepare device", error};
+      throw AlsaDeviceError {"failed to prepare device", error};
   }
 
-  void AlsaDevice::start()
+  void AlsaBackend::AlsaDevice::start()
   {
     assert(pcm_ != nullptr && "can not start a closed device");
     assert(state() == SND_PCM_STATE_PREPARED);
 
     int error = snd_pcm_start(pcm_);
     if (error < 0)
-      throw AlsaError {"failed to start device", error};
+      throw AlsaDeviceError {"failed to start device", error};
   }
 
-  void AlsaDevice::write(const void* data, size_t bytes)
+  void AlsaBackend::AlsaDevice::write(const void* data, size_t bytes)
   {
     assert(pcm_ != nullptr && "can not write to a closed device");
 
-    snd_pcm_sframes_t frames = snd_pcm_bytes_to_frames(pcm_, bytes);
+    snd_pcm_sframes_t frames_left = snd_pcm_bytes_to_frames(pcm_, bytes);
+
 // #ifndef NDEBUG
-//     std::cout << "AlsaBackend: write " << frames << " frames" << std::endl;
+//     std::cout << "AlsaBackend: write " << frames_left << " frames" << std::endl;
 // #endif
-    snd_pcm_sframes_t frames_written = snd_pcm_writei(pcm_, data, frames);
-    if (frames_written < 0)
+
+    while (frames_left > 0)
     {
-      frames_written = snd_pcm_recover(pcm_, frames_written, 0);
-    }
-    if (frames_written < 0)
-      throw AlsaError {"write failed (could not recover)", (int)frames_written};
-    else if (frames_written > 0 && frames_written < (snd_pcm_sframes_t) frames)
-    {
+      snd_pcm_sframes_t avail  = snd_pcm_avail(pcm_);
+
+      if (avail < 0)
+        throw AlsaDeviceError {"unable to write (failed to get available frames)", (int) avail};
+
+      if (avail==0)
+        snd_pcm_wait(pcm_, 100);
+
+      snd_pcm_sframes_t frames_chunk = (avail < frames_left) ? avail : frames_left;
+
+      snd_pcm_sframes_t frames_written = snd_pcm_writei(pcm_, data, frames_chunk);
+      if (frames_written < 0)
+      {
 #ifndef NDEBUG
-      std::cerr << "AlsaBackend: short write (expected " << frames
-                << ", wrote " << frames_written << " frames)" << std::endl;
+        std::cerr << "AlsaBackend: write failed (trying to recover)" << std::endl;
 #endif
+        frames_written = snd_pcm_recover(pcm_, frames_written, 0);
+      }
+      if (frames_written < 0)
+      {
+        throw AlsaDeviceError {"write failed (could not recover)", (int)frames_written};
+      }
+      else if (frames_written > 0 && frames_written < (snd_pcm_sframes_t) frames_chunk)
+      {
+#ifndef NDEBUG
+        std::cerr << "AlsaBackend: short write (expected " << frames_chunk
+                  << ", wrote " << frames_written << " frames)" << std::endl;
+#endif
+      }
+
+      frames_left -= frames_written;
+
+      // increment data ptr
+      data = static_cast<const char*>(data) + snd_pcm_frames_to_bytes(pcm_, frames_written);
+
+// #ifndef NDEBUG
+//       std::cout << "AlsaBackend: written: " << frames_written << " "
+//                 << "left: " << frames_left << std::endl;
+// #endif
+
+      snd_pcm_wait(pcm_, 100);
     }
   }
 
-  void AlsaDevice::drop()
+  void AlsaBackend::AlsaDevice::drop()
   {
     assert(pcm_ != nullptr && "can not stop (drop) a closed device");
 
     int error = snd_pcm_drop(pcm_);
     if (error < 0)
-      throw AlsaError {"failed to stop (drop) device", error};
+      throw AlsaDeviceError {"failed to stop (drop) device", error};
   }
 
-  void AlsaDevice::drain()
+  void AlsaBackend::AlsaDevice::drain()
   {
     assert(pcm_ != nullptr && "can not stop (drain) a closed device");
 
     int error = snd_pcm_drain(pcm_);
     if (error < 0)
-      throw AlsaError {"failed to stop (drain) device", error};
+      throw AlsaDeviceError {"failed to stop (drain) device", error};
   }
 
-  AlsaDeviceCaps AlsaDevice::grope()
+  AlsaBackend::AlsaDeviceCaps AlsaBackend::AlsaDevice::grope()
   {
     assert(pcm_ != nullptr && "can not grope a closed device");
     assert(state() == SND_PCM_STATE_OPEN);
@@ -336,7 +349,7 @@ namespace audio {
 
     int error = snd_pcm_hw_params_any(pcm_, hw_params);
     if (error < 0)
-      throw AlsaError {"failed to set up configuration space", error};
+      throw AlsaDeviceError {"failed to set up configuration space", error};
 
     std::vector<snd_pcm_format_t> formats;
 
@@ -347,7 +360,7 @@ namespace audio {
     {
       error = snd_pcm_hw_params_test_format(pcm_, hw_params, fmt);
       if (error < 0)
-        throw AlsaError {"failed to test format ", error};
+        throw AlsaDeviceError {"failed to test format ", error};
 
       formats.push_back(fmt);
     }
@@ -357,11 +370,11 @@ namespace audio {
 
     error = snd_pcm_hw_params_get_channels_min( hw_params, &min_channels );
     if (error < 0)
-      throw AlsaError {"failed to get minimum number of channels", error};
+      throw AlsaDeviceError {"failed to get minimum number of channels", error};
 
     snd_pcm_hw_params_get_channels_max( hw_params, &max_channels );
     if (error < 0)
-      throw AlsaError {"failed to get maximum number of channels", error};
+      throw AlsaDeviceError {"failed to get maximum number of channels", error};
 
     // don't allow rate resampling when probing for the rate range
     snd_pcm_hw_params_set_rate_resample( pcm_, hw_params, 0 );
@@ -371,44 +384,44 @@ namespace audio {
 
     error = snd_pcm_hw_params_get_rate_min (hw_params, &min_rate, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get minimum sample rate", error};
+      throw AlsaDeviceError {"failed to get minimum sample rate", error};
 
     error = snd_pcm_hw_params_get_rate_max (hw_params, &max_rate, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get maximum sample rate", error};
+      throw AlsaDeviceError {"failed to get maximum sample rate", error};
 
     unsigned int min_periods = 0;
     unsigned int max_periods = 0;
 
     error = snd_pcm_hw_params_get_periods_min (hw_params, &min_periods, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get minimum number of periods", error};
+      throw AlsaDeviceError {"failed to get minimum number of periods", error};
 
     error = snd_pcm_hw_params_get_periods_max (hw_params, &max_periods, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get maximum number of periods", error};
+      throw AlsaDeviceError {"failed to get maximum number of periods", error};
 
     snd_pcm_uframes_t min_period_size = 0;
     snd_pcm_uframes_t max_period_size = 0;
 
     error = snd_pcm_hw_params_get_period_size_min (hw_params, &min_period_size, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get minimum period size", error};
+      throw AlsaDeviceError {"failed to get minimum period size", error};
 
     error = snd_pcm_hw_params_get_period_size_max (hw_params, &max_period_size, NULL);
     if (error < 0)
-      throw AlsaError {"failed to get maximum period size", error};
+      throw AlsaDeviceError {"failed to get maximum period size", error};
 
     snd_pcm_uframes_t min_buffer_size = 0;
     snd_pcm_uframes_t max_buffer_size = 0;
 
     error = snd_pcm_hw_params_get_buffer_size_min (hw_params, &min_buffer_size);
     if (error < 0)
-      throw AlsaError {"failed to get minimum buffer size", error};
+      throw AlsaDeviceError {"failed to get minimum buffer size", error};
 
     error = snd_pcm_hw_params_get_buffer_size_max (hw_params, &max_buffer_size);
     if (error < 0)
-      throw AlsaError {"failed to get maximum buffer size", error};
+      throw AlsaDeviceError {"failed to get maximum buffer size", error};
 
     AlsaDeviceCaps caps;
 
@@ -427,25 +440,33 @@ namespace audio {
     return caps;
   }
 
-  snd_pcm_state_t AlsaDevice::state()
+  snd_pcm_state_t AlsaBackend::AlsaDevice::state()
   {
     assert(pcm_ != nullptr && "attempt to get the state of a closed device");
     return snd_pcm_state(pcm_);
   }
 
-  microseconds AlsaDevice::delay()
+  microseconds AlsaBackend::AlsaDevice::delay()
   {
     assert(pcm_ != nullptr && "attempt to obtain delay of a closed device");
 
-    snd_pcm_sframes_t frames;
-    int error = snd_pcm_delay (pcm_, &frames);
+    snd_pcm_sframes_t delay;
+    int error = snd_pcm_delay (pcm_, &delay);
     if (error < 0)
-      throw AlsaError {"failed to obtain delay", error};
+      throw AlsaDeviceError {"failed to obtain delay", error};
 
-    return microseconds((frames * std::micro::den) / rate_);
+// #ifndef NDEBUG
+//     std::cout << "AlsaBackend: delay (frames): " << delay << std::endl;
+// #endif
+
+    if (delay < 0)
+      return 0us;
+    else
+      return microseconds( (delay * std::micro::den) / rate_ );
   }
 
-  std::vector<AlsaDeviceDescription> scanAlsaDevices()
+  // get a list of available alsa pcm output devices
+  std::vector<AlsaBackend::AlsaDeviceDescription> AlsaBackend::AlsaDevice::getAvailableDevices()
   {
     std::vector<AlsaDeviceDescription> devices;
 
@@ -454,7 +475,7 @@ namespace audio {
 
     int error = snd_device_name_hint(-1, "pcm", &hints);
     if (error < 0)
-      throw AlsaError {"failed to scan alsa pcm devices", error};
+      throw AlsaDeviceError {"failed to scan alsa pcm devices", error};
 
     n = hints;
 
@@ -489,16 +510,215 @@ namespace audio {
     return devices;
   }
 
-  bool validateAlsaDevice(const std::string& name,
-                          bool grope_succeeded,
-                          const AlsaDeviceCaps& caps)
+  AlsaBackend::AlsaBackend()
+    : state_ {BackendState::kConfig},
+      cfg_ {kDefaultConfig},
+      device_infos_ {},
+      alsa_device_ {nullptr}
+  {}
+
+  AlsaBackend::~AlsaBackend() {}
+
+  std::vector<DeviceInfo> AlsaBackend::devices()
+  {
+    scanAlsaDevices();
+    return device_infos_;
+  }
+
+  void AlsaBackend::configure(const DeviceConfig& config)
+  {
+    if ( state_ != BackendState::kConfig )
+      throw TransitionError(state_);
+
+    cfg_ = config;
+  }
+
+  DeviceConfig AlsaBackend::configuration()
+  { return cfg_; }
+
+  DeviceConfig AlsaBackend::open()
+  {
+#ifndef NDEBUG
+    std::cout << "AlsaBackend: open device '" << cfg_.name << "'" << std::endl;
+#endif
+    if ( state_ != BackendState::kConfig )
+      throw TransitionError(state_);
+
+    try {
+      alsa_device_ = std::make_unique<AlsaDevice>(cfg_.name);
+      alsa_device_->open();
+    }
+    catch(const AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+
+    AlsaDeviceConfig alsa_in_cfg;
+    alsa_in_cfg.format = sampleFormatToAlsa(cfg_.spec.format);
+    alsa_in_cfg.rate = cfg_.spec.rate;
+    alsa_in_cfg.channels = cfg_.spec.channels;
+
+    // TODO: The preferred buffer configuration should depend on the client side
+    //       configuration (audio::DeviceConfig) and might anticipate a working
+    //       setup by respecting the actual device capabilities (audio::AlsaDeviceCaps).
+    alsa_in_cfg.period_size = 1024;
+    alsa_in_cfg.buffer_size = 4096;
+
+#ifndef NDEBUG
+    std::cout << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
+#endif
+
+    AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
+    try {
+      alsa_out_cfg = alsa_device_->setup(alsa_in_cfg);
+    }
+    catch(const AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+
+#ifndef NDEBUG
+    std::cout << "AlsaBackend: act config: " << alsa_out_cfg << std::endl;
+#endif
+
+    DeviceConfig actual_cfg;
+    actual_cfg.name = cfg_.name;
+    actual_cfg.spec.format = sampleFormatFromAlsa(alsa_out_cfg.format);
+    actual_cfg.spec.rate = alsa_out_cfg.rate;
+    actual_cfg.spec.channels = alsa_out_cfg.channels;
+
+    state_ = BackendState::kOpen;
+
+    return actual_cfg;
+  }
+
+  void AlsaBackend::close()
+  {
+#ifndef NDEBUG
+    std::cout << "AlsaBackend: close device '" << cfg_.name << "'" << std::endl;
+#endif
+    if ( state_ != BackendState::kOpen )
+      throw TransitionError(state_);
+
+    alsa_device_ = nullptr;
+    state_ = BackendState::kConfig;
+  }
+
+  void AlsaBackend::start()
+  {
+    if ( state_ != BackendState::kOpen )
+      throw TransitionError(state_);
+
+    assert(alsa_device_ != nullptr);
+
+#ifndef NDEBUG
+      std::cerr << "AlsaBackend: start device" << std::endl;
+#endif
+    try {
+      alsa_device_->prepare();
+      alsa_device_->start();
+    }
+    catch(const AlsaDeviceError& e) {
+#ifndef NDEBUG
+      std::cerr << "AlsaBackend: could not start device (continue anyway)" << std::endl;
+#endif
+    }
+
+    state_ = BackendState::kRunning;
+  }
+
+  void AlsaBackend::stop()
+  {
+#ifndef NDEBUG
+      std::cout << "AlsaBackend: stop device " << std::endl;
+#endif
+    if ( state_ != BackendState::kRunning )
+      throw TransitionError(state_);
+
+    assert(alsa_device_ != nullptr);
+
+    try {
+      alsa_device_->drain();
+    }
+    catch(AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+
+    state_ = BackendState::kOpen;
+  }
+
+  void AlsaBackend::write(const void* data, size_t bytes)
+  {
+    if ( state_ != BackendState::kRunning )
+      throw TransitionError(state_);
+
+    try {
+      alsa_device_->write(data, bytes);
+    }
+    catch(AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+  }
+
+  void AlsaBackend::flush()
+  {
+    if ( state_ != BackendState::kRunning )
+      throw TransitionError(state_);
+
+    assert(alsa_device_ != nullptr);
+
+    try {
+      alsa_device_->drop();
+    }
+    catch(AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+  }
+
+  void AlsaBackend::drain()
+  {
+    if ( state_ != BackendState::kRunning )
+      throw TransitionError(state_);
+
+    assert(alsa_device_ != nullptr);
+
+    try {
+      alsa_device_->drain();
+    }
+    catch(AlsaDeviceError& e) {
+      throw makeAlsaBackendError(state_, e);
+    }
+  }
+
+  microseconds AlsaBackend::latency()
+  {
+    assert(alsa_device_ != nullptr);
+    microseconds latency = 0us;
+    try {
+      latency = alsa_device_->delay();
+    }
+    catch(...) {
+#ifndef NDEBUG
+      std::cerr << "AlsaBackend: couldn't get latency (continue using "
+                << latency.count() << "us)" << std::endl;
+#endif
+    };
+    return latency;
+  }
+
+  BackendState AlsaBackend::state() const
+  {
+    return state_;
+  }
+
+  bool AlsaBackend::validateAlsaDevice(const std::string& name,
+                                       bool grope_succeeded,
+                                       const AlsaDeviceCaps& caps)
   {
     static const std::vector<std::string> kPrefixes =
       {
         "null",
         //"samplerate",
         //"speexrate",
-        //"pulse",
+        "pulse",
         //"speex",
         //"upmix",
         //"vdownmix",
@@ -552,216 +772,16 @@ namespace audio {
                            });
   }
 
-  AlsaBackend::AlsaBackend()
-    : state_ {BackendState::kConfig},
-      cfg_ {kDefaultConfig},
-      device_infos_ {},
-      alsa_device_ {nullptr}
-  {}
-
-  AlsaBackend::~AlsaBackend() {}
-
-  std::vector<DeviceInfo> AlsaBackend::devices()
-  {
-    scanDevices();
-    return device_infos_;
-  }
-
-  void AlsaBackend::configure(const DeviceConfig& config)
-  {
-    if ( state_ != BackendState::kConfig )
-      throw TransitionError(state_);
-
-    cfg_ = config;
-  }
-
-  DeviceConfig AlsaBackend::configuration()
-  { return cfg_; }
-
-  DeviceConfig AlsaBackend::open()
-  {
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: open device '" << cfg_.name << "'" << std::endl;
-#endif
-    if ( state_ != BackendState::kConfig )
-      throw TransitionError(state_);
-
-    try {
-      alsa_device_ = std::make_unique<AlsaDevice>(cfg_.name);
-      alsa_device_->open();
-    }
-    catch(const AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-
-    AlsaDeviceConfig alsa_in_cfg;
-    alsa_in_cfg.format = SND_PCM_FORMAT_S16_LE;
-    alsa_in_cfg.rate = cfg_.spec.rate;
-    alsa_in_cfg.channels = cfg_.spec.channels;
-
-    // TODO: Do not hardcode this!
-    //       The preferred buffer configuration should depend on the client side
-    //       configuration (audio::DeviceConfig) and might anticipate a working
-    //       setup by respecting the actual device capabilities (audio::AlsaDeviceCaps).
-    alsa_in_cfg.periods = 4;
-    alsa_in_cfg.period_size = 1024;
-
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
-#endif
-
-    AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
-    try {
-      alsa_out_cfg = alsa_device_->setup(alsa_in_cfg);
-    }
-    catch(const AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: act config: " << alsa_out_cfg << std::endl;
-#endif
-
-    state_ = BackendState::kOpen;
-
-    DeviceConfig actual_cfg;
-    actual_cfg.name = cfg_.name;
-    actual_cfg.spec.format = SampleFormat::S16LE;
-    actual_cfg.spec.rate = alsa_out_cfg.rate;
-    actual_cfg.spec.channels = alsa_out_cfg.channels;
-
-    return actual_cfg;
-  }
-
-  void AlsaBackend::close()
-  {
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: close device '" << cfg_.name << "'" << std::endl;
-#endif
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
-
-    alsa_device_ = nullptr;
-    state_ = BackendState::kConfig;
-  }
-
-  void AlsaBackend::start()
-  {
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
-
-    assert(alsa_device_ != nullptr);
-
-#ifndef NDEBUG
-      std::cerr << "AlsaBackend: start device" << std::endl;
-#endif
-    try {
-      alsa_device_->prepare();
-      alsa_device_->start();
-    }
-    catch(const AlsaError& e) {
-#ifndef NDEBUG
-      std::cerr << "AlsaBackend: could not start device (continue anyway)" << std::endl;
-#endif
-    }
-
-    state_ = BackendState::kRunning;
-  }
-
-  void AlsaBackend::stop()
-  {
-#ifndef NDEBUG
-      std::cout << "AlsaBackend: stop device " << std::endl;
-#endif
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
-    assert(alsa_device_ != nullptr);
-
-    try {
-      alsa_device_->drain();
-    }
-    catch(AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-
-    state_ = BackendState::kOpen;
-  }
-
-  void AlsaBackend::write(const void* data, size_t bytes)
-  {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
-    try {
-      alsa_device_->write(data, bytes);
-    }
-    catch(AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-  }
-
-  void AlsaBackend::flush()
-  {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
-    assert(alsa_device_ != nullptr);
-
-    try {
-      alsa_device_->drop();
-    }
-    catch(AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-  }
-
-  void AlsaBackend::drain()
-  {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
-    assert(alsa_device_ != nullptr);
-
-    try {
-      alsa_device_->drain();
-    }
-    catch(AlsaError& e) {
-      throw makeAlsaBackendError(state_, e);
-    }
-  }
-
-  microseconds AlsaBackend::latency()
-  {
-    assert(alsa_device_ != nullptr);
-    microseconds latency = 0us;
-    try {
-      latency = alsa_device_->delay();
-    }
-    catch(...) {
-#ifndef NDEBUG
-      std::cerr << "AlsaBackend: couldn't get latency (continue using "
-                << latency.count() << "us)" << std::endl;
-#endif
-    };
-    return latency;
-  }
-
-  BackendState AlsaBackend::state() const
-  {
-    return state_;
-  }
-
-  void AlsaBackend::scanDevices()
+  void AlsaBackend::scanAlsaDevices()
   {
 #ifndef NDEBUG
     std::cout << "AlsaBackend: scan devices" << std::endl;
 #endif
     std::vector<AlsaDeviceDescription> device_descriptions;
     try {
-      device_descriptions = scanAlsaDevices();
+      device_descriptions = AlsaDevice::getAvailableDevices();
     }
-    catch(AlsaError& e) {
+    catch(AlsaDeviceError& e) {
       throw makeAlsaBackendError(state_, e);
     }
 
@@ -811,7 +831,9 @@ namespace audio {
       }
       catch(...) {} // ignore error and try next
     }
+
     std::swap(device_infos_,device_infos);
+
 #ifndef NDEBUG
     std::cout << "AlsaBackend: " << device_descriptions.size() << " devices found ("
               << device_infos_.size() << " usable)" << std::endl;
