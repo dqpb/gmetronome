@@ -1,6 +1,6 @@
 GMetronome
 ==========
-A practical and precise tempo measurement tool for composers and musicians. 
+A practical and precise tempo measurement tool for composers and musicians.
 
 ![Screenshot](data/screenshots/screenshot.png)
 
@@ -14,7 +14,7 @@ Features
 * Accurate trainer function to smoothly raise or lower tempo
 * Profiles to (automatically) save and restore metronome settings
 * Customizable keyboard shortcuts for nearly all metronome functions
-* Support for different audio backends 
+* Support for different audio backends
 
 Download, building and installation
 -----------------------------------
@@ -26,8 +26,9 @@ It depends on the following packages:
 
 * gtk+-3.0
 * gtkmm-3.0
-* pulseaudio (optional)
 * alsa (optional)
+* oss (optional)
+* pulseaudio (optional)
 
 Since there is no official release yet, clone the project's repository:
 
@@ -35,7 +36,7 @@ Since there is no official release yet, clone the project's repository:
 $ git clone https://gitlab.gnome.org/dqpb/gmetronome.git
 ```
 
-Change to the gmetronome directory and call autoreconf to generate the makefiles. 
+Change to the gmetronome directory and call autoreconf to generate the makefiles.
 This requires a working autotools (autoconf, automake) installation to succeed.
 
 ```
