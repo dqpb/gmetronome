@@ -455,10 +455,6 @@ namespace audio {
     if (error < 0)
       throw AlsaDeviceError {"failed to obtain delay", error};
 
-// #ifndef NDEBUG
-//     std::cout << "AlsaBackend: delay (frames): " << delay << std::endl;
-// #endif
-
     if (delay < 0)
       return 0us;
     else
@@ -538,9 +534,6 @@ namespace audio {
 
   DeviceConfig AlsaBackend::open()
   {
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: open device '" << cfg_.name << "'" << std::endl;
-#endif
     if ( state_ != BackendState::kConfig )
       throw TransitionError(state_);
 
@@ -592,9 +585,6 @@ namespace audio {
 
   void AlsaBackend::close()
   {
-#ifndef NDEBUG
-    std::cout << "AlsaBackend: close device '" << cfg_.name << "'" << std::endl;
-#endif
     if ( state_ != BackendState::kOpen )
       throw TransitionError(state_);
 
@@ -609,9 +599,6 @@ namespace audio {
 
     assert(alsa_device_ != nullptr);
 
-#ifndef NDEBUG
-      std::cerr << "AlsaBackend: start device" << std::endl;
-#endif
     try {
       alsa_device_->prepare();
       alsa_device_->start();
@@ -627,9 +614,6 @@ namespace audio {
 
   void AlsaBackend::stop()
   {
-#ifndef NDEBUG
-      std::cout << "AlsaBackend: stop device " << std::endl;
-#endif
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
