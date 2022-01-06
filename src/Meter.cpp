@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -34,11 +34,11 @@ void Meter::setBeats(int beats)
 {
   if (beats < 1)
     beats = 1;
-  
+
   if (beats != beats_)
   {
-    AccentPattern new_accents(beats * division_, kAccentOff); 
-    
+    AccentPattern new_accents(beats * division_, kAccentOff);
+
     for (int beat_index = 0; beat_index < beats; ++beat_index)
     {
       if (beat_index < beats_) {
@@ -63,7 +63,7 @@ void Meter::setDivision(int division)
   if (division != division_)
   {
     AccentPattern new_accents(beats_ * division, kAccentOff);
-    
+
     for (int beat_index = 0; beat_index < beats_; ++beat_index)
     {
       auto source_it = accents_.cbegin() + (beat_index * division_);
@@ -97,9 +97,9 @@ void Meter::check_data_integrity()
 {
   if (beats_ < 1)
     beats_ = 1;
-  
+
   if (division_ < 1)
     division_ = kNoDivision;
-  
+
   accents_.resize(beats_ * division_, kAccentOff);
 }

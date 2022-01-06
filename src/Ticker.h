@@ -48,9 +48,12 @@ namespace audio {
   public:
     struct Statistics
     {
-      microseconds timestamp;
-      microseconds backend_latency;
-      Generator::Statistics generator;
+      microseconds  timestamp;
+      double        current_tempo;
+      double        current_accel;
+      int           next_accent;
+      microseconds  next_accent_delay;
+      microseconds  backend_latency;
     };
 
   public:

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -137,34 +137,26 @@ public:
   Meter(int beats = kQuadrupleMeter,
         int division = kSimpleMeter,
         const AccentPattern& accents = kAccentPattern_4_Simple);
-  
-  Meter(const Meter& src) = default;
 
-  Meter(Meter&& src) = default;
-
-  Meter& operator=(const Meter& src) = default;
-
-  Meter& operator=(Meter&& src) = default;
-  
   int beats() const
     { return beats_; }
 
   void setBeats(int beats);
-  
+
   int division() const
     { return division_; }
 
   void setDivision(int division);
-  
+
   const AccentPattern& accents() const
     { return accents_; }
-  
+
   void setAccentPattern(const AccentPattern& accents);
-  
+
   void setAccentPattern(AccentPattern&& accents);
 
   void setAccent(std::size_t index, Accent accent);
-  
+
 private:
   int beats_;
   int division_;
@@ -213,7 +205,7 @@ public:
     auto result = Variant<Accent>(g_variant_new_byte(data));
     return result;
   }
-  
+
   Accent get() const {
     return static_cast<Accent>(g_variant_get_byte(gobject_));
   }
@@ -229,10 +221,10 @@ public:
 
   // Default constructor.
   Variant<Meter>() : VariantContainerBase() {}
-  
+
   explicit Variant<Meter>(GVariant* castitem, bool take_a_reference = false)
     : VariantContainerBase(castitem, take_a_reference) {}
-  
+
   static Variant<Meter> create(const Meter& data) {
     std::vector<Glib::VariantBase> variants =
       {
@@ -240,20 +232,20 @@ public:
         Variant<int>::create(data.division()),
         Variant<AccentPattern>::create(data.accents())
       };
-    
+
     GVariant* var_array[3] =
       {
         const_cast<GVariant*>(variants[0].gobj()),
         const_cast<GVariant*>(variants[1].gobj()),
         const_cast<GVariant*>(variants[2].gobj())
       };
-    
+
     Variant<Meter> result = Variant<Meter>(
       g_variant_new_tuple(var_array, variants.size()));
-    
+
     return result;
   }
-  
+
   static const VariantType& variant_type() G_GNUC_CONST {
     static std::vector<VariantType> types =
       {
@@ -261,26 +253,26 @@ public:
         Variant<int>::variant_type(),
         Variant<AccentPattern>::variant_type()
       };
-    
+
     static auto type = VariantType::create_tuple(types);
-    
-    return type;      
+
+    return type;
   }
-  
+
   template<class T>
   T get_child(gsize index) const {
     Variant<T> entry;
     VariantContainerBase::get_child(entry, index);
     return entry.get();
   }
-  
+
   template<class T>
   Variant<T> get_child_variant(gsize index) const {
     Variant<T> entry;
-    VariantContainerBase::get_child(entry, index); 
+    VariantContainerBase::get_child(entry, index);
     return entry;
   }
-  
+
   Meter get() const {
     Meter data = {
       get_child<int>(0),
@@ -289,7 +281,7 @@ public:
     };
     return data;
   }
-  
+
   VariantIter get_iter() const {
     const auto type = variant_type();
     return VariantContainerBase::get_iter(type);

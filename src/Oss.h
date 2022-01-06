@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -24,16 +24,21 @@
 #include <sys/soundcard.h>
 
 namespace audio {
-  
+
   /**
    * Open Sound System (OSS) Audio Backend
-   */ 
+   */
   class OssBackend : public Backend
   {
   public:
-    OssBackend(); 
+    OssBackend();
     ~OssBackend();
-    
+    OssBackend(const OssBackend&) = delete;
+    OssBackend(OssBackend&&) noexcept;
+
+    OssBackend& operator=(const OssBackend&) = delete;
+    OssBackend& operator=(OssBackend&&) noexcept;
+
     std::vector<DeviceInfo> devices() override;
     void configure(const DeviceConfig& config) override;
     DeviceConfig configuration() override;
@@ -46,16 +51,16 @@ namespace audio {
     void drain() override;
     microseconds latency() override;
     BackendState state() const override;
-    
+
   private:
     BackendState state_;
     audio::DeviceConfig cfg_;
     int fd_;
-    
+
     void openAudioDevice();
     void configureAudioDevice();
     void closeAudioDevice();
   };
-  
+
 }//namespace audio
 #endif//GMetronome_Oss_h

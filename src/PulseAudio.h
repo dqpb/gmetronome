@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020, 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -27,16 +27,21 @@
 #include <pulse/error.h>
 
 namespace audio {
-    
+
   /**
    * PulseAudio Backend
-   */ 
+   */
   class PulseAudioBackend : public Backend
   {
   public:
-    PulseAudioBackend(); 
+    PulseAudioBackend();
     ~PulseAudioBackend();
-    
+    PulseAudioBackend(const PulseAudioBackend&) = delete;
+    PulseAudioBackend(PulseAudioBackend&&) noexcept;
+
+    PulseAudioBackend& operator=(const PulseAudioBackend&) = delete;
+    PulseAudioBackend& operator=(PulseAudioBackend&&) noexcept;
+
     std::vector<DeviceInfo> devices() override;
     void configure(const DeviceConfig& config) override;
     DeviceConfig configuration() override;
@@ -57,6 +62,6 @@ namespace audio {
     pa_buffer_attr pa_buffer_attr_;
     pa_simple*     pa_simple_;
 };
-  
+
 }//namespace audio
 #endif//GMetronome_PulseAudio_h

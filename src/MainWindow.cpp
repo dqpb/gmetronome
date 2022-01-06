@@ -180,7 +180,7 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
-  updateCurrentTempo( { 0us, 0us, { 0, 0, -1, 0us } } );
+  updateCurrentTempo( { 0us, 0, 0, -1, 0us, 0us } );
 
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
@@ -930,11 +930,11 @@ void MainWindow::cancelButtonAnimations()
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
-  std::size_t next_accent = stats.generator.next_accent;
+  std::size_t next_accent = stats.next_accent;
 
   uint64_t time = stats.timestamp.count()
     + stats.backend_latency.count()
-    + stats.generator.next_accent_delay.count();
+    + stats.next_accent_delay.count();
 
   time += animation_sync_usecs_;
 
@@ -968,7 +968,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   double tempo_integral;
   double tempo_fraction;
 
-  tempo_fraction = std::modf(stats.generator.current_tempo, &tempo_integral);
+  tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
 
   int tempo_integral_int = tempo_integral;
   int tempo_fraction_int = tempo_fraction * std::pow(10, precision);
@@ -983,11 +983,11 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   if (text != tempo_fraction_label_->get_text())
     tempo_fraction_label_->set_text(text);
 
-  if (stats.generator.current_accel == 0)
+  if (stats.current_accel == 0)
      text = kAccelStableSymbol;
-  else if (stats.generator.current_accel > 0)
+  else if (stats.current_accel > 0)
      text = kAccelUpSymbol;
-  else if (stats.generator.current_accel < 0)
+  else if (stats.current_accel < 0)
     text = kAccelDownSymbol;
 
   if (text != tempo_divider_label_->get_text())
