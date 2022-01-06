@@ -998,17 +998,17 @@ void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
 {
   using dbl_minutes = std::chrono::duration<double, std::ratio<60>>;
 
-  std::size_t next_accent = stats.generator.next_accent;
+  std::size_t next_accent = stats.next_accent;
 
   uint64_t time = stats.timestamp.count()
     + stats.backend_latency.count()
-    + stats.generator.next_accent_delay.count();
+    + stats.next_accent_delay.count();
 
   time += animation_sync_usecs_;
 
-  double cur_accel = stats.generator.current_accel;
-  double cur_tempo = stats.generator.current_tempo;
-  const auto& delay = stats.generator.next_accent_delay;
+  double cur_accel = stats.current_accel;
+  double cur_tempo = stats.current_tempo;
+  const auto& delay = stats.next_accent_delay;
 
   double tempo = cur_tempo + cur_accel * dbl_minutes(delay).count();
 
