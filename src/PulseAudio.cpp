@@ -43,7 +43,7 @@ namespace audio {
     };
 
     // Helper
-    pa_sample_spec convertSpecToPA(const StreamSpec& spec)
+    pa_sample_spec convertSpecToPA(const StreamSpec& spec) noexcept
     {
       pa_sample_spec pa_spec;
       pa_spec.rate = spec.rate;
@@ -70,30 +70,52 @@ namespace audio {
       return pa_spec;
     }
 
-    const std::string kPADeviceName = ""; // Default device
+    const pa_sample_spec kPADefaultSpec = convertSpecToPA(kDefaultSpec);
 
-    const DeviceInfo kPAInfo =
+    const DeviceInfo kPADefaultInfo =
     {
-      kPADeviceName,
+      "",
       "Default Output Device",
-      2,
-      2,
-      2,
-      kDefaultRate,
-      kDefaultRate,
-      kDefaultRate
+      kPADefaultSpec.channels,
+      kPADefaultSpec.channels,
+      kPADefaultSpec.channels,
+      kPADefaultSpec.rate,
+      kPADefaultSpec.rate,
+      kPADefaultSpec.rate
     };
 
-    const DeviceConfig kPAConfig = { kPADeviceName, kDefaultSpec };
+    const pa_buffer_attr kPADefaultBufferAttr =
+    {
+      (uint32_t) kPADefaultSpec.channels * 8056, // maxlength
+      (uint32_t) -1, // tlength
+      (uint32_t) -1, // prebuf
+      (uint32_t) -1, // minreq
+      (uint32_t) -1  // fragsize
+    };
 
   }//unnamed namespace
 
 
   PulseAudioBackend::PulseAudioBackend()
-    : state_(BackendState::kConfig),
-      cfg_(kPAConfig),
-      pa_simple_(nullptr)
+    : state_ {BackendState::kConfig},
+      cfg_ {kDefaultConfig},
+      pa_spec_ {kPADefaultSpec},
+      pa_buffer_attr_ {kPADefaultBufferAttr},
+      pa_simple_ {nullptr}
   {}
+
+  PulseAudioBackend::PulseAudioBackend(PulseAudioBackend&& backend) noexcept
+    : state_ { std::move(backend.state_) },
+      cfg_ { std::move(backend.cfg_) },
+      pa_spec_ { std::move(backend.pa_spec_) },
+      pa_buffer_attr_ { std::move(backend.pa_buffer_attr_) },
+      pa_simple_ { std::move(backend.pa_simple_) }
+  {
+    backend.state_ = BackendState::kConfig;
+    backend.pa_spec_ = kPADefaultSpec;
+    backend.pa_buffer_attr_ = kPADefaultBufferAttr;
+    backend.pa_simple_ = nullptr;
+  }
 
   PulseAudioBackend::~PulseAudioBackend()
   {
@@ -101,10 +123,31 @@ namespace audio {
       pa_simple_free(pa_simple_);
   }
 
+  PulseAudioBackend& PulseAudioBackend::operator=(PulseAudioBackend&& backend) noexcept
+  {
+    if (this == &backend)
+      return *this;
+
+    state_ = std::exchange(backend.state_, BackendState::kConfig);
+
+    cfg_ = std::move(backend.cfg_);
+
+    pa_spec_ = std::exchange(backend.pa_spec_, kPADefaultSpec);
+
+    pa_buffer_attr_ = std::exchange(backend.pa_buffer_attr_, kPADefaultBufferAttr);
+
+    if (pa_simple_)
+      pa_simple_free(pa_simple_);
+
+    pa_simple_ = std::exchange(backend.pa_simple_, nullptr);
+
+    return *this;
+  }
+
   std::vector<DeviceInfo> PulseAudioBackend::devices()
   {
     // TODO: scan pulseaudio server for sinks
-    return {kPAInfo};
+    return {kPADefaultInfo};
   }
 
   void PulseAudioBackend::configure(const DeviceConfig& config)
@@ -121,17 +164,11 @@ namespace audio {
       throw TransitionError(state_);
 
     pa_spec_ = convertSpecToPA(cfg_.spec);
-
-    //pa_buffer_attr_.maxlength = 7056;
     pa_buffer_attr_.maxlength = cfg_.spec.channels * 8056;
-    pa_buffer_attr_.tlength   = -1;
-    pa_buffer_attr_.prebuf    = -1;
-    pa_buffer_attr_.minreq    = -1;
-    pa_buffer_attr_.fragsize  = -1;
 
     state_ = BackendState::kOpen;
 
-    return kPAConfig;
+    return kDefaultConfig;
   }
 
   void PulseAudioBackend::close()

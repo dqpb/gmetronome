@@ -94,11 +94,36 @@ namespace audio {
       fd_(-1)
   {}
 
+  OssBackend::OssBackend(OssBackend&& backend) noexcept
+    : state_ {backend.state_},
+      cfg_ {std::move(backend.cfg_)},
+      fd_ {backend.fd_}
+  {
+    backend.state_ = BackendState::kConfig;
+    backend.fd_ = -1;
+  }
+
   OssBackend::~OssBackend()
   {
     try {
       closeAudioDevice();
     } catch(...) {}
+  }
+
+  OssBackend& OssBackend::operator=(OssBackend&& backend) noexcept
+  {
+    if (this == &backend)
+      return *this;
+
+    try {
+      closeAudioDevice();
+    } catch(...) {}
+
+    state_ = std::exchange(backend.state_, BackendState::kConfig);
+    cfg_ = std::move(backend.cfg_);
+    fd_ = std::exchange(backend.fd_, -1);
+
+    return *this;
   }
 
   std::vector<DeviceInfo> OssBackend::devices()
@@ -183,7 +208,7 @@ namespace audio {
     if ( state_ != BackendState::kRunning )
       throw TransitionError(state_);
 
-    if (::write (fd_, data, bytes) != bytes)
+    if (::write (fd_, data, bytes) != (ssize_t) bytes)
       throw OssError(state_, errno);
   }
 

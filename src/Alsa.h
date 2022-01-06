@@ -33,7 +33,12 @@ namespace audio {
   {
   public:
     AlsaBackend();
+    AlsaBackend(const AlsaBackend&) = delete;
+    AlsaBackend(AlsaBackend&&) noexcept;
     ~AlsaBackend();
+
+    AlsaBackend& operator=(const AlsaBackend&) = delete;
+    AlsaBackend& operator=(AlsaBackend&&) noexcept;
 
     std::vector<DeviceInfo> devices() override;
     void configure(const DeviceConfig& config) override;
@@ -83,7 +88,12 @@ namespace audio {
     class AlsaDevice {
     public:
       AlsaDevice(const std::string& name);
+      AlsaDevice(const AlsaDevice& device) = delete;
+      AlsaDevice(AlsaDevice&& device) noexcept;
       ~AlsaDevice();
+
+      AlsaDevice& operator=(const AlsaDevice& device) = delete;
+      AlsaDevice& operator=(AlsaDevice&& device) noexcept;
 
       void open();
       void close();

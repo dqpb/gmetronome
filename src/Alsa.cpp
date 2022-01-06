@@ -140,14 +140,47 @@ namespace audio {
 
   AlsaBackend::AlsaDevice::AlsaDevice(const std::string& name)
     : name_ {name},
-      pcm_ {nullptr}
+      pcm_ {nullptr},
+      rate_ {0}
   {}
+
+  AlsaBackend::AlsaDevice::AlsaDevice(AlsaDevice&& device) noexcept
+    : name_ { std::move(device.name_) },
+      pcm_ { device.pcm_ },
+      rate_ { device.rate_ }
+  {
+    device.name_.clear();
+    device.pcm_ = nullptr;
+    device.rate_ = 0;
+  }
 
   AlsaBackend::AlsaDevice::~AlsaDevice()
   {
     if (pcm_)
       try { close(); }
       catch(AlsaDeviceError& e) {}
+  }
+
+  AlsaBackend::AlsaDevice& AlsaBackend::AlsaDevice::operator=(AlsaDevice&& device) noexcept
+  {
+    if (this == &device)
+      return *this;
+
+    if (pcm_)
+      try { close(); }
+      catch(AlsaDeviceError& e)
+      {
+        std::cerr << "AlsaBackend: failed to close device in destr. (continue anyway)"
+                  << std::endl;
+      }
+
+    name_ = std::move(device.name_);
+    device.name_.clear();
+
+    pcm_  = std::exchange(device.pcm_, nullptr);
+    rate_ = std::exchange(device.rate_, 0);
+
+    return *this;
   }
 
   void AlsaBackend::AlsaDevice::open()
@@ -513,7 +546,34 @@ namespace audio {
       alsa_device_ {nullptr}
   {}
 
+  AlsaBackend::AlsaBackend(AlsaBackend&& backend) noexcept
+    : state_ { std::move(backend.state_) },
+      cfg_ { std::move(backend.cfg_) },
+      device_infos_ { std::move(backend.device_infos_) },
+      alsa_device_ { std::move(backend.alsa_device_) }
+  {
+    backend.state_ = BackendState::kConfig;
+    backend.device_infos_.clear();
+  }
+
   AlsaBackend::~AlsaBackend() {}
+
+  AlsaBackend& AlsaBackend::operator=(AlsaBackend&& backend) noexcept
+  {
+    if (this == &backend)
+      return *this;
+
+    state_ = std::exchange(backend.state_, BackendState::kConfig);
+
+    cfg_ = std::move(backend.cfg_);
+
+    device_infos_ = std::move(backend.device_infos_);
+    backend.device_infos_.clear();
+
+    alsa_device_  = std::move(backend.alsa_device_);
+
+    return *this;
+  }
 
   std::vector<DeviceInfo> AlsaBackend::devices()
   {
