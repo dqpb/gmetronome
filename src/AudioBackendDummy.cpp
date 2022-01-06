@@ -19,20 +19,14 @@
 
 #include "AudioBackendDummy.h"
 #include <thread>
+#include <cassert>
 
 namespace audio {
 
   namespace {
 
-    class TransitionError : public BackendError {
-    public:
-      TransitionError(BackendState state)
-        : BackendError(settings::kAudioBackendNone, state, "invalid state transition")
-      {}
-    };
-
     const std::string kDummyDeviceName = ""; // Default
-    
+
     const DeviceInfo kDummyInfo =
     {
       kDummyDeviceName,
@@ -46,7 +40,7 @@ namespace audio {
     };
 
     const DeviceConfig kDummyConfig = { kDummyDeviceName, kDefaultSpec };
-    
+
   }//unnamed namespace
 
   DummyBackend::DummyBackend()
@@ -65,49 +59,34 @@ namespace audio {
 
   DeviceConfig DummyBackend::open()
   {
-    if (state_ == BackendState::kConfig)
-      state_ = BackendState::kOpen;
-    else
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kConfig);
+    state_ = BackendState::kOpen;
     return kDummyConfig;
   }
 
   void DummyBackend::close()
   {
-    if (state_ == BackendState::kOpen)
-      state_ = BackendState::kConfig;
-    else
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kOpen);
+    state_ = BackendState::kConfig;
   }
 
   void DummyBackend::start()
   {
-    if (state_ == BackendState::kOpen)
-      state_ = BackendState::kRunning;
-    else
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kOpen);
+    state_ = BackendState::kRunning;
   }
 
   void DummyBackend::stop()
   {
-    if (state_ == BackendState::kRunning)
-      state_ = BackendState::kOpen;
-    else
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kRunning);
+    state_ = BackendState::kOpen;
   }
 
   void DummyBackend::write(const void* data, size_t bytes)
   {
-    if (state_ == BackendState::kRunning)
-    {
-      if ( bytes > 0 )
-      {
-        std::this_thread::sleep_for( audio::bytesToUsecs(bytes, kDummyConfig.spec) );
-      }
-    }
-    else
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kRunning);
+    if ( bytes > 0 )
+      std::this_thread::sleep_for( audio::bytesToUsecs(bytes, kDummyConfig.spec) );
   }
 
   void DummyBackend::flush() {}

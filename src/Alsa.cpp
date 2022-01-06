@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <map>
 #include <thread>
+#include <cassert>
 #include <iostream>
 
 namespace audio {
@@ -66,13 +67,6 @@ namespace audio {
 #endif
     return AlsaBackendError (state, msg, e.alsaErrorCode());
   }
-
-  class TransitionError : public AlsaBackendError {
-  public:
-    TransitionError(BackendState state)
-      : AlsaBackendError(state, "invalid state transition")
-      {}
-  };
 
   // convert sample formats
   std::vector<std::pair<SampleFormat,snd_pcm_format_t>> kFormatMapping =
@@ -583,9 +577,7 @@ namespace audio {
 
   void AlsaBackend::configure(const DeviceConfig& config)
   {
-    if ( state_ != BackendState::kConfig )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kConfig);
     cfg_ = config;
   }
 
@@ -594,9 +586,7 @@ namespace audio {
 
   DeviceConfig AlsaBackend::open()
   {
-    if ( state_ != BackendState::kConfig )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kConfig);
     try {
       alsa_device_ = std::make_unique<AlsaDevice>(cfg_.name);
       alsa_device_->open();
@@ -645,20 +635,15 @@ namespace audio {
 
   void AlsaBackend::close()
   {
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kOpen);
     alsa_device_ = nullptr;
     state_ = BackendState::kConfig;
   }
 
   void AlsaBackend::start()
   {
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kOpen);
     assert(alsa_device_ != nullptr);
-
     try {
       alsa_device_->prepare();
       alsa_device_->start();
@@ -668,32 +653,25 @@ namespace audio {
       std::cerr << "AlsaBackend: could not start device (continue anyway)" << std::endl;
 #endif
     }
-
     state_ = BackendState::kRunning;
   }
 
   void AlsaBackend::stop()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     assert(alsa_device_ != nullptr);
-
     try {
       alsa_device_->drain();
     }
     catch(AlsaDeviceError& e) {
       throw makeAlsaBackendError(state_, e);
     }
-
     state_ = BackendState::kOpen;
   }
 
   void AlsaBackend::write(const void* data, size_t bytes)
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     try {
       alsa_device_->write(data, bytes);
     }
@@ -704,11 +682,8 @@ namespace audio {
 
   void AlsaBackend::flush()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     assert(alsa_device_ != nullptr);
-
     try {
       alsa_device_->drop();
     }
@@ -719,11 +694,8 @@ namespace audio {
 
   void AlsaBackend::drain()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     assert(alsa_device_ != nullptr);
-
     try {
       alsa_device_->drain();
     }

@@ -19,6 +19,7 @@
 
 #include "PulseAudio.h"
 #include "config.h"
+#include <cassert>
 #include <iostream>
 
 namespace audio {
@@ -32,13 +33,6 @@ namespace audio {
       {}
       PulseaudioError(BackendState state, int error)
         : BackendError(settings::kAudioBackendPulseaudio, state, pa_strerror(error))
-      {}
-    };
-
-    class TransitionError : public PulseaudioError {
-    public:
-      TransitionError(BackendState state)
-        : PulseaudioError(state, "invalid state transition")
       {}
     };
 
@@ -160,8 +154,7 @@ namespace audio {
 
   DeviceConfig PulseAudioBackend::open()
   {
-    if (state_ != BackendState::kConfig)
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kConfig);
 
     pa_spec_ = convertSpecToPA(cfg_.spec);
     pa_buffer_attr_.maxlength = cfg_.spec.channels * 8056;
@@ -173,16 +166,13 @@ namespace audio {
 
   void PulseAudioBackend::close()
   {
-    if (state_ != BackendState::kOpen)
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kOpen);
     state_ = BackendState::kConfig;
   }
 
   void PulseAudioBackend::start()
   {
-    if (state_ != BackendState::kOpen)
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kOpen);
 
     const char* dev = cfg_.name.empty() ? NULL : cfg_.name.c_str() ;
 
@@ -204,8 +194,7 @@ namespace audio {
 
   void PulseAudioBackend::stop()
   {
-    if (state_ != BackendState::kRunning)
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kRunning);
 
     if (pa_simple_)
     {
@@ -224,9 +213,6 @@ namespace audio {
 
   void PulseAudioBackend::write(const void* data, size_t bytes)
   {
-    // if ( state_ != BackendState::kRunning )
-    //   throw TransitionError(state_);
-
     int error;
     if (pa_simple_write(pa_simple_, data, bytes, &error) < 0)
       throw PulseaudioError(state_, error);

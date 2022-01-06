@@ -38,13 +38,6 @@ namespace audio {
         {}
     };
 
-    class TransitionError : public OssError {
-    public:
-      TransitionError(BackendState state)
-        : OssError(state, "invalid state transition")
-        {}
-    };
-
     // Helper
     int convertSampleFormatToOss(const SampleFormat& format)
     {
@@ -140,11 +133,8 @@ namespace audio {
 
   DeviceConfig OssBackend::open()
   {
-    if ( state_ != BackendState::kConfig )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kConfig);
     openAudioDevice();
-
     try {
       configureAudioDevice();
     }
@@ -153,26 +143,20 @@ namespace audio {
       try { closeAudioDevice(); } catch(...) {}
       throw;
     }
-
     state_ = BackendState::kOpen;
-
     return {};
   }
 
   void OssBackend::close()
   {
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kOpen);
     closeAudioDevice();
-
     state_ = BackendState::kConfig;
   }
 
   void OssBackend::start()
   {
-    if ( state_ != BackendState::kOpen )
-      throw TransitionError(state_);
+    assert(state_ == BackendState::kOpen);
 
     // since the device might have been closed in a previous stop() call
     // we need to re-open and re-configure it
@@ -189,42 +173,32 @@ namespace audio {
         throw;
       }
     }
-
     state_ = BackendState::kRunning;
   }
 
   void OssBackend::stop()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     closeAudioDevice();
-
     state_ = BackendState::kOpen;
   }
 
   void OssBackend::write(const void* data, size_t bytes)
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     if (::write (fd_, data, bytes) != (ssize_t) bytes)
       throw OssError(state_, errno);
   }
 
   void OssBackend::flush()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     // not implemented yet
   }
 
   void OssBackend::drain()
   {
-    if ( state_ != BackendState::kRunning )
-      throw TransitionError(state_);
-
+    assert(state_ == BackendState::kRunning);
     // not implemented yet
   }
 
