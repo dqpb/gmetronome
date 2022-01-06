@@ -133,6 +133,7 @@ namespace settings {
   const Glib::ustring  kKeyShortcutsShowShortcuts         {"show-shortcuts"};
   const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
   const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
+  const Glib::ustring  kKeyShortcutsShowPendulum          {"show-pendulum"};
   const Glib::ustring  kKeyShortcutsShowMeter             {"show-meter"};
   const Glib::ustring  kKeyShortcutsShowTrainer           {"show-trainer"};
   const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
@@ -164,6 +165,7 @@ namespace settings {
   const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
   const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
   const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
+  const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
 
 }//namespace settings
 #endif//GMetronome_Settings_h

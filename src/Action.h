@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -75,6 +75,7 @@ const Glib::ustring kActionShowHelp              {"show-help"};
 const Glib::ustring kActionShowAbout             {"show-about"};
 const Glib::ustring kActionShowMeter             {"show-meter"};
 const Glib::ustring kActionShowTrainer           {"show-trainer"};
+const Glib::ustring kActionShowPendulum          {"show-pendulum"};
 const Glib::ustring kActionFullScreen            {"full-screen"};
 
 enum class ActionScope {
@@ -118,9 +119,9 @@ constexpr  double   kMaximumVolume        = 100;
 
 // number of UTF-8 encoded unicode characters
 constexpr Glib::ustring::size_type kProfileTitleMaxLength = 255;
-  
+
 // number of UTF-8 encoded unicode characters
-constexpr Glib::ustring::size_type kProfileDescriptionMaxLength = 1024; 
+constexpr Glib::ustring::size_type kProfileDescriptionMaxLength = 1024;
 
 using ProfilesListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
 
@@ -145,7 +146,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionQuit, { ActionScope::kApp, {}, {}, {}, true }
   },
-  
+
   /* Action         : kActionVolume
    * Scope          : Application
    * Parameter type : (gsettings)
@@ -181,7 +182,7 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
   /* Action         : kActionVolumeDecrease
    * Scope          : Application
    * Parameter type : double
@@ -239,7 +240,7 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
   /* Action         : kActionTempoIncrease
    * Scope          : Application
    * Parameter type : double
@@ -257,7 +258,7 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
   /* Action         : kActionTempoDecrease
    * Scope          : Application
    * Parameter type : double
@@ -289,7 +290,7 @@ const ActionDescriptionMap kActionDescriptions =
       ActionScope::kApp, {}, {}, {}, true
     }
   },
-  
+
   /* Action         : kActionTrainerEnabled
    * Scope          : Application
    * Parameter type : bool
@@ -307,7 +308,7 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
   /* Action         : kActionTrainerStart
    * Scope          : Application
    * Parameter type : double
@@ -340,7 +341,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionTrainerTarget,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_target),
       Glib::Variant<ActionStateHintRange<double>>::create(
@@ -392,13 +393,13 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeterSelect,
     {
@@ -421,13 +422,13 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter1Simple,
     {
@@ -439,18 +440,18 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    *
    */
   { kActionMeter2Simple,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_2_simple),
       {},
@@ -458,17 +459,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter3Simple,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_3_simple),
       {},
@@ -476,17 +477,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter4Simple,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_4_simple),
       {},
@@ -494,17 +495,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter1Compound,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_1_compound),
       {},
@@ -512,17 +513,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter2Compound,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_2_compound),
       {},
@@ -530,17 +531,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter3Compound,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_3_compound),
       {},
@@ -548,17 +549,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeter4Compound,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_4_compound),
       {},
@@ -566,17 +567,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionMeterCustom,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
       Glib::Variant<Meter>::create(kDefaultProfile.content.meter_custom),
       {},
@@ -586,7 +587,7 @@ const ActionDescriptionMap kActionDescriptions =
 
   /* Action         : kActionProfilesList
    * Scope          : Application
-   * Parameter type : - 
+   * Parameter type : -
    * State type     : ProfilesList
    * State value    : {}
    * State hint     : -
@@ -594,25 +595,25 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionProfilesList,
     {
-      ActionScope::kApp, 
-      {}, 
-      Glib::Variant<ProfilesList>::create({}), 
-      {}, 
+      ActionScope::kApp,
+      {},
+      Glib::Variant<ProfilesList>::create({}),
+      {},
       true
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesSelect,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Glib::ustring>::variant_type(),
       Glib::Variant<Glib::ustring>::create(""),
       {},
@@ -620,50 +621,50 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesNew, { ActionScope::kApp, {}, {}, {}, true }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesDelete, { ActionScope::kApp, {}, {}, {}, true }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesReset, { ActionScope::kApp, {}, {}, {}, true }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesTitle,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Glib::ustring>::variant_type(),
       Glib::Variant<Glib::ustring>::create(""),
       {},
@@ -671,17 +672,17 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : 
+  /* Action         :
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionProfilesDescription,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<Glib::ustring>::variant_type(),
       Glib::Variant<Glib::ustring>::create(""),
       {},
@@ -699,7 +700,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionProfilesReorder,
     {
-      ActionScope::kApp, 
+      ActionScope::kApp,
       Glib::Variant<ProfilesIdentifierList>::variant_type(),
       Glib::Variant<ProfilesIdentifierList>::create({}),
       {},
@@ -729,7 +730,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionShowProfiles, { ActionScope::kWin, {}, {}, {}, true }
   },
-  
+
   /* Action         : kActionShowPreferences
    * Scope          : Window
    * Parameter type : -
@@ -762,7 +763,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionShowHelp, { ActionScope::kWin, {}, {}, {}, false }
   },
-  
+
   /* Action         : kActionShowAbout
    * Scope          : Window
    * Parameter type : -
@@ -810,6 +811,24 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionShowPendulum
+   * Scope          : Window
+   * Parameter type : -
+   * State type     : -
+   * State value    : -
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionShowPendulum,
+    {
+      ActionScope::kWin,
+      {},//Glib::Variant<bool>::variant_type(),
+      Glib::Variant<bool>::create( true ),
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionFullScreen
    * Scope          : Window
    * Parameter type : bool
@@ -827,14 +846,14 @@ const ActionDescriptionMap kActionDescriptions =
       true
     }
   },
-  
+
   /* Action         : kActionAudioDeviceList
    * Scope          : Application
-   * Parameter type : 
-   * State type     : 
-   * State value    : 
-   * State hint     : 
-   * Enabled        : 
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
    */
   { kActionAudioDeviceList,
     {
@@ -857,7 +876,7 @@ const ActionDescriptionMap kActionDescriptions =
 // 2) ActionHandlerSettings: Uses Gio::Settings::create_action method to create the action
 //                           and adds it to the given Gio::ActionMap.
 //                           See glibmm documentation for details.
-//                           
+//
 using ActionHandlerSlot     = sigc::slot<void, const Glib::VariantBase&>;
 using ActionHandlerSettings = Glib::RefPtr<Gio::Settings>;
 using ActionHandler         = std::variant<ActionHandlerSlot, ActionHandlerSettings>;

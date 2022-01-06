@@ -250,7 +250,7 @@ namespace audio {
     std::tie(tempo, accel) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
 
     stats_.current_tempo = tempo * kFramesMinutesRatio_;
-    stats_.current_accel = accel * kFramesMinutesRatio_;
+    stats_.current_accel = accel * kFramesMinutesRatio_ * kFramesMinutesRatio_;
     stats_.next_accent = next_accent_;
 
     int frames_left = std::max(0, frames_total_ - frames_done_);

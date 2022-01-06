@@ -23,6 +23,7 @@
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
+#include "Pendulum.h"
 #include "AccentButtonGrid.h"
 
 #include <gtkmm.h>
@@ -106,6 +107,8 @@ protected:
   Gtk::ToggleButton* accent_toggle_button_;
   Gtk::Revealer* trainer_revealer_;
   Gtk::Revealer* accent_revealer_;
+  Gtk::Revealer* pendulum_revealer_;
+  Gtk::Box* pendulum_box_;
   Gtk::Frame* trainer_frame_;
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
@@ -117,6 +120,7 @@ protected:
   Gtk::Label* subdiv_label_;
 
   AccentButtonGrid accent_button_grid_;
+  Pendulum pendulum_;
 
   Glib::RefPtr<Gtk::Adjustment> tempo_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_start_adjustment_;
@@ -182,6 +186,7 @@ protected:
 
   void updateAccentAnimation(const audio::Ticker::Statistics& stats);
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
+  void updatePendulum(const audio::Ticker::Statistics& stats);
   void onTickerStatistics(const audio::Ticker::Statistics& stats);
 
   void onMessage(const Message& message);

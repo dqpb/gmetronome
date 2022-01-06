@@ -166,8 +166,8 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="action-name">win.show-meter</property>
-            <property name="text" translatable="yes" context="Primary menu">Show Accents</property>
+            <property name="action-name">win.show-pendulum</property>
+            <property name="text" translatable="yes" context="Primary menu">Show Pen_dulum</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -180,8 +180,8 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="action-name">win.show-trainer</property>
-            <property name="text" translatable="yes" context="Primary menu">Show Trainer</property>
+            <property name="action-name">win.show-meter</property>
+            <property name="text" translatable="yes" context="Primary menu">Show A_ccents</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -194,13 +194,27 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="action-name">win.full-screen</property>
-            <property name="text" translatable="yes">Full Screen</property>
+            <property name="action-name">win.show-trainer</property>
+            <property name="text" translatable="yes" context="Primary menu">Show Tra_iner</property>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkModelButton">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.full-screen</property>
+            <property name="text" translatable="yes" context="Primary menu">_Full Screen</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
           </packing>
         </child>
         <child>
@@ -221,7 +235,7 @@
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="action-name">win.show-preferences</property>
-            <property name="text" translatable="yes" context="Primary menu">_Preferences</property>
+            <property name="text" translatable="yes" context="Primary menu">P_references</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -263,7 +277,7 @@
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="action-name">win.show-about</property>
-            <property name="text" translatable="yes" context="Primary menu">About GMetronome</property>
+            <property name="text" translatable="yes" context="Primary menu">A_bout GMetronome</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -663,6 +677,29 @@
                 <property name="orientation">vertical</property>
                 <property name="spacing">10</property>
                 <child>
+                  <object class="GtkRevealer" id="pendulumRevealer">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="transition-type">slide-up</property>
+                    <property name="reveal-child">True</property>
+                    <child>
+                      <object class="GtkBox" id="pendulumBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkFrame" id="tempoFrame">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -738,7 +775,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -752,6 +789,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
+                        <property name="resize-mode">queue</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="accentBox">
@@ -891,7 +929,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -1020,11 +1058,11 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkBox" id="transportBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="margin-top">10</property>
@@ -1087,7 +1125,7 @@ audio-volume-medium-symbolic</property>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="pack-type">end</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>

@@ -91,6 +91,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentToggleButton", accent_toggle_button_);
   builder_->get_widget("trainerRevealer", trainer_revealer_);
   builder_->get_widget("accentRevealer", accent_revealer_);
+  builder_->get_widget("pendulumRevealer", pendulum_revealer_);
+  builder_->get_widget("pendulumBox", pendulum_box_);
   builder_->get_widget("trainerFrame", trainer_frame_);
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
@@ -161,6 +163,7 @@ void MainWindow::initActions()
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowMeter,               settings_state_},
       {kActionShowTrainer,             settings_state_},
+      {kActionShowPendulum,            settings_state_},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
     };
 
@@ -182,6 +185,10 @@ void MainWindow::initUI()
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
   info_revealer_->set_reveal_child(false);
+
+  // initialize pendulum
+  pendulum_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
+  pendulum_.show();
 
   // initialize tempo interface
   Glib::ustring mark_30 = Glib::ustring::format(30);
@@ -281,6 +288,16 @@ void MainWindow::initBindings()
   settings_state_->bind(settings::kKeyStateShowTrainer,
                         trainer_toggle_button_revealer_,
                         "reveal-child",
+                        Gio::SETTINGS_BIND_GET);
+
+  settings_state_->bind(settings::kKeyStateShowPendulum,
+                        pendulum_revealer_,
+                        "reveal-child",
+                        Gio::SETTINGS_BIND_GET);
+
+  settings_state_->bind(settings::kKeyStateShowPendulum,
+                        pendulum_revealer_,
+                        "vexpand",
                         Gio::SETTINGS_BIND_GET);
 
   bindings_
@@ -977,12 +994,35 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
     tempo_divider_label_->set_text(text);
 }
 
+void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
+{
+  using dbl_minutes = std::chrono::duration<double, std::ratio<60>>;
+
+  std::size_t next_accent = stats.generator.next_accent;
+
+  uint64_t time = stats.timestamp.count()
+    + stats.backend_latency.count()
+    + stats.generator.next_accent_delay.count();
+
+  time += animation_sync_usecs_;
+
+  double cur_accel = stats.generator.current_accel;
+  double cur_tempo = stats.generator.current_tempo;
+  const auto& delay = stats.generator.next_accent_delay;
+
+  double tempo = cur_tempo + cur_accel * dbl_minutes(delay).count();
+
+  pendulum_.scheduleClick(time, tempo, next_accent);
+}
+
 void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
 {
   updateCurrentTempo(stats);
 
   if (meter_animation_ != settings::kMeterAnimationOff)
     updateAccentAnimation(stats);
+
+  updatePendulum(stats);
 }
 
 void MainWindow::onMessage(const Message& message)

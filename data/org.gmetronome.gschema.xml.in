@@ -83,6 +83,10 @@
       <default>'disabled'</default>
       <summary>Keyboard shortcut to show the about dialog</summary>
     </key>
+    <key name="show-pendulum" type="s">
+      <default>'&lt;Primary&gt;&lt;Shift&gt;p'</default>
+      <summary>Keyboard shortcut to toggle pendulum display</summary>
+    </key>
     <key name="show-meter" type="s">
       <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default>
       <summary>Keyboard shortcut to toggle meter interface</summary>
@@ -307,6 +311,11 @@
       <description></description>
     </key>
     <key name="show-trainer" type="b">
+      <default>false</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="show-pendulum" type="b">
       <default>false</default>
       <summary></summary>
       <description></description>
