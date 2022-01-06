@@ -446,10 +446,17 @@ namespace audio {
     {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
 
+      const auto& gen_stats = generator_.getStatistics();
+      
+      out_stats_.current_tempo = gen_stats.current_tempo;
+      out_stats_.current_accel = gen_stats.current_accel;
+      out_stats_.next_accent = gen_stats.next_accent;
+      out_stats_.next_accent_delay = gen_stats.next_accent_delay;
+      
       if (backend_)
         out_stats_.backend_latency = backend_->latency();
-
-      out_stats_.generator = generator_.getStatistics();
+      else
+        out_stats_.backend_latency = 0us;
     }
   }
 

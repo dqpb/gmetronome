@@ -1178,7 +1178,7 @@ void Application::stopTimer()
   using std::literals::chrono_literals::operator""us;
 
   timer_connection_.disconnect();
-  signal_ticker_statistics_.emit({ 0us, 0us, { 0, 0, -1, 0us } });
+  signal_ticker_statistics_.emit({ 0us, 0, 0, -1, 0us, 0us });
 }
 
 bool Application::onTimer()
@@ -1201,8 +1201,8 @@ bool Application::onTimer()
 
     if (!meter_enabled)
     {
-      stats.generator.next_accent = -1;
-      stats.generator.next_accent_delay = 0us;
+      stats.next_accent = -1;
+      stats.next_accent_delay = 0us;
     }
 
     signal_ticker_statistics_.emit(stats);
