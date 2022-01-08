@@ -789,7 +789,6 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
-                        <property name="resize-mode">queue</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="accentBox">
