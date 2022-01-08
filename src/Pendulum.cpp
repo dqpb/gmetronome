@@ -18,29 +18,24 @@
  */
 
 #include "Pendulum.h"
+#include <cairomm/context.h>
 #include <algorithm>
 #include <iostream>
 
-constexpr int    kPendulumHeight           = 150;
-constexpr int    kPendulumWidth            = 300;
-
-constexpr double kOmegaChangeRate          = (M_PI / 1000000) / 1000000;  // rad / us²
-constexpr double kPhiChangeRate            = M_PI_2 / 1000000;       // rad / us
-
-constexpr double kMaxAlpha                 = (M_PI / 1000000) / 1000000;  // rad / us²
+constexpr int    kPendulumHeight    = 150;
+constexpr int    kPendulumWidth     = 300;
+constexpr double kOmegaChangeRate   = (5. * M_PI / 1.) ;  // rad / s²
 
 Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
     Gtk::Widget(),
     meter_{kMeter_4_Simple},
     animation_tick_callback_id_{-1},
-    amplitude_{0},
     theta_{0},
     omega_{0},
     alpha_{0},
-    phi_{0},
     target_omega_{0},
-    target_phi_{0},
+    target_theta_{0},
     last_frame_time_{0}
 {
   startAnimation();
@@ -58,38 +53,22 @@ void Pendulum::setMeter(const Meter& meter)
 
 void Pendulum::scheduleClick(gint64 frame_time, double tempo, int accent)
 {
-  //std::cout << "time: " << frame_time << " tempo: " << tempo << " accent: " << accent << std::endl;
-  
-  //static int current_accent = -1;
-  
-  // if (accent != 0)
-  //   return;
+  double now = g_get_monotonic_time() / 1000000.;
+  double click_time = frame_time / 1000000.;
 
-  // if (current_accent == accent)
-  //   return;
-  // else
-  //   current_accent = accent;
+  target_omega_ = tempo / 60. * M_PI;
 
-  // target_omega_ = tempo / 60. / 1000000. * M_PI;
-
-  // target_phi_ = std::fmod( - target_omega_ * frame_time, 2 * M_PI ) + (2 * M_PI);
-  //target_phi_ = (2. * M_PI) - target_omega_ * frame_time;  
-
-  double delta_theta = M_PI - std::fmod(theta_, M_PI);  
-  gint64 delta_time = frame_time - g_get_monotonic_time();
-  
-  alpha_ = 2. * (delta_theta - delta_time * omega_) / (delta_time * delta_time);
-  alpha_ = std::clamp(alpha_, -kMaxAlpha, kMaxAlpha);
-
-  std::cout << " delta_theta: " << delta_theta
-            << " delta_time: " << delta_time << std::endl;
+  if (accent % 2 == 1)
+    target_theta_ = M_PI - (target_omega_ * click_time - target_omega_ * now);
+  else
+    target_theta_ = (2 * M_PI) - (target_omega_ * click_time - target_omega_ * now);
 }
 
 void Pendulum::startAnimation()
 {
   if (animation_tick_callback_id_ >= 0)
     return;
-  
+
   animation_tick_callback_id_ = add_tick_callback(
     sigc::mem_fun(*this, &Pendulum::updateAnimation) );
 }
@@ -107,12 +86,12 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
 
   bool need_redraw = false;
-  
+
   if (clock)
   {
     gint64 frame_time = 0;
-    
-    auto timings = clock->get_current_timings();    
+
+    auto timings = clock->get_current_timings();
     if (timings)
     {
       frame_time = timings->get_predicted_presentation_time();
@@ -120,92 +99,172 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       if (frame_time == 0)
         frame_time = timings->get_presentation_time();
     }
-    
+
     // no timings or (predicted) presentation time available
     if (frame_time == 0)
       frame_time = clock->get_frame_time();
 
-    gint64 frame_time_delta = frame_time - last_frame_time_;
+    double frame_time_delta = (frame_time - last_frame_time_) / 1000000.;
 
-    if (frame_time_delta < 100000)
+    if (frame_time_delta > 1.0)
+    {
+      last_frame_time_ = frame_time;
       return true;
-    
-    // if (target_omega_ > omega_)
-    //   omega_ = std::min(target_omega_, omega_ + kOmegaChangeRate * frame_time_delta);
-    // else
-    //   omega_ = std::max(target_omega_, omega_ - kOmegaChangeRate * frame_time_delta);
-    
-    // if (target_phi_ > phi_)
-    //   phi_ = std::min(target_phi_, phi_ + kPhiChangeRate * frame_time_delta);
-    // else
-    //   phi_ = std::max(target_phi_, phi_ - kPhiChangeRate * frame_time_delta);
+    }
 
-    omega_ += alpha_ * frame_time_delta;
-    
-    theta_ += omega_ * frame_time_delta;
-    theta_ = std::fmod(theta_, 2 * M_PI);    
-    
-    std::cout << "theta_: " << theta_ << "\t "
-              << "omega_: " << omega_ << "\t "
-              << "alpha_: " << alpha_;
-    
-    if (alpha_ == 0)
-      std::cout << " (OK)" << std::endl;
-    else
-      std::cout << std::endl;
+    if (frame_time_delta > 0.015)
+    {
+      alpha_ = kOmegaChangeRate * std::tanh(target_omega_ - omega_);
+      alpha_ += kOmegaChangeRate * std::sin(target_theta_ - theta_);
 
-    // std::cout << "theta_: " << theta_ << "\t "
-    //           << "omega_: " << omega_ << "\t "
-    //           << "target_omega_: " << target_omega_ << " \t"
-    //           << "phi_: " << phi_ << "\t "
-    //           << "target_phi_: " << target_phi_;
+      alpha_ = std::clamp(alpha_, -kOmegaChangeRate, kOmegaChangeRate);
+      
+      omega_ += alpha_ * frame_time_delta;
 
-    
-    double max_amplitude = 1.;//(100. / 60. / 1000000. * M_PI) / omega_;
-    amplitude_ = max_amplitude * std::sin(theta_);
+      theta_ += omega_ * frame_time_delta;
+      theta_ = std::fmod(theta_, 2 * M_PI);
 
-    last_frame_time_ = frame_time;
+      // std::cout << "omega: " << omega_
+      //           << " theta: " << theta_
+      //           << " target_omega: " << target_omega_
+      //           << " target_theta: " << target_theta_
+      //           << " alpha: " << alpha_
+      //           << std::endl;
 
-    need_redraw = true;
+      last_frame_time_ = frame_time;
+      need_redraw = true;
+    }
   }
 
   if (need_redraw)
-    queue_draw();
-
+  {
+    int min = std::min(get_allocated_width(), get_allocated_height());
+    //queue_draw();
+    queue_draw_area(get_allocated_width() / 2. - min,
+                    (get_allocated_height() - min) / 2,
+                    2*min,
+                    min);
+  }
   return true;
 }
 
 bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
   const Gtk::Allocation allocation = get_allocation();
-  const double w = (double)allocation.get_width() ;
-  const double h = (double)allocation.get_height() ;
+  const double width = (double)allocation.get_width() ;
+  const double height = (double)allocation.get_height() ;
+  const double min_size = std::min(width,height);
 
   auto refStyleContext = get_style_context();
-
-  // paint the background
-  // refStyleContext->render_background(cr,
-  //                                    allocation.get_x(), allocation.get_y(),
-  //                                    allocation.get_width(), allocation.get_height());
-
+  
   // draw the foreground
   const auto state = refStyleContext->get_state();
+
+  Gdk::RGBA needle_color = refStyleContext->get_color(state);
+
+  Gdk::RGBA shadow_color;
+  shadow_color.set_rgba(0, 0, 0, .1);
+
+  Gdk::RGBA highlight_color;
+  highlight_color.set_rgba(1, 1, 1, .6);
+
+  Gdk::RGBA marking_color = refStyleContext->get_color(state);
+  marking_color.set_alpha(.5);
+  
+  //double max_amplitude = 1. - (omega_ / 20.);
+  double kNeedleMaxAmplitude = M_PI / 3.5;
+  double needle_max_amplitude = kNeedleMaxAmplitude - (omega_ / 25);
+  double needle_amplitude = needle_max_amplitude * std::sin( theta_ );
+  double needle_length = std::min(width / (2. * std::sin(kNeedleMaxAmplitude)), height - 30);
+  
+  double needle_base[2] = { width / 2., (height + min_size) / 2. };
+  double needle_tip[2] = {
+    needle_base[0] - needle_length * std::sin(needle_amplitude),
+    needle_base[1] - needle_length * std::cos(needle_amplitude)
+  };
+  
+  // debug: draw a frame 
   Gdk::Cairo::set_source_rgba(cr, refStyleContext->get_color(state));
   cr->move_to(0, 0);
-  cr->line_to(w, 0);
-  cr->line_to(w, h);
-  cr->line_to(0, h);
+  cr->line_to(width, 0);
+  cr->line_to(width, height);
+  cr->line_to(0, height);
   cr->line_to(0, 0);
   cr->stroke();
+  
+  // draw markings
+  cr->save();
+  Gdk::Cairo::set_source_rgba(cr, marking_color);
+  cr->set_line_width(1.);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
+  
+  cr->arc(needle_base[0],
+          needle_base[1],
+          needle_length + 10.,
+          -M_PI / 2. - needle_max_amplitude,
+          -M_PI / 2. + needle_max_amplitude);
 
-  //amplitude_ = -1;
-  double L = (h - 10);
-  
-  cr->move_to(w/2, h);
-  cr->line_to(w/2 - L * std::sin(amplitude_), h - L * std::cos(amplitude_));
   cr->stroke();
+
+  cr->move_to(needle_base[0], needle_base[1]);
+  cr->line_to(needle_base[0], needle_base[1] - needle_length - 10);
+  cr->set_dash(std::vector<double>({4.,4.}),0);
+  cr->stroke();
+  cr->restore();
   
+  // draw needle shadow
+  Gdk::Cairo::set_source_rgba(cr, shadow_color);
+  cr->set_line_width(3.);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
+  cr->move_to(needle_base[0], needle_base[1] + 5);
+  cr->line_to(needle_tip[0], needle_tip[1] + 5);
+  cr->stroke();
+
+  // draw needle
+  Gdk::Cairo::set_source_rgba(cr, needle_color);
+  cr->set_line_width(3.);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
+  cr->move_to(needle_base[0], needle_base[1]);
+  cr->line_to(needle_tip[0], needle_tip[1]);
+  cr->stroke();
+
+  // draw knob
+  Gdk::Cairo::set_source_rgba(cr, needle_color);
+  cr->arc(needle_base[0], needle_base[1], 10., 0, 2. * M_PI);
+  cr->fill_preserve();
+
+  // auto knob_light_gradient = Cairo::LinearGradient::create(0, needle_base[1] - 5, 0, needle_base[1] + 5);
+  // knob_light_gradient->add_color_stop_rgba(
+  //   0.0,
+  //   highlight_color.get_red(),
+  //   highlight_color.get_green(),
+  //   highlight_color.get_blue(),
+  //   0.8
+  //   );
+
+  // knob_light_gradient->add_color_stop_rgba(0.5, 0.0, 0.0, 0.0, 0.0);
+
+  // knob_light_gradient->add_color_stop_rgba(
+  //   1.0,
+  //   shadow_color.get_red(),
+  //   shadow_color.get_green(),
+  //   shadow_color.get_blue(),
+  //   0.8
+  //   );
+
+  // cr->set_source(knob_light_gradient);
+  // cr->fill();
+
+  // Gdk::Cairo::set_source_rgba(cr, needle_color);
+  // cr->arc(needle_base[0], needle_base[1], 8., 0, 2. * M_PI);
+  // cr->fill_preserve();
+
   return true;
+}
+
+void Pendulum::drawMarking(const Cairo::RefPtr<Cairo::Context>& cr)
+{
+  
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
@@ -233,7 +292,7 @@ void Pendulum::get_preferred_height_vfunc(int& minimum_height,
 {
   minimum_height = kPendulumHeight;
   natural_height = kPendulumHeight;
-} 
+}
 
 void Pendulum::get_preferred_width_for_height_vfunc(int height,
                                                     int& minimum_width,

@@ -35,13 +35,11 @@ public:
 private:
   Meter meter_;
   int animation_tick_callback_id_;
-  double amplitude_;
   double theta_;
   double omega_;
   double alpha_;
-  double phi_;
   double target_omega_;
-  double target_phi_;
+  double target_theta_;
   gint64 last_frame_time_;
   
   void startAnimation();
@@ -49,7 +47,8 @@ private:
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
-
+  void drawMarking(const Cairo::RefPtr<Cairo::Context>& cr);
+  
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;
   
