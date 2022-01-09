@@ -116,7 +116,10 @@ protected:
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
-  Gtk::ComboBoxText* subdiv_combo_box_;
+  Gtk::ButtonBox* subdiv_button_box_;
+  Gtk::RadioButton* subdiv_none_radio_button_;
+  Gtk::RadioButton* subdiv_simple_radio_button_;
+  Gtk::RadioButton* subdiv_compound_radio_button_;
   Gtk::Label* subdiv_label_;
 
   AccentButtonGrid accent_button_grid_;
@@ -157,7 +160,7 @@ protected:
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void onMeterChanged();
   void onBeatsChanged();
-  void onSubdivChanged();
+  void onSubdivChanged(Gtk::RadioButton* button, int division);
   void onAccentChanged(std::size_t button_index);
   void onProfilesSelectionChanged();
   void onProfilesTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);

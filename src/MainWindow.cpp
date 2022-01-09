@@ -38,6 +38,8 @@
 //static
 MainWindow* MainWindow::create()
 {
+  Gtk::IconTheme::get_default()->add_resource_path("/org/gmetronome/icons/scalable");
+
   // Load the Builder file and instantiate its widgets.
   auto builder_ = Gtk::Builder::create_from_resource("/org/gmetronome/ui/MainWindow.glade");
 
@@ -100,7 +102,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
-  builder_->get_widget("subdivComboBox", subdiv_combo_box_);
+  builder_->get_widget("subdivButtonBox", subdiv_button_box_);
+  builder_->get_widget("subdivNoneRadioButton", subdiv_none_radio_button_);
+  builder_->get_widget("subdivSimpleRadioButton", subdiv_simple_radio_button_);
+  builder_->get_widget("subdivCompoundRadioButton", subdiv_compound_radio_button_);
   builder_->get_widget("subdivLabel", subdiv_label_);
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
@@ -332,8 +337,16 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onMeterChanged))
       );
   meter_connections_
-    .push_back( subdiv_combo_box_->signal_changed()
-                .connect(sigc::mem_fun(*this, &MainWindow::onSubdivChanged))
+    .push_back( subdiv_none_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_none_radio_button_, 1);})
+      );
+  meter_connections_
+    .push_back( subdiv_simple_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_simple_radio_button_, 2);})
+      );
+  meter_connections_
+    .push_back( subdiv_compound_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_compound_radio_button_, 3);})
       );
   meter_connections_
     .push_back( accent_button_grid_.signal_accent_changed()
@@ -615,16 +628,17 @@ void MainWindow::onBeatsChanged()
   app->activate_action(meter_slot, new_state);
 }
 
-void MainWindow::onSubdivChanged()
+void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
 {
+  if (!button->get_active())
+    return;
+
   auto app = Gtk::Application::get_default();
 
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
 
   Meter meter;
   app->get_action_state(meter_slot, meter);
-
-  int division = std::atoi(subdiv_combo_box_->get_active_id().c_str());
 
   meter.setDivision(division);
 
@@ -635,7 +649,13 @@ void MainWindow::onSubdivChanged()
 void MainWindow::onAccentChanged(std::size_t button_index)
 {
   std::size_t beats = std::lround(beats_adjustment_->get_value());
-  std::size_t division = std::atoi(subdiv_combo_box_->get_active_id().c_str());
+
+  std::size_t division = 1;
+  if (subdiv_simple_radio_button_->get_active())
+    division = 2;
+  else if (subdiv_compound_radio_button_->get_active())
+    division = 3;
+
   std::size_t pattern_size = std::min(beats * division, accent_button_grid_.size());
 
   AccentPattern pattern(pattern_size);
@@ -744,6 +764,8 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
       app->get_action_state(meter_slot, meter);
 
       updateMeterInterface(meter_slot, meter);
+
+      pendulum_.setMeter(meter);
     }
   }
   else if (action_name.compare(kActionTempo) == 0)
@@ -797,18 +819,28 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
     beats_label_->set_sensitive(true);
     beats_spin_button_->set_sensitive(true);
     subdiv_label_->set_sensitive(true);
-    subdiv_combo_box_->set_sensitive(true);
+    subdiv_button_box_->set_sensitive(true);
   }
   else {
     beats_label_->set_sensitive(false);
     beats_spin_button_->set_sensitive(false);
     subdiv_label_->set_sensitive(false);
-    subdiv_combo_box_->set_sensitive(false);
+    subdiv_button_box_->set_sensitive(false);
   }
 
   beats_adjustment_->set_value(meter.beats());
 
-  subdiv_combo_box_->set_active_id(Glib::ustring::format(meter.division()));
+  //subdiv_combo_box_->set_active_id(Glib::ustring::format(meter.division()));
+
+  switch (meter.division())
+  {
+  case 1: subdiv_none_radio_button_->set_active(); break;
+  case 2: subdiv_simple_radio_button_->set_active(); break;
+  case 3: subdiv_compound_radio_button_->set_active(); break;
+  default:
+    // do nothing
+    break;
+  };
 
   updateAccentButtons(meter);
 

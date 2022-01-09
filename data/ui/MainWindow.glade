@@ -886,16 +886,76 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBoxText" id="subdivComboBox">
+                                  <object class="GtkButtonBox" id="subdivButtonBox">
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
                                     <property name="can-focus">False</property>
-                                    <property name="active-id">2</property>
-                                    <items>
-                                      <item id="1" translatable="yes" context="Main window">None</item>
-                                      <item id="2" translatable="yes" context="Main window">Simple</item>
-                                      <item id="3" translatable="yes" context="Main window">Compound</item>
-                                    </items>
+                                    <property name="layout-style">expand</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="subdivNoneRadioButton">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">False</property>
+                                        <property name="group">subdivSimpleRadioButton</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">quarter-note-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="subdivSimpleRadioButton">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">False</property>
+                                        <property name="group">subdivNoneRadioButton</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">eighth-note-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="subdivCompoundRadioButton">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">False</property>
+                                        <property name="group">subdivSimpleRadioButton</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">triplet-note-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>

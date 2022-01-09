@@ -118,7 +118,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       alpha_ += kOmegaChangeRate * std::sin(target_theta_ - theta_);
 
       alpha_ = std::clamp(alpha_, -kOmegaChangeRate, kOmegaChangeRate);
-      
+
       omega_ += alpha_ * frame_time_delta;
 
       theta_ += omega_ * frame_time_delta;
@@ -156,7 +156,7 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   const double min_size = std::min(width,height);
 
   auto refStyleContext = get_style_context();
-  
+
   // draw the foreground
   const auto state = refStyleContext->get_state();
 
@@ -170,20 +170,20 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
   Gdk::RGBA marking_color = refStyleContext->get_color(state);
   marking_color.set_alpha(.5);
-  
-  //double max_amplitude = 1. - (omega_ / 20.);
+
   double kNeedleMaxAmplitude = M_PI / 3.5;
-  double needle_max_amplitude = kNeedleMaxAmplitude - (omega_ / 25);
+  double needle_max_amplitude = kNeedleMaxAmplitude - (omega_ / 28);
   double needle_amplitude = needle_max_amplitude * std::sin( theta_ );
   double needle_length = std::min(width / (2. * std::sin(kNeedleMaxAmplitude)), height - 30);
-  
+  double needle_length_half = needle_length / 2.;
+
   double needle_base[2] = { width / 2., (height + min_size) / 2. };
   double needle_tip[2] = {
     needle_base[0] - needle_length * std::sin(needle_amplitude),
     needle_base[1] - needle_length * std::cos(needle_amplitude)
   };
-  
-  // debug: draw a frame 
+
+  // debug: draw a frame
   Gdk::Cairo::set_source_rgba(cr, refStyleContext->get_color(state));
   cr->move_to(0, 0);
   cr->line_to(width, 0);
@@ -191,19 +191,40 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->line_to(0, height);
   cr->line_to(0, 0);
   cr->stroke();
-  
+
   // draw markings
   cr->save();
-  Gdk::Cairo::set_source_rgba(cr, marking_color);
-  cr->set_line_width(1.);
-  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-  
+
+  cr->move_to(needle_base[0] - (needle_length_half) * std::sin(needle_max_amplitude),
+              needle_base[1] - (needle_length_half) * std::cos(needle_max_amplitude));
+
+  cr->line_to(needle_base[0] - (needle_length + 10) * std::sin(needle_max_amplitude),
+              needle_base[1] - (needle_length + 10) * std::cos(needle_max_amplitude));
+
   cr->arc(needle_base[0],
           needle_base[1],
           needle_length + 10.,
           -M_PI / 2. - needle_max_amplitude,
           -M_PI / 2. + needle_max_amplitude);
 
+  cr->line_to(needle_base[0] + (needle_length_half) * std::sin(needle_max_amplitude),
+              needle_base[1] - (needle_length_half) * std::cos(needle_max_amplitude));
+
+  cr->arc_negative(needle_base[0],
+                   needle_base[1],
+                   needle_length_half,
+                   -M_PI / 2. + needle_max_amplitude,
+                   -M_PI / 2. - needle_max_amplitude);
+
+  cr->set_source_rgba(marking_color.get_red(),
+                      marking_color.get_green(),
+                      marking_color.get_blue(),
+                      0.05);
+  cr->fill_preserve();
+
+  Gdk::Cairo::set_source_rgba(cr, marking_color);
+  cr->set_line_width(1.);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->stroke();
 
   cr->move_to(needle_base[0], needle_base[1]);
@@ -211,7 +232,7 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->set_dash(std::vector<double>({4.,4.}),0);
   cr->stroke();
   cr->restore();
-  
+
   // draw needle shadow
   Gdk::Cairo::set_source_rgba(cr, shadow_color);
   cr->set_line_width(3.);
@@ -233,38 +254,12 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->arc(needle_base[0], needle_base[1], 10., 0, 2. * M_PI);
   cr->fill_preserve();
 
-  // auto knob_light_gradient = Cairo::LinearGradient::create(0, needle_base[1] - 5, 0, needle_base[1] + 5);
-  // knob_light_gradient->add_color_stop_rgba(
-  //   0.0,
-  //   highlight_color.get_red(),
-  //   highlight_color.get_green(),
-  //   highlight_color.get_blue(),
-  //   0.8
-  //   );
-
-  // knob_light_gradient->add_color_stop_rgba(0.5, 0.0, 0.0, 0.0, 0.0);
-
-  // knob_light_gradient->add_color_stop_rgba(
-  //   1.0,
-  //   shadow_color.get_red(),
-  //   shadow_color.get_green(),
-  //   shadow_color.get_blue(),
-  //   0.8
-  //   );
-
-  // cr->set_source(knob_light_gradient);
-  // cr->fill();
-
-  // Gdk::Cairo::set_source_rgba(cr, needle_color);
-  // cr->arc(needle_base[0], needle_base[1], 8., 0, 2. * M_PI);
-  // cr->fill_preserve();
-
   return true;
 }
 
 void Pendulum::drawMarking(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  
+
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
