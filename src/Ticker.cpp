@@ -27,10 +27,10 @@ namespace audio {
 
   namespace
   {
-    static constexpr microseconds  kMaxChunkDuration   = 80ms;
-    static constexpr microseconds  kAvgChunkDuration   = 50ms;
-    static constexpr microseconds  kSineDuration       = 60ms;
-    static constexpr microseconds  kSwapBackendTimeout = 1s;
+    constexpr microseconds  kMaxChunkDuration   = 80ms;
+    constexpr microseconds  kAvgChunkDuration   = 50ms;
+    constexpr microseconds  kSineDuration       = 60ms;
+    constexpr microseconds  kSwapBackendTimeout = 1s;
 
     template<class T>
     using Range = std::array<T,2>;
@@ -43,8 +43,8 @@ namespace audio {
     T clamp(T val, const Range<T>& range)
     { return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] ); }
 
-    static constexpr Range<double> kTempoRange       = {30,250};
-    static constexpr Range<double> kAccelRange       = {0,1000};
+    constexpr Range<double> kTempoRange       = {30,250};
+    constexpr Range<double> kAccelRange       = {0,1000};
   }
 
   // Ticker
