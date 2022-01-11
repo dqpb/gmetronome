@@ -374,8 +374,8 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
   needle_length_ = std::round(marking_radius_ / 100.0 * kNeedleLength);
   needle_base_[0] = std::floor(width / 2.0) + 0.5; // prevent blurred middle line
   needle_base_[1] = std::floor((height + marking_radius_) / 2.0) + 1.5;
-  needle_tip_[0] = needle_base_[0];
-  needle_tip_[1] = needle_base_[1] - needle_length_;
+  needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
+  needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
 }
 
 void Pendulum::on_map()
