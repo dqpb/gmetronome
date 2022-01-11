@@ -22,9 +22,30 @@
 #include <algorithm>
 #include <iostream>
 
-constexpr int    kPendulumHeight    = 150;
-constexpr int    kPendulumWidth     = 300;
-constexpr double kOmegaChangeRate   = (5. * M_PI / 1.) ;  // rad / s²
+// animation
+constexpr double kAnimationFrameRate = 65.;  // frames/s
+
+// behaviour
+constexpr double kClickActionAngle   = M_PI / 8.0;  // rad
+
+// needle dynamics
+constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
+constexpr double kMinOmega           =  30.0 / 60.0 * M_PI;   // rad/s
+constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // rad/s
+constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
+constexpr double kMaxNeedleAmplitude = M_PI / 3.5;            // rad
+constexpr double kNeedleAmplitudeChangeRate = 1.5 * M_PI;     // rad/s
+
+// element appearance
+constexpr double kNeedleWidth        = 3.0;   // pixel
+constexpr double kNeedleShadowOffset = 6.0;   // pixel
+constexpr double kNeedleLength       = 92.0;  // percent of markings height
+constexpr double kKnobRadius         = 10.0;  // pixel
+
+// widget dimensions
+constexpr double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
+constexpr int    kWidgetHeight           = 150;
+constexpr int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
 
 Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
@@ -32,11 +53,18 @@ Pendulum::Pendulum()
     meter_{kMeter_4_Simple},
     animation_tick_callback_id_{-1},
     theta_{0},
-    omega_{0},
     alpha_{0},
+    omega_{0},
+    omega_view_{0},
     target_omega_{0},
     target_theta_{0},
-    last_frame_time_{0}
+    last_frame_time_{0},
+    needle_amplitude_{kMaxNeedleAmplitude},
+    needle_theta_{0.0},
+    needle_length_{0.9},
+    needle_base_ {0.5, 1.0},
+    needle_tip_ {0.5, 0.0},
+    marking_radius_{1.0}
 {
   startAnimation();
 }
@@ -51,17 +79,23 @@ void Pendulum::setMeter(const Meter& meter)
   meter_ = meter;
 }
 
-void Pendulum::scheduleClick(gint64 frame_time, double tempo, int accent)
+void Pendulum::synchronize(const audio::Ticker::Statistics& stats)
 {
-  double now = g_get_monotonic_time() / 1000000.;
-  double click_time = frame_time / 1000000.;
+  if (stats.current_beat < 0)
+  {
+    target_omega_ = 0;
+    target_theta_ = 0;
+    return;
+  }
 
-  target_omega_ = tempo / 60. * M_PI;
+  audio::microseconds now(g_get_monotonic_time());
 
-  if (accent % 2 == 1)
-    target_theta_ = M_PI - (target_omega_ * click_time - target_omega_ * now);
-  else
-    target_theta_ = (2 * M_PI) - (target_omega_ * click_time - target_omega_ * now);
+  double beat = (now * stats.current_beat) / (stats.timestamp + stats.backend_latency);
+
+  target_omega_ = stats.current_tempo / 60. * M_PI;
+  target_theta_ = beat * M_PI;
+  target_theta_ += kClickActionAngle;
+  target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
 }
 
 void Pendulum::startAnimation()
@@ -82,9 +116,15 @@ void Pendulum::stopAnimation()
   animation_tick_callback_id_ = -1;
 }
 
+//helper to compute the maximum needle amplitude for a given angular velocity
+constexpr double needleAmplitude(double velocity)
+{
+  constexpr double kRatio = - (kMaxNeedleAmplitude - kMinNeedleAmplitude) / kMaxOmega;
+  return kRatio * velocity + kMaxNeedleAmplitude;
+}
+
 bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
-
   bool need_redraw = false;
 
   if (clock)
@@ -106,46 +146,84 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     double frame_time_delta = (frame_time - last_frame_time_) / 1000000.;
 
-    if (frame_time_delta > 1.0)
+    if (frame_time_delta > .5)
     {
       last_frame_time_ = frame_time;
       return true;
     }
 
-    if (frame_time_delta > 0.015)
+    if (frame_time_delta > 1.0 / kAnimationFrameRate)
     {
-      alpha_ = kOmegaChangeRate * std::tanh(target_omega_ - omega_);
-      alpha_ += kOmegaChangeRate * std::sin(target_theta_ - theta_);
+      // The acceleration of the needle (alpha) is influenced by the deviation
+      // of the current needle velocity (omega) from the target velocity and the
+      // deviation of the current needle phase (theta) from the target phase.
+      alpha_  = kMaxAlpha * std::tanh(target_omega_ - omega_);
+      alpha_ += kMaxAlpha * std::sin(target_theta_ - theta_);
 
-      alpha_ = std::clamp(alpha_, -kOmegaChangeRate, kOmegaChangeRate);
-
+      // update needle velocity (rad/s)
       omega_ += alpha_ * frame_time_delta;
 
+      // update needle position (rad)
       theta_ += omega_ * frame_time_delta;
       theta_ = std::fmod(theta_, 2 * M_PI);
 
-      // std::cout << "omega: " << omega_
-      //           << " theta: " << theta_
-      //           << " target_omega: " << target_omega_
-      //           << " target_theta: " << target_theta_
-      //           << " alpha: " << alpha_
-      //           << std::endl;
+      target_theta_ += target_omega_ * frame_time_delta;
 
       last_frame_time_ = frame_time;
+
       need_redraw = true;
+
+      if (need_redraw)
+      {
+        double target_amplitude = needleAmplitude(target_omega_);
+
+        auto old_needle_amplitude = needle_amplitude_;
+        needle_amplitude_ += kNeedleAmplitudeChangeRate
+          * std::tanh(target_amplitude - needle_amplitude_) * frame_time_delta;
+
+        needle_theta_ = needle_amplitude_ * std::sin( theta_ );
+
+        auto old_needle_tip = needle_tip_;
+
+        needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
+        needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
+
+        int x, y, w, h;
+
+        if(old_needle_amplitude != needle_amplitude_)
+        {
+          x = needle_base_[0] - needle_length_;
+          y = 0;
+          w = 2.0 * needle_length_;
+          h = get_allocated_height();
+        }
+        else
+        {
+          x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
+          y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
+          w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
+          h = needle_base_[1] - y + kNeedleWidth;
+        };
+        queue_draw_area(x,y,w,h);
+      }
     }
   }
-
-  if (need_redraw)
-  {
-    int min = std::min(get_allocated_width(), get_allocated_height());
-    //queue_draw();
-    queue_draw_area(get_allocated_width() / 2. - min,
-                    (get_allocated_height() - min) / 2,
-                    2*min,
-                    min);
-  }
   return true;
+}
+
+Gdk::RGBA Pendulum::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
+{
+  Gtk::StateFlags widget_state = context->get_state();
+  Gdk::RGBA color = context->get_color(widget_state);
+
+  return color;
+}
+
+Gdk::RGBA Pendulum::getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
+{
+  Gtk::StateFlags widget_state = context->get_state();
+  Gdk::RGBA color = context->get_color(widget_state | Gtk::STATE_FLAG_LINK);
+  return color;
 }
 
 bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
@@ -153,68 +231,56 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   const Gtk::Allocation allocation = get_allocation();
   const double width = (double)allocation.get_width() ;
   const double height = (double)allocation.get_height() ;
-  const double min_size = std::min(width,height);
 
-  auto refStyleContext = get_style_context();
+  auto style_context = get_style_context();
 
   // draw the foreground
-  const auto state = refStyleContext->get_state();
+  Gdk::RGBA primary_color = getPrimaryColor(style_context);
+  Gdk::RGBA secondary_color = getSecondaryColor(style_context);
+  Gdk::RGBA needle_color = primary_color;
 
-  Gdk::RGBA needle_color = refStyleContext->get_color(state);
+  static const Gdk::RGBA shadow_color("rgba(0,0,0,.1)");
+  static const Gdk::RGBA highlight_color("rgb(255,255,255,.6)");
 
-  Gdk::RGBA shadow_color;
-  shadow_color.set_rgba(0, 0, 0, .1);
-
-  Gdk::RGBA highlight_color;
-  highlight_color.set_rgba(1, 1, 1, .6);
-
-  Gdk::RGBA marking_color = refStyleContext->get_color(state);
+  Gdk::RGBA marking_color = primary_color;
   marking_color.set_alpha(.5);
 
-  double kNeedleMaxAmplitude = M_PI / 3.5;
-  double needle_max_amplitude = kNeedleMaxAmplitude - (omega_ / 28);
-  double needle_amplitude = needle_max_amplitude * std::sin( theta_ );
-  double needle_length = std::min(width / (2. * std::sin(kNeedleMaxAmplitude)), height - 30);
-  double needle_length_half = needle_length / 2.;
-
-  double needle_base[2] = { width / 2., (height + min_size) / 2. };
-  double needle_tip[2] = {
-    needle_base[0] - needle_length * std::sin(needle_amplitude),
-    needle_base[1] - needle_length * std::cos(needle_amplitude)
-  };
+  static const double three_pi_half = 3.0 * M_PI / 2.0;
+  const double sin_needle_amplitude = std::sin(needle_amplitude_);
+  const double cos_needle_amplitude = std::cos(needle_amplitude_);
+  const double needle_length_half = needle_length_ / 2.;
 
   // debug: draw a frame
-  Gdk::Cairo::set_source_rgba(cr, refStyleContext->get_color(state));
-  cr->move_to(0, 0);
-  cr->line_to(width, 0);
-  cr->line_to(width, height);
-  cr->line_to(0, height);
-  cr->line_to(0, 0);
-  cr->stroke();
+  // Gdk::Cairo::set_source_rgba(cr, primary_color);
+  // cr->move_to(0, 0);
+  // cr->line_to(width, 0);
+  // cr->line_to(width, height);
+  // cr->line_to(0, height);
+  // cr->line_to(0, 0);
+  // cr->stroke();
 
   // draw markings
   cr->save();
+  cr->move_to(needle_base_[0] - (needle_length_half) * sin_needle_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_needle_amplitude);
 
-  cr->move_to(needle_base[0] - (needle_length_half) * std::sin(needle_max_amplitude),
-              needle_base[1] - (needle_length_half) * std::cos(needle_max_amplitude));
+  cr->line_to(needle_base_[0] - marking_radius_ * sin_needle_amplitude,
+              needle_base_[1] - marking_radius_ * cos_needle_amplitude);
 
-  cr->line_to(needle_base[0] - (needle_length + 10) * std::sin(needle_max_amplitude),
-              needle_base[1] - (needle_length + 10) * std::cos(needle_max_amplitude));
+  cr->arc(needle_base_[0],
+          needle_base_[1],
+          marking_radius_,
+          three_pi_half - needle_amplitude_,
+          three_pi_half + needle_amplitude_);
 
-  cr->arc(needle_base[0],
-          needle_base[1],
-          needle_length + 10.,
-          -M_PI / 2. - needle_max_amplitude,
-          -M_PI / 2. + needle_max_amplitude);
+  cr->line_to(needle_base_[0] + (needle_length_half) * sin_needle_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_needle_amplitude);
 
-  cr->line_to(needle_base[0] + (needle_length_half) * std::sin(needle_max_amplitude),
-              needle_base[1] - (needle_length_half) * std::cos(needle_max_amplitude));
-
-  cr->arc_negative(needle_base[0],
-                   needle_base[1],
+  cr->arc_negative(needle_base_[0],
+                   needle_base_[1],
                    needle_length_half,
-                   -M_PI / 2. + needle_max_amplitude,
-                   -M_PI / 2. - needle_max_amplitude);
+                   three_pi_half + needle_amplitude_,
+                   three_pi_half - needle_amplitude_);
 
   cr->set_source_rgba(marking_color.get_red(),
                       marking_color.get_green(),
@@ -227,8 +293,8 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->stroke();
 
-  cr->move_to(needle_base[0], needle_base[1]);
-  cr->line_to(needle_base[0], needle_base[1] - needle_length - 10);
+  cr->move_to(needle_base_[0], needle_base_[1]);
+  cr->line_to(needle_base_[0], needle_base_[1] - marking_radius_);
   cr->set_dash(std::vector<double>({4.,4.}),0);
   cr->stroke();
   cr->restore();
@@ -237,80 +303,86 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   Gdk::Cairo::set_source_rgba(cr, shadow_color);
   cr->set_line_width(3.);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-  cr->move_to(needle_base[0], needle_base[1] + 5);
-  cr->line_to(needle_tip[0], needle_tip[1] + 5);
+  cr->move_to(needle_base_[0], needle_base_[1] + kNeedleShadowOffset);
+  cr->line_to(needle_tip_[0], needle_tip_[1] + kNeedleShadowOffset);
   cr->stroke();
 
   // draw needle
   Gdk::Cairo::set_source_rgba(cr, needle_color);
-  cr->set_line_width(3.);
+  cr->set_line_width(kNeedleWidth);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-  cr->move_to(needle_base[0], needle_base[1]);
-  cr->line_to(needle_tip[0], needle_tip[1]);
+  cr->move_to(needle_base_[0], needle_base_[1]);
+  cr->line_to(needle_tip_[0], needle_tip_[1]);
   cr->stroke();
 
   // draw knob
   Gdk::Cairo::set_source_rgba(cr, needle_color);
-  cr->arc(needle_base[0], needle_base[1], 10., 0, 2. * M_PI);
+  cr->arc(needle_base_[0], needle_base_[1], kKnobRadius, 0.0, 2.0 * M_PI);
   cr->fill_preserve();
 
   return true;
 }
 
 void Pendulum::drawMarking(const Cairo::RefPtr<Cairo::Context>& cr)
-{
-
-}
+{}
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
 {
-  return Gtk::SIZE_REQUEST_CONSTANT_SIZE;
+  return Gtk::SIZE_REQUEST_WIDTH_FOR_HEIGHT;
 }
 
 void Pendulum::get_preferred_width_vfunc(int& minimum_width,
                                          int& natural_width) const
 {
-  minimum_width = kPendulumWidth;
-  natural_width = kPendulumWidth;
+  minimum_width = kWidgetWidth;
+  natural_width = kWidgetWidth;
 }
 
 void Pendulum::get_preferred_height_for_width_vfunc(int width,
                                                     int& minimum_height,
                                                     int& natural_height) const
 {
-  minimum_height = kPendulumHeight;
-  natural_height = kPendulumHeight;
+  minimum_height = width / kWidgetWidthHeightRatio;
+  natural_height = width / kWidgetWidthHeightRatio;
 }
 
 void Pendulum::get_preferred_height_vfunc(int& minimum_height,
                                           int& natural_height) const
 {
-  minimum_height = kPendulumHeight;
-  natural_height = kPendulumHeight;
+  minimum_height = kWidgetHeight;
+  natural_height = kWidgetHeight;
 }
 
 void Pendulum::get_preferred_width_for_height_vfunc(int height,
                                                     int& minimum_width,
                                                     int& natural_width) const
 {
-  minimum_width = kPendulumWidth;
-  natural_width = kPendulumWidth;
+  minimum_width = kWidgetWidthHeightRatio * height;
+  natural_width = kWidgetWidthHeightRatio * height;
 }
 
 void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
 {
-  //Do something with the space that we have actually been given:
-  //(We will not be given heights or widths less than we have requested, though
-  //we might get more)
+  int x = allocation.get_x();
+  int y = allocation.get_y();
+  int width = allocation.get_width();
+  int height = allocation.get_height();
+  int min_size = std::min(width, height);
 
-  //Use the offered allocation for this container:
+  // use the offered allocation for this widget
   set_allocation(allocation);
 
   if(gdk_window_)
-  {
-    gdk_window_->move_resize( allocation.get_x(), allocation.get_y(),
-                              allocation.get_width(), allocation.get_height() );
-  }
+    gdk_window_->move_resize(x, y, width, height);
+
+  marking_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
+  marking_radius_ = std::floor(marking_radius_ - 1.0) + 0.5;
+
+  needle_length_ = std::round(marking_radius_ / 100.0 * kNeedleLength);
+  needle_base_[0] = std::floor(width / 2.0) + 0.5; // prevent blurred middle line
+  needle_base_[1] = std::floor((height + marking_radius_) / 2.0) + 1.5;
+  needle_tip_[0] = needle_base_[0];
+  needle_tip_[1] = needle_base_[1] - needle_length_;
 }
 
 void Pendulum::on_map()
@@ -325,26 +397,20 @@ void Pendulum::on_unmap()
 
 void Pendulum::on_realize()
 {
-  //Do not call base class Gtk::Widget::on_realize().
-  //It's intended only for widgets that set_has_window(false).
+  // Do not call base class Gtk::Widget::on_realize().
+  // It's intended only for widgets that set_has_window(false).
 
   set_realized();
 
-  //Get the themed style from the CSS file:
-  // m_scale = m_scale_prop.get_value();
-  // std::cout << "m_scale (example_scale from the theme/css-file) is: "
-  //           << m_scale << std::endl;
-
   if(!gdk_window_)
   {
-    //Create the GdkWindow:
-
+    // create the GdkWindow:
     GdkWindowAttr attributes;
     memset(&attributes, 0, sizeof(attributes));
 
     Gtk::Allocation allocation = get_allocation();
 
-    //Set initial position and size of the Gdk::Window:
+    // set initial position and size of the Gdk::Window:
     attributes.x = allocation.get_x();
     attributes.y = allocation.get_y();
     attributes.width = allocation.get_width();
@@ -358,7 +424,7 @@ void Pendulum::on_realize()
                                       GDK_WA_X | GDK_WA_Y);
     set_window(gdk_window_);
 
-    //make the widget receive expose events
+    // make the widget receive expose events
     gdk_window_->set_user_data(gobj());
   }
 }

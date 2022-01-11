@@ -21,7 +21,9 @@
 #define GMetronome_Pendulum_h
 
 #include <gtkmm.h>
+#include <array>
 #include "Meter.h"
+#include "Ticker.h"
 
 class Pendulum : public Gtk::Widget {
 
@@ -29,29 +31,39 @@ public:
   Pendulum();
   virtual ~Pendulum();
 
-  void setMeter(const Meter& meter);  
-  void scheduleClick(gint64 frame_time, double tempo, int accent);
+  void setMeter(const Meter& meter);
+  void synchronize(const audio::Ticker::Statistics& stats);
 
 private:
   Meter meter_;
   int animation_tick_callback_id_;
   double theta_;
-  double omega_;
   double alpha_;
+  double omega_;
+  double omega_view_;
   double target_omega_;
   double target_theta_;
   gint64 last_frame_time_;
-  
+  double needle_amplitude_;
+  double needle_theta_;
+  double needle_length_;
+  std::array<double,2> needle_base_;
+  std::array<double,2> needle_tip_;
+  double marking_radius_;
+
   void startAnimation();
   void stopAnimation();
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);
 
+  Gdk::RGBA getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
+  Gdk::RGBA getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
+
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
   void drawMarking(const Cairo::RefPtr<Cairo::Context>& cr);
-  
+
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;
-  
+
   Gtk::SizeRequestMode get_request_mode_vfunc() const override;
 
   void get_preferred_width_vfunc(int& minimum_width,

@@ -185,7 +185,7 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
-  updateCurrentTempo( { 0us, 0, 0, -1, 0us, 0us } );
+  updateCurrentTempo( { 0us, 0.0, 0.0, -1.0, -1, 0us, 0us } );
 
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
@@ -193,6 +193,7 @@ void MainWindow::initUI()
 
   // initialize pendulum
   pendulum_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
+  pendulum_.set_halign(Gtk::ALIGN_CENTER);
   pendulum_.show();
 
   // initialize tempo interface
@@ -215,7 +216,7 @@ void MainWindow::initUI()
   Meter meter;
   app->get_action_state(meter_slot, meter);
 
-  updateMeterInterface(meter_slot, meter);
+  updateMeter(meter_slot, meter);
 
   // initialize profiles list
   ProfilesList list;
@@ -304,7 +305,6 @@ void MainWindow::initBindings()
                         pendulum_revealer_,
                         "vexpand",
                         Gio::SETTINGS_BIND_GET);
-
   bindings_
     .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
                                               trainer_frame_->property_sensitive() ));
@@ -763,9 +763,7 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
       Meter meter;
       app->get_action_state(meter_slot, meter);
 
-      updateMeterInterface(meter_slot, meter);
-
-      pendulum_.setMeter(meter);
+      updateMeter(meter_slot, meter);
     }
   }
   else if (action_name.compare(kActionTempo) == 0)
@@ -805,7 +803,7 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   }
 }
 
-void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& meter)
+void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 {
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::bind(&sigc::connection::block, std::placeholders::_1, true));
@@ -830,8 +828,6 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
 
   beats_adjustment_->set_value(meter.beats());
 
-  //subdiv_combo_box_->set_active_id(Glib::ustring::format(meter.division()));
-
   switch (meter.division())
   {
   case 1: subdiv_none_radio_button_->set_active(); break;
@@ -846,6 +842,8 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
 
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::mem_fn(&sigc::connection::unblock));
+
+  pendulum_.setMeter(meter);
 }
 
 void MainWindow::updateAccentButtons(const Meter& meter)
@@ -1044,7 +1042,8 @@ void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
 
   double tempo = cur_tempo + cur_accel * dbl_minutes(delay).count();
 
-  pendulum_.scheduleClick(time, tempo, next_accent);
+  //pendulum_.scheduleClick(time, tempo, next_accent, stats.current_beat);
+  pendulum_.synchronize(stats);
 }
 
 void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)

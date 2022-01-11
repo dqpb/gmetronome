@@ -174,10 +174,9 @@ protected:
   void onActionStateChanged(const Glib::ustring& action_name,
                             const Glib::VariantBase& variant);
 
-  void updateMeterInterface(const Glib::ustring& slot, const Meter& meter);
+  void updateMeter(const Glib::ustring& slot, const Meter& meter);
 
   void updateAccentButtons(const Meter& meter);
-  void updateFlowBoxMaxChildren(int width);
 
   void updateProfilesList(const ProfilesList& list);
   void updateProfilesSelect(const Glib::ustring& id);

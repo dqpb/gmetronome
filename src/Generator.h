@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #include <memory>
 
 namespace audio {
-  
+
   class Generator {
 
   public:
@@ -34,33 +34,34 @@ namespace audio {
     {
       double  current_tempo;
       double  current_accel;
+      double  current_beat;
       int     next_accent;
       microseconds  next_accent_delay;
     };
 
-  public:    
+  public:
 
     Generator(StreamSpec spec = kDefaultSpec,
               microseconds maxChunkDuration = 80ms,
               microseconds avgChunkDuration = 50ms);
-    
+
     ~Generator();
-    
+
     void setTempo(double tempo);
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void swapMeter(Meter& meter);
-    
+
     void swapSoundStrong(Buffer& sound);
     void swapSoundMid(Buffer& sound);
     void swapSoundWeak(Buffer& sound);
-    
+
     const Generator::Statistics& getStatistics() const;
-    
+
     void start(const void*& data, size_t& bytes);
     void stop(const void*& data, size_t& bytes);
     void cycle(const void*& data, size_t& bytes);
-    
+
   private:
     const StreamSpec kStreamSpec_;
     const microseconds kMaxChunkDuration_;
@@ -74,31 +75,33 @@ namespace audio {
 
     double tempo_;
     double target_tempo_;
-    double accel_, accel_saved_;
+    double accel_;
+    double accel_saved_;
     Meter meter_;
     const Buffer sound_zero_;
     Buffer sound_strong_;
     Buffer sound_mid_;
     Buffer sound_weak_;
+    int current_beat_;
     unsigned next_accent_;
     int frames_total_;
     int frames_done_;
     Generator::Statistics stats_;
-    
+
     double convertTempoToFrameTime(double tempo);
     double convertAccelToFrameTime(double accel);
-    
+
     void recalculateAccelSign();
     void recalculateFramesTotal();
     void recalculateMotionParameters();
-    
+
     std::pair<double, double>
     motionAfterNFrames(double tempo, double target_tempo, double accel, size_t n_frames);
-      
+
     size_t framesPerPulse(double tempo, double target_tempo,  double accel, unsigned subdiv=1);
-    
+
     void updateStatistics();
   };
-  
+
 }//namespace audio
 #endif//GMetronome_Generator_h

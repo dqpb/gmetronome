@@ -683,12 +683,25 @@
                     <property name="transition-type">slide-up</property>
                     <property name="reveal-child">True</property>
                     <child>
-                      <object class="GtkBox" id="pendulumBox">
+                      <object class="GtkFrame" id="pendulumFrame">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="orientation">vertical</property>
+                        <property name="label-xalign">0.019999999552965164</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkBox" id="pendulumBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                          </object>
                         </child>
                       </object>
                     </child>
