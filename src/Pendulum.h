@@ -40,7 +40,6 @@ private:
   double theta_;
   double alpha_;
   double omega_;
-  double omega_view_;
   double target_omega_;
   double target_theta_;
   gint64 last_frame_time_;

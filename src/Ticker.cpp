@@ -29,7 +29,6 @@ namespace audio {
   {
     static constexpr microseconds  kMaxChunkDuration   = 80ms;
     static constexpr microseconds  kAvgChunkDuration   = 50ms;
-    static constexpr double        kSineVolume         = 1.;
     static constexpr microseconds  kSineDuration       = 60ms;
     static constexpr microseconds  kSwapBackendTimeout = 1s;
 

@@ -30,8 +30,7 @@ constexpr double kClickActionAngle   = M_PI / 8.0;  // rad
 
 // needle dynamics
 constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
-constexpr double kMinOmega           =  30.0 / 60.0 * M_PI;   // rad/s
-constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // rad/s
+constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
 constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
 constexpr double kMaxNeedleAmplitude = M_PI / 3.5;            // rad
 constexpr double kNeedleAmplitudeChangeRate = 1.5 * M_PI;     // rad/s
@@ -43,9 +42,9 @@ constexpr double kNeedleLength       = 92.0;  // percent of markings height
 constexpr double kKnobRadius         = 10.0;  // pixel
 
 // widget dimensions
-constexpr double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
-constexpr int    kWidgetHeight           = 150;
-constexpr int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
+const double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
+const int    kWidgetHeight           = 150;
+const int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
 
 Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
@@ -55,7 +54,6 @@ Pendulum::Pendulum()
     theta_{0},
     alpha_{0},
     omega_{0},
-    omega_view_{0},
     target_omega_{0},
     target_theta_{0},
     last_frame_time_{0},
@@ -228,10 +226,6 @@ Gdk::RGBA Pendulum::getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) c
 
 bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-  const Gtk::Allocation allocation = get_allocation();
-  const double width = (double)allocation.get_width() ;
-  const double height = (double)allocation.get_height() ;
-
   auto style_context = get_style_context();
 
   // draw the foreground
@@ -367,7 +361,6 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
   int y = allocation.get_y();
   int width = allocation.get_width();
   int height = allocation.get_height();
-  int min_size = std::min(width, height);
 
   // use the offered allocation for this widget
   set_allocation(allocation);
