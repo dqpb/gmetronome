@@ -29,6 +29,7 @@
 #include <gtkmm.h>
 #include <list>
 #include <vector>
+#include <chrono>
 
 class ActionBinding;
 class ProfilesListStore;
@@ -135,7 +136,7 @@ protected:
 
   // cached preferences
   int meter_animation_;
-  double animation_sync_usecs_;
+  std::chrono::microseconds animation_sync_;
 
   // Initialization
   void initSettings();

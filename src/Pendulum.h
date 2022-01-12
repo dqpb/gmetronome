@@ -32,7 +32,8 @@ public:
   virtual ~Pendulum();
 
   void setMeter(const Meter& meter);
-  void synchronize(const audio::Ticker::Statistics& stats);
+  void synchronize(const audio::Ticker::Statistics& stats,
+                   const std::chrono::microseconds& sync);
 
 private:
   Meter meter_;

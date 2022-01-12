@@ -56,7 +56,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   : Gtk::ApplicationWindow(cobject),
     builder_(builder),
     shortcuts_window_(nullptr),
-    animation_sync_usecs_(0)
+    animation_sync_(0)
 {
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
@@ -962,11 +962,11 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
   std::size_t next_accent = stats.next_accent;
 
-  uint64_t time = stats.timestamp.count()
-    + stats.backend_latency.count()
-    + stats.next_accent_delay.count();
+  std::chrono::microseconds time = stats.timestamp
+    + stats.backend_latency
+    + stats.next_accent_delay;
 
-  time += animation_sync_usecs_;
+  time += animation_sync_;
 
   if ( next_accent < accent_button_grid_.size() )
   {
@@ -978,7 +978,7 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
       [[fallthrough]];
 
     case settings::kMeterAnimationAll:
-      accent_button_grid_[next_accent].scheduleAnimation(time);
+      accent_button_grid_[next_accent].scheduleAnimation(time.count());
       break;
 
     default:
@@ -1026,24 +1026,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 
 void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
 {
-  using dbl_minutes = std::chrono::duration<double, std::ratio<60>>;
-
-  std::size_t next_accent = stats.next_accent;
-
-  uint64_t time = stats.timestamp.count()
-    + stats.backend_latency.count()
-    + stats.next_accent_delay.count();
-
-  time += animation_sync_usecs_;
-
-  double cur_accel = stats.current_accel;
-  double cur_tempo = stats.current_tempo;
-  const auto& delay = stats.next_accent_delay;
-
-  double tempo = cur_tempo + cur_accel * dbl_minutes(delay).count();
-
-  //pendulum_.scheduleClick(time, tempo, next_accent, stats.current_beat);
-  pendulum_.synchronize(stats);
+  pendulum_.synchronize(stats, animation_sync_);
 }
 
 void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
@@ -1115,6 +1098,6 @@ void MainWindow::updatePrefMeterAnimation()
 
 void MainWindow::updatePrefAnimationSync()
 {
-  animation_sync_usecs_ =
-    std::round( settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.);
+  animation_sync_ = std::chrono::microseconds(
+    std::lround(settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.));
 }

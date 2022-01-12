@@ -77,8 +77,14 @@ void Pendulum::setMeter(const Meter& meter)
   meter_ = meter;
 }
 
-void Pendulum::synchronize(const audio::Ticker::Statistics& stats)
+void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
+                           const std::chrono::microseconds& sync)
 {
+  using std::chrono::microseconds;
+  using std::chrono::seconds;
+  using std::chrono::duration_cast;
+  using seconds_dbl = std::chrono::duration<double>;
+
   if (stats.current_beat < 0)
   {
     target_omega_ = 0;
@@ -86,12 +92,13 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats)
     return;
   }
 
-  audio::microseconds now(g_get_monotonic_time());
-
-  double beat = (now * stats.current_beat) / (stats.timestamp + stats.backend_latency);
+  microseconds now(g_get_monotonic_time());
+  microseconds click_time = stats.timestamp + stats.backend_latency + sync;
+  seconds_dbl time_delta = now - click_time;
 
   target_omega_ = stats.current_tempo / 60. * M_PI;
-  target_theta_ = beat * M_PI;
+  target_theta_ = stats.current_beat * M_PI;
+  target_theta_ += target_omega_ * time_delta.count();
   target_theta_ += kClickActionAngle;
   target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
 }
