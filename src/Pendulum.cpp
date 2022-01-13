@@ -23,7 +23,7 @@
 #include <iostream>
 
 // animation
-constexpr double kAnimationFrameRate = 30.0 / 1000000.;  // frames/usecs
+constexpr double kAnimationFrameRate = 65.0 / 1000000.;  // frames/usecs
 
 // behaviour
 constexpr double kActionAngleReal     = M_PI / 7.0;  // rad
