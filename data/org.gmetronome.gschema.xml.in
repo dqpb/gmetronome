@@ -26,6 +26,12 @@
     @GSCHEMAXML_PULSEAUDIO_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSEAUDIO_END@
   </enum>
 
+  <enum id="org.gmetronome.PendulumAction">
+    <value nick='center' value='0'/>
+    <value nick='real' value='1'/>
+    <value nick='edge' value='2'/>
+  </enum>
+
   <enum id="org.gmetronome.MeterAnimation">
     <value nick='off' value='0'/>
     <value nick='beat' value='1'/>
@@ -200,6 +206,11 @@
     </key>
     <key name="restore-profile" type="b">
       <default>true</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="pendulum-action" enum="org.gmetronome.PendulumAction">
+      <default>'real'</default>
       <summary></summary>
       <description></description>
     </key>

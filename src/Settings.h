@@ -82,6 +82,13 @@ namespace settings {
 #endif
   };
 
+  enum PendulumAction
+  {
+    kPendulumActionCenter = 0,
+    kPendulumActionReal   = 1,
+    kPendulumActionEdge   = 2,
+  };
+
   enum MeterAnimation
   {
     kMeterAnimationOff  = 0,
@@ -94,6 +101,7 @@ namespace settings {
    */
   const Glib::ustring  kKeyPrefsVolume                    {"volume"};
   const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
+  const Glib::ustring  kKeyPrefsPendulumAction            {"pendulum-action"};
   const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
   const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
   const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};

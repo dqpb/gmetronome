@@ -197,8 +197,9 @@ protected:
 
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
-  void updatePrefAnimationSync();
+  void updatePrefPendulumAction();
   void updatePrefMeterAnimation();
+  void updatePrefAnimationSync();
 };
 
 #endif//GMetronome_MainWindow_h

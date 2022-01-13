@@ -141,8 +141,9 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   initAbout();
   initBindings();
 
-  updatePrefAnimationSync();
+  updatePrefPendulumAction();
   updatePrefMeterAnimation();
+  updatePrefAnimationSync();
 }
 
 void MainWindow::initSettings()
@@ -1081,7 +1082,11 @@ void MainWindow::onMessageResponse(int response)
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == settings::kKeyPrefsAnimationSync)
+  if (key == settings::kKeyPrefsPendulumAction)
+  {
+    updatePrefPendulumAction();
+  }
+  else if (key == settings::kKeyPrefsAnimationSync)
   {
     updatePrefAnimationSync();
   }
@@ -1089,6 +1094,12 @@ void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
   {
     updatePrefMeterAnimation();
   }
+}
+
+void MainWindow::updatePrefPendulumAction()
+{
+  int action = settings_prefs_->get_enum(settings::kKeyPrefsPendulumAction);
+  pendulum_.setAction( (settings::PendulumAction) action );
 }
 
 void MainWindow::updatePrefMeterAnimation()

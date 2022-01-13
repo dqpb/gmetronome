@@ -26,14 +26,17 @@
 constexpr double kAnimationFrameRate = 65.;  // frames/s
 
 // behaviour
-constexpr double kClickActionAngle   = M_PI / 8.0;  // rad
+constexpr double kActionAngleReal   = M_PI / 8.0;  // rad
+constexpr double kActionAngleCenter = 0.0;         // rad
+constexpr double kActionAngleEdge   = M_PI / 2.0;  // rad
 
-// needle dynamics
+// dynamics
 constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
 constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
 constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
-constexpr double kMaxNeedleAmplitude = M_PI / 3.5;            // rad
-constexpr double kNeedleAmplitudeChangeRate = 1.5 * M_PI;     // rad/s
+constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
+constexpr double kNeedleAmplitudeChangeRate  = 1.0 * M_PI;    // rad/s
+constexpr double kMarkingAmplitudeChangeRate = 1.5 * M_PI;    // rad/s
 
 // element appearance
 constexpr double kNeedleWidth        = 3.0;   // pixel
@@ -50,7 +53,8 @@ Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
     Gtk::Widget(),
     meter_{kMeter_4_Simple},
-    animation_tick_callback_id_{-1},
+    action_angle_{kActionAngleReal},
+    animation_running_{false},
     theta_{0},
     alpha_{0},
     omega_{0},
@@ -62,19 +66,34 @@ Pendulum::Pendulum()
     needle_length_{0.9},
     needle_base_ {0.5, 1.0},
     needle_tip_ {0.5, 0.0},
-    marking_radius_{1.0}
-{
-  startAnimation();
-}
+    marking_radius_{1.0},
+    marking_amplitude_{kMaxNeedleAmplitude}
+{}
 
-Pendulum::~Pendulum()
-{
-  stopAnimation();
-}
+Pendulum::~Pendulum() {}
 
 void Pendulum::setMeter(const Meter& meter)
 {
   meter_ = meter;
+}
+
+void Pendulum::setAction(settings::PendulumAction action)
+{
+  switch (action)
+  {
+  case settings::kPendulumActionCenter:
+    action_angle_ = kActionAngleCenter;
+    break;
+  case settings::kPendulumActionReal:
+    action_angle_ = kActionAngleReal;
+    break;
+  case settings::kPendulumActionEdge:
+    action_angle_ = kActionAngleEdge;
+    break;
+  default:
+    action_angle_ = kActionAngleReal;
+    break;
+  };
 }
 
 void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
@@ -82,7 +101,6 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
 {
   using std::chrono::microseconds;
   using std::chrono::seconds;
-  using std::chrono::duration_cast;
   using seconds_dbl = std::chrono::duration<double>;
 
   if (stats.current_beat < 0)
@@ -99,26 +117,17 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
   target_omega_ = stats.current_tempo / 60. * M_PI;
   target_theta_ = stats.current_beat * M_PI;
   target_theta_ += target_omega_ * time_delta.count();
-  target_theta_ += kClickActionAngle;
+  target_theta_ += action_angle_;
   target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
+
+  if (!animation_running_)
+    startAnimation();
 }
 
 void Pendulum::startAnimation()
 {
-  if (animation_tick_callback_id_ >= 0)
-    return;
-
-  animation_tick_callback_id_ = add_tick_callback(
-    sigc::mem_fun(*this, &Pendulum::updateAnimation) );
-}
-
-void Pendulum::stopAnimation()
-{
-  if (animation_tick_callback_id_ < 0)
-    return;
-
-  remove_tick_callback(animation_tick_callback_id_);
-  animation_tick_callback_id_ = -1;
+  last_frame_time_ = 0;
+  add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
 }
 
 //helper to compute the maximum needle amplitude for a given angular velocity
@@ -130,8 +139,6 @@ constexpr double needleAmplitude(double velocity)
 
 bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
-  bool need_redraw = false;
-
   if (clock)
   {
     gint64 frame_time = 0;
@@ -157,63 +164,70 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       return true;
     }
 
+    // The acceleration of the needle (alpha) is influenced by the deviation
+    // of the current needle velocity (omega) from the target velocity and the
+    // deviation of the current needle phase (theta) from the target phase.
+    alpha_  = kMaxAlpha * std::tanh(target_omega_ - omega_);
+    alpha_ += kMaxAlpha * std::sin(target_theta_ - theta_);
+
+    // update needle velocity (rad/s)
+    omega_ += alpha_ * frame_time_delta;
+
+    // update needle position (rad)
+    theta_ += omega_ * frame_time_delta;
+    theta_ = std::fmod(theta_, 2 * M_PI);
+
+    target_theta_ += target_omega_ * frame_time_delta;
+
+    last_frame_time_ = frame_time;
+
     if (frame_time_delta > 1.0 / kAnimationFrameRate)
     {
-      // The acceleration of the needle (alpha) is influenced by the deviation
-      // of the current needle velocity (omega) from the target velocity and the
-      // deviation of the current needle phase (theta) from the target phase.
-      alpha_  = kMaxAlpha * std::tanh(target_omega_ - omega_);
-      alpha_ += kMaxAlpha * std::sin(target_theta_ - theta_);
+      bool redraw_marking = false;
+      double marking_target_amplitude = needleAmplitude(target_omega_);
 
-      // update needle velocity (rad/s)
-      omega_ += alpha_ * frame_time_delta;
-
-      // update needle position (rad)
-      theta_ += omega_ * frame_time_delta;
-      theta_ = std::fmod(theta_, 2 * M_PI);
-
-      target_theta_ += target_omega_ * frame_time_delta;
-
-      last_frame_time_ = frame_time;
-
-      need_redraw = true;
-
-      if (need_redraw)
+      if (std::abs(marking_target_amplitude - marking_amplitude_) > 0.001)
       {
-        double target_amplitude = needleAmplitude(target_omega_);
-
-        auto old_needle_amplitude = needle_amplitude_;
-        needle_amplitude_ += kNeedleAmplitudeChangeRate
-          * std::tanh(target_amplitude - needle_amplitude_) * frame_time_delta;
-
-        needle_theta_ = needle_amplitude_ * std::sin( theta_ );
-
-        auto old_needle_tip = needle_tip_;
-
-        needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
-        needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
-
-        int x, y, w, h;
-
-        if(old_needle_amplitude != needle_amplitude_)
-        {
-          x = needle_base_[0] - needle_length_;
-          y = 0;
-          w = 2.0 * needle_length_;
-          h = get_allocated_height();
-        }
-        else
-        {
-          x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
-          y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
-          w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
-          h = needle_base_[1] - y + kNeedleWidth;
-        };
-        queue_draw_area(x,y,w,h);
+        marking_amplitude_ += kMarkingAmplitudeChangeRate
+          * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta;
+        redraw_marking = true;
       }
+
+      double needle_target_amplitude = marking_target_amplitude;
+      if (target_omega_ == 0.0)
+        needle_target_amplitude = 0.0;
+
+      needle_amplitude_ += kNeedleAmplitudeChangeRate
+        * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta;
+
+      needle_theta_ = needle_amplitude_ * std::sin( theta_ );
+
+      auto old_needle_tip = needle_tip_;
+      needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
+      needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
+
+      int x, y, w, h;
+
+      if(redraw_marking)
+      {
+        x = needle_base_[0] - needle_length_;
+        y = 0;
+        w = 2.0 * needle_length_;
+        h = get_allocated_height();
+      }
+      else
+      {
+        x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
+        y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
+        w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
+        h = needle_base_[1] - y + kNeedleWidth;
+      };
+      queue_draw_area(x,y,w,h);
     }
   }
-  return true;
+
+  animation_running_ = (std::abs(omega_) > 0.05 || (theta_ > 0.05 && theta_ < (2.0 * M_PI - 0.05)));
+  return animation_running_;
 }
 
 Gdk::RGBA Pendulum::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
@@ -247,8 +261,8 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   marking_color.set_alpha(.5);
 
   static const double three_pi_half = 3.0 * M_PI / 2.0;
-  const double sin_needle_amplitude = std::sin(needle_amplitude_);
-  const double cos_needle_amplitude = std::cos(needle_amplitude_);
+  const double sin_marking_amplitude = std::sin(marking_amplitude_);
+  const double cos_marking_amplitude = std::cos(marking_amplitude_);
   const double needle_length_half = needle_length_ / 2.;
 
   // debug: draw a frame
@@ -262,26 +276,26 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
   // draw markings
   cr->save();
-  cr->move_to(needle_base_[0] - (needle_length_half) * sin_needle_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_needle_amplitude);
+  cr->move_to(needle_base_[0] - (needle_length_half) * sin_marking_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_marking_amplitude);
 
-  cr->line_to(needle_base_[0] - marking_radius_ * sin_needle_amplitude,
-              needle_base_[1] - marking_radius_ * cos_needle_amplitude);
+  cr->line_to(needle_base_[0] - marking_radius_ * sin_marking_amplitude,
+              needle_base_[1] - marking_radius_ * cos_marking_amplitude);
 
   cr->arc(needle_base_[0],
           needle_base_[1],
           marking_radius_,
-          three_pi_half - needle_amplitude_,
-          three_pi_half + needle_amplitude_);
+          three_pi_half - marking_amplitude_,
+          three_pi_half + marking_amplitude_);
 
-  cr->line_to(needle_base_[0] + (needle_length_half) * sin_needle_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_needle_amplitude);
+  cr->line_to(needle_base_[0] + (needle_length_half) * sin_marking_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_marking_amplitude);
 
   cr->arc_negative(needle_base_[0],
                    needle_base_[1],
                    needle_length_half,
-                   three_pi_half + needle_amplitude_,
-                   three_pi_half - needle_amplitude_);
+                   three_pi_half + marking_amplitude_,
+                   three_pi_half - marking_amplitude_);
 
   cr->set_source_rgba(marking_color.get_red(),
                       marking_color.get_green(),
@@ -302,7 +316,7 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
   // draw needle shadow
   Gdk::Cairo::set_source_rgba(cr, shadow_color);
-  cr->set_line_width(3.);
+  cr->set_line_width(kNeedleWidth);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->move_to(needle_base_[0], needle_base_[1] + kNeedleShadowOffset);
   cr->line_to(needle_tip_[0], needle_tip_[1] + kNeedleShadowOffset);

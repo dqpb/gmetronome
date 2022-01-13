@@ -24,6 +24,7 @@
 #include <array>
 #include "Meter.h"
 #include "Ticker.h"
+#include "Settings.h"
 
 class Pendulum : public Gtk::Widget {
 
@@ -32,12 +33,14 @@ public:
   virtual ~Pendulum();
 
   void setMeter(const Meter& meter);
+  void setAction(settings::PendulumAction action);
   void synchronize(const audio::Ticker::Statistics& stats,
                    const std::chrono::microseconds& sync);
 
 private:
   Meter meter_;
-  int animation_tick_callback_id_;
+  double action_angle_;
+  bool animation_running_;
   double theta_;
   double alpha_;
   double omega_;
@@ -50,9 +53,9 @@ private:
   std::array<double,2> needle_base_;
   std::array<double,2> needle_tip_;
   double marking_radius_;
+  double marking_amplitude_;
 
   void startAnimation();
-  void stopAnimation();
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);
 
   Gdk::RGBA getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;

@@ -30,6 +30,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
 : Gtk::Dialog(cobject),
   builder_(builder)
 {
+  builder_->get_widget("pendulumActionComboBox", pendulum_action_combo_box_);
   builder_->get_widget("animationComboBox", animation_combo_box_);
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
@@ -168,6 +169,7 @@ void SettingsDialog::initBindings()
   signal_key_press_event()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onKeyPressEvent));
 
+  settings_prefs_->bind(settings::kKeyPrefsPendulumAction, pendulum_action_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
