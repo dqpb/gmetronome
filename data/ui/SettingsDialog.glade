@@ -74,7 +74,7 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <child>
-          <!-- n-columns=3 n-rows=7 -->
+          <!-- n-columns=3 n-rows=8 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -144,68 +144,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton" id="animationSyncSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="primary-icon-tooltip-text" translatable="yes" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on large (absolute) values.</property>
-                <property name="input-purpose">number</property>
-                <property name="adjustment">animationSyncAdjustment</property>
-                <property name="numeric">True</property>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">6</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Synchronization (ms):</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Accent Animation:</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBoxText" id="animationComboBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="active-id">all</property>
-                <items>
-                  <item id="off" translatable="yes" context="Preferences dialog">Off</item>
-                  <item id="beat" translatable="yes" context="Preferences dialog">Beats only</item>
-                  <item id="all" translatable="yes" context="Preferences dialog">Beats and Subdivisions</item>
-                </items>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Pendulum action:</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Pendulum click spot:</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
@@ -227,6 +171,88 @@
                 <property name="left-attach">1</property>
                 <property name="top-attach">4</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Synchronization (ms):</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="animationSyncSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="primary-icon-tooltip-text" translatable="yes" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on large (absolute) values.</property>
+                <property name="input-purpose">number</property>
+                <property name="adjustment">animationSyncAdjustment</property>
+                <property name="numeric">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Accent Animation:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Pendulum start direction:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="pendulumPhaseModeComboBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="active-id">left</property>
+                <items>
+                  <item id="left" translatable="yes" context="Preferences dialog">Left</item>
+                  <item id="right" translatable="yes" context="Preferences dialog">Right</item>
+                </items>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSwitch" id="accentAnimationSwitch">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="halign">start</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>

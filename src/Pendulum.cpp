@@ -23,12 +23,14 @@
 #include <iostream>
 
 // animation
-constexpr double kAnimationFrameRate = 65.;  // frames/s
+constexpr double kAnimationFrameRate = 30.0 / 1000000.;  // frames/usecs
 
 // behaviour
-constexpr double kActionAngleReal   = M_PI / 8.0;  // rad
-constexpr double kActionAngleCenter = 0.0;         // rad
-constexpr double kActionAngleEdge   = M_PI / 2.0;  // rad
+constexpr double kActionAngleReal     = M_PI / 7.0;  // rad
+constexpr double kActionAngleCenter   = 0.0;         // rad
+constexpr double kActionAngleEdge     = M_PI / 2.0;  // rad
+constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
+constexpr double kPhaseModeShiftRight = M_PI;        // rad
 
 // dynamics
 constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
@@ -54,14 +56,16 @@ Pendulum::Pendulum()
     Gtk::Widget(),
     meter_{kMeter_4_Simple},
     action_angle_{kActionAngleReal},
+    phase_mode_shift_{kPhaseModeShiftLeft},
     animation_running_{false},
-    theta_{0},
-    alpha_{0},
-    omega_{0},
-    target_omega_{0},
-    target_theta_{0},
+    theta_{phase_mode_shift_},
+    alpha_{0.0},
+    omega_{0.0},
+    target_omega_{0.0},
+    target_theta_{phase_mode_shift_},
     last_frame_time_{0},
-    needle_amplitude_{kMaxNeedleAmplitude},
+    animation_last_frame_time_{0},
+    needle_amplitude_{0.0},
     needle_theta_{0.0},
     needle_length_{0.9},
     needle_base_ {0.5, 1.0},
@@ -77,23 +81,43 @@ void Pendulum::setMeter(const Meter& meter)
   meter_ = meter;
 }
 
-void Pendulum::setAction(settings::PendulumAction action)
+void Pendulum::setAction(ActionAngle action)
 {
   switch (action)
   {
-  case settings::kPendulumActionCenter:
+  case ActionAngle::kCenter:
     action_angle_ = kActionAngleCenter;
     break;
-  case settings::kPendulumActionReal:
+  case ActionAngle::kReal:
     action_angle_ = kActionAngleReal;
     break;
-  case settings::kPendulumActionEdge:
+  case ActionAngle::kEdge:
     action_angle_ = kActionAngleEdge;
     break;
   default:
     action_angle_ = kActionAngleReal;
     break;
   };
+}
+
+void Pendulum::setPhaseMode(PhaseMode mode)
+{
+  double old_shift = phase_mode_shift_;
+
+  switch (mode)
+  {
+  case PhaseMode::kLeft:
+    phase_mode_shift_ = kPhaseModeShiftLeft;
+    break;
+  case PhaseMode::kRight:
+    phase_mode_shift_ = kPhaseModeShiftRight;
+    break;
+  default:
+    phase_mode_shift_ = kPhaseModeShiftLeft;
+    break;
+  }
+
+  target_theta_ += phase_mode_shift_ - old_shift;
 }
 
 void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
@@ -103,30 +127,41 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
   using std::chrono::seconds;
   using seconds_dbl = std::chrono::duration<double>;
 
-  if (stats.current_beat < 0)
+  if (!animation_running_)
   {
-    target_omega_ = 0;
-    target_theta_ = 0;
-    return;
+    alpha_ = 0.0;
+    omega_ = 0.0;
+    theta_ = phase_mode_shift_;
+
+    startAnimation();
   }
 
-  microseconds now(g_get_monotonic_time());
-  microseconds click_time = stats.timestamp + stats.backend_latency + sync;
-  seconds_dbl time_delta = now - click_time;
+  if (stats.current_tempo == 0.0)
+  {
+    target_omega_ = 0.0;
+    target_theta_ = phase_mode_shift_;
+  }
+  else
+  {
+    microseconds now(g_get_monotonic_time());
+    microseconds click_time = stats.timestamp + stats.backend_latency + sync;
+    seconds_dbl time_delta = now - click_time;
 
-  target_omega_ = stats.current_tempo / 60. * M_PI;
-  target_theta_ = stats.current_beat * M_PI;
-  target_theta_ += target_omega_ * time_delta.count();
-  target_theta_ += action_angle_;
-  target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
+    target_omega_ = stats.current_tempo / 60. * M_PI;
 
-  if (!animation_running_)
-    startAnimation();
+    target_theta_ = stats.current_beat * M_PI;
+    target_theta_ += target_omega_ * time_delta.count();
+    target_theta_ += action_angle_;
+    target_theta_ += phase_mode_shift_;
+
+    target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
+  }
 }
 
 void Pendulum::startAnimation()
 {
   last_frame_time_ = 0;
+  animation_last_frame_time_ = 0;
   add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
 }
 
@@ -164,6 +199,8 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       return true;
     }
 
+    last_frame_time_ = frame_time;
+
     // The acceleration of the needle (alpha) is influenced by the deviation
     // of the current needle velocity (omega) from the target velocity and the
     // deviation of the current needle phase (theta) from the target phase.
@@ -173,15 +210,14 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     // update needle velocity (rad/s)
     omega_ += alpha_ * frame_time_delta;
 
-    // update needle position (rad)
+    // update needle phase (rad)
     theta_ += omega_ * frame_time_delta;
     theta_ = std::fmod(theta_, 2 * M_PI);
 
     target_theta_ += target_omega_ * frame_time_delta;
 
-    last_frame_time_ = frame_time;
-
-    if (frame_time_delta > 1.0 / kAnimationFrameRate)
+    gint64 animation_frame_time_delta = frame_time - animation_last_frame_time_;
+    if (animation_frame_time_delta > 1.0 / kAnimationFrameRate)
     {
       bool redraw_marking = false;
       double marking_target_amplitude = needleAmplitude(target_omega_);
@@ -222,11 +258,14 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
         w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
         h = needle_base_[1] - y + kNeedleWidth;
       };
+      animation_last_frame_time_ = frame_time;
       queue_draw_area(x,y,w,h);
     }
   }
 
-  animation_running_ = (std::abs(omega_) > 0.05 || (theta_ > 0.05 && theta_ < (2.0 * M_PI - 0.05)));
+  double center_deviation = std::abs(std::remainder(theta_, M_PI));
+  animation_running_ = (std::abs(omega_) > 0.05 || center_deviation > 0.05);
+
   return animation_running_;
 }
 
@@ -411,9 +450,6 @@ void Pendulum::on_unmap()
 
 void Pendulum::on_realize()
 {
-  // Do not call base class Gtk::Widget::on_realize().
-  // It's intended only for widgets that set_has_window(false).
-
   set_realized();
 
   if(!gdk_window_)
@@ -446,7 +482,5 @@ void Pendulum::on_realize()
 void Pendulum::on_unrealize()
 {
   gdk_window_.reset();
-
-  //Call base class:
   Gtk::Widget::on_unrealize();
 }

@@ -31,7 +31,8 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_(builder)
 {
   builder_->get_widget("pendulumActionComboBox", pendulum_action_combo_box_);
-  builder_->get_widget("animationComboBox", animation_combo_box_);
+  builder_->get_widget("pendulumPhaseModeComboBox", pendulum_phase_mode_combo_box_);
+  builder_->get_widget("accentAnimationSwitch", accent_animation_switch_);
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
   builder_->get_widget("audioBackendComboBox", audio_backend_combo_box_);
@@ -170,7 +171,8 @@ void SettingsDialog::initBindings()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onKeyPressEvent));
 
   settings_prefs_->bind(settings::kKeyPrefsPendulumAction, pendulum_action_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, animation_combo_box_->property_active_id());
+  settings_prefs_->bind(settings::kKeyPrefsPendulumPhaseMode, pendulum_phase_mode_combo_box_->property_active_id());
+  settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, accent_animation_switch_->property_state());
   settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
@@ -182,7 +184,7 @@ void SettingsDialog::initBindings()
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_, "state", Gio::SETTINGS_BIND_DEFAULT);
+  settings_prefs_->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_->property_state());
 
   settings_prefs_->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsPrefsChanged));

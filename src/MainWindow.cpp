@@ -142,6 +142,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   initBindings();
 
   updatePrefPendulumAction();
+  updatePrefPendulumPhaseMode();
   updatePrefMeterAnimation();
   updatePrefAnimationSync();
 }
@@ -962,29 +963,15 @@ void MainWindow::cancelButtonAnimations()
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
   std::size_t next_accent = stats.next_accent;
-
-  std::chrono::microseconds time = stats.timestamp
-    + stats.backend_latency
-    + stats.next_accent_delay;
-
-  time += animation_sync_;
-
   if ( next_accent < accent_button_grid_.size() )
   {
-    switch (meter_animation_)
-    {
-    case settings::kMeterAnimationBeat:
-      if (next_accent % accent_button_grid_.grouping() != 0)
-        break;
-      [[fallthrough]];
+    std::chrono::microseconds time = stats.timestamp
+      + stats.backend_latency
+      + stats.next_accent_delay;
 
-    case settings::kMeterAnimationAll:
-      accent_button_grid_[next_accent].scheduleAnimation(time.count());
-      break;
+    time += animation_sync_;
 
-    default:
-      break;
-    };
+    accent_button_grid_[next_accent].scheduleAnimation(time.count());
   }
 }
 
@@ -1034,7 +1021,7 @@ void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
 {
   updateCurrentTempo(stats);
 
-  if (meter_animation_ != settings::kMeterAnimationOff)
+  if (meter_animation_)
     updateAccentAnimation(stats);
 
   updatePendulum(stats);
@@ -1083,28 +1070,55 @@ void MainWindow::onMessageResponse(int response)
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeyPrefsPendulumAction)
-  {
     updatePrefPendulumAction();
-  }
+  else if (key == settings::kKeyPrefsPendulumPhaseMode)
+    updatePrefPendulumPhaseMode();
   else if (key == settings::kKeyPrefsAnimationSync)
-  {
     updatePrefAnimationSync();
-  }
   else if (key == settings::kKeyPrefsMeterAnimation)
-  {
     updatePrefMeterAnimation();
-  }
 }
 
 void MainWindow::updatePrefPendulumAction()
 {
   int action = settings_prefs_->get_enum(settings::kKeyPrefsPendulumAction);
-  pendulum_.setAction( (settings::PendulumAction) action );
+  switch (action)
+  {
+  case settings::kPendulumActionCenter:
+    pendulum_.setAction( Pendulum::ActionAngle::kCenter );
+    break;
+  case settings::kPendulumActionReal:
+    pendulum_.setAction( Pendulum::ActionAngle::kReal );
+    break;
+  case settings::kPendulumActionEdge:
+    pendulum_.setAction( Pendulum::ActionAngle::kEdge );
+    break;
+  default:
+    pendulum_.setAction( Pendulum::ActionAngle::kReal );
+    break;
+  };
+}
+
+void MainWindow::updatePrefPendulumPhaseMode()
+{
+  int mode = settings_prefs_->get_enum(settings::kKeyPrefsPendulumPhaseMode);
+  switch (mode)
+  {
+  case settings::kPendulumPhaseModeLeft:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kLeft );
+    break;
+  case settings::kPendulumPhaseModeRight:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kRight );
+    break;
+  default:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kLeft );
+    break;
+  };
 }
 
 void MainWindow::updatePrefMeterAnimation()
 {
-  meter_animation_ = settings_prefs_->get_enum(settings::kKeyPrefsMeterAnimation);
+  meter_animation_ = settings_prefs_->get_boolean(settings::kKeyPrefsMeterAnimation);
 }
 
 void MainWindow::updatePrefAnimationSync()

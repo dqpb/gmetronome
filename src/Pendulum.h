@@ -24,22 +24,36 @@
 #include <array>
 #include "Meter.h"
 #include "Ticker.h"
-#include "Settings.h"
 
 class Pendulum : public Gtk::Widget {
+public:
+  enum class ActionAngle
+  {
+    kCenter,
+    kReal,
+    kEdge
+  };
+
+  enum class PhaseMode
+  {
+    kLeft  = 0,
+    kRight = 1
+  };
 
 public:
   Pendulum();
   virtual ~Pendulum();
 
   void setMeter(const Meter& meter);
-  void setAction(settings::PendulumAction action);
+  void setAction(ActionAngle angle);
+  void setPhaseMode(PhaseMode mode);
+
   void synchronize(const audio::Ticker::Statistics& stats,
                    const std::chrono::microseconds& sync);
-
 private:
   Meter meter_;
   double action_angle_;
+  double phase_mode_shift_;
   bool animation_running_;
   double theta_;
   double alpha_;
@@ -47,6 +61,7 @@ private:
   double target_omega_;
   double target_theta_;
   gint64 last_frame_time_;
+  gint64 animation_last_frame_time_;
   double needle_amplitude_;
   double needle_theta_;
   double needle_length_;

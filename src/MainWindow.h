@@ -135,7 +135,7 @@ protected:
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
 
   // cached preferences
-  int meter_animation_;
+  bool meter_animation_;
   std::chrono::microseconds animation_sync_;
 
   // Initialization
@@ -198,6 +198,7 @@ protected:
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void updatePrefPendulumAction();
+  void updatePrefPendulumPhaseMode();
   void updatePrefMeterAnimation();
   void updatePrefAnimationSync();
 };

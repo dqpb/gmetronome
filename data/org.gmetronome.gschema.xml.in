@@ -32,10 +32,9 @@
     <value nick='edge' value='2'/>
   </enum>
 
-  <enum id="org.gmetronome.MeterAnimation">
-    <value nick='off' value='0'/>
-    <value nick='beat' value='1'/>
-    <value nick='all' value='2'/>
+  <enum id="org.gmetronome.PendulumPhaseMode">
+    <value nick='left' value='0'/>
+    <value nick='right' value='1'/>
   </enum>
 
   <!--
@@ -214,8 +213,13 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="meter-animation" enum="org.gmetronome.MeterAnimation">
-      <default>'all'</default>
+    <key name="pendulum-phase-mode" enum="org.gmetronome.PendulumPhaseMode">
+      <default>'left'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="meter-animation" type="b">
+      <default>true</default>
       <summary></summary>
       <description></description>
     </key>

@@ -47,7 +47,8 @@ private:
   // General tab
   Gtk::Switch* restore_profile_switch_;
   Gtk::ComboBoxText* pendulum_action_combo_box_;
-  Gtk::ComboBoxText* animation_combo_box_;
+  Gtk::ComboBoxText* pendulum_phase_mode_combo_box_;
+  Gtk::Switch* accent_animation_switch_;
   Gtk::SpinButton* animation_sync_spin_button_;
   Glib::RefPtr<Gtk::Adjustment> animation_sync_adjustment_;
 
