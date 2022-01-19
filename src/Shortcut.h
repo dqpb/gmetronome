@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020, 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -23,15 +23,15 @@
 #include "Settings.h"
 #include "Action.h"
 
-// map a shortcut settings key to a title 
+// map a shortcut settings key to a title
 struct ShortcutEntry
 {
   Glib::ustring key;
   Glib::ustring title;
 };
 
-// The returned vector contains a list of grouped ShortcutEntry,
-// in which group titles have an empty key.
+// Returns a list of grouped shortcut entries as they appear in the shortcuts
+// tree view in the settings dialog. The group titles have an empty key.
 const std::vector<ShortcutEntry>& ShortcutList();
 
 struct ShortcutAction
@@ -41,7 +41,7 @@ struct ShortcutAction
 };
 
 // map settings keys to action/target
-const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
+inline const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
 {
   { settings::kKeyShortcutsQuit,
     { kActionQuit, {} }

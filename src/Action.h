@@ -30,53 +30,53 @@
 #include <variant>
 
 // Application actions
-const Glib::ustring  kActionQuit                 {"quit"};
-const Glib::ustring  kActionStart                {"start"};
-const Glib::ustring  kActionVolume               {"volume"};
-const Glib::ustring  kActionVolumeIncrease       {"volume-increase"};
-const Glib::ustring  kActionVolumeDecrease       {"volume-decrease"};
-const Glib::ustring  kActionTempo                {"tempo"};
-const Glib::ustring  kActionTempoIncrease        {"tempo-increase"};
-const Glib::ustring  kActionTempoDecrease        {"tempo-decrease"};
-const Glib::ustring  kActionTempoTap             {"tempo-tap"};
-const Glib::ustring  kActionTrainerEnabled       {"trainer-enabled"};
-const Glib::ustring  kActionTrainerStart         {"trainer-start"};
-const Glib::ustring  kActionTrainerTarget        {"trainer-target"};
-const Glib::ustring  kActionTrainerAccel         {"trainer-accel"};
-const Glib::ustring  kActionMeterEnabled         {"meter-enabled"};
-const Glib::ustring  kActionMeterSelect          {"meter-select"};
-const Glib::ustring  kActionMeter1Simple         {"meter-1-simple"};
-const Glib::ustring  kActionMeter2Simple         {"meter-2-simple"};
-const Glib::ustring  kActionMeter3Simple         {"meter-3-simple"};
-const Glib::ustring  kActionMeter4Simple         {"meter-4-simple"};
-const Glib::ustring  kActionMeter1Compound       {"meter-1-compound"};
-const Glib::ustring  kActionMeter2Compound       {"meter-2-compound"};
-const Glib::ustring  kActionMeter3Compound       {"meter-3-compound"};
-const Glib::ustring  kActionMeter4Compound       {"meter-4-compound"};
-const Glib::ustring  kActionMeterCustom          {"meter-custom"};
-const Glib::ustring  kActionProfilesList         {"profiles-list"};
-const Glib::ustring  kActionProfilesSelect       {"profiles-select"};
-const Glib::ustring  kActionProfilesNew          {"profiles-new"};
-const Glib::ustring  kActionProfilesDelete       {"profiles-delete"};
-const Glib::ustring  kActionProfilesReset        {"profiles-reset"};
-const Glib::ustring  kActionProfilesTitle        {"profiles-title"};
-const Glib::ustring  kActionProfilesDescription  {"profiles-description"};
-const Glib::ustring  kActionProfilesReorder      {"profiles-reorder"};
-const Glib::ustring  kActionAudioBackend         {"audio-backend"};
-const Glib::ustring  kActionAudioDevice          {"audio-device"};
-const Glib::ustring  kActionAudioDeviceList      {"audio-device-list"};
+inline const Glib::ustring  kActionQuit                 {"quit"};
+inline const Glib::ustring  kActionStart                {"start"};
+inline const Glib::ustring  kActionVolume               {"volume"};
+inline const Glib::ustring  kActionVolumeIncrease       {"volume-increase"};
+inline const Glib::ustring  kActionVolumeDecrease       {"volume-decrease"};
+inline const Glib::ustring  kActionTempo                {"tempo"};
+inline const Glib::ustring  kActionTempoIncrease        {"tempo-increase"};
+inline const Glib::ustring  kActionTempoDecrease        {"tempo-decrease"};
+inline const Glib::ustring  kActionTempoTap             {"tempo-tap"};
+inline const Glib::ustring  kActionTrainerEnabled       {"trainer-enabled"};
+inline const Glib::ustring  kActionTrainerStart         {"trainer-start"};
+inline const Glib::ustring  kActionTrainerTarget        {"trainer-target"};
+inline const Glib::ustring  kActionTrainerAccel         {"trainer-accel"};
+inline const Glib::ustring  kActionMeterEnabled         {"meter-enabled"};
+inline const Glib::ustring  kActionMeterSelect          {"meter-select"};
+inline const Glib::ustring  kActionMeter1Simple         {"meter-1-simple"};
+inline const Glib::ustring  kActionMeter2Simple         {"meter-2-simple"};
+inline const Glib::ustring  kActionMeter3Simple         {"meter-3-simple"};
+inline const Glib::ustring  kActionMeter4Simple         {"meter-4-simple"};
+inline const Glib::ustring  kActionMeter1Compound       {"meter-1-compound"};
+inline const Glib::ustring  kActionMeter2Compound       {"meter-2-compound"};
+inline const Glib::ustring  kActionMeter3Compound       {"meter-3-compound"};
+inline const Glib::ustring  kActionMeter4Compound       {"meter-4-compound"};
+inline const Glib::ustring  kActionMeterCustom          {"meter-custom"};
+inline const Glib::ustring  kActionProfilesList         {"profiles-list"};
+inline const Glib::ustring  kActionProfilesSelect       {"profiles-select"};
+inline const Glib::ustring  kActionProfilesNew          {"profiles-new"};
+inline const Glib::ustring  kActionProfilesDelete       {"profiles-delete"};
+inline const Glib::ustring  kActionProfilesReset        {"profiles-reset"};
+inline const Glib::ustring  kActionProfilesTitle        {"profiles-title"};
+inline const Glib::ustring  kActionProfilesDescription  {"profiles-description"};
+inline const Glib::ustring  kActionProfilesReorder      {"profiles-reorder"};
+inline const Glib::ustring  kActionAudioBackend         {"audio-backend"};
+inline const Glib::ustring  kActionAudioDevice          {"audio-device"};
+inline const Glib::ustring  kActionAudioDeviceList      {"audio-device-list"};
 
 // Window actions
-const Glib::ustring kActionShowPrimaryMenu       {"show-primary-menu"};
-const Glib::ustring kActionShowProfiles          {"show-profiles"};
-const Glib::ustring kActionShowPreferences       {"show-preferences"};
-const Glib::ustring kActionShowShortcuts         {"show-shortcuts"};
-const Glib::ustring kActionShowHelp              {"show-help"};
-const Glib::ustring kActionShowAbout             {"show-about"};
-const Glib::ustring kActionShowMeter             {"show-meter"};
-const Glib::ustring kActionShowTrainer           {"show-trainer"};
-const Glib::ustring kActionShowPendulum          {"show-pendulum"};
-const Glib::ustring kActionFullScreen            {"full-screen"};
+inline const Glib::ustring kActionShowPrimaryMenu       {"show-primary-menu"};
+inline const Glib::ustring kActionShowProfiles          {"show-profiles"};
+inline const Glib::ustring kActionShowPreferences       {"show-preferences"};
+inline const Glib::ustring kActionShowShortcuts         {"show-shortcuts"};
+inline const Glib::ustring kActionShowHelp              {"show-help"};
+inline const Glib::ustring kActionShowAbout             {"show-about"};
+inline const Glib::ustring kActionShowMeter             {"show-meter"};
+inline const Glib::ustring kActionShowTrainer           {"show-trainer"};
+inline const Glib::ustring kActionShowPendulum          {"show-pendulum"};
+inline const Glib::ustring kActionFullScreen            {"full-screen"};
 
 enum class ActionScope {
   kApp,
@@ -95,8 +95,8 @@ struct ActionDescription
 template<class T>
 using ActionStateHintRange = std::tuple<T,T>;
 
-const std::size_t kActionStateHintRangeMinimum = 0;
-const std::size_t kActionStateHintRangeMaximum = 1;
+inline constexpr std::size_t kActionStateHintRangeMinimum = 0;
+inline constexpr std::size_t kActionStateHintRangeMaximum = 1;
 
 /** Helper to clamp values to the inclusive range of min and max. */
 template<class T>
@@ -108,33 +108,33 @@ T clampActionStateValue(T value, const ActionStateHintRange<T>& range)
 }
 
 /** Global constants */
-const      Profile  kDefaultProfile;
-constexpr  double   kMinimumTempo         = 30;
-constexpr  double   kMaximumTempo         = 250;
-constexpr  double   kMinimumTrainerAccel  = 1;
-constexpr  double   kMaximumTrainerAccel  = 1000;
-constexpr  double   kDefaultVolume        = 80;
-constexpr  double   kMinimumVolume        = 0;
-constexpr  double   kMaximumVolume        = 100;
+inline const      Profile  kDefaultProfile;
+inline constexpr  double   kMinimumTempo         = 30;
+inline constexpr  double   kMaximumTempo         = 250;
+inline constexpr  double   kMinimumTrainerAccel  = 1;
+inline constexpr  double   kMaximumTrainerAccel  = 1000;
+inline constexpr  double   kDefaultVolume        = 80;
+inline constexpr  double   kMinimumVolume        = 0;
+inline constexpr  double   kMaximumVolume        = 100;
 
 // number of UTF-8 encoded unicode characters
-constexpr Glib::ustring::size_type kProfileTitleMaxLength = 255;
+inline constexpr Glib::ustring::size_type kProfileTitleMaxLength = 255;
 
 // number of UTF-8 encoded unicode characters
-constexpr Glib::ustring::size_type kProfileDescriptionMaxLength = 1024;
+inline constexpr Glib::ustring::size_type kProfileDescriptionMaxLength = 1024;
 
 using ProfilesListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
 
-constexpr int kProfilesListEntryIdentifier = 0;
-constexpr int kProfilesListEntryTitle = 1;
-constexpr int kProfilesListEntryDescription = 2;
+inline constexpr int kProfilesListEntryIdentifier = 0;
+inline constexpr int kProfilesListEntryTitle = 1;
+inline constexpr int kProfilesListEntryDescription = 2;
 
 using ProfilesList = std::vector<ProfilesListEntry>;
 using ProfilesIdentifierList = std::vector<Glib::ustring>;
 
 using ActionDescriptionMap = std::map<Glib::ustring, ActionDescription>;
 
-const ActionDescriptionMap kActionDescriptions =
+inline const ActionDescriptionMap kActionDescriptions =
 {
   /* Action         : kActionQuit
    * Scope          : Application
