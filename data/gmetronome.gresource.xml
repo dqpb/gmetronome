@@ -5,6 +5,9 @@
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
     <file>icons/scalable/gmetronome.svg</file>
+    <file>icons/scalable/quarter-note-symbolic.svg</file>
+    <file>icons/scalable/eighth-note-symbolic.svg</file>
+    <file>icons/scalable/triplet-note-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>
 </gresources>

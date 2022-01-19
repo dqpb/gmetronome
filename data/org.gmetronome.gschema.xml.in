@@ -26,10 +26,15 @@
     @GSCHEMAXML_PULSEAUDIO_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSEAUDIO_END@
   </enum>
 
-  <enum id="org.gmetronome.MeterAnimation">
-    <value nick='off' value='0'/>
-    <value nick='beat' value='1'/>
-    <value nick='all' value='2'/>
+  <enum id="org.gmetronome.PendulumAction">
+    <value nick='center' value='0'/>
+    <value nick='real' value='1'/>
+    <value nick='edge' value='2'/>
+  </enum>
+
+  <enum id="org.gmetronome.PendulumPhaseMode">
+    <value nick='left' value='0'/>
+    <value nick='right' value='1'/>
   </enum>
 
   <!--
@@ -82,6 +87,10 @@
     <key name="show-about" type="s">
       <default>'disabled'</default>
       <summary>Keyboard shortcut to show the about dialog</summary>
+    </key>
+    <key name="show-pendulum" type="s">
+      <default>'&lt;Primary&gt;&lt;Shift&gt;p'</default>
+      <summary>Keyboard shortcut to toggle pendulum display</summary>
     </key>
     <key name="show-meter" type="s">
       <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default>
@@ -199,8 +208,18 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="meter-animation" enum="org.gmetronome.MeterAnimation">
-      <default>'all'</default>
+    <key name="pendulum-action" enum="org.gmetronome.PendulumAction">
+      <default>'real'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="pendulum-phase-mode" enum="org.gmetronome.PendulumPhaseMode">
+      <default>'left'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="meter-animation" type="b">
+      <default>true</default>
       <summary></summary>
       <description></description>
     </key>
@@ -307,6 +326,11 @@
       <description></description>
     </key>
     <key name="show-trainer" type="b">
+      <default>false</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="show-pendulum" type="b">
       <default>false</default>
       <summary></summary>
       <description></description>

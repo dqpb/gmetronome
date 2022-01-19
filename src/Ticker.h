@@ -51,6 +51,7 @@ namespace audio {
       microseconds  timestamp;
       double        current_tempo;
       double        current_accel;
+      double        current_beat;
       int           next_accent;
       microseconds  next_accent_delay;
       microseconds  backend_latency;

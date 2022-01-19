@@ -38,6 +38,8 @@
 //static
 MainWindow* MainWindow::create()
 {
+  Gtk::IconTheme::get_default()->add_resource_path("/org/gmetronome/icons/scalable");
+
   // Load the Builder file and instantiate its widgets.
   auto builder_ = Gtk::Builder::create_from_resource("/org/gmetronome/ui/MainWindow.glade");
 
@@ -54,7 +56,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   : Gtk::ApplicationWindow(cobject),
     builder_(builder),
     shortcuts_window_(nullptr),
-    animation_sync_usecs_(0)
+    animation_sync_(0)
 {
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
@@ -91,6 +93,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentToggleButton", accent_toggle_button_);
   builder_->get_widget("trainerRevealer", trainer_revealer_);
   builder_->get_widget("accentRevealer", accent_revealer_);
+  builder_->get_widget("pendulumRevealer", pendulum_revealer_);
+  builder_->get_widget("pendulumBox", pendulum_box_);
   builder_->get_widget("trainerFrame", trainer_frame_);
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
@@ -98,7 +102,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
-  builder_->get_widget("subdivComboBox", subdiv_combo_box_);
+  builder_->get_widget("subdivButtonBox", subdiv_button_box_);
+  builder_->get_widget("subdivNoneRadioButton", subdiv_none_radio_button_);
+  builder_->get_widget("subdivSimpleRadioButton", subdiv_simple_radio_button_);
+  builder_->get_widget("subdivCompoundRadioButton", subdiv_compound_radio_button_);
   builder_->get_widget("subdivLabel", subdiv_label_);
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
@@ -134,8 +141,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   initAbout();
   initBindings();
 
-  updatePrefAnimationSync();
+  updatePrefPendulumAction();
+  updatePrefPendulumPhaseMode();
   updatePrefMeterAnimation();
+  updatePrefAnimationSync();
 }
 
 void MainWindow::initSettings()
@@ -161,6 +170,7 @@ void MainWindow::initActions()
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowMeter,               settings_state_},
       {kActionShowTrainer,             settings_state_},
+      {kActionShowPendulum,            settings_state_},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
     };
 
@@ -177,11 +187,16 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
-  updateCurrentTempo( { 0us, 0, 0, -1, 0us, 0us } );
+  updateCurrentTempo( { 0us, 0.0, 0.0, -1.0, -1, 0us, 0us } );
 
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
   info_revealer_->set_reveal_child(false);
+
+  // initialize pendulum
+  pendulum_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
+  pendulum_.set_halign(Gtk::ALIGN_CENTER);
+  pendulum_.show();
 
   // initialize tempo interface
   Glib::ustring mark_30 = Glib::ustring::format(30);
@@ -203,7 +218,7 @@ void MainWindow::initUI()
   Meter meter;
   app->get_action_state(meter_slot, meter);
 
-  updateMeterInterface(meter_slot, meter);
+  updateMeter(meter_slot, meter);
 
   // initialize profiles list
   ProfilesList list;
@@ -283,6 +298,15 @@ void MainWindow::initBindings()
                         "reveal-child",
                         Gio::SETTINGS_BIND_GET);
 
+  settings_state_->bind(settings::kKeyStateShowPendulum,
+                        pendulum_revealer_,
+                        "reveal-child",
+                        Gio::SETTINGS_BIND_GET);
+
+  settings_state_->bind(settings::kKeyStateShowPendulum,
+                        pendulum_revealer_,
+                        "vexpand",
+                        Gio::SETTINGS_BIND_GET);
   bindings_
     .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
                                               trainer_frame_->property_sensitive() ));
@@ -315,8 +339,16 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onMeterChanged))
       );
   meter_connections_
-    .push_back( subdiv_combo_box_->signal_changed()
-                .connect(sigc::mem_fun(*this, &MainWindow::onSubdivChanged))
+    .push_back( subdiv_none_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_none_radio_button_, 1);})
+      );
+  meter_connections_
+    .push_back( subdiv_simple_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_simple_radio_button_, 2);})
+      );
+  meter_connections_
+    .push_back( subdiv_compound_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_compound_radio_button_, 3);})
       );
   meter_connections_
     .push_back( accent_button_grid_.signal_accent_changed()
@@ -598,16 +630,17 @@ void MainWindow::onBeatsChanged()
   app->activate_action(meter_slot, new_state);
 }
 
-void MainWindow::onSubdivChanged()
+void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
 {
+  if (!button->get_active())
+    return;
+
   auto app = Gtk::Application::get_default();
 
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
 
   Meter meter;
   app->get_action_state(meter_slot, meter);
-
-  int division = std::atoi(subdiv_combo_box_->get_active_id().c_str());
 
   meter.setDivision(division);
 
@@ -618,7 +651,13 @@ void MainWindow::onSubdivChanged()
 void MainWindow::onAccentChanged(std::size_t button_index)
 {
   std::size_t beats = std::lround(beats_adjustment_->get_value());
-  std::size_t division = std::atoi(subdiv_combo_box_->get_active_id().c_str());
+
+  std::size_t division = 1;
+  if (subdiv_simple_radio_button_->get_active())
+    division = 2;
+  else if (subdiv_compound_radio_button_->get_active())
+    division = 3;
+
   std::size_t pattern_size = std::min(beats * division, accent_button_grid_.size());
 
   AccentPattern pattern(pattern_size);
@@ -726,7 +765,7 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
       Meter meter;
       app->get_action_state(meter_slot, meter);
 
-      updateMeterInterface(meter_slot, meter);
+      updateMeter(meter_slot, meter);
     }
   }
   else if (action_name.compare(kActionTempo) == 0)
@@ -766,7 +805,7 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   }
 }
 
-void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& meter)
+void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 {
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::bind(&sigc::connection::block, std::placeholders::_1, true));
@@ -780,23 +819,33 @@ void MainWindow::updateMeterInterface(const Glib::ustring& slot, const Meter& me
     beats_label_->set_sensitive(true);
     beats_spin_button_->set_sensitive(true);
     subdiv_label_->set_sensitive(true);
-    subdiv_combo_box_->set_sensitive(true);
+    subdiv_button_box_->set_sensitive(true);
   }
   else {
     beats_label_->set_sensitive(false);
     beats_spin_button_->set_sensitive(false);
     subdiv_label_->set_sensitive(false);
-    subdiv_combo_box_->set_sensitive(false);
+    subdiv_button_box_->set_sensitive(false);
   }
 
   beats_adjustment_->set_value(meter.beats());
 
-  subdiv_combo_box_->set_active_id(Glib::ustring::format(meter.division()));
+  switch (meter.division())
+  {
+  case 1: subdiv_none_radio_button_->set_active(); break;
+  case 2: subdiv_simple_radio_button_->set_active(); break;
+  case 3: subdiv_compound_radio_button_->set_active(); break;
+  default:
+    // do nothing
+    break;
+  };
 
   updateAccentButtons(meter);
 
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::mem_fn(&sigc::connection::unblock));
+
+  pendulum_.setMeter(meter);
 }
 
 void MainWindow::updateAccentButtons(const Meter& meter)
@@ -914,29 +963,15 @@ void MainWindow::cancelButtonAnimations()
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
   std::size_t next_accent = stats.next_accent;
-
-  uint64_t time = stats.timestamp.count()
-    + stats.backend_latency.count()
-    + stats.next_accent_delay.count();
-
-  time += animation_sync_usecs_;
-
   if ( next_accent < accent_button_grid_.size() )
   {
-    switch (meter_animation_)
-    {
-    case settings::kMeterAnimationBeat:
-      if (next_accent % accent_button_grid_.grouping() != 0)
-        break;
-      [[fallthrough]];
+    std::chrono::microseconds time = stats.timestamp
+      + stats.backend_latency
+      + stats.next_accent_delay;
 
-    case settings::kMeterAnimationAll:
-      accent_button_grid_[next_accent].scheduleAnimation(time);
-      break;
+    time += animation_sync_;
 
-    default:
-      break;
-    };
+    accent_button_grid_[next_accent].scheduleAnimation(time.count());
   }
 }
 
@@ -977,12 +1012,19 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
     tempo_divider_label_->set_text(text);
 }
 
+void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
+{
+  pendulum_.synchronize(stats, animation_sync_);
+}
+
 void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
 {
   updateCurrentTempo(stats);
 
-  if (meter_animation_ != settings::kMeterAnimationOff)
+  if (meter_animation_)
     updateAccentAnimation(stats);
+
+  updatePendulum(stats);
 }
 
 void MainWindow::onMessage(const Message& message)
@@ -1027,23 +1069,60 @@ void MainWindow::onMessageResponse(int response)
 
 void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == settings::kKeyPrefsAnimationSync)
-  {
+  if (key == settings::kKeyPrefsPendulumAction)
+    updatePrefPendulumAction();
+  else if (key == settings::kKeyPrefsPendulumPhaseMode)
+    updatePrefPendulumPhaseMode();
+  else if (key == settings::kKeyPrefsAnimationSync)
     updatePrefAnimationSync();
-  }
   else if (key == settings::kKeyPrefsMeterAnimation)
-  {
     updatePrefMeterAnimation();
-  }
+}
+
+void MainWindow::updatePrefPendulumAction()
+{
+  int action = settings_prefs_->get_enum(settings::kKeyPrefsPendulumAction);
+  switch (action)
+  {
+  case settings::kPendulumActionCenter:
+    pendulum_.setAction( Pendulum::ActionAngle::kCenter );
+    break;
+  case settings::kPendulumActionReal:
+    pendulum_.setAction( Pendulum::ActionAngle::kReal );
+    break;
+  case settings::kPendulumActionEdge:
+    pendulum_.setAction( Pendulum::ActionAngle::kEdge );
+    break;
+  default:
+    pendulum_.setAction( Pendulum::ActionAngle::kReal );
+    break;
+  };
+}
+
+void MainWindow::updatePrefPendulumPhaseMode()
+{
+  int mode = settings_prefs_->get_enum(settings::kKeyPrefsPendulumPhaseMode);
+  switch (mode)
+  {
+  case settings::kPendulumPhaseModeLeft:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kLeft );
+    break;
+  case settings::kPendulumPhaseModeRight:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kRight );
+    break;
+  default:
+    pendulum_.setPhaseMode( Pendulum::PhaseMode::kLeft );
+    break;
+  };
 }
 
 void MainWindow::updatePrefMeterAnimation()
 {
-  meter_animation_ = settings_prefs_->get_enum(settings::kKeyPrefsMeterAnimation);
+  meter_animation_ = settings_prefs_->get_boolean(settings::kKeyPrefsMeterAnimation);
 }
 
 void MainWindow::updatePrefAnimationSync()
 {
-  animation_sync_usecs_ =
-    std::round( settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.);
+  animation_sync_ = std::chrono::microseconds(
+    std::lround(settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.));
 }

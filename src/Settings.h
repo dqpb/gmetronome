@@ -82,11 +82,17 @@ namespace settings {
 #endif
   };
 
-  enum MeterAnimation
+  enum PendulumAction
   {
-    kMeterAnimationOff  = 0,
-    kMeterAnimationBeat = 1,
-    kMeterAnimationAll  = 2,
+    kPendulumActionCenter = 0,
+    kPendulumActionReal   = 1,
+    kPendulumActionEdge   = 2,
+  };
+
+  enum PendulumPhaseMode
+  {
+    kPendulumPhaseModeLeft = 0,
+    kPendulumPhaseModeRight = 1
   };
 
   /*
@@ -94,6 +100,8 @@ namespace settings {
    */
   const Glib::ustring  kKeyPrefsVolume                    {"volume"};
   const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
+  const Glib::ustring  kKeyPrefsPendulumAction            {"pendulum-action"};
+  const Glib::ustring  kKeyPrefsPendulumPhaseMode         {"pendulum-phase-mode"};
   const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
   const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
   const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
@@ -133,6 +141,7 @@ namespace settings {
   const Glib::ustring  kKeyShortcutsShowShortcuts         {"show-shortcuts"};
   const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
   const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
+  const Glib::ustring  kKeyShortcutsShowPendulum          {"show-pendulum"};
   const Glib::ustring  kKeyShortcutsShowMeter             {"show-meter"};
   const Glib::ustring  kKeyShortcutsShowTrainer           {"show-trainer"};
   const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
@@ -164,6 +173,7 @@ namespace settings {
   const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
   const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
   const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
+  const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
 
 }//namespace settings
 #endif//GMetronome_Settings_h

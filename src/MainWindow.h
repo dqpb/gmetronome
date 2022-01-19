@@ -23,11 +23,13 @@
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
+#include "Pendulum.h"
 #include "AccentButtonGrid.h"
 
 #include <gtkmm.h>
 #include <list>
 #include <vector>
+#include <chrono>
 
 class ActionBinding;
 class ProfilesListStore;
@@ -106,6 +108,8 @@ protected:
   Gtk::ToggleButton* accent_toggle_button_;
   Gtk::Revealer* trainer_revealer_;
   Gtk::Revealer* accent_revealer_;
+  Gtk::Revealer* pendulum_revealer_;
+  Gtk::Box* pendulum_box_;
   Gtk::Frame* trainer_frame_;
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
@@ -113,10 +117,14 @@ protected:
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
-  Gtk::ComboBoxText* subdiv_combo_box_;
+  Gtk::ButtonBox* subdiv_button_box_;
+  Gtk::RadioButton* subdiv_none_radio_button_;
+  Gtk::RadioButton* subdiv_simple_radio_button_;
+  Gtk::RadioButton* subdiv_compound_radio_button_;
   Gtk::Label* subdiv_label_;
 
   AccentButtonGrid accent_button_grid_;
+  Pendulum pendulum_;
 
   Glib::RefPtr<Gtk::Adjustment> tempo_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_start_adjustment_;
@@ -127,8 +135,8 @@ protected:
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
 
   // cached preferences
-  int meter_animation_;
-  double animation_sync_usecs_;
+  bool meter_animation_;
+  std::chrono::microseconds animation_sync_;
 
   // Initialization
   void initSettings();
@@ -153,7 +161,7 @@ protected:
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void onMeterChanged();
   void onBeatsChanged();
-  void onSubdivChanged();
+  void onSubdivChanged(Gtk::RadioButton* button, int division);
   void onAccentChanged(std::size_t button_index);
   void onProfilesSelectionChanged();
   void onProfilesTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
@@ -167,10 +175,9 @@ protected:
   void onActionStateChanged(const Glib::ustring& action_name,
                             const Glib::VariantBase& variant);
 
-  void updateMeterInterface(const Glib::ustring& slot, const Meter& meter);
+  void updateMeter(const Glib::ustring& slot, const Meter& meter);
 
   void updateAccentButtons(const Meter& meter);
-  void updateFlowBoxMaxChildren(int width);
 
   void updateProfilesList(const ProfilesList& list);
   void updateProfilesSelect(const Glib::ustring& id);
@@ -182,6 +189,7 @@ protected:
 
   void updateAccentAnimation(const audio::Ticker::Statistics& stats);
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
+  void updatePendulum(const audio::Ticker::Statistics& stats);
   void onTickerStatistics(const audio::Ticker::Statistics& stats);
 
   void onMessage(const Message& message);
@@ -189,8 +197,10 @@ protected:
 
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
-  void updatePrefAnimationSync();
+  void updatePrefPendulumAction();
+  void updatePrefPendulumPhaseMode();
   void updatePrefMeterAnimation();
+  void updatePrefAnimationSync();
 };
 
 #endif//GMetronome_MainWindow_h

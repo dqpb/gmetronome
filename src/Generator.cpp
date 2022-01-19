@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -46,10 +46,11 @@ namespace audio {
       sound_strong_(sound_zero_),
       sound_mid_(sound_zero_),
       sound_weak_(sound_zero_),
+      current_beat_(0),
       next_accent_(0),
       frames_total_(0),
       frames_done_(0),
-      stats_({0,0,0,0us})
+      stats_({0.0, 0.0, 0, 0, 0us})
   {}
 
   Generator::~Generator()
@@ -61,14 +62,14 @@ namespace audio {
     recalculateAccelSign();
     recalculateFramesTotal();
   }
-  
+
   void Generator::setTargetTempo(double target_tempo)
   {
     target_tempo_ = convertTempoToFrameTime(target_tempo);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
-  
+
   void Generator::setAccel(double accel)
   {
     accel_ = accel_saved_ = convertAccelToFrameTime(accel);
@@ -77,12 +78,12 @@ namespace audio {
   }
 
   void Generator::swapMeter(Meter& meter)
-  {    
+  {
     double s_subdiv = meter_.division();
     double t_subdiv = meter.division();
-    
+
     std::swap(meter_, meter);
-    
+
     auto fmodulo = [](double a, double b) -> int
       {
         int ai = std::lround(a);
@@ -97,7 +98,7 @@ namespace audio {
     double t_accent = accent_ratio * s_accent;
     double t_next_accent = std::ceil( t_accent );
     double t_prev_accent = t_next_accent - 1;
-    
+
     // compute frames_done
     if (accel_ == 0) {
       frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
@@ -114,8 +115,8 @@ namespace audio {
       // ...
 
       // tempo_ = ...
-	    
-      // temp. solution (remove) 
+
+      // temp. solution (remove)
       frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
 
       // temp solution. tempo should be the old tempo at the last pulse
@@ -126,12 +127,12 @@ namespace audio {
     if (next_accent_ >= meter_.accents().size())
       next_accent_ = 0;
   }
-  
+
   void Generator::swapSoundStrong(Buffer& sound)
   {
     std::swap(sound_strong_,sound);
   }
-  
+
   void Generator::swapSoundMid(Buffer& sound)
   {
     std::swap(sound_mid_,sound);
@@ -141,12 +142,12 @@ namespace audio {
   {
     std::swap(sound_weak_,sound);
   }
-  
+
   const Generator::Statistics& Generator::getStatistics() const
   {
     return stats_;
   }
-      
+
   double Generator::convertTempoToFrameTime(double tempo) {
     return kMinutesFramesRatio_ * tempo;
   }
@@ -158,7 +159,7 @@ namespace audio {
   void Generator::recalculateAccelSign() {
     if (target_tempo_ == tempo_)
       accel_ = 0;
-    else 
+    else
       accel_ = std::copysign(accel_saved_, (target_tempo_ < tempo_) ? -1. : 1.);
   }
 
@@ -177,7 +178,7 @@ namespace audio {
   {
     double new_tempo;
     double new_accel;
-    
+
     if (accel == 0) {
       new_tempo = tempo;
       new_accel = 0;
@@ -195,41 +196,41 @@ namespace audio {
     }
     return {new_tempo,new_accel};
   }
-  
+
   size_t Generator::framesPerPulse(double tempo,
                                    double target_tempo,
                                    double accel,
                                    unsigned subdiv)
   {
     double frames_total;
-    
+
     tempo = tempo * subdiv;
     accel = accel * subdiv;
     target_tempo = target_tempo * subdiv;
-    
+
     auto framesAfterCompoundMotion = [&tempo,&target_tempo,&accel](double t) -> size_t
       {
         double s = accel / 2. * t * t + tempo * t;
         return t + ( 1. - s ) / target_tempo;
       };
-    
+
     if (accel == 0) {
       frames_total = (size_t) ( 1. / tempo );
     }
-    else {	  
+    else {
       double p = 2.0 * tempo / accel;
       double q = -2.0 / accel;
       double p_half = p / 2.;
       double radicand = p_half * p_half - q;
       double t = ( target_tempo - tempo ) / accel;
-      
+
       if (accel > 0) {
         frames_total =  ( -p_half + sqrt(radicand) );
         if (t<frames_total) {
           frames_total = framesAfterCompoundMotion(t);
         }
       }
-      else { 
+      else {
         if (radicand < 0) {
           frames_total = framesAfterCompoundMotion(t);
         }
@@ -240,7 +241,7 @@ namespace audio {
           }
         }
       }
-    }    
+    }
     return frames_total;
   }
 
@@ -250,27 +251,34 @@ namespace audio {
     std::tie(tempo, accel) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
 
     stats_.current_tempo = tempo * kFramesMinutesRatio_;
-    stats_.current_accel = accel * kFramesMinutesRatio_;
+    stats_.current_accel = accel * kFramesMinutesRatio_ * kFramesMinutesRatio_;
+
+    int current_accent = (next_accent_ + meter_.accents().size() - 1) % meter_.division();
+
+    stats_.current_beat = current_beat_
+      + (current_accent + (double) frames_done_ / frames_total_) / meter_.division();
+
     stats_.next_accent = next_accent_;
 
     int frames_left = std::max(0, frames_total_ - frames_done_);
-    
+
     stats_.next_accent_delay
       = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio_));
   }
-  
+
   void Generator::start(const void*& data, size_t& bytes)
   {
+    current_beat_ = -1;
     next_accent_  = 0;
-    
+
     frames_total_ = 2 * kMaxChunkFrames_;
     frames_done_  = 0;
 
     updateStatistics();
-    
+
     data = &(sound_zero_[0]);
     bytes = frames_total_ * frameSize(kStreamSpec_);
-    
+
     frames_total_ = 0;
     frames_done_ = 0;
   }
@@ -279,20 +287,21 @@ namespace audio {
   {
     stats_.current_tempo = 0;
     stats_.current_accel = 0;
+    stats_.current_beat = 0.0;
     stats_.next_accent = 0;
     stats_.next_accent_delay = 0us;
 
     data = &(sound_zero_[0]);
     bytes = 0;
   }
-  
+
   void Generator::cycle(const void*& data, size_t& bytes)
   {
     const AccentPattern& accents = meter_.accents();
     size_t frames_chunk = 0;
 
     int frames_left = frames_total_ - frames_done_;
-    
+
     if (frames_left <= 0)
     {
       if (!accents.empty())
@@ -300,19 +309,19 @@ namespace audio {
         switch (accents[next_accent_])
         {
         case kAccentStrong:
-          frames_chunk = sound_strong_.size() / frameSize(kStreamSpec_); 
+          frames_chunk = sound_strong_.size() / frameSize(kStreamSpec_);
           data = &(sound_strong_[0]);
           bytes = sound_strong_.size();
           break;
 
         case kAccentMid:
-          frames_chunk = sound_mid_.size() / frameSize(kStreamSpec_); 
+          frames_chunk = sound_mid_.size() / frameSize(kStreamSpec_);
           data = &(sound_mid_[0]);
           bytes = sound_mid_.size();
           break;
 
         case kAccentWeak:
-          frames_chunk = sound_weak_.size() / frameSize(kStreamSpec_); 
+          frames_chunk = sound_weak_.size() / frameSize(kStreamSpec_);
           data = &(sound_weak_[0]);
           bytes = sound_weak_.size();
           break;
@@ -323,6 +332,10 @@ namespace audio {
           bytes = kAvgChunkFrames_ * frameSize(kStreamSpec_);
           break;
         };
+
+        if (next_accent_ % meter_.division() == 0)
+          ++current_beat_;
+
         if (++next_accent_ == accents.size())
           next_accent_ = 0;
       }

@@ -64,6 +64,9 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsShowAbout,
     { kActionShowAbout, {} }
   },
+  { settings::kKeyShortcutsShowPendulum,
+    { kActionShowPendulum, {} }
+  },
   { settings::kKeyShortcutsShowMeter,
     { kActionShowMeter, {} }
   },

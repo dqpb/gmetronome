@@ -27,6 +27,9 @@ icons256_DATA = icons/256x256/gmetronome.png
 iconsscalabledir = $(datadir)/icons/hicolor/scalable/apps
 iconsscalable_DATA = icons/scalable/gmetronome.svg
 
+iconssymbolicdir = $(datadir)/icons/hicolor/symbolic/apps
+iconssymbolic_DATA = icons/scalable/gmetronome-symbolic.svg
+
 ### Resources files
 resource_files = \
 	css/global.css \
@@ -38,7 +41,11 @@ resource_files = \
 	icons/48x48/gmetronome.png \
 	icons/64x64/gmetronome.png \
 	icons/256x256/gmetronome.png \
-	icons/scalable/gmetronome.svg 
+	icons/scalable/gmetronome.svg \
+	icons/scalable/gmetronome-symbolic.svg \
+	icons/scalable/quarter-note-symbolic.svg \
+	icons/scalable/eighth-note-symbolic.svg \
+	icons/scalable/triplet-note-symbolic.svg
 
 gresource_xml_file = gmetronome.gresource.xml
 

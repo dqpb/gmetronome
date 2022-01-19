@@ -16,6 +16,7 @@ gmetronome_SOURCES = \
 	MainWindow.cpp \
 	Message.cpp \
 	Meter.cpp \
+	Pendulum.cpp \
 	Profile.cpp \
 	ProfilesIOBase.cpp \
 	ProfilesIOLocalXml.cpp \
@@ -54,6 +55,7 @@ noinst_HEADERS = \
 	Message.h \
 	Meter.h \
 	Oss.h \
+	Pendulum.h \
 	Profile.h \
 	ProfilesIOBase.h \
 	ProfilesIOLocalXml.h \
@@ -65,7 +67,7 @@ noinst_HEADERS = \
 	Shortcut.h \
 	SpinLock.h \
 	Synthesizer.h \
-	Ticker.h 
+	Ticker.h
 
 top_src_datadir = $(top_srcdir)/data
 
@@ -80,6 +82,9 @@ BUILT_SOURCES = $(resources_file)
 gresources_deps = \
 	$(top_src_datadir)/ui/ShortcutDialog.glade \
 	$(top_src_datadir)/icons/scalable/gmetronome.svg \
+	$(top_src_datadir)/icons/scalable/quarter-note-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/eighth-note-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/triplet-note-symbolic.svg \
 	$(top_src_datadir)/ui/MainWindow.glade \
 	$(top_src_datadir)/ui/SettingsDialog.glade \
 	$(top_src_datadir)/css/global.css
