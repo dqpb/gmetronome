@@ -142,8 +142,6 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
   inline const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
   inline const Glib::ustring  kKeyShortcutsShowPendulum          {"show-pendulum"};
-  inline const Glib::ustring  kKeyShortcutsShowMeter             {"show-meter"};
-  inline const Glib::ustring  kKeyShortcutsShowTrainer           {"show-trainer"};
   inline const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
   inline const Glib::ustring  kKeyShortcutsStart                 {"start"};
   inline const Glib::ustring  kKeyShortcutsVolumeIncrease1       {"volume-increase-1"};
@@ -171,8 +169,6 @@ namespace settings {
    * org.gmetronome.state keys
    */
   inline const Glib::ustring  kKeyStateProfilesSelect            {"profiles-select"};
-  inline const Glib::ustring  kKeyStateShowMeter                 {"show-meter"};
-  inline const Glib::ustring  kKeyStateShowTrainer               {"show-trainer"};
   inline const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
 
 }//namespace settings

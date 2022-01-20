@@ -67,12 +67,6 @@ inline const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsShowPendulum,
     { kActionShowPendulum, {} }
   },
-  { settings::kKeyShortcutsShowMeter,
-    { kActionShowMeter, {} }
-  },
-  { settings::kKeyShortcutsShowTrainer,
-    { kActionShowTrainer, {} }
-  },
   { settings::kKeyShortcutsFullScreen,
     { kActionFullScreen, {} }
   },

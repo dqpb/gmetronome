@@ -35,8 +35,6 @@ const std::vector<ShortcutEntry>& ShortcutList()
 
       { {}, C_("Shortcut group title", "View") },
       { settings::kKeyShortcutsShowPendulum,          C_("Shortcut title", "Show Pendulum") },
-      { settings::kKeyShortcutsShowMeter,             C_("Shortcut title", "Show Accents") },
-      { settings::kKeyShortcutsShowTrainer,           C_("Shortcut title", "Show Trainer") },
       { settings::kKeyShortcutsFullScreen,            C_("Shortcut title", "Full Screen") },
 
       { {}, C_("Shortcut group title", "Transport") },

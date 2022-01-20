@@ -87,8 +87,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("contentBox", content_box_);
   builder_->get_widget("volumeButton", volume_button_);
   builder_->get_widget("startButton", start_button_);
-  builder_->get_widget("trainerToggleButtonRevealer", trainer_toggle_button_revealer_);
-  builder_->get_widget("accentToggleButtonRevealer", accent_toggle_button_revealer_);
   builder_->get_widget("trainerToggleButton", trainer_toggle_button_);
   builder_->get_widget("accentToggleButton", accent_toggle_button_);
   builder_->get_widget("trainerRevealer", trainer_revealer_);
@@ -168,8 +166,6 @@ void MainWindow::initActions()
       {kActionShowShortcuts,           sigc::mem_fun(*this, &MainWindow::onShowShortcuts)},
       {kActionShowHelp,                sigc::mem_fun(*this, &MainWindow::onShowHelp)},
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
-      {kActionShowMeter,               settings_state_},
-      {kActionShowTrainer,             settings_state_},
       {kActionShowPendulum,            settings_state_},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
     };
@@ -250,7 +246,7 @@ void MainWindow::initAbout()
   //NAME <EMAIL>, YEAR1, YEAR2
   about_dialog_.set_translator_credits(C_("About dialog", "translator-credits"));
 
-  static const int year = 2021;
+  static const int year = 2022;
 
   auto copyright = Glib::ustring::compose(
     //Parameters:
@@ -266,7 +262,6 @@ void MainWindow::initAbout()
 
   about_dialog_.set_logo(
     Gdk::Pixbuf::create_from_resource("/org/gmetronome/icons/scalable/gmetronome.svg",128,128));
-
 }
 
 void MainWindow::initBindings()
@@ -277,26 +272,6 @@ void MainWindow::initBindings()
                         volume_button_,
                         "value",
                         Gio::SETTINGS_BIND_DEFAULT);
-
-  settings_state_->bind(settings::kKeyStateShowMeter,
-                        accent_revealer_,
-                        "reveal-child",
-                        Gio::SETTINGS_BIND_GET);
-
-  settings_state_->bind(settings::kKeyStateShowMeter,
-                        accent_toggle_button_revealer_,
-                        "reveal-child",
-                        Gio::SETTINGS_BIND_GET);
-
-  settings_state_->bind(settings::kKeyStateShowTrainer,
-                        trainer_revealer_,
-                        "reveal-child",
-                        Gio::SETTINGS_BIND_GET);
-
-  settings_state_->bind(settings::kKeyStateShowTrainer,
-                        trainer_toggle_button_revealer_,
-                        "reveal-child",
-                        Gio::SETTINGS_BIND_GET);
 
   settings_state_->bind(settings::kKeyStateShowPendulum,
                         pendulum_revealer_,
@@ -311,8 +286,16 @@ void MainWindow::initBindings()
     .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
                                               trainer_frame_->property_sensitive() ));
   bindings_
+    .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
+                                              trainer_revealer_->property_reveal_child() ));
+
+  bindings_
     .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
                                               accent_frame_->property_sensitive() ));
+  bindings_
+    .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
+                                              accent_revealer_->property_reveal_child() ));
+
   action_bindings_
     .push_back( bind_action(app,
                             kActionTempo,

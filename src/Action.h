@@ -73,8 +73,6 @@ inline const Glib::ustring kActionShowPreferences       {"show-preferences"};
 inline const Glib::ustring kActionShowShortcuts         {"show-shortcuts"};
 inline const Glib::ustring kActionShowHelp              {"show-help"};
 inline const Glib::ustring kActionShowAbout             {"show-about"};
-inline const Glib::ustring kActionShowMeter             {"show-meter"};
-inline const Glib::ustring kActionShowTrainer           {"show-trainer"};
 inline const Glib::ustring kActionShowPendulum          {"show-pendulum"};
 inline const Glib::ustring kActionFullScreen            {"full-screen"};
 
@@ -773,42 +771,6 @@ inline const ActionDescriptionMap kActionDescriptions =
    * Enabled        : true
    */
   { kActionShowAbout, { ActionScope::kWin, {}, {}, {}, true }
-  },
-
-  /* Action         : kActionShowMeter
-   * Scope          : Window
-   * Parameter type : -
-   * State type     : -
-   * State value    : -
-   * State hint     : -
-   * Enabled        : true
-   */
-  { kActionShowMeter,
-    {
-      ActionScope::kWin,
-      {},//Glib::Variant<bool>::variant_type(),
-      Glib::Variant<bool>::create( true ),
-      {},
-      true
-    }
-  },
-
-  /* Action         : kActionShowTrainer
-   * Scope          : Window
-   * Parameter type : -
-   * State type     : -
-   * State value    : -
-   * State hint     : -
-   * Enabled        : true
-   */
-  { kActionShowTrainer,
-    {
-      ActionScope::kWin,
-      {},//Glib::Variant<bool>::variant_type(),
-      Glib::Variant<bool>::create( true ),
-      {},
-      true
-    }
   },
 
   /* Action         : kActionShowPendulum

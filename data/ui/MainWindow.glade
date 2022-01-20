@@ -180,34 +180,6 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="action-name">win.show-meter</property>
-            <property name="text" translatable="yes" context="Primary menu">Show A_ccents</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkModelButton">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="action-name">win.show-trainer</property>
-            <property name="text" translatable="yes" context="Primary menu">Show Tra_iner</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkModelButton">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
             <property name="action-name">win.full-screen</property>
             <property name="text" translatable="yes" context="Primary menu">_Full Screen</property>
           </object>
@@ -507,11 +479,10 @@
       </object>
     </child>
     <child>
-      <object class="GtkRevealer" id="accentToggleButtonRevealer">
+      <object class="GtkButtonBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="transition-type">slide-left</property>
-        <property name="reveal-child">True</property>
+        <property name="layout-style">expand</property>
         <child>
           <object class="GtkToggleButton" id="accentToggleButton">
             <property name="label" translatable="yes" context="Main window">_Accents</property>
@@ -524,15 +495,12 @@
             <property name="action-name">app.meter-enabled</property>
             <property name="use-underline">True</property>
           </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
         </child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkRevealer" id="trainerToggleButtonRevealer">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="transition-type">slide-left</property>
-        <property name="reveal-child">True</property>
         <child>
           <object class="GtkToggleButton" id="trainerToggleButton">
             <property name="label" translatable="yes" context="Main window">_Trainer</property>
@@ -545,11 +513,13 @@
             <property name="action-name">app.trainer-enabled</property>
             <property name="use-underline">True</property>
           </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
         </child>
       </object>
-      <packing>
-        <property name="position">1</property>
-      </packing>
     </child>
     <child>
       <object class="GtkButton" id="fullScreenButton">
@@ -795,7 +765,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="transition-type">slide-up</property>
-                    <property name="reveal-child">True</property>
                     <child>
                       <object class="GtkFrame" id="accentFrame">
                         <property name="visible">True</property>
@@ -1008,7 +977,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="transition-type">slide-up</property>
-                    <property name="reveal-child">True</property>
                     <child>
                       <object class="GtkFrame" id="trainerFrame">
                         <property name="visible">True</property>
@@ -1136,7 +1104,6 @@
                   <object class="GtkBox" id="transportBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-top">10</property>
                     <child type="center">
                       <object class="GtkToggleButton" id="startButton">
                         <property name="label" translatable="yes" context="Main window">_Start</property>

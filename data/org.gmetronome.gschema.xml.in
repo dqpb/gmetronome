@@ -92,14 +92,6 @@
       <default>'&lt;Primary&gt;&lt;Shift&gt;p'</default>
       <summary>Keyboard shortcut to toggle pendulum display</summary>
     </key>
-    <key name="show-meter" type="s">
-      <default>'&lt;Primary&gt;&lt;Shift&gt;a'</default>
-      <summary>Keyboard shortcut to toggle meter interface</summary>
-    </key>
-    <key name="show-trainer" type="s">
-      <default>'&lt;Primary&gt;&lt;Shift&gt;t'</default>
-      <summary>Keyboard shortcut to toggle trainer interface</summary>
-    </key>
     <key name="full-screen" type="s">
       <default>'F11'</default>
       <summary>Keyboard shortcut to toggle full screen mode</summary>
@@ -320,18 +312,8 @@
       <summary>Selected profile</summary>
       <description></description>
     </key>
-    <key name="show-meter" type="b">
-      <default>true</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="show-trainer" type="b">
-      <default>false</default>
-      <summary></summary>
-      <description></description>
-    </key>
     <key name="show-pendulum" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary></summary>
       <description></description>
     </key>

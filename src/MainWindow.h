@@ -102,8 +102,6 @@ protected:
   Gtk::Box* content_box_;
   Gtk::VolumeButton* volume_button_;
   Gtk::ToggleButton* start_button_;
-  Gtk::Revealer* trainer_toggle_button_revealer_;
-  Gtk::Revealer* accent_toggle_button_revealer_;
   Gtk::ToggleButton* trainer_toggle_button_;
   Gtk::ToggleButton* accent_toggle_button_;
   Gtk::Revealer* trainer_revealer_;
