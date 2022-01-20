@@ -576,7 +576,7 @@
           <object class="GtkImage">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="icon-name">document-save-symbolic</property>
+            <property name="icon-name">profile-access-symbolic</property>
           </object>
         </child>
       </object>
