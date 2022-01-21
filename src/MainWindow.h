@@ -116,9 +116,10 @@ protected:
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
   Gtk::ButtonBox* subdiv_button_box_;
-  Gtk::RadioButton* subdiv_none_radio_button_;
-  Gtk::RadioButton* subdiv_simple_radio_button_;
-  Gtk::RadioButton* subdiv_compound_radio_button_;
+  Gtk::RadioButton* subdiv_1_radio_button_;
+  Gtk::RadioButton* subdiv_2_radio_button_;
+  Gtk::RadioButton* subdiv_3_radio_button_;
+  Gtk::RadioButton* subdiv_4_radio_button_;
   Gtk::Label* subdiv_label_;
 
   AccentButtonGrid accent_button_grid_;
