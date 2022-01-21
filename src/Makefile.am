@@ -82,10 +82,10 @@ BUILT_SOURCES = $(resources_file)
 gresources_deps = \
 	$(top_src_datadir)/ui/ShortcutDialog.glade \
 	$(top_src_datadir)/icons/scalable/gmetronome.svg \
-	$(top_src_datadir)/icons/scalable/quarter-note-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/eighth-note-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/triplet-note-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/sixteenth-note-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/note-quarter-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/note-eighth-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/note-triplet-symbolic.svg \
+	$(top_src_datadir)/icons/scalable/note-sixteenth-symbolic.svg \
 	$(top_src_datadir)/icons/scalable/profile-access-symbolic.svg \
 	$(top_src_datadir)/ui/MainWindow.glade \
 	$(top_src_datadir)/ui/SettingsDialog.glade \

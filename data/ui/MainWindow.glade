@@ -883,7 +883,7 @@
                                           <object class="GtkImage">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="icon-name">quarter-note-symbolic</property>
+                                            <property name="icon-name">note-quarter-symbolic</property>
                                           </object>
                                         </child>
                                       </object>
@@ -905,7 +905,7 @@
                                           <object class="GtkImage">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="icon-name">eighth-note-symbolic</property>
+                                            <property name="icon-name">note-eighth-symbolic</property>
                                           </object>
                                         </child>
                                       </object>
@@ -927,7 +927,7 @@
                                           <object class="GtkImage">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="icon-name">triplet-note-symbolic</property>
+                                            <property name="icon-name">note-triplet-symbolic</property>
                                           </object>
                                         </child>
                                       </object>
@@ -948,7 +948,7 @@
                                           <object class="GtkImage">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="icon-name">sixteenth-note-symbolic</property>
+                                            <property name="icon-name">note-sixteenth-symbolic</property>
                                           </object>
                                         </child>
                                       </object>
