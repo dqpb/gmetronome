@@ -89,7 +89,7 @@
       <summary>Keyboard shortcut to show the about dialog</summary>
     </key>
     <key name="show-pendulum" type="s">
-      <default>'&lt;Primary&gt;&lt;Shift&gt;p'</default>
+      <default>'&lt;Primary&gt;p'</default>
       <summary>Keyboard shortcut to toggle pendulum display</summary>
     </key>
     <key name="full-screen" type="s">
