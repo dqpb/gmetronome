@@ -220,7 +220,7 @@
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Pendulum start direction:</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Start direction:</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
@@ -233,7 +233,7 @@
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Pendulum click spot:</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Click spot:</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
