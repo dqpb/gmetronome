@@ -276,7 +276,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
-                <property name="label" translatable="yes">Pendulum</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Pendulum</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -291,7 +291,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
-                <property name="label" translatable="yes">Accents</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Accents</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -358,6 +358,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="text" translatable="yes">0</property>
+                <property name="primary-icon-tooltip-text" translatable="yes" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on large (absolute) values.</property>
                 <property name="input-purpose">number</property>
                 <property name="adjustment">animationSyncAdjustment</property>
                 <property name="numeric">True</property>

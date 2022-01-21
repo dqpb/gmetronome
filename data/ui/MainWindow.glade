@@ -644,7 +644,6 @@
                 <property name="margin-top">10</property>
                 <property name="margin-bottom">10</property>
                 <property name="orientation">vertical</property>
-                <property name="spacing">10</property>
                 <child>
                   <object class="GtkRevealer" id="pendulumRevealer">
                     <property name="visible">True</property>
@@ -685,6 +684,7 @@
                   <object class="GtkFrame" id="tempoFrame">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-top">10</property>
                     <property name="label-xalign">0.019999999552965164</property>
                     <child>
                       <object class="GtkBox">
@@ -770,6 +770,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="accentBox">
@@ -782,27 +783,69 @@
                             <property name="orientation">vertical</property>
                             <property name="spacing">10</property>
                             <child>
-                              <object class="GtkBox">
+                              <!-- n-columns=3 n-rows=2 -->
+                              <object class="GtkGrid">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="spacing">10</property>
+                                <property name="row-spacing">2</property>
+                                <property name="column-spacing">50</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
                                     <property name="halign">start</property>
+                                    <property name="hexpand">True</property>
                                     <property name="label" translatable="yes" context="Main window">Meter</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="beatsLabel">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
+                                    <property name="halign">start</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="label" translatable="yes" context="Main window">Beats</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">1</property>
+                                    <property name="top-attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="subdivLabel">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes" context="Main window">Division</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">2</property>
+                                    <property name="top-attach">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkComboBoxText" id="meterComboBox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
                                     <property name="active-id">meter-4-simple</property>
                                     <items>
                                       <item id="meter-1-simple" translatable="yes" context="Main window">Single</item>
@@ -817,23 +860,8 @@
                                     </items>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="beatsLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">end</property>
-                                    <property name="label" translatable="yes" context="Main window">Beats</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">1</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -841,29 +869,15 @@
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="can-focus">True</property>
+                                    <property name="halign">start</property>
                                     <property name="max-length">6</property>
                                     <property name="input-purpose">number</property>
                                     <property name="adjustment">beatsAdjustment</property>
                                     <property name="numeric">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="subdivLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">end</property>
-                                    <property name="label" translatable="yes" context="Main window">Division</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">4</property>
+                                    <property name="left-attach">1</property>
+                                    <property name="top-attach">1</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -960,15 +974,14 @@
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">5</property>
+                                    <property name="left-attach">2</property>
+                                    <property name="top-attach">1</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -1003,28 +1016,70 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
-                          <object class="GtkBox" id="trainerBox">
+                          <!-- n-columns=3 n-rows=2 -->
+                          <object class="GtkGrid">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="margin-start">10</property>
                             <property name="margin-end">10</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
-                            <property name="spacing">10</property>
+                            <property name="row-spacing">2</property>
+                            <property name="column-spacing">50</property>
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="halign">end</property>
+                                <property name="opacity">0.80</property>
+                                <property name="halign">start</property>
+                                <property name="hexpand">True</property>
                                 <property name="label" translatable="yes" context="Main window">Start</property>
                                 <property name="justify">fill</property>
+                                <attributes>
+                                  <attribute name="scale" value="0.80000000000000004"/>
+                                </attributes>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="opacity">0.80</property>
+                                <property name="halign">start</property>
+                                <property name="hexpand">True</property>
+                                <property name="label" translatable="yes" context="Main window">Target</property>
+                                <property name="justify">fill</property>
+                                <attributes>
+                                  <attribute name="scale" value="0.80000000000000004"/>
+                                </attributes>
+                              </object>
+                              <packing>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="opacity">0.80</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes" context="Main window">Acceleration</property>
+                                <property name="justify">fill</property>
+                                <attributes>
+                                  <attribute name="scale" value="0.80000000000000004"/>
+                                </attributes>
+                              </object>
+                              <packing>
+                                <property name="left-attach">2</property>
+                                <property name="top-attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1038,23 +1093,8 @@
                                 <property name="numeric">True</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">end</property>
-                                <property name="label" translatable="yes" context="Main window">Target</property>
-                                <property name="justify">fill</property>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">1</property>
                               </packing>
                             </child>
                             <child>
@@ -1068,23 +1108,8 @@
                                 <property name="numeric">True</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">end</property>
-                                <property name="label" translatable="yes" context="Main window">Accel</property>
-                                <property name="justify">fill</property>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">4</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">1</property>
                               </packing>
                             </child>
                             <child>
@@ -1098,9 +1123,8 @@
                                 <property name="numeric">True</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">5</property>
+                                <property name="left-attach">2</property>
+                                <property name="top-attach">1</property>
                               </packing>
                             </child>
                           </object>
@@ -1125,6 +1149,7 @@
                   <object class="GtkBox" id="transportBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-top">20</property>
                     <child type="center">
                       <object class="GtkToggleButton" id="startButton">
                         <property name="label" translatable="yes" context="Main window">_Start</property>
