@@ -8,6 +8,7 @@
     <file>icons/scalable/quarter-note-symbolic.svg</file>
     <file>icons/scalable/eighth-note-symbolic.svg</file>
     <file>icons/scalable/triplet-note-symbolic.svg</file>
+    <file>icons/scalable/sixteenth-note-symbolic.svg</file>
     <file>icons/scalable/profile-access-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>

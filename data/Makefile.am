@@ -46,6 +46,7 @@ resource_files = \
 	icons/scalable/quarter-note-symbolic.svg \
 	icons/scalable/eighth-note-symbolic.svg \
 	icons/scalable/triplet-note-symbolic.svg \
+	icons/scalable/sixteenth-note-symbolic.svg \
 	icons/scalable/profile-access-symbolic.svg
 
 gresource_xml_file = gmetronome.gresource.xml
