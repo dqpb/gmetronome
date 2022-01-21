@@ -356,6 +356,12 @@ namespace audio {
 
     frames_done_ += frames_chunk;
 
+    // std::cerr << "total: " << frames_total_
+    //           << "\tdone: " << frames_done_
+    //           << "\tchunk: " << frames_chunk
+    //           << "\tnext: " << next_accent_
+    //           << std::endl;
+
     updateStatistics();
   }
 

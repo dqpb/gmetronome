@@ -5,10 +5,10 @@
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
     <file>icons/scalable/gmetronome.svg</file>
-    <file>icons/scalable/quarter-note-symbolic.svg</file>
-    <file>icons/scalable/eighth-note-symbolic.svg</file>
-    <file>icons/scalable/triplet-note-symbolic.svg</file>
-    <file>icons/scalable/sixteenth-note-symbolic.svg</file>
+    <file>icons/scalable/note-quarter-symbolic.svg</file>
+    <file>icons/scalable/note-eighth-symbolic.svg</file>
+    <file>icons/scalable/note-triplet-symbolic.svg</file>
+    <file>icons/scalable/note-sixteenth-symbolic.svg</file>
     <file>icons/scalable/profile-access-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>

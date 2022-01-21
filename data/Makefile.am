@@ -43,10 +43,10 @@ resource_files = \
 	icons/256x256/gmetronome.png \
 	icons/scalable/gmetronome.svg \
 	icons/scalable/gmetronome-symbolic.svg \
-	icons/scalable/quarter-note-symbolic.svg \
-	icons/scalable/eighth-note-symbolic.svg \
-	icons/scalable/triplet-note-symbolic.svg \
-	icons/scalable/sixteenth-note-symbolic.svg \
+	icons/scalable/note-quarter-symbolic.svg \
+	icons/scalable/note-eighth-symbolic.svg \
+	icons/scalable/note-triplet-symbolic.svg \
+	icons/scalable/note-sixteenth-symbolic.svg \
 	icons/scalable/profile-access-symbolic.svg
 
 gresource_xml_file = gmetronome.gresource.xml

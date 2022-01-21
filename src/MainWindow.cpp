@@ -101,9 +101,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
   builder_->get_widget("subdivButtonBox", subdiv_button_box_);
-  builder_->get_widget("subdivNoneRadioButton", subdiv_none_radio_button_);
-  builder_->get_widget("subdivSimpleRadioButton", subdiv_simple_radio_button_);
-  builder_->get_widget("subdivCompoundRadioButton", subdiv_compound_radio_button_);
+  builder_->get_widget("subdiv1RadioButton", subdiv_1_radio_button_);
+  builder_->get_widget("subdiv2RadioButton", subdiv_2_radio_button_);
+  builder_->get_widget("subdiv3RadioButton", subdiv_3_radio_button_);
+  builder_->get_widget("subdiv4RadioButton", subdiv_4_radio_button_);
   builder_->get_widget("subdivLabel", subdiv_label_);
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
@@ -322,16 +323,20 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onMeterChanged))
       );
   meter_connections_
-    .push_back( subdiv_none_radio_button_->signal_clicked()
-                .connect([&]{onSubdivChanged(subdiv_none_radio_button_, 1);})
+    .push_back( subdiv_1_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_1_radio_button_, 1);})
       );
   meter_connections_
-    .push_back( subdiv_simple_radio_button_->signal_clicked()
-                .connect([&]{onSubdivChanged(subdiv_simple_radio_button_, 2);})
+    .push_back( subdiv_2_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_2_radio_button_, 2);})
       );
   meter_connections_
-    .push_back( subdiv_compound_radio_button_->signal_clicked()
-                .connect([&]{onSubdivChanged(subdiv_compound_radio_button_, 3);})
+    .push_back( subdiv_3_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_3_radio_button_, 3);})
+      );
+  meter_connections_
+    .push_back( subdiv_4_radio_button_->signal_clicked()
+                .connect([&]{onSubdivChanged(subdiv_4_radio_button_, 4);})
       );
   meter_connections_
     .push_back( accent_button_grid_.signal_accent_changed()
@@ -636,10 +641,12 @@ void MainWindow::onAccentChanged(std::size_t button_index)
   std::size_t beats = std::lround(beats_adjustment_->get_value());
 
   std::size_t division = 1;
-  if (subdiv_simple_radio_button_->get_active())
+  if (subdiv_2_radio_button_->get_active())
     division = 2;
-  else if (subdiv_compound_radio_button_->get_active())
+  else if (subdiv_3_radio_button_->get_active())
     division = 3;
+  else if (subdiv_4_radio_button_->get_active())
+    division = 4;
 
   std::size_t pattern_size = std::min(beats * division, accent_button_grid_.size());
 
@@ -815,9 +822,10 @@ void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 
   switch (meter.division())
   {
-  case 1: subdiv_none_radio_button_->set_active(); break;
-  case 2: subdiv_simple_radio_button_->set_active(); break;
-  case 3: subdiv_compound_radio_button_->set_active(); break;
+  case 1: subdiv_1_radio_button_->set_active(); break;
+  case 2: subdiv_2_radio_button_->set_active(); break;
+  case 3: subdiv_3_radio_button_->set_active(); break;
+  case 4: subdiv_4_radio_button_->set_active(); break;
   default:
     // do nothing
     break;
