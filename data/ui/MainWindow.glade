@@ -167,7 +167,7 @@
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="action-name">win.show-pendulum</property>
-            <property name="text" translatable="yes" context="Primary menu">Show Pen_dulum</property>
+            <property name="text" translatable="yes" context="Primary menu">Show _Pendulum</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -461,7 +461,6 @@
         <child>
           <object class="GtkLabel" id="currentProfileLabel">
             <property name="can-focus">False</property>
-            <property name="opacity">0.59999999999999998</property>
             <property name="label">Default</property>
             <property name="ellipsize">end</property>
             <property name="max-width-chars">30</property>
@@ -730,13 +729,11 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="tempoTapButton">
-                            <property name="label" translatable="yes" context="Main window">Ta_p</property>
+                            <property name="label" translatable="yes" context="Main window">Tap</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="focus-on-click">False</property>
                             <property name="receives-default">True</property>
-                            <property name="action-name">app.tempo-tap</property>
-                            <property name="use-underline">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>

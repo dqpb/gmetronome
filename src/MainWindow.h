@@ -112,6 +112,7 @@ protected:
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
   Gtk::Scale* tempo_scale_;
+  Gtk::Button* tempo_tap_button_;
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
@@ -157,6 +158,7 @@ protected:
   void onToggleFullScreen(const Glib::VariantBase& value);
 
   // UI handler
+  void onTempoTap();
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void onMeterChanged();
   void onBeatsChanged();
@@ -180,7 +182,7 @@ protected:
 
   void updateProfilesList(const ProfilesList& list);
   void updateProfilesSelect(const Glib::ustring& id);
-  void updateProfilesTitle(const Glib::ustring& title);
+  void updateProfilesTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
   void updateStart(bool running);
 

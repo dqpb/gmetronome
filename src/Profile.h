@@ -33,7 +33,7 @@ struct Profile
   // number of UTF-8 encoded unicode characters
   static constexpr std::size_t kDescriptionMaxLength = 1024;
 
-  static inline const std::string kDefaultTitle       = u8"Unnamed Profile";
+  static inline const std::string kDefaultTitle       = u8"New Profile";
   static inline const std::string kDefaultDescription = u8"";
 
   static constexpr double  kMinimumTempo           = 30.0;

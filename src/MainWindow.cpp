@@ -97,6 +97,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
+  builder_->get_widget("tempoTapButton", tempo_tap_button_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
@@ -224,26 +225,22 @@ void MainWindow::initUI()
 
   Meter meter;
   app->get_action_state(meter_slot, meter);
-
   updateMeter(meter_slot, meter);
 
   // initialize profiles list
   ProfilesList list;
   app->get_action_state(kActionProfilesList, list);
-
   updateProfilesList(list);
 
   // initalize profile selection
   Glib::ustring id;
   app->get_action_state(kActionProfilesSelect, id);
-
   updateProfilesSelect(id);
 
   // initialize profiles title
   Glib::ustring title;
   app->get_action_state(kActionProfilesTitle, title);
-
-  updateProfilesTitle(title);
+  updateProfilesTitle(title, !id.empty());
 }
 
 void MainWindow::initAbout()
@@ -299,13 +296,16 @@ void MainWindow::initBindings()
   bindings_
     .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
                                               trainer_revealer_->property_reveal_child() ));
-
   bindings_
     .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
                                               accent_frame_->property_sensitive() ));
   bindings_
     .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
                                               accent_revealer_->property_reveal_child() ));
+
+  // deprecated: use Gtk::Widget::signal_button_press_event()
+  tempo_tap_button_->signal_pressed()
+    .connect(sigc::mem_fun(*this, &MainWindow::onTempoTap));
 
   action_bindings_
     .push_back( bind_action(app,
@@ -437,6 +437,11 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
     simple_action->set_state(Glib::Variant<bool>::create(new_state));
   }
   return true;
+}
+
+void MainWindow::onTempoTap()
+{
+  Gtk::Application::get_default()->activate_action(kActionTempoTap);
 }
 
 void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)
@@ -772,36 +777,44 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   {
     double tempo;
     app->get_action_state(kActionTempo, tempo);
-
     updateTempo(tempo);
   }
   else if (action_name.compare(kActionStart) == 0)
   {
     bool running;
     app->get_action_state(kActionStart, running);
-
     updateStart(running);
   }
   else if (action_name.compare(kActionProfilesList) == 0)
   {
     ProfilesList list;
     app->get_action_state(kActionProfilesList, list);
-
     updateProfilesList(list);
   }
   else if (action_name.compare(kActionProfilesSelect) == 0)
   {
     Glib::ustring id;
     app->get_action_state(kActionProfilesSelect, id);
-
     updateProfilesSelect(id);
-  }
-  else if (action_name.compare(kActionProfilesTitle) == 0)
-  {
+
+    // switching from a profile-less state to an untitled profile does not
+    // change the state of kActionProfileTitle, but requires to update
+    // the title nevertheless
     Glib::ustring title;
     app->get_action_state(kActionProfilesTitle, title);
 
-    updateProfilesTitle(title);
+    if (title.empty())
+      updateProfilesTitle(title, !id.empty());
+  }
+  else if (action_name.compare(kActionProfilesTitle) == 0)
+  {
+    Glib::ustring id;
+    app->get_action_state(kActionProfilesSelect, id);
+
+    Glib::ustring title;
+    app->get_action_state(kActionProfilesTitle, title);
+
+    updateProfilesTitle(title, !id.empty());
   }
 }
 
@@ -928,19 +941,37 @@ void MainWindow::updateProfilesSelect(const Glib::ustring& id)
   profiles_selection_changed_connection_.unblock();
 }
 
-void MainWindow::updateProfilesTitle(const Glib::ustring& title)
+void MainWindow::updateProfilesTitle(const Glib::ustring& title, bool has_profile)
 {
-  if (title.empty())
+  if (has_profile)
   {
-    current_profile_label_->hide();
-    current_profile_label_->set_text(title);
-    Gtk::Window::set_title(Glib::get_application_name());
+    static const std::string untitled_title = _("Untitled Profile");
+    static const double default_opacity = 0.7;
+    static const double reduced_opacity = 0.4;
+
+    double opacity = default_opacity;
+    Glib::ustring profile_title;
+
+    if (!title.empty())
+    {
+      opacity = default_opacity;
+      profile_title = title;
+    }
+    else
+    {
+      opacity = reduced_opacity;
+      profile_title = gettext(untitled_title.c_str());
+    }
+    current_profile_label_->set_opacity(opacity);
+    current_profile_label_->set_text(profile_title);
+    current_profile_label_->show();
+    Gtk::Window::set_title(Glib::get_application_name() + " - " + profile_title);
   }
   else
   {
-    current_profile_label_->show();
-    current_profile_label_->set_text(title);
-    Gtk::Window::set_title(Glib::get_application_name() + " - " + title);
+    current_profile_label_->hide();
+    current_profile_label_->set_text("");
+    Gtk::Window::set_title(Glib::get_application_name());
   }
 }
 
