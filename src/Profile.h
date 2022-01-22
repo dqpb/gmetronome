@@ -66,16 +66,14 @@ struct Profile
     double        tempo             = kDefaultTempo;
 
     bool          meter_enabled    = false;
-    std::string   meter_select     = "meter-4-simple";
-    Meter         meter_1_simple   = kMeter_1_Simple;
-    Meter         meter_2_simple   = kMeter_2_Simple;
-    Meter         meter_3_simple   = kMeter_3_Simple;
-    Meter         meter_4_simple   = kMeter_4_Simple;
-    Meter         meter_1_compound = kMeter_1_Compound;
-    Meter         meter_2_compound = kMeter_2_Compound;
-    Meter         meter_3_compound = kMeter_3_Compound;
-    Meter         meter_4_compound = kMeter_4_Compound;
-    Meter         meter_custom     = kMeter_4_Simple;
+    std::string   meter_select     = "meter-simple-4";
+    Meter         meter_simple_2   = kMeterSimple2;
+    Meter         meter_simple_3   = kMeterSimple3;
+    Meter         meter_simple_4   = kMeterSimple4;
+    Meter         meter_compound_2 = kMeterCompound2;
+    Meter         meter_compound_3 = kMeterCompound3;
+    Meter         meter_compound_4 = kMeterCompound4;
+    Meter         meter_custom     = kMeterSimple4;
 
     bool          trainer_enabled   = false;
     double        trainer_start     = kDefaultTrainerStart;

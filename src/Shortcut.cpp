@@ -55,14 +55,12 @@ const std::vector<ShortcutEntry>& ShortcutList()
 
       { {}, C_("Shortcut group title", "Accents") },
       { settings::kKeyShortcutsMeterEnabled,           C_("Shortcut title", "Enable / Disable Accentuation") },
-      { settings::kKeyShortcutsMeterSelect1Simple,     C_("Shortcut title", "Select Simple 1 Meter") },
-      { settings::kKeyShortcutsMeterSelect2Simple,     C_("Shortcut title", "Select Simple 2 Meter") },
-      { settings::kKeyShortcutsMeterSelect3Simple,     C_("Shortcut title", "Select Simple 3 Meter") },
-      { settings::kKeyShortcutsMeterSelect4Simple,     C_("Shortcut title", "Select Simple 4 Meter") },
-      { settings::kKeyShortcutsMeterSelect1Compound,   C_("Shortcut title", "Select Compound 1 Meter") },
-      { settings::kKeyShortcutsMeterSelect2Compound,   C_("Shortcut title", "Select Compound 2 Meter") },
-      { settings::kKeyShortcutsMeterSelect3Compound,   C_("Shortcut title", "Select Compound 3 Meter") },
-      { settings::kKeyShortcutsMeterSelect4Compound,   C_("Shortcut title", "Select Compound 4 Meter") },
+      { settings::kKeyShortcutsMeterSelectSimple2,     C_("Shortcut title", "Select 2/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectSimple3,     C_("Shortcut title", "Select 3/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectSimple4,     C_("Shortcut title", "Select 4/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound2,   C_("Shortcut title", "Select 6/8 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound3,   C_("Shortcut title", "Select 9/8 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound4,   C_("Shortcut title", "Select 12/8 Meter") },
       { settings::kKeyShortcutsMeterSelectCustom,      C_("Shortcut title", "Select Custom Meter") },
 
       { {}, C_("Shortcut group title", "Trainer") },
@@ -137,29 +135,23 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsMeterEnabled,
     { kActionMeterEnabled, {} }
   },
-  { settings::kKeyShortcutsMeterSelect1Simple,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter1Simple) }
+  { settings::kKeyShortcutsMeterSelectSimple2,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterSimple2) }
   },
-  { settings::kKeyShortcutsMeterSelect2Simple,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter2Simple) }
+  { settings::kKeyShortcutsMeterSelectSimple3,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterSimple3) }
   },
-  { settings::kKeyShortcutsMeterSelect3Simple,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter3Simple) }
+  { settings::kKeyShortcutsMeterSelectSimple4,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterSimple4) }
   },
-  { settings::kKeyShortcutsMeterSelect4Simple,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter4Simple) }
+  { settings::kKeyShortcutsMeterSelectCompound2,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCompound2) }
   },
-  { settings::kKeyShortcutsMeterSelect1Compound,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter1Compound) }
+  { settings::kKeyShortcutsMeterSelectCompound3,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCompound3) }
   },
-  { settings::kKeyShortcutsMeterSelect2Compound,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter2Compound) }
-  },
-  { settings::kKeyShortcutsMeterSelect3Compound,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter3Compound) }
-  },
-  { settings::kKeyShortcutsMeterSelect4Compound,
-    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeter4Compound) }
+  { settings::kKeyShortcutsMeterSelectCompound4,
+    { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCompound4) }
   },
   { settings::kKeyShortcutsMeterSelectCustom,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCustom) }

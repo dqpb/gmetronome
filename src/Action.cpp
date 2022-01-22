@@ -293,14 +293,12 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<Glib::ustring>::create(kDefaultProfile.content.meter_select),
       Glib::Variant<std::vector<Glib::ustring>>::create(
         {
-          kActionMeter1Simple,
-          kActionMeter2Simple,
-          kActionMeter3Simple,
-          kActionMeter4Simple,
-          kActionMeter1Compound,
-          kActionMeter2Compound,
-          kActionMeter3Compound,
-          kActionMeter4Compound,
+          kActionMeterSimple2,
+          kActionMeterSimple3,
+          kActionMeterSimple4,
+          kActionMeterCompound2,
+          kActionMeterCompound3,
+          kActionMeterCompound4,
           kActionMeterCustom
         }),
       true
@@ -314,31 +312,13 @@ const ActionDescriptionMap kActionDescriptions =
    * State value    :
    * State hint     :
    * Enabled        :
-   */
-  { kActionMeter1Simple,
-    {
-      ActionScope::kApp,
-      Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_1_simple),
-      {},
-      true
-    }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
    *
    */
-  { kActionMeter2Simple,
+  { kActionMeterSimple2,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_2_simple),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_simple_2),
       {},
       true
     }
@@ -352,11 +332,11 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionMeter3Simple,
+  { kActionMeterSimple3,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_3_simple),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_simple_3),
       {},
       true
     }
@@ -370,11 +350,11 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionMeter4Simple,
+  { kActionMeterSimple4,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_4_simple),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_simple_4),
       {},
       true
     }
@@ -388,11 +368,11 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionMeter1Compound,
+  { kActionMeterCompound2,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_1_compound),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_compound_2),
       {},
       true
     }
@@ -406,11 +386,11 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionMeter2Compound,
+  { kActionMeterCompound3,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_2_compound),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_compound_3),
       {},
       true
     }
@@ -424,29 +404,11 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionMeter3Compound,
+  { kActionMeterCompound4,
     {
       ActionScope::kApp,
       Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_3_compound),
-      {},
-      true
-    }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionMeter4Compound,
-    {
-      ActionScope::kApp,
-      Glib::Variant<Meter>::variant_type(),
-      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_4_compound),
+      Glib::Variant<Meter>::create(kDefaultProfile.content.meter_compound_4),
       {},
       true
     }

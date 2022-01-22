@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -34,17 +34,17 @@ ProfilesIOLocalXml::~ProfilesIOLocalXml()
   exportProfiles();
 }
 
-std::vector<Profile::Primer> ProfilesIOLocalXml::list() 
+std::vector<Profile::Primer> ProfilesIOLocalXml::list()
 {
   std::vector<Profile::Primer> vec;
-  
+
   for (const auto& id : porder_)
     vec.push_back({id,pmap_[id].header});
 
   return vec;
 }
 
-Profile ProfilesIOLocalXml::load(Profile::Identifier id) 
+Profile ProfilesIOLocalXml::load(Profile::Identifier id)
 {
   try {
     return pmap_.at(id);
@@ -54,7 +54,7 @@ Profile ProfilesIOLocalXml::load(Profile::Identifier id)
   }
 }
 
-void ProfilesIOLocalXml::store(Profile::Identifier id, const Profile& profile) 
+void ProfilesIOLocalXml::store(Profile::Identifier id, const Profile& profile)
 {
   if (auto it = pmap_.find(id); it != pmap_.end())
   {
@@ -82,15 +82,15 @@ void ProfilesIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
 
   auto b = a; // make a copy
   std::sort(b.begin(), b.end());
-  
+
   if (auto it = std::adjacent_find(b.begin(), b.end()); it == b.end())
   {
     decltype(porder_) new_porder;
     new_porder.reserve(porder_.size());
-    
+
     for (const auto& idx : a)
       new_porder.push_back(porder_[idx]);
-    
+
     std::swap(porder_, new_porder);
   }
 }
@@ -105,7 +105,7 @@ void ProfilesIOLocalXml::remove(Profile::Identifier id)
   pmap_.erase(id);
 }
 
-void ProfilesIOLocalXml::flush() 
+void ProfilesIOLocalXml::flush()
 {
   exportProfiles();
 }
@@ -113,9 +113,9 @@ void ProfilesIOLocalXml::flush()
 Glib::RefPtr<Gio::File> ProfilesIOLocalXml::defaultFile()
 {
   auto path = Glib::build_filename( Glib::get_user_data_dir(),
-				    PACKAGE,
-				    "profiles.xml" );
-  
+                                    PACKAGE,
+                                    "profiles.xml" );
+
   return Gio::File::create_for_path( path );
 }
 
@@ -123,7 +123,7 @@ Glib::RefPtr<Gio::File> ProfilesIOLocalXml::defaultFile()
 namespace {
 
   using ProfileMap = ProfilesIOLocalXml::ProfileMap;
-  
+
   class MarkupParser : public Glib::Markup::Parser {
   public:
     MarkupParser() : current_profile_(nullptr), current_meter_(nullptr) {}
@@ -150,7 +150,7 @@ namespace {
           return true;
       }
 
-    
+
     void on_start_element (Glib::Markup::ParseContext& context,
                            const Glib::ustring& element_name,
                            const AttributeMap& attributes) override
@@ -169,7 +169,7 @@ namespace {
                                         [] (auto& pair) {
                                           return pair.first.lowercase() == "id";
                                         });
-          
+
           if (attrib_it != attributes.end())
           {
             if (auto pmap_it = pmap_.find(attrib_it->second); pmap_it != pmap_.end())
@@ -190,30 +190,26 @@ namespace {
         else if (element_name_lowercase == "meter")
         {
           current_block_.push(element_name_lowercase);
-          
+
           auto it = std::find_if(attributes.begin(), attributes.end(),
                                  [] (auto& pair) {
                                    return pair.first.lowercase() == "id";
                                  });
-          
+
           if (current_profile_ && it != attributes.end())
           {
-            if (it->second == "meter-1-simple")
-              current_meter_ = &current_profile_->content.meter_1_simple;
-            else if (it->second == "meter-2-simple")
-              current_meter_ = &current_profile_->content.meter_2_simple;
-            else if (it->second == "meter-3-simple")
-              current_meter_ = &current_profile_->content.meter_3_simple;
-            else if (it->second == "meter-4-simple")
-              current_meter_ = &current_profile_->content.meter_4_simple;
-            else if (it->second == "meter-1-compound")
-              current_meter_ = &current_profile_->content.meter_1_compound;
-            else if (it->second == "meter-2-compound")
-              current_meter_ = &current_profile_->content.meter_2_compound;
-            else if (it->second == "meter-3-compound")
-              current_meter_ = &current_profile_->content.meter_3_compound;
-            else if (it->second == "meter-4-compound")
-              current_meter_ = &current_profile_->content.meter_4_compound;
+            if (it->second == "meter-simple-2")
+              current_meter_ = &current_profile_->content.meter_simple_2;
+            else if (it->second == "meter-simple-3")
+              current_meter_ = &current_profile_->content.meter_simple_3;
+            else if (it->second == "meter-simple-4")
+              current_meter_ = &current_profile_->content.meter_simple_4;
+            else if (it->second == "meter-compound-2")
+              current_meter_ = &current_profile_->content.meter_compound_2;
+            else if (it->second == "meter-compound-3")
+              current_meter_ = &current_profile_->content.meter_compound_3;
+            else if (it->second == "meter-compound-4")
+              current_meter_ = &current_profile_->content.meter_compound_4;
             else if (it->second == "meter-custom")
               current_meter_ = &current_profile_->content.meter_custom;
           }
@@ -237,7 +233,7 @@ namespace {
         }
 
       }
-    
+
     void on_end_element (Glib::Markup::ParseContext& context,
                          const Glib::ustring& element_name) override
       {
@@ -256,7 +252,7 @@ namespace {
         else if (element_name_lowercase == "meter")
         {
           if (current_meter_ != nullptr) {
-            
+
             (*current_meter_) =
               {
                 current_meter_beats_,
@@ -268,7 +264,7 @@ namespace {
           current_meter_ = nullptr;
         }
       }
-    
+
     void on_text (Glib::Markup::ParseContext& context,
                   const Glib::ustring& text) override
       {
@@ -315,7 +311,7 @@ namespace {
           }
         }
       }
-    
+
     void on_passthrough (Glib::Markup::ParseContext& context,
                          const Glib::ustring& passthrough_text) override
       {
@@ -339,16 +335,16 @@ namespace {
     std::stack<Glib::ustring> current_block_;
   };
 
-  
+
   Glib::RefPtr<Gio::FileOutputStream> createOutputStream( Glib::RefPtr<Gio::File> file )
   {
     static const Gio::FileCreateFlags flags = Gio::FILE_CREATE_PRIVATE;
-    
+
     try {
       return file->replace( std::string(), false, flags );
     }
     catch (...) {}
-  
+
     try {
       auto parent_dir = file->get_parent();
       parent_dir->make_directory_with_parents();
@@ -359,7 +355,7 @@ namespace {
       return file->create_file( flags );
     }
     catch (...) {}
-    
+
     return Glib::RefPtr<Gio::FileOutputStream>();
   }
 
@@ -400,13 +396,13 @@ namespace {
       ostream->write("\"/>\n");
     }
     ostream->write("            </accent-pattern>\n");
-    ostream->write("          </meter>\n");    
+    ostream->write("          </meter>\n");
   }
 
   void writeProfileContent(Glib::RefPtr<Gio::FileOutputStream> ostream, const Profile& profile)
   {
     auto& content = profile.content;
-    
+
     ostream->write("    <content>\n");
     ostream->write("      <tempo>");
     ostream->write(std::to_string(content.tempo));
@@ -415,23 +411,21 @@ namespace {
     ostream->write("        <enabled>");
     ostream->write(std::to_string(content.meter_enabled));
     ostream->write("</enabled>\n");
-    
+
     ostream->write("        <meter-select>");
     ostream->write(Glib::Markup::escape_text(content.meter_select));
     ostream->write("</meter-select>\n");
-    
+
     ostream->write("        <meter-list>\n");
-    writeProfileContent_Meter(ostream, content.meter_1_simple, "meter-1-simple");
-    writeProfileContent_Meter(ostream, content.meter_2_simple, "meter-2-simple");
-    writeProfileContent_Meter(ostream, content.meter_3_simple, "meter-3-simple");
-    writeProfileContent_Meter(ostream, content.meter_4_simple, "meter-4-simple");
-    writeProfileContent_Meter(ostream, content.meter_1_compound, "meter-1-compound");
-    writeProfileContent_Meter(ostream, content.meter_2_compound, "meter-2-compound");
-    writeProfileContent_Meter(ostream, content.meter_3_compound, "meter-3-compound");
-    writeProfileContent_Meter(ostream, content.meter_4_compound, "meter-4-compound");
+    writeProfileContent_Meter(ostream, content.meter_simple_2, "meter-simple-2");
+    writeProfileContent_Meter(ostream, content.meter_simple_3, "meter-simple-3");
+    writeProfileContent_Meter(ostream, content.meter_simple_4, "meter-simple-4");
+    writeProfileContent_Meter(ostream, content.meter_compound_2, "meter-compound-2");
+    writeProfileContent_Meter(ostream, content.meter_compound_3, "meter-compound-3");
+    writeProfileContent_Meter(ostream, content.meter_compound_4, "meter-compound-4");
     writeProfileContent_Meter(ostream, content.meter_custom, "meter-custom");
     ostream->write("        </meter-list>\n");
-    
+
     ostream->write("      </meter-section>\n");
     ostream->write("      <trainer-section>\n");
     ostream->write("        <enabled>");
@@ -456,7 +450,7 @@ namespace {
     ostream->write("  <profile id=\"");
     ostream->write(id);
     ostream->write("\">\n");
-  
+
     writeProfileHeader(ostream, profile);
     writeProfileContent(ostream, profile);
 
@@ -473,10 +467,10 @@ void ProfilesIOLocalXml::importProfiles()
 
     MarkupParser parser;
     Glib::Markup::ParseContext context(parser);
-  
+
     context.parse(file_contents);
     context.end_parse();
-    
+
     pmap_ = parser.move_pmap();
     porder_ = parser.move_porder();
   }
@@ -486,7 +480,7 @@ void ProfilesIOLocalXml::importProfiles()
 void ProfilesIOLocalXml::exportProfiles()
 {
   auto ostream = createOutputStream(file_);
-  
+
   if (ostream) {
     ostream->write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     ostream->write("<" PACKAGE "-profiles version=\"" PACKAGE_VERSION "\">\n");
@@ -499,4 +493,3 @@ void ProfilesIOLocalXml::exportProfiles()
     ostream->close();
   }
 }
-

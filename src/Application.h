@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -33,35 +33,35 @@ class Application : public Gtk::Application
 public:
   Application();
   ~Application();
-  
+
   static Glib::RefPtr<Application> create();
-  
+
   sigc::signal<void, const Message&> signal_message()
     { return signal_message_; }
 
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics()
     { return signal_ticker_statistics_; }
-  
+
 protected:
   // Overrides of default signal handlers:
   void on_startup() override;
   void on_activate() override;
-  
+
 private:
   audio::Ticker ticker_;
   ProfilesManager profiles_manager_;
-  
+
   // GSettings
   Glib::RefPtr<Gio::Settings> settings_;
   Glib::RefPtr<Gio::Settings> settings_prefs_;
   Glib::RefPtr<Gio::Settings> settings_state_;
   Glib::RefPtr<Gio::Settings> settings_shortcuts_;
-  
+
   sigc::connection settings_prefs_connection_;
   sigc::connection settings_state_connection_;
-  sigc::connection settings_shortcuts_connection_;  
+  sigc::connection settings_shortcuts_connection_;
   sigc::connection timer_connection_;
-  
+
   sigc::signal<void, const Message&> signal_message_;
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics_;
 
@@ -73,14 +73,14 @@ private:
   void initProfiles();
   void initUI();
   void initTicker();
-  
+
   void configureTickerSound();
   void configureTickerSoundStrong();
   void configureTickerSoundMid();
   void configureTickerSoundWeak();
   void configureAudioBackend();
   void configureAudioDevice();
-  
+
   Glib::RefPtr<Gio::SimpleAction> lookup_simple_action(const Glib::ustring& name);
 
   void setAccelerator(const ActionScope& scope,
@@ -102,21 +102,19 @@ private:
   void onTempo(const Glib::VariantBase& value);
   void onTempoIncrease(const Glib::VariantBase& value);
   void onTempoDecrease(const Glib::VariantBase& value);
-  void onTempoTap(const Glib::VariantBase& value);  
-  
+  void onTempoTap(const Glib::VariantBase& value);
+
   // Meter
   void onMeterEnabled(const Glib::VariantBase& value);
   void onMeterSelect(const Glib::VariantBase& value);
-  void onMeterChanged_1_Simple(const Glib::VariantBase& value);
-  void onMeterChanged_2_Simple(const Glib::VariantBase& value);
-  void onMeterChanged_3_Simple(const Glib::VariantBase& value);
-  void onMeterChanged_4_Simple(const Glib::VariantBase& value);
-  void onMeterChanged_1_Compound(const Glib::VariantBase& value);
-  void onMeterChanged_2_Compound(const Glib::VariantBase& value);
-  void onMeterChanged_3_Compound(const Glib::VariantBase& value);
-  void onMeterChanged_4_Compound(const Glib::VariantBase& value);
+  void onMeterChanged_Simple2(const Glib::VariantBase& value);
+  void onMeterChanged_Simple3(const Glib::VariantBase& value);
+  void onMeterChanged_Simple4(const Glib::VariantBase& value);
+  void onMeterChanged_Compound2(const Glib::VariantBase& value);
+  void onMeterChanged_Compound3(const Glib::VariantBase& value);
+  void onMeterChanged_Compound4(const Glib::VariantBase& value);
   void onMeterChanged_Default(const Glib::ustring& action_name,
-                               const Glib::VariantBase& value); 
+                               const Glib::VariantBase& value);
   void onMeterChanged_Custom(const Glib::VariantBase& value);
   void onMeterChanged_SetState(const Glib::ustring& action_name,
                                Meter&& meter);
@@ -125,7 +123,7 @@ private:
   void onTrainerStart(const Glib::VariantBase& value);
   void onTrainerTarget(const Glib::VariantBase& value);
   void onTrainerAccel(const Glib::VariantBase& value);
-  
+
   // Profiles
   void onProfilesManagerChanged();
   void onProfilesList(const Glib::VariantBase& value);
@@ -138,11 +136,11 @@ private:
   void onProfilesTitle(const Glib::VariantBase& value);
   void onProfilesDescription(const Glib::VariantBase& value);
   void onProfilesReorder(const Glib::VariantBase& value);
-  
+
   void loadSelectedProfile();
   void loadDefaultProfile();
   void saveSelectedProfile();
-  
+
   // Transport and Volume
   void onStart(const Glib::VariantBase& value);
 
@@ -155,7 +153,7 @@ private:
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void onSettingsStateChanged(const Glib::ustring& key);
   void onSettingsShortcutsChanged(const Glib::ustring& key);
-  
+
   // Timer
   void startTimer();
   void stopTimer();

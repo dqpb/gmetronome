@@ -137,14 +137,12 @@ void Application::initActions()
 
       {kActionMeterEnabled,    sigc::mem_fun(*this, &Application::onMeterEnabled)},
       {kActionMeterSelect,     sigc::mem_fun(*this, &Application::onMeterSelect)},
-      {kActionMeter1Simple,    sigc::mem_fun(*this, &Application::onMeterChanged_1_Simple)},
-      {kActionMeter2Simple,    sigc::mem_fun(*this, &Application::onMeterChanged_2_Simple)},
-      {kActionMeter3Simple,    sigc::mem_fun(*this, &Application::onMeterChanged_3_Simple)},
-      {kActionMeter4Simple,    sigc::mem_fun(*this, &Application::onMeterChanged_4_Simple)},
-      {kActionMeter1Compound,  sigc::mem_fun(*this, &Application::onMeterChanged_1_Compound)},
-      {kActionMeter2Compound,  sigc::mem_fun(*this, &Application::onMeterChanged_2_Compound)},
-      {kActionMeter3Compound,  sigc::mem_fun(*this, &Application::onMeterChanged_3_Compound)},
-      {kActionMeter4Compound,  sigc::mem_fun(*this, &Application::onMeterChanged_4_Compound)},
+      {kActionMeterSimple2,    sigc::mem_fun(*this, &Application::onMeterChanged_Simple2)},
+      {kActionMeterSimple3,    sigc::mem_fun(*this, &Application::onMeterChanged_Simple3)},
+      {kActionMeterSimple4,    sigc::mem_fun(*this, &Application::onMeterChanged_Simple4)},
+      {kActionMeterCompound2,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound2)},
+      {kActionMeterCompound3,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound3)},
+      {kActionMeterCompound4,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound4)},
       {kActionMeterCustom,     sigc::mem_fun(*this, &Application::onMeterChanged_Custom)},
 
       {kActionProfilesList,         sigc::mem_fun(*this, &Application::onProfilesList)},
@@ -452,14 +450,12 @@ void Application::onMeterSelect(const Glib::VariantBase& value)
   if (new_meter_slot != current_meter_slot)
   {
     // check in_state validity
-    if (new_meter_slot == kActionMeter1Simple
-        || new_meter_slot == kActionMeter2Simple
-        || new_meter_slot == kActionMeter3Simple
-        || new_meter_slot == kActionMeter4Simple
-        || new_meter_slot == kActionMeter1Compound
-        || new_meter_slot == kActionMeter2Compound
-        || new_meter_slot == kActionMeter3Compound
-        || new_meter_slot == kActionMeter4Compound
+    if (new_meter_slot == kActionMeterSimple2
+        || new_meter_slot == kActionMeterSimple3
+        || new_meter_slot == kActionMeterSimple4
+        || new_meter_slot == kActionMeterCompound2
+        || new_meter_slot == kActionMeterCompound3
+        || new_meter_slot == kActionMeterCompound4
         || new_meter_slot == kActionMeterCustom )
     {
       bool meter_enabled;
@@ -481,29 +477,23 @@ void Application::onMeterSelect(const Glib::VariantBase& value)
   }
 }
 
-void Application::onMeterChanged_1_Simple(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter1Simple, value); }
+void Application::onMeterChanged_Simple2(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterSimple2, value); }
 
-void Application::onMeterChanged_2_Simple(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter2Simple, value); }
+void Application::onMeterChanged_Simple3(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterSimple3, value); }
 
-void Application::onMeterChanged_3_Simple(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter3Simple, value); }
+void Application::onMeterChanged_Simple4(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterSimple4, value); }
 
-void Application::onMeterChanged_4_Simple(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter4Simple, value); }
+void Application::onMeterChanged_Compound2(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterCompound2, value); }
 
-void Application::onMeterChanged_1_Compound(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter1Compound, value); }
+void Application::onMeterChanged_Compound3(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterCompound3, value); }
 
-void Application::onMeterChanged_2_Compound(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter2Compound, value); }
-
-void Application::onMeterChanged_3_Compound(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter3Compound, value); }
-
-void Application::onMeterChanged_4_Compound(const Glib::VariantBase& value)
-{ onMeterChanged_Default(kActionMeter4Compound, value); }
+void Application::onMeterChanged_Compound4(const Glib::VariantBase& value)
+{ onMeterChanged_Default(kActionMeterCompound4, value); }
 
 void Application::onMeterChanged_Default(const Glib::ustring& action_name,
                                          const Glib::VariantBase& value)
@@ -816,14 +806,12 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionMeterSelect,  tmp_string);
   content.meter_select = tmp_string.raw();
 
-  get_action_state(kActionMeter1Simple, content.meter_1_simple);
-  get_action_state(kActionMeter2Simple, content.meter_2_simple);
-  get_action_state(kActionMeter3Simple, content.meter_3_simple);
-  get_action_state(kActionMeter4Simple, content.meter_4_simple);
-  get_action_state(kActionMeter1Compound, content.meter_1_compound);
-  get_action_state(kActionMeter2Compound, content.meter_2_compound);
-  get_action_state(kActionMeter3Compound, content.meter_3_compound);
-  get_action_state(kActionMeter4Compound, content.meter_4_compound);
+  get_action_state(kActionMeterSimple2, content.meter_simple_2);
+  get_action_state(kActionMeterSimple3, content.meter_simple_3);
+  get_action_state(kActionMeterSimple4, content.meter_simple_4);
+  get_action_state(kActionMeterCompound2, content.meter_compound_2);
+  get_action_state(kActionMeterCompound3, content.meter_compound_3);
+  get_action_state(kActionMeterCompound4, content.meter_compound_4);
   get_action_state(kActionMeterCustom, content.meter_custom);
   get_action_state(kActionTrainerEnabled, content.trainer_enabled);
   get_action_state(kActionTrainerStart, content.trainer_start);
@@ -839,22 +827,18 @@ void Application::convertProfileToAction(const Profile::Content& content)
                       Glib::Variant<bool>::create(content.meter_enabled) );
   activate_action(kActionMeterSelect,
                   Glib::Variant<Glib::ustring>::create(content.meter_select) );
-  activate_action(kActionMeter1Simple,
-                  Glib::Variant<Meter>::create(content.meter_1_simple) );
-  activate_action(kActionMeter2Simple,
-                  Glib::Variant<Meter>::create(content.meter_2_simple) );
-  activate_action(kActionMeter3Simple,
-                  Glib::Variant<Meter>::create(content.meter_3_simple) );
-  activate_action(kActionMeter4Simple,
-                  Glib::Variant<Meter>::create(content.meter_4_simple) );
-  activate_action(kActionMeter1Compound,
-                  Glib::Variant<Meter>::create(content.meter_1_compound) );
-  activate_action(kActionMeter2Compound,
-                  Glib::Variant<Meter>::create(content.meter_2_compound) );
-  activate_action(kActionMeter3Compound,
-                  Glib::Variant<Meter>::create(content.meter_3_compound) );
-  activate_action(kActionMeter4Compound,
-                  Glib::Variant<Meter>::create(content.meter_4_compound) );
+  activate_action(kActionMeterSimple2,
+                  Glib::Variant<Meter>::create(content.meter_simple_2) );
+  activate_action(kActionMeterSimple3,
+                  Glib::Variant<Meter>::create(content.meter_simple_3) );
+  activate_action(kActionMeterSimple4,
+                  Glib::Variant<Meter>::create(content.meter_simple_4) );
+  activate_action(kActionMeterCompound2,
+                  Glib::Variant<Meter>::create(content.meter_compound_2) );
+  activate_action(kActionMeterCompound3,
+                  Glib::Variant<Meter>::create(content.meter_compound_3) );
+  activate_action(kActionMeterCompound4,
+                  Glib::Variant<Meter>::create(content.meter_compound_4) );
   activate_action(kActionMeterCustom,
                   Glib::Variant<Meter>::create(content.meter_custom) );
   change_action_state(kActionTrainerEnabled,

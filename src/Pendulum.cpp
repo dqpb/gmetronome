@@ -54,7 +54,7 @@ const int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
 Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
     Gtk::Widget(),
-    meter_{kMeter_4_Simple},
+    meter_{kMeterSimple4},
     action_angle_{kActionAngleReal},
     phase_mode_shift_{kPhaseModeShiftLeft},
     animation_running_{false},

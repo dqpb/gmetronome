@@ -154,14 +154,12 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsTempoDecrease10       {"tempo-decrease-10"};
   inline const Glib::ustring  kKeyShortcutsTempoTap              {"tempo-tap"};
   inline const Glib::ustring  kKeyShortcutsMeterEnabled          {"meter-enabled"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect1Simple    {"meter-select-1-simple"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect2Simple    {"meter-select-2-simple"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect3Simple    {"meter-select-3-simple"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect4Simple    {"meter-select-4-simple"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect1Compound  {"meter-select-1-compound"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect2Compound  {"meter-select-2-compound"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect3Compound  {"meter-select-3-compound"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelect4Compound  {"meter-select-4-compound"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple2    {"meter-select-simple-2"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple3    {"meter-select-simple-3"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple4    {"meter-select-simple-4"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound2  {"meter-select-compound-2"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound3  {"meter-select-compound-3"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound4  {"meter-select-compound-4"};
   inline const Glib::ustring  kKeyShortcutsMeterSelectCustom     {"meter-select-custom"};
   inline const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
 

@@ -170,15 +170,15 @@ const Meter kMeter_2 = {kDupleMeter, kNoDivision, kAccentPattern_2};
 const Meter kMeter_3 = {kTripleMeter, kNoDivision, kAccentPattern_3};
 const Meter kMeter_4 = {kQuadrupleMeter, kNoDivision, kAccentPattern_4};
 
-const Meter kMeter_1_Simple = {kSingleMeter, kSimpleMeter, kAccentPattern_1_Simple};
-const Meter kMeter_2_Simple = {kDupleMeter, kSimpleMeter, kAccentPattern_2_Simple};
-const Meter kMeter_3_Simple = {kTripleMeter, kSimpleMeter, kAccentPattern_3_Simple};
-const Meter kMeter_4_Simple = {kQuadrupleMeter, kSimpleMeter, kAccentPattern_4_Simple};
+const Meter kMeterSimple1 = {kSingleMeter, kSimpleMeter, kAccentPattern_1_Simple};
+const Meter kMeterSimple2 = {kDupleMeter, kSimpleMeter, kAccentPattern_2_Simple};
+const Meter kMeterSimple3 = {kTripleMeter, kSimpleMeter, kAccentPattern_3_Simple};
+const Meter kMeterSimple4 = {kQuadrupleMeter, kSimpleMeter, kAccentPattern_4_Simple};
 
-const Meter kMeter_1_Compound = {kSingleMeter, kCompoundMeter, kAccentPattern_1_Compound};
-const Meter kMeter_2_Compound = {kDupleMeter, kCompoundMeter, kAccentPattern_2_Compound};
-const Meter kMeter_3_Compound = {kTripleMeter, kCompoundMeter, kAccentPattern_3_Compound};
-const Meter kMeter_4_Compound = {kQuadrupleMeter, kCompoundMeter, kAccentPattern_4_Compound};
+const Meter kMeterCompound1 = {kSingleMeter, kCompoundMeter, kAccentPattern_1_Compound};
+const Meter kMeterCompound2 = {kDupleMeter, kCompoundMeter, kAccentPattern_2_Compound};
+const Meter kMeterCompound3 = {kTripleMeter, kCompoundMeter, kAccentPattern_3_Compound};
+const Meter kMeterCompound4 = {kQuadrupleMeter, kCompoundMeter, kAccentPattern_4_Compound};
 
 
 #include <glibmm/variant.h>

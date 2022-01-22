@@ -140,35 +140,27 @@
       <default>'&lt;Primary&gt;a'</default>
       <summary>Keyboard shortcut to toggle metric accentuation</summary>
     </key>
-    <key name="meter-select-1-simple" type="s">
-      <default>'&lt;Primary&gt;1'</default>
-      <summary>Keyboard shortcut to select the simple single meter</summary>
-    </key>
-    <key name="meter-select-2-simple" type="s">
+    <key name="meter-select-simple-2" type="s">
       <default>'&lt;Primary&gt;2'</default>
       <summary>Keyboard shortcut to select the simple duple meter</summary>
     </key>
-    <key name="meter-select-3-simple" type="s">
+    <key name="meter-select-simple-3" type="s">
       <default>'&lt;Primary&gt;3'</default>
       <summary>Keyboard shortcut to select the simple triple meter</summary>
     </key>
-    <key name="meter-select-4-simple" type="s">
+    <key name="meter-select-simple-4" type="s">
       <default>'&lt;Primary&gt;4'</default>
       <summary>Keyboard shortcut to select the simple quadruple meter</summary>
     </key>
-    <key name="meter-select-1-compound" type="s">
-      <default>'&lt;Primary&gt;5'</default>
-      <summary>Keyboard shortcut to select the compound single meter</summary>
-    </key>
-    <key name="meter-select-2-compound" type="s">
+    <key name="meter-select-compound-2" type="s">
       <default>'&lt;Primary&gt;6'</default>
       <summary>Keyboard shortcut to select the compound duple meter</summary>
     </key>
-    <key name="meter-select-3-compound" type="s">
+    <key name="meter-select-compound-3" type="s">
       <default>'&lt;Primary&gt;7'</default>
       <summary>Keyboard shortcut to select the compound triple meter</summary>
     </key>
-    <key name="meter-select-4-compound" type="s">
+    <key name="meter-select-compound-4" type="s">
       <default>'&lt;Primary&gt;8'</default>
       <summary>Keyboard shortcut to select the compound quadruple meter</summary>
     </key>

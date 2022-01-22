@@ -460,8 +460,8 @@
         </child>
         <child>
           <object class="GtkLabel" id="currentProfileLabel">
-            <property name="sensitive">False</property>
             <property name="can-focus">False</property>
+            <property name="opacity">0.59999999999999998</property>
             <property name="label">Default</property>
             <property name="ellipsize">end</property>
             <property name="max-width-chars">30</property>
@@ -849,13 +849,13 @@
                                     <property name="halign">start</property>
                                     <property name="active-id">meter-4-simple</property>
                                     <items>
-                                      <item id="meter-2-simple" translatable="yes" context="Main window">2/4</item>
-                                      <item id="meter-3-simple" translatable="yes" context="Main window">3/4</item>
-                                      <item id="meter-4-simple" translatable="yes" context="Main window">4/4</item>
+                                      <item id="meter-simple-2" translatable="yes" context="Main window">2/4</item>
+                                      <item id="meter-simple-3" translatable="yes" context="Main window">3/4</item>
+                                      <item id="meter-simple-4" translatable="yes" context="Main window">4/4</item>
                                       <item id="separator" translatable="yes">-</item>
-                                      <item id="meter-2-compound" translatable="yes" context="Main window">6/8</item>
-                                      <item id="meter-3-compound" translatable="yes" context="Main window">9/8</item>
-                                      <item id="meter-4-compound" translatable="yes" context="Main window">12/8</item>
+                                      <item id="meter-compound-2" translatable="yes" context="Main window">6/8</item>
+                                      <item id="meter-compound-3" translatable="yes" context="Main window">9/8</item>
+                                      <item id="meter-compound-4" translatable="yes" context="Main window">12/8</item>
                                       <item id="separator" translatable="yes">-</item>
                                       <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
                                     </items>
