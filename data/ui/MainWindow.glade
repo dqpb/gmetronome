@@ -789,6 +789,7 @@
                                 <property name="can-focus">False</property>
                                 <property name="row-spacing">2</property>
                                 <property name="column-spacing">50</property>
+                                <property name="column-homogeneous">True</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
@@ -848,14 +849,14 @@
                                     <property name="halign">start</property>
                                     <property name="active-id">meter-4-simple</property>
                                     <items>
-                                      <item id="meter-1-simple" translatable="yes" context="Main window">Single</item>
-                                      <item id="meter-2-simple" translatable="yes" context="Main window">Duple</item>
-                                      <item id="meter-3-simple" translatable="yes" context="Main window">Triple</item>
-                                      <item id="meter-4-simple" translatable="yes" context="Main window">Quadruple</item>
-                                      <item id="meter-1-compound" translatable="yes" context="Main window">Comp. Single</item>
-                                      <item id="meter-2-compound" translatable="yes" context="Main window">Comp. Duple</item>
-                                      <item id="meter-3-compound" translatable="yes" context="Main window">Comp. Triple</item>
-                                      <item id="meter-4-compound" translatable="yes" context="Main window">Comp. Quadruple</item>
+                                      <item id="meter-2-simple" translatable="yes" context="Main window">2/4</item>
+                                      <item id="meter-3-simple" translatable="yes" context="Main window">3/4</item>
+                                      <item id="meter-4-simple" translatable="yes" context="Main window">4/4</item>
+                                      <item id="separator" translatable="yes">-</item>
+                                      <item id="meter-2-compound" translatable="yes" context="Main window">6/8</item>
+                                      <item id="meter-3-compound" translatable="yes" context="Main window">9/8</item>
+                                      <item id="meter-4-compound" translatable="yes" context="Main window">12/8</item>
+                                      <item id="separator" translatable="yes">-</item>
                                       <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
                                     </items>
                                   </object>
@@ -884,6 +885,7 @@
                                   <object class="GtkButtonBox" id="subdivButtonBox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
                                     <property name="layout-style">expand</property>
                                     <child>
                                       <object class="GtkRadioButton" id="subdiv1RadioButton">
@@ -1029,6 +1031,7 @@
                             <property name="margin-bottom">10</property>
                             <property name="row-spacing">2</property>
                             <property name="column-spacing">50</property>
+                            <property name="column-homogeneous">True</property>
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>

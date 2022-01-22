@@ -209,6 +209,16 @@ void MainWindow::initUI()
   auto app = Gtk::Application::get_default();
 
   // initialize meter interface
+  int id_col = meter_combo_box_->get_id_column();
+  meter_combo_box_->set_row_separator_func( [id_col] (const Glib::RefPtr<Gtk::TreeModel>& model,
+                                                      const Gtk::TreeModel::iterator& iter) -> bool
+    {
+      Gtk::TreeModel::Row row = *iter;
+      Glib::ustring id_str;
+      row.get_value(id_col, id_str);
+      return id_str == "separator";
+    });
+
   Glib::ustring meter_slot;
   app->get_action_state(kActionMeterSelect, meter_slot);
 
