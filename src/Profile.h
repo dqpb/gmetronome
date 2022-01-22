@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -26,11 +26,33 @@
 struct Profile
 {
   using Identifier = std::string;
-  
+
+  // number of UTF-8 encoded unicode characters
+  static constexpr std::size_t kTitleMaxLength = 255;
+
+  // number of UTF-8 encoded unicode characters
+  static constexpr std::size_t kDescriptionMaxLength = 1024;
+
+  static inline const std::string kDefaultTitle       = u8"Unnamed Profile";
+  static inline const std::string kDefaultDescription = u8"";
+
+  static constexpr double  kMinimumTempo           = 30.0;
+  static constexpr double  kMaximumTempo           = 250.0;
+  static constexpr double  kDefaultTempo           = 120.0;
+  static constexpr double  kMinimumTrainerStart    = kMinimumTempo;
+  static constexpr double  kMaximumTrainerStart    = kMaximumTempo;
+  static constexpr double  kDefaultTrainerStart    = 80.0;
+  static constexpr double  kMinimumTrainerTarget   = kMinimumTempo;
+  static constexpr double  kMaximumTrainerTarget   = kMaximumTempo;
+  static constexpr double  kDefaultTrainerTarget   = 160.0;
+  static constexpr double  kMinimumTrainerAccel    = 1.0;
+  static constexpr double  kMaximumTrainerAccel    = 1000.0;
+  static constexpr double  kDefaultTrainerAccel    = 10.0;
+
   struct Header
   {
-    std::string  title        = {u8"Unnamed Profile"};
-    std::string  description  = {u8""};
+    std::string  title        = kDefaultTitle;
+    std::string  description  = kDefaultDescription;
   };
 
   struct Primer
@@ -41,8 +63,8 @@ struct Profile
 
   struct Content
   {
-    double        tempo             = 120.;
-    
+    double        tempo             = kDefaultTempo;
+
     bool          meter_enabled    = false;
     std::string   meter_select     = "meter-4-simple";
     Meter         meter_1_simple   = kMeter_1_Simple;
@@ -54,15 +76,17 @@ struct Profile
     Meter         meter_3_compound = kMeter_3_Compound;
     Meter         meter_4_compound = kMeter_4_Compound;
     Meter         meter_custom     = kMeter_4_Simple;
-    
+
     bool          trainer_enabled   = false;
-    double        trainer_start     = 80.;
-    double        trainer_target    = 160.;
-    double        trainer_accel     = 10.;
+    double        trainer_start     = kDefaultTrainerStart;
+    double        trainer_target    = kDefaultTrainerTarget;
+    double        trainer_accel     = kDefaultTrainerAccel;
   };
-  
+
   Header  header;
   Content content;
 };
+
+inline const Profile  kDefaultProfile;
 
 #endif//GMetronome_Profile_h

@@ -168,7 +168,7 @@ void Application::initSettings()
   settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
   settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
   settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
-  
+
   settings_prefs_connection_ = settings_prefs_->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
 
@@ -646,7 +646,7 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   {
     double bpm = 1min / duration;
 
-    if ( bpm >= kMinimumTempo && bpm <= kMaximumTempo )
+    if ( bpm >= Profile::kMinimumTempo && bpm <= Profile::kMaximumTempo )
     {
       Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( bpm );
       activate_action(kActionTempo, new_tempo_state);
@@ -949,11 +949,11 @@ void Application::onProfilesTitle(const Glib::VariantBase& value)
 
 #if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
     out_value = Glib::Variant<Glib::ustring>
-      ::create(in_value.get().make_valid().substr(0,kProfileTitleMaxLength));
+      ::create(in_value.get().make_valid().substr(0,Profile::kTitleMaxLength));
 #else
     if (in_value.get().validate())
       out_value = Glib::Variant<Glib::ustring>
-        ::create(in_value.get().substr(0,kProfileTitleMaxLength));
+        ::create(in_value.get().substr(0,Profile::kTitleMaxLength));
     else
       out_value = Glib::Variant<Glib::ustring>
         ::create(Profile::Header().title); // default title
@@ -983,11 +983,11 @@ void Application::onProfilesDescription(const Glib::VariantBase& value)
     // validate in_value
 #if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
     out_value = Glib::Variant<Glib::ustring>
-      ::create(in_value.get().make_valid().substr(0,kProfileDescriptionMaxLength));
+      ::create(in_value.get().make_valid().substr(0,Profile::kDescriptionMaxLength));
 #else
     if (in_value.get().validate())
       out_value = Glib::Variant<Glib::ustring>
-        ::create(in_value.get().substr(0,kProfileDescriptionMaxLength));
+        ::create(in_value.get().substr(0,Profile::kDescriptionMaxLength));
     else
       out_value = Glib::Variant<Glib::ustring>
         ::create(Profile::Header().description); // default description
@@ -1085,7 +1085,7 @@ Glib::ustring Application::currentAudioDeviceKey()
 {
   settings::AudioBackend backend = (settings::AudioBackend)
     settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
-  
+
   if (auto it = settings::kBackendToDeviceMap.find(backend);
       it != settings::kBackendToDeviceMap.end())
   {
