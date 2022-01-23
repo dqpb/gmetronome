@@ -1,6 +1,7 @@
 bin_PROGRAMS = gmetronome
 
 gmetronome_SOURCES = \
+	About.cpp \
 	AccentButton.cpp \
 	AccentButtonGrid.cpp \
 	ActionBinding.cpp \
@@ -39,6 +40,7 @@ gmetronome_SOURCES += PulseAudio.cpp
 endif
 
 noinst_HEADERS = \
+	About.h \
 	AccentButton.h \
 	AccentButtonGrid.h \
 	ActionBinding.h \

@@ -139,7 +139,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   initSettings();
   initActions();
   initUI();
-  initAbout();
   initBindings();
 
   updatePrefPendulumAction();
@@ -242,35 +241,6 @@ void MainWindow::initUI()
   Glib::ustring title;
   app->get_action_state(kActionProfilesTitle, title);
   updateProfilesTitle(title, !id.empty());
-}
-
-void MainWindow::initAbout()
-{
-  about_dialog_.set_program_name(Glib::get_application_name());
-  about_dialog_.set_version(VERSION);
-  about_dialog_.set_license_type(Gtk::LICENSE_GPL_3_0);
-  about_dialog_.set_authors({"dqpb <dqpb@mailbox.org>, 2020-2022"});
-
-  //Put one translator per line, in the form
-  //NAME <EMAIL>, YEAR1, YEAR2
-  about_dialog_.set_translator_credits(C_("About dialog", "translator-credits"));
-
-  static const int year = 2022;
-
-  auto copyright = Glib::ustring::compose(
-    //Parameters:
-    // %1 - year of the last commit
-    // %2 - localized application name
-    C_("About dialog", "Copyright © 2020-%1 The %2 Team"),
-    year, Glib::get_application_name());
-
-  about_dialog_.set_copyright(copyright);
-
-  //about_dialog_.set_website("http://");
-  //about_dialog_.set_website_label( about_dialog_.get_website() );
-
-  about_dialog_.set_logo(
-    Gdk::Pixbuf::create_from_resource("/org/gmetronome/icons/scalable/gmetronome.svg",128,128));
 }
 
 void MainWindow::initBindings()

@@ -1,6 +1,7 @@
 data/gmetronome.desktop.in
-src/MainWindow.cpp
+src/About.cpp
 data/ui/MainWindow.glade
+src/MainWindow.cpp
 data/ui/SettingsDialog.glade
 src/SettingsDialog.cpp
 src/Shortcut.cpp

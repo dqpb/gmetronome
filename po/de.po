@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
-"POT-Creation-Date: 2022-01-23 03:56+0100\n"
-"PO-Revision-Date: 2022-01-23 03:38+0100\n"
+"POT-Creation-Date: 2022-01-23 04:55+0100\n"
+"PO-Revision-Date: 2022-01-23 04:57+0100\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -27,13 +27,9 @@ msgstr "GMetronome"
 msgid "Metronome application"
 msgstr "Ein Metronom"
 
-#: src/MainWindow.cpp:129
-msgid "Untitled Profile"
-msgstr "Unbenanntes Profil"
-
 #. Put one translator per line, in the form
 #. NAME <EMAIL>, YEAR1, YEAR2
-#: src/MainWindow.cpp:256
+#: src/About.cpp:40
 msgctxt "About dialog"
 msgid "translator-credits"
 msgstr "dqpb <dqpb@mailbox.org>, 2022"
@@ -41,12 +37,13 @@ msgstr "dqpb <dqpb@mailbox.org>, 2022"
 #. Parameters:
 #. %1 - year of the last commit
 #. %2 - localized application name
-#: src/MainWindow.cpp:264
+#: src/About.cpp:46
 msgctxt "About dialog"
 msgid "Copyright © 2020-%1 The %2 Team"
 msgstr "Copyright © 2020-%1 Das %2 Team"
 
 #: data/ui/MainWindow.glade:126
+msgctxt "Message bar"
 msgid "Details"
 msgstr "Details"
 
@@ -253,6 +250,10 @@ msgstr "Trainer"
 msgctxt "Main window"
 msgid "_Start"
 msgstr "_Start"
+
+#: src/MainWindow.cpp:129
+msgid "Untitled Profile"
+msgstr "Unbenanntes Profil"
 
 #: data/ui/SettingsDialog.glade:93
 msgctxt "Preferences dialog"

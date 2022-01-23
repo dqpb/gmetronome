@@ -25,6 +25,7 @@
 #include "Message.h"
 #include "Pendulum.h"
 #include "AccentButtonGrid.h"
+#include "About.h"
 
 #include <gtkmm.h>
 #include <list>
@@ -66,7 +67,7 @@ protected:
   SettingsDialog* preferences_dialog_;
 
   // About
-  Gtk::AboutDialog about_dialog_;
+  GMetronomeAboutDialog about_dialog_;
 
   // Shortcuts window
   Gtk::ShortcutsWindow* shortcuts_window_;
@@ -145,7 +146,6 @@ protected:
   void initSettings();
   void initActions();
   void initUI();
-  void initAbout();
   void initBindings();
 
   // Override window signal handler
