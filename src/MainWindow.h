@@ -134,6 +134,9 @@ protected:
 
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
 
+  // translated placeholder profile title
+  Glib::ustring profile_title_placeholder_;
+
   // cached preferences
   bool meter_animation_;
   std::chrono::microseconds animation_sync_;

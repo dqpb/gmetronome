@@ -126,10 +126,11 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   accent_button_grid_.show();
   accent_box_->pack_start(accent_button_grid_);
 
+  profile_title_placeholder_ = _("Untitled Profile");
+
   profiles_list_store_ = ProfilesListStore::create();
   profiles_tree_view_->set_model(profiles_list_store_);
   profiles_tree_view_->append_column_editable("Title", profiles_list_store_->columns_.title_);
-  //profiles_tree_view_->set_reorderable();
   profiles_tree_view_->enable_model_drag_source();
   profiles_tree_view_->enable_model_drag_dest();
 
@@ -365,6 +366,8 @@ void MainWindow::initBindings()
 
   auto cell_renderer = dynamic_cast<Gtk::CellRendererText*>(
     profiles_tree_view_->get_column_cell_renderer(0));
+
+  cell_renderer->property_placeholder_text() = profile_title_placeholder_;
 
   profiles_title_changed_connection_ =
     cell_renderer->signal_editing_started()
@@ -945,23 +948,12 @@ void MainWindow::updateProfilesTitle(const Glib::ustring& title, bool has_profil
 {
   if (has_profile)
   {
-    static const std::string untitled_title = _("Untitled Profile");
     static const double default_opacity = 0.7;
     static const double reduced_opacity = 0.4;
 
-    double opacity = default_opacity;
-    Glib::ustring profile_title;
+    double opacity = title.empty() ? reduced_opacity : default_opacity;
+    const Glib::ustring& profile_title = title.empty() ? profile_title_placeholder_ : title;
 
-    if (!title.empty())
-    {
-      opacity = default_opacity;
-      profile_title = title;
-    }
-    else
-    {
-      opacity = reduced_opacity;
-      profile_title = gettext(untitled_title.c_str());
-    }
     current_profile_label_->set_opacity(opacity);
     current_profile_label_->set_text(profile_title);
     current_profile_label_->show();
