@@ -853,11 +853,17 @@ void Application::convertProfileToAction(const Profile::Content& content)
 
 void Application::onProfilesNew(const Glib::VariantBase& value)
 {
+  Glib::Variant<Glib::ustring> in_title
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
+
+  Glib::ustring title = validateProfileTitle(in_title.get());
+
+  Profile::Header header = {title, ""};
   Profile::Content content;
 
   convertActionToProfile(content);
 
-  Profile::Primer primer = profiles_manager_.newProfile({}, content);
+  Profile::Primer primer = profiles_manager_.newProfile(header, content);
 
   auto id = Glib::Variant<Glib::ustring>::create(primer.id);
 
@@ -929,19 +935,8 @@ void Application::onProfilesTitle(const Glib::VariantBase& value)
     Glib::Variant<Glib::ustring> in_value
       = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
-    Glib::Variant<Glib::ustring> out_value;
-
-#if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
-    out_value = Glib::Variant<Glib::ustring>
-      ::create(in_value.get().make_valid().substr(0,Profile::kTitleMaxLength));
-#else
-    if (in_value.get().validate())
-      out_value = Glib::Variant<Glib::ustring>
-        ::create(in_value.get().substr(0,Profile::kTitleMaxLength));
-    else
-      out_value = Glib::Variant<Glib::ustring>
-        ::create(Profile::Header().title); // default title
-#endif
+    Glib::Variant<Glib::ustring> out_value
+      = Glib::Variant<Glib::ustring>::create(validateProfileTitle(in_value.get()));
 
     Profile::Header header = profiles_manager_.getProfileHeader(id);
     header.title = out_value.get();
@@ -1192,4 +1187,18 @@ bool Application::onTimer()
     signal_ticker_statistics_.emit(stats);
     return true;
   }
+}
+
+Glib::ustring Application::validateProfileTitle(const Glib::ustring& in)
+{
+  Glib::ustring out;
+#if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
+    out = in.make_valid().substr(0, Profile::kTitleMaxLength);
+#else
+    if (in.validate())
+      out = in.substr(0, Profile::kTitleMaxLength);
+    else
+      out = "";
+#endif
+  return out;
 }

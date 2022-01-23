@@ -135,7 +135,7 @@ protected:
 
   Glib::RefPtr<ProfilesListStore> profiles_list_store_;
 
-  // translated placeholder profile title
+  Glib::ustring profile_title_new_;
   Glib::ustring profile_title_placeholder_;
 
   // cached preferences
@@ -172,6 +172,7 @@ protected:
   void onProfilesTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
   void onProfilesDragBegin(const Glib::RefPtr<Gdk::DragContext>& context);
   void onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context);
+  void onProfilesNew();
   void onProfilesShow();
   void onProfilesHide();
 

@@ -158,6 +158,9 @@ private:
   void startTimer();
   void stopTimer();
   bool onTimer();
+
+  // Input validation
+  Glib::ustring validateProfileTitle(const Glib::ustring& in);
 };
 
 #endif//GMetronome_Application_h

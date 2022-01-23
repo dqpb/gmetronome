@@ -126,6 +126,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   accent_button_grid_.show();
   accent_box_->pack_start(accent_button_grid_);
 
+  // default title for new profiles
+  profile_title_new_ = _("New Profile");
+
+  // placeholder title for untitled profiles
   profile_title_placeholder_ = _("Untitled Profile");
 
   profiles_list_store_ = ProfilesListStore::create();
@@ -346,6 +350,9 @@ void MainWindow::initBindings()
   profiles_title_changed_connection_ =
     cell_renderer->signal_edited()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfilesTitleChanged));
+
+  profiles_new_button_->signal_clicked()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesNew));
 
   app->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
@@ -728,6 +735,13 @@ void MainWindow::onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context
   updateProfilesSelect(id);
 }
 
+void MainWindow::onProfilesNew()
+{
+  static const auto title = Glib::Variant<Glib::ustring>::create(profile_title_new_);
+  Gtk::Application::get_default()
+    ->activate_action(kActionProfilesNew, title);
+}
+
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
@@ -874,29 +888,52 @@ void MainWindow::updateAccentButtons(const Meter& meter)
 
 void MainWindow::updateProfilesList(const ProfilesList& list)
 {
+  std::cerr << __PRETTY_FUNCTION__ << std::endl;
+
+  auto& col_id    = profiles_list_store_->columns_.id_;
+  auto& col_title = profiles_list_store_->columns_.title_;
+  auto& col_descr = profiles_list_store_->columns_.description_;
+
   profiles_selection_changed_connection_.block();
 
-  profiles_list_store_->clear();
+  auto children = profiles_list_store_->children();
+  auto rowit = children.begin();
 
-  for (const ProfilesListEntry& e : list)
+  for (const auto& [id, title, descr] : list)
   {
-    ProfilesListStore::Row row = *(profiles_list_store_->append());
+    if (rowit == children.end() || rowit->get_value(col_id) != id)
+    {
+      auto tmp_rowit = std::find_if(rowit, children.end(),
+                                    [&col_id,&id] (const auto& row) {
+                                      return row[col_id] == id;
+                                    });
 
-    row[profiles_list_store_->columns_.id_]
-      = std::get<kProfilesListEntryIdentifier>(e);
-
-    row[profiles_list_store_->columns_.title_]
-      = std::get<kProfilesListEntryTitle>(e);
-
-    row[profiles_list_store_->columns_.description_]
-      = std::get<kProfilesListEntryDescription>(e);
+      if (tmp_rowit != children.end())
+      {
+        profiles_list_store_->move(tmp_rowit, rowit);
+        rowit = tmp_rowit;
+      }
+      else
+      {
+        rowit = profiles_list_store_->insert(rowit);
+      }
+    }
+    // update row
+    rowit->set_value(col_id, id);
+    rowit->set_value(col_title, title);
+    rowit->set_value(col_descr, descr);
+    ++rowit;
   }
+
+  while (rowit != children.end())
+    rowit = profiles_list_store_->erase(rowit);
 
   profiles_selection_changed_connection_.unblock();
 }
 
 void MainWindow::updateProfilesSelect(const Glib::ustring& id)
 {
+  std::cerr << __PRETTY_FUNCTION__ << std::endl;
   auto rows = profiles_list_store_->children();
 
   auto it = std::find_if(rows.begin(), rows.end(),

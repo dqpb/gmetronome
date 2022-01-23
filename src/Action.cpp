@@ -476,7 +476,14 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionProfilesNew, { ActionScope::kApp, {}, {}, {}, true }
+  { kActionProfilesNew,
+    {
+      ActionScope::kApp,
+      Glib::Variant<Glib::ustring>::variant_type(),
+      {},
+      {},
+      true
+    }
   },
 
   /* Action         :

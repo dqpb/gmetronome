@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
-"POT-Creation-Date: 2022-01-23 04:55+0100\n"
-"PO-Revision-Date: 2022-01-23 04:57+0100\n"
+"POT-Creation-Date: 2022-01-23 13:55+0100\n"
+"PO-Revision-Date: 2022-01-23 18:17+0100\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
-"Language-Team: German - Germany <gnome-de@gnome.org>\n"
+"Language-Team: German - Germany <>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -50,17 +50,17 @@ msgstr "Details"
 #: data/ui/MainWindow.glade:170
 msgctxt "Primary menu"
 msgid "Show _Pendulum"
-msgstr "Pendel anzeigen"
+msgstr "_Pendel anzeigen"
 
 #: data/ui/MainWindow.glade:184
 msgctxt "Primary menu"
 msgid "_Full Screen"
-msgstr "Vollbild"
+msgstr "_Vollbild"
 
 #: data/ui/MainWindow.glade:210
 msgctxt "Primary menu"
 msgid "P_references"
-msgstr "Einstellungen"
+msgstr "_Einstellungen"
 
 #: data/ui/MainWindow.glade:224
 msgctxt "Primary menu"
@@ -99,159 +99,165 @@ msgctxt "Profiles menu"
 msgid "Create a new profile"
 msgstr "Erstelle ein neues Profil"
 
-#: data/ui/MainWindow.glade:345
+#: data/ui/MainWindow.glade:344
 msgctxt "Profiles menu"
 msgid "_Delete"
 msgstr "_Löschen"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:349
+#: data/ui/MainWindow.glade:348
 msgctxt "Profiles menu"
 msgid "Delete selected profile"
 msgstr "Lösche das markierte Profil"
 
-#: data/ui/MainWindow.glade:361
+#: data/ui/MainWindow.glade:360
 msgctxt "Profiles menu"
 msgid "_Reset"
 msgstr "_Zurücksetzen"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:365
+#: data/ui/MainWindow.glade:364
 msgctxt "Profiles menu"
 msgid "Reset the metronome"
 msgstr "Setze das Metronom zurück"
 
-#: data/ui/MainWindow.glade:487
+#: data/ui/MainWindow.glade:486
 msgctxt "Main window"
 msgid "_Accents"
 msgstr "_Betonung"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:492
+#: data/ui/MainWindow.glade:491
 msgctxt "Main window"
 msgid "Toggle accentuation"
 msgstr "Betonung Ein/Aus"
 
-#: data/ui/MainWindow.glade:505
+#: data/ui/MainWindow.glade:504
 msgctxt "Main window"
 msgid "_Trainer"
 msgstr "_Trainer"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:510
+#: data/ui/MainWindow.glade:509
 msgctxt "Main window"
 msgid "Toggle tempo trainer"
 msgstr "Trainer Ein/Aus"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:527
+#: data/ui/MainWindow.glade:526
 msgctxt "Main window"
 msgid "Toggle Full Screen"
 msgstr "Vollbild"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:550
+#: data/ui/MainWindow.glade:549
 msgctxt "Main window"
 msgid "Application menu"
 msgstr "Hauptmenü"
 
 #. Tooltip
-#: data/ui/MainWindow.glade:572
+#: data/ui/MainWindow.glade:571
 msgctxt "Main window"
 msgid "Profiles menu"
 msgstr "Profile"
 
-#: data/ui/MainWindow.glade:733
+#: data/ui/MainWindow.glade:732
 msgctxt "Main window"
 msgid "Tap"
 msgstr "Klopfen"
 
-#: data/ui/MainWindow.glade:751
+#: data/ui/MainWindow.glade:750
 msgctxt "Main window"
 msgid "Tempo"
 msgstr "Tempo"
 
-#: data/ui/MainWindow.glade:798
+#: data/ui/MainWindow.glade:797
 msgctxt "Main window"
 msgid "Meter"
 msgstr "Metrum"
 
-#: data/ui/MainWindow.glade:816
+#: data/ui/MainWindow.glade:815
 msgctxt "Main window"
 msgid "Beats"
 msgstr "Schläge"
 
-#: data/ui/MainWindow.glade:833
+#: data/ui/MainWindow.glade:832
 msgctxt "Main window"
 msgid "Division"
 msgstr "Teilung"
 
-#: data/ui/MainWindow.glade:850
+#: data/ui/MainWindow.glade:849
 msgctxt "Main window"
 msgid "2/4"
 msgstr "2/4"
 
-#: data/ui/MainWindow.glade:851
+#: data/ui/MainWindow.glade:850
 msgctxt "Main window"
 msgid "3/4"
 msgstr "3/4"
 
-#: data/ui/MainWindow.glade:852
+#: data/ui/MainWindow.glade:851
 msgctxt "Main window"
 msgid "4/4"
 msgstr "4/4"
 
-#: data/ui/MainWindow.glade:854
+#: data/ui/MainWindow.glade:853
 msgctxt "Main window"
 msgid "6/8"
 msgstr "6/8"
 
-#: data/ui/MainWindow.glade:855
+#: data/ui/MainWindow.glade:854
 msgctxt "Main window"
 msgid "9/8"
 msgstr "9/8"
 
-#: data/ui/MainWindow.glade:856
+#: data/ui/MainWindow.glade:855
 msgctxt "Main window"
 msgid "12/8"
 msgstr "12/8"
 
-#: data/ui/MainWindow.glade:858
+#: data/ui/MainWindow.glade:857
 msgctxt "Main window"
 msgid "Custom"
 msgstr "Eigenes"
 
-#: data/ui/MainWindow.glade:997
+#: data/ui/MainWindow.glade:996
 msgctxt "Main window"
 msgid "Accents"
 msgstr "Betonung"
 
-#: data/ui/MainWindow.glade:1040
+#: data/ui/MainWindow.glade:1039
 msgctxt "Main window"
 msgid "Start"
 msgstr "Start"
 
-#: data/ui/MainWindow.glade:1058
+#: data/ui/MainWindow.glade:1057
 msgctxt "Main window"
 msgid "Target"
 msgstr "Ziel"
 
-#: data/ui/MainWindow.glade:1075
+#: data/ui/MainWindow.glade:1074
 msgctxt "Main window"
 msgid "Acceleration"
 msgstr "Beschleunigung"
 
-#: data/ui/MainWindow.glade:1137
+#: data/ui/MainWindow.glade:1136
 msgctxt "Main window"
 msgid "Trainer"
 msgstr "Trainer"
 
-#: data/ui/MainWindow.glade:1156
+#: data/ui/MainWindow.glade:1155
 msgctxt "Main window"
 msgid "_Start"
 msgstr "_Start"
 
-#: src/MainWindow.cpp:129
+#. default title for new profiles
+#: src/MainWindow.cpp:130
+msgid "New Profile"
+msgstr "Neues Profil"
+
+#. placeholder title for untitled profiles
+#: src/MainWindow.cpp:133
 msgid "Untitled Profile"
 msgstr "Unbenanntes Profil"
 
@@ -363,12 +369,12 @@ msgstr "Frequenz:"
 #: data/ui/SettingsDialog.glade:560
 msgctxt "Preferences dialog"
 msgid "Sound"
-msgstr "Ton"
+msgstr "Klang"
 
 #: data/ui/SettingsDialog.glade:694
 msgctxt "Preferences dialog"
 msgid "_Sound"
-msgstr "Ton"
+msgstr "_Klang"
 
 #: data/ui/SettingsDialog.glade:720
 msgctxt "Preferences dialog"
