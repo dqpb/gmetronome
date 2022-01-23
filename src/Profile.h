@@ -36,17 +36,17 @@ struct Profile
   static inline const std::string kDefaultTitle       = "";
   static inline const std::string kDefaultDescription = "";
 
-  static constexpr double  kMinimumTempo           = 30.0;
-  static constexpr double  kMaximumTempo           = 250.0;
+  static constexpr double  kMinTempo               = 30.0;
+  static constexpr double  kMaxTempo               = 250.0;
   static constexpr double  kDefaultTempo           = 120.0;
-  static constexpr double  kMinimumTrainerStart    = kMinimumTempo;
-  static constexpr double  kMaximumTrainerStart    = kMaximumTempo;
+  static constexpr double  kMinTrainerStart        = kMinTempo;
+  static constexpr double  kMaxTrainerStart        = kMaxTempo;
   static constexpr double  kDefaultTrainerStart    = 80.0;
-  static constexpr double  kMinimumTrainerTarget   = kMinimumTempo;
-  static constexpr double  kMaximumTrainerTarget   = kMaximumTempo;
+  static constexpr double  kMinTrainerTarget       = kMinTempo;
+  static constexpr double  kMaxTrainerTarget       = kMaxTempo;
   static constexpr double  kDefaultTrainerTarget   = 160.0;
-  static constexpr double  kMinimumTrainerAccel    = 1.0;
-  static constexpr double  kMaximumTrainerAccel    = 1000.0;
+  static constexpr double  kMinTrainerAccel        = 1.0;
+  static constexpr double  kMaxTrainerAccel        = 1000.0;
   static constexpr double  kDefaultTrainerAccel    = 10.0;
 
   struct Header

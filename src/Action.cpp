@@ -109,7 +109,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Parameter type : double
    * State type     : double
    * State value    : kDefaultProfile.content.tempo
-   * State hint     : (Profile::kMinimumTempo,Profile::kMaximumTempo)
+   * State hint     : (Profile::kMinTempo,Profile::kMaxTempo)
    * Enabled        : true
    */
   { kActionTempo,
@@ -119,8 +119,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<double>::create(kDefaultProfile.content.tempo),
       Glib::Variant<ActionStateHintRange<double>>::create(
         {
-          Profile::kMinimumTempo,
-          Profile::kMaximumTempo
+          Profile::kMinTempo,
+          Profile::kMaxTempo
         }),
       true
     }
@@ -199,7 +199,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Parameter type : double
    * State type     : double
    * State value    : kDefaultProfile.content.trainer_start
-   * State hint     : (Profile::kMinimumTempo,Profile::kMaximumTempo)
+   * State hint     : (Profile::kMinTempo,Profile::kMaxTempo)
    * Enabled        : true
    */
   { kActionTrainerStart,
@@ -209,8 +209,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_start),
       Glib::Variant<ActionStateHintRange<double>>::create(
         {
-          Profile::kMinimumTempo,
-          Profile::kMaximumTempo
+          Profile::kMinTempo,
+          Profile::kMaxTempo
         }),
       true
     }
@@ -221,7 +221,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Parameter type : double
    * State type     : double
    * State value    : kDefaultProfile.content.trainer_target
-   * State hint     : (Profile::kMinimumTempo,Profile::kMaximumTempo)
+   * State hint     : (Profile::kMinTempo,Profile::kMaxTempo)
    * Enabled        : true
    */
   { kActionTrainerTarget,
@@ -231,8 +231,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_target),
       Glib::Variant<ActionStateHintRange<double>>::create(
         {
-          Profile::kMinimumTempo,
-          Profile::kMaximumTempo
+          Profile::kMinTempo,
+          Profile::kMaxTempo
         }),
       true
     }
@@ -243,7 +243,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Parameter type : double
    * State type     : double
    * State value    : kDefaultProfile.content.trainer_accel
-   * State hint     : (Profile::kMinimumTrainerAccel,Profile::kMaximumTrainerAccel)
+   * State hint     : (Profile::kMinTrainerAccel,Profile::kMaxTrainerAccel)
    * Enabled        : true
    */
   { kActionTrainerAccel,
@@ -253,8 +253,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_accel),
       Glib::Variant<ActionStateHintRange<double>>::create(
         {
-          Profile::kMinimumTrainerAccel,
-          Profile::kMaximumTrainerAccel
+          Profile::kMinTrainerAccel,
+          Profile::kMaxTrainerAccel
         }),
       true
     }

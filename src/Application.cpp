@@ -239,25 +239,31 @@ void Application::configureTickerSound()
 
 void Application::configureTickerSoundStrong()
 {
+  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+
   ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongFrequency),
                          settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
-                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                          settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance));
 }
 
 void Application::configureTickerSoundMid()
 {
+  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+
   ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidFrequency),
                       settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
-                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                       settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance));
 }
 
 void Application::configureTickerSoundWeak()
 {
+  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+
   ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakFrequency),
                        settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
-                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / 100. / 100.,
+                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                        settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance));
 }
 
@@ -439,24 +445,16 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
 
 void Application::onMeterSelect(const Glib::VariantBase& value)
 {
-  auto in_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
-
-  Glib::ustring new_meter_slot = in_state.get();
+  auto in_meter_slot =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value).get();
 
   Glib::ustring current_meter_slot;
   get_action_state(kActionMeterSelect, current_meter_slot);
 
-  if (new_meter_slot != current_meter_slot)
+  if (in_meter_slot != current_meter_slot)
   {
-    // check in_state validity
-    if (new_meter_slot == kActionMeterSimple2
-        || new_meter_slot == kActionMeterSimple3
-        || new_meter_slot == kActionMeterSimple4
-        || new_meter_slot == kActionMeterCompound2
-        || new_meter_slot == kActionMeterCompound3
-        || new_meter_slot == kActionMeterCompound4
-        || new_meter_slot == kActionMeterCustom )
+    if (auto [new_meter_slot, valid] = validateMeterSlot(std::move(in_meter_slot));
+        valid)
     {
       bool meter_enabled;
       get_action_state(kActionMeterEnabled, meter_enabled);
@@ -552,9 +550,8 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
   double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
-  double new_volume = current_volume + delta_volume;
 
-  new_volume = validateVolume(new_volume);
+  auto [new_volume, valid] = validateVolume(current_volume + delta_volume);
 
   settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
@@ -565,19 +562,18 @@ void Application::onVolumeDecrease(const Glib::VariantBase& value)
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
   double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
-  double new_volume = current_volume - delta_volume;
 
-  new_volume = validateVolume(new_volume);
+  auto [new_volume, valid] = validateVolume(current_volume - delta_volume);
 
   settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
 
 void Application::onTempo(const Glib::VariantBase& value)
 {
-  double tempo =
+  double in_tempo =
     Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  tempo = validateTempo(tempo);
+  auto [tempo, valid] = validateTempo(in_tempo);
 
   ticker_.setTempo(tempo);
 
@@ -633,7 +629,7 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   {
     double bpm = 1min / duration;
 
-    if ( bpm >= Profile::kMinimumTempo && bpm <= Profile::kMaximumTempo )
+    if ( bpm >= Profile::kMinTempo && bpm <= Profile::kMaxTempo )
     {
       Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( bpm );
       activate_action(kActionTempo, new_tempo_state);
@@ -644,8 +640,8 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
 {
-  double tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  tempo = validateTrainerStart(tempo);
+  double in_tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  auto [tempo, valid] = validateTrainerStart(in_tempo);
 
   auto new_state = Glib::Variant<double>::create(tempo);
   lookup_simple_action(kActionTrainerStart)->set_state(new_state);
@@ -653,8 +649,8 @@ void Application::onTrainerStart(const Glib::VariantBase& value)
 
 void Application::onTrainerTarget(const Glib::VariantBase& value)
 {
-  double tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  tempo = validateTrainerTarget(tempo);
+  double in_tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  auto [tempo, valid] = validateTrainerTarget(in_tempo);
 
   bool trainer_enabled;
   get_action_state(kActionTrainerEnabled, trainer_enabled);
@@ -668,8 +664,8 @@ void Application::onTrainerTarget(const Glib::VariantBase& value)
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
 {
-  double accel = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  accel = validateTrainerAccel(accel);
+  double in_accel = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  auto [accel, valid] = validateTrainerAccel(in_accel);
 
   bool trainer_enabled;
   get_action_state(kActionTrainerEnabled, trainer_enabled);
@@ -855,7 +851,7 @@ void Application::onProfilesNew(const Glib::VariantBase& value)
   Glib::Variant<Glib::ustring> in_title
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
-  Glib::ustring title = validateProfileTitle(in_title.get());
+  auto [title,valid] = validateProfileTitle(in_title.get());
 
   Profile::Header header = {title, ""};
   Profile::Content content;
@@ -934,8 +930,10 @@ void Application::onProfilesTitle(const Glib::VariantBase& value)
     Glib::Variant<Glib::ustring> in_value
       = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
+    auto [title, valid] = validateProfileTitle(in_value.get());
+
     Glib::Variant<Glib::ustring> out_value
-      = Glib::Variant<Glib::ustring>::create(validateProfileTitle(in_value.get()));
+      = Glib::Variant<Glib::ustring>::create(title);
 
     Profile::Header header = profiles_manager_.getProfileHeader(id);
     header.title = out_value.get();
@@ -1188,49 +1186,84 @@ bool Application::onTimer()
   }
 }
 
-double Application::validateTempo(double value)
+// helper
+template<class T>
+std::pair<T,bool> validateRange(T value, const ActionStateHintRange<T>& range)
+{
+  T ret = clampActionStateValue(value, range);
+  return { ret, value == ret };
+}
+
+template<class T>
+std::pair<T,bool> validateRange(T value, const T& min, const T& max)
+{
+  T ret = std::clamp(value, min, max);
+  return { ret, value == ret };
+}
+
+std::pair<double,bool> Application::validateTempo(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTempo, range);
-  return clampActionStateValue(value, range);
+  return validateRange(value, range);
 }
 
-double Application::validateTrainerStart(double value)
+std::pair<double,bool> Application::validateTrainerStart(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTrainerStart, range);
-  return clampActionStateValue(value, range);
+  return validateRange(value, range);
 }
 
-double Application::validateTrainerTarget(double value)
+std::pair<double,bool> Application::validateTrainerTarget(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTrainerTarget, range);
-  return clampActionStateValue(value, range);
+  return validateRange(value, range);
 }
 
-double Application::validateTrainerAccel(double value)
+std::pair<double,bool> Application::validateTrainerAccel(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTrainerAccel, range);
-  return clampActionStateValue(value, range);
+  return validateRange(value, range);
 }
 
-double Application::validateVolume(double value)
+std::pair<double,bool> Application::validateVolume(double value)
 {
-  return std::clamp(value, settings::kMinimumVolume, settings::kMaximumVolume);
+  return validateRange(value, settings::kMinVolume, settings::kMaxVolume);
 }
 
-Glib::ustring Application::validateProfileTitle(const Glib::ustring& in)
+std::pair<Glib::ustring,bool> Application::validateMeterSlot(Glib::ustring str)
 {
-  Glib::ustring out;
+  if (str == kActionMeterSimple2
+      || str == kActionMeterSimple3
+      || str == kActionMeterSimple4
+      || str == kActionMeterCompound2
+      || str == kActionMeterCompound3
+      || str == kActionMeterCompound4
+      || str == kActionMeterCustom)
+  {
+    return {str, true};
+  }
+  else
+  {
+    Glib::ustring current_meter_slot;
+    get_action_state(kActionMeterSelect, current_meter_slot);
+    return {current_meter_slot, false};
+  }
+}
+
+std::pair<Glib::ustring,bool> Application::validateProfileTitle(Glib::ustring str)
+{
+  Glib::ustring ret;
 #if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
-    out = in.make_valid().substr(0, Profile::kTitleMaxLength);
+    ret = str.make_valid().substr(0, Profile::kTitleMaxLength);
 #else
-    if (in.validate())
-      out = in.substr(0, Profile::kTitleMaxLength);
+    if (str.validate())
+      ret = str.substr(0, Profile::kTitleMaxLength);
     else
-      out = "";
+      ret = "";
 #endif
-  return out;
+    return {ret, ret.raw() == str.raw()};
 }

@@ -160,12 +160,13 @@ private:
   bool onTimer();
 
   // Input validation
-  double validateTempo(double value);
-  double validateTrainerStart(double value);
-  double validateTrainerTarget(double value);
-  double validateTrainerAccel(double value);
-  double validateVolume(double value);
-  Glib::ustring validateProfileTitle(const Glib::ustring& in);
+  std::pair<double,bool> validateTempo(double value);
+  std::pair<double,bool> validateTrainerStart(double value);
+  std::pair<double,bool> validateTrainerTarget(double value);
+  std::pair<double,bool> validateTrainerAccel(double value);
+  std::pair<double,bool> validateVolume(double value);
+  std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
+  std::pair<Glib::ustring,bool> validateProfileTitle(Glib::ustring str);
 };
 
 #endif//GMetronome_Application_h

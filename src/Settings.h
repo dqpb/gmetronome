@@ -95,9 +95,9 @@ namespace settings {
     kPendulumPhaseModeRight = 1
   };
 
-  inline constexpr  double    kDefaultVolume    = 80;
-  inline constexpr  double    kMinimumVolume    = 0;
-  inline constexpr  double    kMaximumVolume    = 100;
+  inline constexpr  double    kDefaultVolume  = 80;
+  inline constexpr  double    kMinVolume      = 0;
+  inline constexpr  double    kMaxVolume      = 100;
 
   /*
    * org.gmetronome.preferences keys
