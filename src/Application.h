@@ -160,6 +160,11 @@ private:
   bool onTimer();
 
   // Input validation
+  double validateTempo(double value);
+  double validateTrainerStart(double value);
+  double validateTrainerTarget(double value);
+  double validateTrainerAccel(double value);
+  double validateVolume(double value);
   Glib::ustring validateProfileTitle(const Glib::ustring& in);
 };
 

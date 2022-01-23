@@ -888,8 +888,6 @@ void MainWindow::updateAccentButtons(const Meter& meter)
 
 void MainWindow::updateProfilesList(const ProfilesList& list)
 {
-  std::cerr << __PRETTY_FUNCTION__ << std::endl;
-
   auto& col_id    = profiles_list_store_->columns_.id_;
   auto& col_title = profiles_list_store_->columns_.title_;
   auto& col_descr = profiles_list_store_->columns_.description_;
@@ -933,7 +931,6 @@ void MainWindow::updateProfilesList(const ProfilesList& list)
 
 void MainWindow::updateProfilesSelect(const Glib::ustring& id)
 {
-  std::cerr << __PRETTY_FUNCTION__ << std::endl;
   auto rows = profiles_list_store_->children();
 
   auto it = std::find_if(rows.begin(), rows.end(),

@@ -74,11 +74,6 @@ inline const Glib::ustring kActionShowAbout             {"show-about"};
 inline const Glib::ustring kActionShowPendulum          {"show-pendulum"};
 inline const Glib::ustring kActionFullScreen            {"full-screen"};
 
-// Global constants
-inline constexpr  double   kDefaultVolume        = 80;
-inline constexpr  double   kMinimumVolume        = 0;
-inline constexpr  double   kMaximumVolume        = 100;
-
 enum class ActionScope
 {
   kApp,

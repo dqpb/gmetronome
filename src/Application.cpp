@@ -554,7 +554,7 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
   double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
   double new_volume = current_volume + delta_volume;
 
-  new_volume = std::clamp(new_volume, kMinimumVolume, kMaximumVolume);
+  new_volume = validateVolume(new_volume);
 
   settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
@@ -567,24 +567,21 @@ void Application::onVolumeDecrease(const Glib::VariantBase& value)
   double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
   double new_volume = current_volume - delta_volume;
 
-  new_volume = std::clamp(new_volume, kMinimumVolume, kMaximumVolume);
+  new_volume = validateVolume(new_volume);
 
   settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
 }
 
-void Application::onTempo(const Glib::VariantBase& in_val)
+void Application::onTempo(const Glib::VariantBase& value)
 {
-  double value =
-    Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(in_val).get();
+  double tempo =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  ActionStateHintRange<double> range;
-  get_action_state_hint(kActionTempo, range);
+  tempo = validateTempo(tempo);
 
-  value = clampActionStateValue(value, range);
+  ticker_.setTempo(tempo);
 
-  ticker_.setTempo(value);
-
-  auto new_state = Glib::Variant<double>::create(value);
+  auto new_state = Glib::Variant<double>::create(tempo);
 
   lookup_simple_action(kActionTempo)->set_state(new_state);
 }
@@ -642,43 +639,45 @@ void Application::onTempoTap(const Glib::VariantBase& value)
       activate_action(kActionTempo, new_tempo_state);
     }
   }
-
   last_timepoint = now;
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
 {
-  Glib::Variant<double> new_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
+  double tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  tempo = validateTrainerStart(tempo);
 
+  auto new_state = Glib::Variant<double>::create(tempo);
   lookup_simple_action(kActionTrainerStart)->set_state(new_state);
 }
 
 void Application::onTrainerTarget(const Glib::VariantBase& value)
 {
-  Glib::Variant<double> new_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
+  double tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  tempo = validateTrainerTarget(tempo);
 
   bool trainer_enabled;
   get_action_state(kActionTrainerEnabled, trainer_enabled);
 
   if (trainer_enabled)
-    ticker_.setTargetTempo(new_state.get());
+    ticker_.setTargetTempo(tempo);
 
+  auto new_state = Glib::Variant<double>::create(tempo);
   lookup_simple_action(kActionTrainerTarget)->set_state(new_state);
 }
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
 {
-  Glib::Variant<double> new_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value);
+  double accel = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  accel = validateTrainerAccel(accel);
 
   bool trainer_enabled;
   get_action_state(kActionTrainerEnabled, trainer_enabled);
 
   if (trainer_enabled)
-    ticker_.setAccel(new_state.get());
+    ticker_.setAccel(accel);
 
+  auto new_state = Glib::Variant<double>::create(accel);
   lookup_simple_action(kActionTrainerAccel)->set_state(new_state);
 }
 
@@ -1187,6 +1186,39 @@ bool Application::onTimer()
     signal_ticker_statistics_.emit(stats);
     return true;
   }
+}
+
+double Application::validateTempo(double value)
+{
+  ActionStateHintRange<double> range;
+  get_action_state_hint(kActionTempo, range);
+  return clampActionStateValue(value, range);
+}
+
+double Application::validateTrainerStart(double value)
+{
+  ActionStateHintRange<double> range;
+  get_action_state_hint(kActionTrainerStart, range);
+  return clampActionStateValue(value, range);
+}
+
+double Application::validateTrainerTarget(double value)
+{
+  ActionStateHintRange<double> range;
+  get_action_state_hint(kActionTrainerTarget, range);
+  return clampActionStateValue(value, range);
+}
+
+double Application::validateTrainerAccel(double value)
+{
+  ActionStateHintRange<double> range;
+  get_action_state_hint(kActionTrainerAccel, range);
+  return clampActionStateValue(value, range);
+}
+
+double Application::validateVolume(double value)
+{
+  return std::clamp(value, settings::kMinimumVolume, settings::kMaximumVolume);
 }
 
 Glib::ustring Application::validateProfileTitle(const Glib::ustring& in)
