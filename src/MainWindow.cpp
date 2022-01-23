@@ -249,9 +249,9 @@ void MainWindow::initAbout()
   about_dialog_.set_program_name(Glib::get_application_name());
   about_dialog_.set_version(VERSION);
   about_dialog_.set_license_type(Gtk::LICENSE_GPL_3_0);
-  //about_dialog_.set_authors({"The GMetronome Team"});
+  about_dialog_.set_authors({"dqpb <dqpb@mailbox.org>, 2020-2022"});
 
-  //Translators: Put one translator per line, in the form
+  //Put one translator per line, in the form
   //NAME <EMAIL>, YEAR1, YEAR2
   about_dialog_.set_translator_credits(C_("About dialog", "translator-credits"));
 

@@ -69,7 +69,7 @@
                     <property name="can-focus">False</property>
                     <property name="valign">start</property>
                     <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">Topic label</property>
+                    <property name="label">Topic label</property>
                     <property name="wrap">True</property>
                     <property name="selectable">True</property>
                     <property name="xalign">0</property>
@@ -89,7 +89,7 @@
                     <property name="can-focus">False</property>
                     <property name="valign">start</property>
                     <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">Text label</property>
+                    <property name="label">Text label</property>
                     <property name="use-markup">True</property>
                     <property name="wrap">True</property>
                     <property name="selectable">True</property>
@@ -113,7 +113,7 @@
                         <property name="can-focus">False</property>
                         <property name="valign">start</property>
                         <property name="hexpand">True</property>
-                        <property name="label" translatable="yes">Details label</property>
+                        <property name="label">Details label</property>
                         <property name="wrap">True</property>
                         <property name="selectable">True</property>
                         <property name="xalign">0</property>
@@ -302,7 +302,7 @@
               <object class="GtkTreeView" id="profilesTreeView">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="tooltip-text" translatable="yes">List of profiles</property>
+                <property name="tooltip-text" translatable="yes" context="Profiles menu" comments="Tooltip">List of profiles</property>
                 <property name="headers-visible">False</property>
                 <property name="headers-clickable">False</property>
                 <property name="search-column">1</property>
@@ -524,6 +524,7 @@
       <object class="GtkButton" id="fullScreenButton">
         <property name="can-focus">True</property>
         <property name="receives-default">True</property>
+        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle Full Screen</property>
         <property name="valign">center</property>
         <property name="action-name">win.full-screen</property>
         <property name="always-show-image">True</property>
@@ -568,7 +569,7 @@
         <property name="can-focus">True</property>
         <property name="focus-on-click">False</property>
         <property name="receives-default">True</property>
-        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles</property>
+        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles menu</property>
         <property name="valign">center</property>
         <property name="popover">profilesPopover</property>
         <child>
@@ -849,11 +850,11 @@
                                       <item id="meter-simple-2" translatable="yes" context="Main window">2/4</item>
                                       <item id="meter-simple-3" translatable="yes" context="Main window">3/4</item>
                                       <item id="meter-simple-4" translatable="yes" context="Main window">4/4</item>
-                                      <item id="separator" translatable="yes">-</item>
+                                      <item id="separator">-</item>
                                       <item id="meter-compound-2" translatable="yes" context="Main window">6/8</item>
                                       <item id="meter-compound-3" translatable="yes" context="Main window">9/8</item>
                                       <item id="meter-compound-4" translatable="yes" context="Main window">12/8</item>
-                                      <item id="separator" translatable="yes">-</item>
+                                      <item id="separator">-</item>
                                       <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
                                     </items>
                                   </object>
