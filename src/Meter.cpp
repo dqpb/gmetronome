@@ -90,4 +90,6 @@ void Meter::checkDataIntegrity()
   beats_ = std::clamp(beats_, 1, kMaxBeats);
   division_ = std::clamp(division_, 1, kMaxDivision);
   accents_.resize(beats_ * division_, kAccentOff);
+  for (auto& a : accents_)
+    a = std::clamp(a, kAccentOff, kAccentStrong);
 }
