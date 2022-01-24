@@ -652,7 +652,7 @@ void MainWindow::onAccentChanged(std::size_t button_index)
     pattern[index] = accent_button_grid_[index].getAccentState();
   }
 
-  Meter meter(beats, division, pattern);
+  Meter meter(division, beats, pattern);
 
   auto state = Glib::Variant<Meter>::create(meter);
 

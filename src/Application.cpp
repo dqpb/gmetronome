@@ -437,7 +437,7 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
   }
   else
   {
-    ticker_.setMeter( kMeter_1 );
+    ticker_.setMeter( kMeter1 );
   }
 
   lookup_simple_action(kActionMeterEnabled)->set_state(new_state);
@@ -522,7 +522,7 @@ void Application::onMeterChanged_Custom(const Glib::VariantBase& value)
 }
 
 void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
-                                          Meter&& meter)
+                                          Meter&& in_meter)
 {
   auto action = lookup_simple_action(action_name);
   if (action)
@@ -532,6 +532,8 @@ void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
 
     Glib::ustring current_meter_slot;
     get_action_state(kActionMeterSelect, current_meter_slot);
+
+    auto [meter, valid] = validateMeter(in_meter);
 
     Glib::Variant<Meter> out_state = Glib::Variant<Meter>::create(meter);
 
@@ -1232,6 +1234,12 @@ std::pair<double,bool> Application::validateTrainerAccel(double value)
 std::pair<double,bool> Application::validateVolume(double value)
 {
   return validateRange(value, settings::kMinVolume, settings::kMaxVolume);
+}
+
+std::pair<Meter,bool> Application::validateMeter(Meter meter)
+{
+  // nothing to do since a constructed meter object is always valid
+  return {meter, true};
 }
 
 std::pair<Glib::ustring,bool> Application::validateMeterSlot(Glib::ustring str)

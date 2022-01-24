@@ -218,8 +218,8 @@ namespace {
             current_meter_ = nullptr;
           }
 
-          current_meter_beats_ = kSingleMeter;
           current_meter_division_ = kNoDivision;
+          current_meter_beats_ = kSingleMeter;
           current_meter_accents_.clear();
         }
         else if (element_name_lowercase == "accent")
@@ -255,8 +255,8 @@ namespace {
 
             (*current_meter_) =
               {
-                current_meter_beats_,
                 current_meter_division_,
+                current_meter_beats_,
                 current_meter_accents_
               };
           }
@@ -293,10 +293,10 @@ namespace {
           }
           else if (current_block_.top() == "meter" && current_meter_)
           {
-            if (element_name_lowercase == "beats")
-              current_meter_beats_ = std::stoi(text);
-            else if (element_name_lowercase == "division")
+            if (element_name_lowercase == "division")
               current_meter_division_ = std::stoi(text);
+            else if (element_name_lowercase == "beats")
+              current_meter_beats_ = std::stoi(text);
           }
           else if (current_block_.top() == "trainer-section")
           {
@@ -329,8 +329,8 @@ namespace {
     std::vector<Profile::Identifier> porder_;
     Profile* current_profile_;
     Meter* current_meter_;
-    int current_meter_beats_;
     int current_meter_division_;
+    int current_meter_beats_;
     AccentPattern current_meter_accents_;
     std::stack<Glib::ustring> current_block_;
   };
@@ -380,12 +380,12 @@ namespace {
     ostream->write("          <meter id=\"");
     ostream->write(Glib::Markup::escape_text(meter_id));
     ostream->write("\">\n");
-    ostream->write("            <beats>");
-    ostream->write(std::to_string(meter.beats()));
-    ostream->write("</beats>\n");
     ostream->write("            <division>");
     ostream->write(std::to_string(meter.division()));
     ostream->write("</division>\n");
+    ostream->write("            <beats>");
+    ostream->write(std::to_string(meter.beats()));
+    ostream->write("</beats>\n");
     ostream->write("            <accent-pattern>\n");
     const AccentPattern& accents = meter.accents();
     for ( const Accent& a : accents )

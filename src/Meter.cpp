@@ -22,18 +22,36 @@
 
 #include "Meter.h"
 
-Meter::Meter(int beats, int division, const AccentPattern& accents)
-  : beats_(beats),
-    division_(division),
+Meter::Meter(int division, int beats, const AccentPattern& accents)
+  : division_(division),
+    beats_(beats),
     accents_(accents)
 {
-  check_data_integrity();
+  checkDataIntegrity();
+}
+
+void Meter::setDivision(int division)
+{
+  division = std::clamp(division, 1, kMaxDivision);
+
+  if (division != division_)
+  {
+    AccentPattern new_accents(beats_ * division, kAccentOff);
+
+    for (int beat_index = 0; beat_index < beats_; ++beat_index)
+    {
+      auto source_it = accents_.cbegin() + (beat_index * division_);
+      auto target_it = new_accents.begin() + (beat_index * division);
+      std::copy_n(source_it, std::min(division, division_), target_it);
+    }
+    accents_.swap(new_accents);
+    division_ = division;
+  }
 }
 
 void Meter::setBeats(int beats)
 {
-  if (beats < 1)
-    beats = 1;
+  beats = std::clamp(beats, 1, kMaxBeats);
 
   if (beats != beats_)
   {
@@ -51,40 +69,14 @@ void Meter::setBeats(int beats)
       }
     }
     accents_.swap(new_accents);
+    beats_ = beats;
   }
-  beats_ = beats;
 }
 
-void Meter::setDivision(int division)
-{
-  if (division < 1)
-    division = kNoDivision;
-
-  if (division != division_)
-  {
-    AccentPattern new_accents(beats_ * division, kAccentOff);
-
-    for (int beat_index = 0; beat_index < beats_; ++beat_index)
-    {
-      auto source_it = accents_.cbegin() + (beat_index * division_);
-      auto target_it = new_accents.begin() + (beat_index * division);
-      std::copy_n(source_it, std::min(division, division_), target_it);
-    }
-    accents_.swap(new_accents);
-  }
-  division_ = division;
-}
-
-void Meter::setAccentPattern(const AccentPattern& accents)
-{
-  accents_ = accents;
-  check_data_integrity();
-}
-
-void Meter::setAccentPattern(AccentPattern&& accents)
+void Meter::setAccentPattern(AccentPattern accents)
 {
   accents_ = std::move(accents);
-  check_data_integrity();
+  checkDataIntegrity();
 }
 
 void Meter::setAccent(std::size_t index, Accent accent)
@@ -93,13 +85,9 @@ void Meter::setAccent(std::size_t index, Accent accent)
     accents_[index] = accent;
 }
 
-void Meter::check_data_integrity()
+void Meter::checkDataIntegrity()
 {
-  if (beats_ < 1)
-    beats_ = 1;
-
-  if (division_ < 1)
-    division_ = kNoDivision;
-
+  beats_ = std::clamp(beats_, 1, kMaxBeats);
+  division_ = std::clamp(division_, 1, kMaxDivision);
   accents_.resize(beats_ * division_, kAccentOff);
 }

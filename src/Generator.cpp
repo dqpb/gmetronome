@@ -41,7 +41,7 @@ namespace audio {
       target_tempo_(convertTempoToFrameTime(120.)),
       accel_(convertAccelToFrameTime(0)),
       accel_saved_(accel_),
-      meter_({kSingleMeter, kNoDivision, {kAccentMid}}),
+      meter_(kMeter1),
       sound_zero_(2 * kMaxChunkDuration_, kStreamSpec_),
       sound_strong_(sound_zero_),
       sound_mid_(sound_zero_),

@@ -165,6 +165,7 @@ private:
   std::pair<double,bool> validateTrainerTarget(double value);
   std::pair<double,bool> validateTrainerAccel(double value);
   std::pair<double,bool> validateVolume(double value);
+  std::pair<Meter,bool> validateMeter(Meter meter);
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileTitle(Glib::ustring str);
 };
