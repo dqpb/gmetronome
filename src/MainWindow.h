@@ -33,7 +33,7 @@
 #include <chrono>
 
 class ActionBinding;
-class ProfilesListStore;
+class ProfileListStore;
 class SettingsDialog;
 class AccentButtonGrid;
 
@@ -58,10 +58,10 @@ protected:
   std::list<Glib::RefPtr<Glib::Binding>> bindings_;
   std::list<Glib::RefPtr<ActionBinding>> action_bindings_;
   std::vector<sigc::connection> meter_connections_;
-  sigc::connection profiles_selection_changed_connection_;
-  sigc::connection profiles_title_start_editing_connection_;
-  sigc::connection profiles_title_changed_connection_;
-  sigc::connection profiles_popover_show_connection_;
+  sigc::connection profile_selection_changed_connection_;
+  sigc::connection profile_title_start_editing_connection_;
+  sigc::connection profile_title_changed_connection_;
+  sigc::connection profile_popover_show_connection_;
 
   // Settings
   SettingsDialog* preferences_dialog_;
@@ -81,13 +81,13 @@ protected:
   Gtk::Label* current_profile_label_;
   Gtk::Button* full_screen_button_;
   Gtk::Image* full_screen_image_;
-  Gtk::MenuButton* menu_button_;
+  Gtk::MenuButton* main_menu_button_;
   Gtk::PopoverMenu* popover_menu_;
-  Gtk::MenuButton* profiles_button_;
-  Gtk::Popover* profiles_popover_;
-  Gtk::TreeView* profiles_tree_view_;
-  Gtk::Button* profiles_new_button_;
-  Gtk::Button* profiles_delete_button_;
+  Gtk::MenuButton* profile_menu_button_;
+  Gtk::Popover* profile_popover_;
+  Gtk::TreeView* profile_tree_view_;
+  Gtk::Button* profile_new_button_;
+  Gtk::Button* profile_delete_button_;
   Gtk::Box* main_box_;
   Gtk::Overlay* info_overlay_;
   Gtk::Revealer* info_revealer_;
@@ -133,7 +133,7 @@ protected:
   Glib::RefPtr<Gtk::Adjustment> trainer_accel_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> beats_adjustment_;
 
-  Glib::RefPtr<ProfilesListStore> profiles_list_store_;
+  Glib::RefPtr<ProfileListStore> profile_list_store_;
 
   Glib::ustring profile_title_new_;
   Glib::ustring profile_title_placeholder_;
@@ -167,14 +167,14 @@ protected:
   void onBeatsChanged();
   void onSubdivChanged(Gtk::RadioButton* button, int division);
   void onAccentChanged(std::size_t button_index);
-  void onProfilesSelectionChanged();
-  void onProfilesTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
-  void onProfilesTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
-  void onProfilesDragBegin(const Glib::RefPtr<Gdk::DragContext>& context);
-  void onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context);
-  void onProfilesNew();
-  void onProfilesShow();
-  void onProfilesHide();
+  void onProfileSelectionChanged();
+  void onProfileTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
+  void onProfileTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
+  void onProfileDragBegin(const Glib::RefPtr<Gdk::DragContext>& context);
+  void onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context);
+  void onProfileNew();
+  void onProfileShow();
+  void onProfileHide();
 
   // Action handler
   void onActionStateChanged(const Glib::ustring& action_name,
@@ -184,9 +184,9 @@ protected:
 
   void updateAccentButtons(const Meter& meter);
 
-  void updateProfilesList(const ProfilesList& list);
-  void updateProfilesSelect(const Glib::ustring& id);
-  void updateProfilesTitle(const Glib::ustring& title, bool has_profile = true);
+  void updateProfileList(const ProfileList& list);
+  void updateProfileSelect(const Glib::ustring& id);
+  void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
   void updateStart(bool running);
 

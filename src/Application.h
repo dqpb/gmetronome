@@ -21,7 +21,7 @@
 #define GMetronome_Application_h
 
 #include <gtkmm.h>
-#include "ProfilesManager.h"
+#include "ProfileManager.h"
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
@@ -49,7 +49,7 @@ protected:
 
 private:
   audio::Ticker ticker_;
-  ProfilesManager profiles_manager_;
+  ProfileManager profile_manager_;
 
   // GSettings
   Glib::RefPtr<Gio::Settings> settings_;
@@ -125,17 +125,17 @@ private:
   void onTrainerAccel(const Glib::VariantBase& value);
 
   // Profiles
-  void onProfilesManagerChanged();
-  void onProfilesList(const Glib::VariantBase& value);
-  void onProfilesSelect(const Glib::VariantBase& value);
+  void onProfileManagerChanged();
+  void onProfileList(const Glib::VariantBase& value);
+  void onProfileSelect(const Glib::VariantBase& value);
   void convertActionToProfile(Profile::Content& content);
   void convertProfileToAction(const Profile::Content& content);
-  void onProfilesNew(const Glib::VariantBase& value);
-  void onProfilesDelete(const Glib::VariantBase& value);
-  void onProfilesReset(const Glib::VariantBase& value);
-  void onProfilesTitle(const Glib::VariantBase& value);
-  void onProfilesDescription(const Glib::VariantBase& value);
-  void onProfilesReorder(const Glib::VariantBase& value);
+  void onProfileNew(const Glib::VariantBase& value);
+  void onProfileDelete(const Glib::VariantBase& value);
+  void onProfileReset(const Glib::VariantBase& value);
+  void onProfileTitle(const Glib::VariantBase& value);
+  void onProfileDescription(const Glib::VariantBase& value);
+  void onProfileReorder(const Glib::VariantBase& value);
 
   void loadSelectedProfile();
   void loadDefaultProfile();

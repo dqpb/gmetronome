@@ -17,4 +17,4 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProfilesIOBase.h"
+#include "ProfileIOBase.h"

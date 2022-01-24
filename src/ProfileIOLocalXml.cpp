@@ -17,24 +17,24 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProfilesIOLocalXml.h"
+#include "ProfileIOLocalXml.h"
 #include "config.h"
 #include <iterator>
 #include <iostream>
 #include <stack>
 
-ProfilesIOLocalXml::ProfilesIOLocalXml(Glib::RefPtr<Gio::File> file)
+ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
   : file_(file)
 {
   importProfiles();
 }
 
-ProfilesIOLocalXml::~ProfilesIOLocalXml()
+ProfileIOLocalXml::~ProfileIOLocalXml()
 {
   exportProfiles();
 }
 
-std::vector<Profile::Primer> ProfilesIOLocalXml::list()
+std::vector<Profile::Primer> ProfileIOLocalXml::list()
 {
   std::vector<Profile::Primer> vec;
 
@@ -44,7 +44,7 @@ std::vector<Profile::Primer> ProfilesIOLocalXml::list()
   return vec;
 }
 
-Profile ProfilesIOLocalXml::load(Profile::Identifier id)
+Profile ProfileIOLocalXml::load(Profile::Identifier id)
 {
   try {
     return pmap_.at(id);
@@ -54,7 +54,7 @@ Profile ProfilesIOLocalXml::load(Profile::Identifier id)
   }
 }
 
-void ProfilesIOLocalXml::store(Profile::Identifier id, const Profile& profile)
+void ProfileIOLocalXml::store(Profile::Identifier id, const Profile& profile)
 {
   if (auto it = pmap_.find(id); it != pmap_.end())
   {
@@ -67,7 +67,7 @@ void ProfilesIOLocalXml::store(Profile::Identifier id, const Profile& profile)
   }
 }
 
-void ProfilesIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
+void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
 {
   std::vector<std::size_t> a;
   a.reserve(order.size());
@@ -95,7 +95,7 @@ void ProfilesIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
   }
 }
 
-void ProfilesIOLocalXml::remove(Profile::Identifier id)
+void ProfileIOLocalXml::remove(Profile::Identifier id)
 {
   if (auto it = std::find(porder_.begin(), porder_.end(), id); it != porder_.end())
   {
@@ -105,12 +105,12 @@ void ProfilesIOLocalXml::remove(Profile::Identifier id)
   pmap_.erase(id);
 }
 
-void ProfilesIOLocalXml::flush()
+void ProfileIOLocalXml::flush()
 {
   exportProfiles();
 }
 
-Glib::RefPtr<Gio::File> ProfilesIOLocalXml::defaultFile()
+Glib::RefPtr<Gio::File> ProfileIOLocalXml::defaultFile()
 {
   auto path = Glib::build_filename( Glib::get_user_data_dir(),
                                     PACKAGE,
@@ -122,7 +122,7 @@ Glib::RefPtr<Gio::File> ProfilesIOLocalXml::defaultFile()
 
 namespace {
 
-  using ProfileMap = ProfilesIOLocalXml::ProfileMap;
+  using ProfileMap = ProfileIOLocalXml::ProfileMap;
 
   class MarkupParser : public Glib::Markup::Parser {
   public:
@@ -460,7 +460,7 @@ namespace {
 }//unnamed namespace
 
 
-void ProfilesIOLocalXml::importProfiles()
+void ProfileIOLocalXml::importProfiles()
 {
   try {
     std::string file_contents = Glib::file_get_contents(file_->get_path());
@@ -477,7 +477,7 @@ void ProfilesIOLocalXml::importProfiles()
   catch(...) {}
 }
 
-void ProfilesIOLocalXml::exportProfiles()
+void ProfileIOLocalXml::exportProfiles()
 {
   auto ostream = createOutputStream(file_);
 

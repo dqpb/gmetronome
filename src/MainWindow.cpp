@@ -20,7 +20,7 @@
 #include "MainWindow.h"
 #include "Application.h"
 #include "ActionBinding.h"
-#include "ProfilesListStore.h"
+#include "ProfileListStore.h"
 #include "SettingsDialog.h"
 #include "AccentButton.h"
 #include "Settings.h"
@@ -65,13 +65,13 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("currentProfileLabel", current_profile_label_);
   builder_->get_widget("fullScreenButton", full_screen_button_);
   builder_->get_widget("fullScreenImage", full_screen_image_);
-  builder_->get_widget("menuButton", menu_button_);
+  builder_->get_widget("mainMenuButton", main_menu_button_);
   builder_->get_widget("popoverMenu", popover_menu_);
-  builder_->get_widget("profilesButton", profiles_button_);
-  builder_->get_widget("profilesPopover", profiles_popover_);
-  builder_->get_widget("profilesTreeView", profiles_tree_view_);
-  builder_->get_widget("profilesNewButton", profiles_new_button_);
-  builder_->get_widget("profilesDeleteButton", profiles_delete_button_);
+  builder_->get_widget("profileMenuButton", profile_menu_button_);
+  builder_->get_widget("profilePopover", profile_popover_);
+  builder_->get_widget("profileTreeView", profile_tree_view_);
+  builder_->get_widget("profileNewButton", profile_new_button_);
+  builder_->get_widget("profileDeleteButton", profile_delete_button_);
   builder_->get_widget("mainBox", main_box_);
   builder_->get_widget("infoOverlay", info_overlay_);
   builder_->get_widget("infoRevealer", info_revealer_);
@@ -132,11 +132,11 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   // placeholder title for untitled profiles
   profile_title_placeholder_ = _("Untitled Profile");
 
-  profiles_list_store_ = ProfilesListStore::create();
-  profiles_tree_view_->set_model(profiles_list_store_);
-  profiles_tree_view_->append_column_editable("Title", profiles_list_store_->columns_.title_);
-  profiles_tree_view_->enable_model_drag_source();
-  profiles_tree_view_->enable_model_drag_dest();
+  profile_list_store_ = ProfileListStore::create();
+  profile_tree_view_->set_model(profile_list_store_);
+  profile_tree_view_->append_column_editable("Title", profile_list_store_->columns_.title_);
+  profile_tree_view_->enable_model_drag_source();
+  profile_tree_view_->enable_model_drag_dest();
 
   preferences_dialog_ = SettingsDialog::create(*this);
 
@@ -231,20 +231,20 @@ void MainWindow::initUI()
   app->get_action_state(meter_slot, meter);
   updateMeter(meter_slot, meter);
 
-  // initialize profiles list
-  ProfilesList list;
-  app->get_action_state(kActionProfilesList, list);
-  updateProfilesList(list);
+  // initialize profile list
+  ProfileList list;
+  app->get_action_state(kActionProfileList, list);
+  updateProfileList(list);
 
   // initalize profile selection
   Glib::ustring id;
-  app->get_action_state(kActionProfilesSelect, id);
-  updateProfilesSelect(id);
+  app->get_action_state(kActionProfileSelect, id);
+  updateProfileSelect(id);
 
-  // initialize profiles title
+  // initialize profile title
   Glib::ustring title;
-  app->get_action_state(kActionProfilesTitle, title);
-  updateProfilesTitle(title, !id.empty());
+  app->get_action_state(kActionProfileTitle, title);
+  updateProfileTitle(title, !id.empty());
 }
 
 void MainWindow::initBindings()
@@ -328,40 +328,40 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onAccentChanged))
       );
 
-  profiles_tree_view_->signal_drag_begin()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesDragBegin));
+  profile_tree_view_->signal_drag_begin()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileDragBegin));
 
-  profiles_tree_view_->signal_drag_end()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesDragEnd));
+  profile_tree_view_->signal_drag_end()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileDragEnd));
 
-  profiles_selection_changed_connection_ =
-    profiles_tree_view_->get_selection()->signal_changed()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesSelectionChanged));
+  profile_selection_changed_connection_ =
+    profile_tree_view_->get_selection()->signal_changed()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileSelectionChanged));
 
   auto cell_renderer = dynamic_cast<Gtk::CellRendererText*>(
-    profiles_tree_view_->get_column_cell_renderer(0));
+    profile_tree_view_->get_column_cell_renderer(0));
 
   cell_renderer->property_placeholder_text() = profile_title_placeholder_;
 
-  profiles_title_changed_connection_ =
+  profile_title_changed_connection_ =
     cell_renderer->signal_editing_started()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesTitleStartEditing));
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleStartEditing));
 
-  profiles_title_changed_connection_ =
+  profile_title_changed_connection_ =
     cell_renderer->signal_edited()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesTitleChanged));
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleChanged));
 
-  profiles_new_button_->signal_clicked()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesNew));
+  profile_new_button_->signal_clicked()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileNew));
 
   app->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
 
-  profiles_popover_->signal_show()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesShow));
+  profile_popover_->signal_show()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileShow));
 
-  profiles_popover_->signal_hide()
-    .connect(sigc::mem_fun(*this, &MainWindow::onProfilesHide));
+  profile_popover_->signal_hide()
+    .connect(sigc::mem_fun(*this, &MainWindow::onProfileHide));
 
   app->signal_message()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessage));
@@ -431,29 +431,29 @@ void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)
   header_bar_->set_size_request(-1, 2 * alloc.get_height() + 10);
 }
 
-void MainWindow::onProfilesShow()
+void MainWindow::onProfileShow()
 {
-  profiles_tree_view_->set_can_focus(true);
+  profile_tree_view_->set_can_focus(true);
 
-  if (profiles_tree_view_->get_selection()->count_selected_rows() != 0)
-    profiles_tree_view_->property_has_focus() = true;
+  if (profile_tree_view_->get_selection()->count_selected_rows() != 0)
+    profile_tree_view_->property_has_focus() = true;
   else
-    profiles_new_button_->property_has_focus() = true;
+    profile_new_button_->property_has_focus() = true;
 }
 
-void MainWindow::onProfilesHide()
+void MainWindow::onProfileHide()
 {
-  profiles_tree_view_->set_can_focus(false);
+  profile_tree_view_->set_can_focus(false);
 }
 
 void MainWindow::onShowPrimaryMenu(const Glib::VariantBase& value)
 {
-  menu_button_->activate();
+  main_menu_button_->activate();
 }
 
 void MainWindow::onShowProfiles(const Glib::VariantBase& value)
 {
-  profiles_button_->activate();
+  profile_menu_button_->activate();
 }
 
 void MainWindow::onShowPreferences(const Glib::VariantBase& parameter)
@@ -660,86 +660,86 @@ void MainWindow::onAccentChanged(std::size_t button_index)
   Gtk::Application::get_default()->activate_action(meter_slot, state);
 }
 
-void MainWindow::onProfilesSelectionChanged()
+void MainWindow::onProfileSelectionChanged()
 {
   Glib::ustring id;
 
-  auto row_it = profiles_tree_view_->get_selection()->get_selected();
+  auto row_it = profile_tree_view_->get_selection()->get_selected();
 
   if (row_it)
-    id = row_it->get_value(profiles_list_store_->columns_.id_);
+    id = row_it->get_value(profile_list_store_->columns_.id_);
 
   auto state = Glib::Variant<Glib::ustring>::create(id);
 
-  Gtk::Application::get_default()->activate_action(kActionProfilesSelect, state);
+  Gtk::Application::get_default()->activate_action(kActionProfileSelect, state);
 }
 
-void MainWindow::onProfilesTitleStartEditing(Gtk::CellEditable* editable,
+void MainWindow::onProfileTitleStartEditing(Gtk::CellEditable* editable,
                                              const Glib::ustring& path_string)
 {
   Gtk::TreePath path(path_string);
-  ProfilesListStore::iterator row_it = profiles_list_store_->get_iter(path);
+  ProfileListStore::iterator row_it = profile_list_store_->get_iter(path);
 
-  auto tree_selection = profiles_tree_view_->get_selection();
+  auto tree_selection = profile_tree_view_->get_selection();
 
   // do not edit titles of unselected profiles
   if (row_it != tree_selection->get_selected())
     editable->editing_done();
 }
 
-void MainWindow::onProfilesTitleChanged(const Glib::ustring& path_string,
+void MainWindow::onProfileTitleChanged(const Glib::ustring& path_string,
                                         const Glib::ustring& text)
 {
   auto app = Gtk::Application::get_default();
 
   Gtk::TreePath path(path_string);
 
-  ProfilesListStore::iterator row_it = profiles_list_store_->get_iter(path);
+  ProfileListStore::iterator row_it = profile_list_store_->get_iter(path);
   if(row_it)
   {
     Glib::ustring selected_id;
-    app->get_action_state(kActionProfilesSelect, selected_id);
+    app->get_action_state(kActionProfileSelect, selected_id);
 
-    if (selected_id == (*row_it)[profiles_list_store_->columns_.id_])
+    if (selected_id == (*row_it)[profile_list_store_->columns_.id_])
     {
       auto state = Glib::Variant<Glib::ustring>::create(text);
-      app->activate_action(kActionProfilesTitle, state);
+      app->activate_action(kActionProfileTitle, state);
     }
 
-    profiles_tree_view_->get_selection()->select(path);
+    profile_tree_view_->get_selection()->select(path);
   }
 }
 
-void MainWindow::onProfilesDragBegin(const Glib::RefPtr<Gdk::DragContext>& context)
+void MainWindow::onProfileDragBegin(const Glib::RefPtr<Gdk::DragContext>& context)
 {
-  profiles_selection_changed_connection_.block();
+  profile_selection_changed_connection_.block();
 }
 
-void MainWindow::onProfilesDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
+void MainWindow::onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
 {
-  profiles_selection_changed_connection_.unblock();
+  profile_selection_changed_connection_.unblock();
 
-  auto rows = profiles_list_store_->children();
-  ProfilesIdentifierList id_list;
+  auto rows = profile_list_store_->children();
+  ProfileIdentifierList id_list;
   for (const auto& row :rows)
     {
-      id_list.push_back(row[profiles_list_store_->columns_.id_]);
+      id_list.push_back(row[profile_list_store_->columns_.id_]);
     }
   Gtk::Application::get_default()
-    ->activate_action(kActionProfilesReorder, Glib::Variant<ProfilesIdentifierList>::create(id_list));
+    ->activate_action(kActionProfileReorder, Glib::Variant<ProfileIdentifierList>::create(id_list));
 
   auto app = Gtk::Application::get_default();
   Glib::ustring id;
-  app->get_action_state(kActionProfilesSelect, id);
+  app->get_action_state(kActionProfileSelect, id);
 
-  updateProfilesSelect(id);
+  updateProfileSelect(id);
 }
 
-void MainWindow::onProfilesNew()
+void MainWindow::onProfileNew()
 {
   static const auto title = Glib::Variant<Glib::ustring>::create(profile_title_new_);
   Gtk::Application::get_default()
-    ->activate_action(kActionProfilesNew, title);
+    ->activate_action(kActionProfileNew, title);
 }
 
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
@@ -772,36 +772,36 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     app->get_action_state(kActionStart, running);
     updateStart(running);
   }
-  else if (action_name.compare(kActionProfilesList) == 0)
+  else if (action_name.compare(kActionProfileList) == 0)
   {
-    ProfilesList list;
-    app->get_action_state(kActionProfilesList, list);
-    updateProfilesList(list);
+    ProfileList list;
+    app->get_action_state(kActionProfileList, list);
+    updateProfileList(list);
   }
-  else if (action_name.compare(kActionProfilesSelect) == 0)
+  else if (action_name.compare(kActionProfileSelect) == 0)
   {
     Glib::ustring id;
-    app->get_action_state(kActionProfilesSelect, id);
-    updateProfilesSelect(id);
+    app->get_action_state(kActionProfileSelect, id);
+    updateProfileSelect(id);
 
     // switching from a profile-less state to an untitled profile does not
     // change the state of kActionProfileTitle, but requires to update
     // the title nevertheless
     Glib::ustring title;
-    app->get_action_state(kActionProfilesTitle, title);
+    app->get_action_state(kActionProfileTitle, title);
 
     if (title.empty())
-      updateProfilesTitle(title, !id.empty());
+      updateProfileTitle(title, !id.empty());
   }
-  else if (action_name.compare(kActionProfilesTitle) == 0)
+  else if (action_name.compare(kActionProfileTitle) == 0)
   {
     Glib::ustring id;
-    app->get_action_state(kActionProfilesSelect, id);
+    app->get_action_state(kActionProfileSelect, id);
 
     Glib::ustring title;
-    app->get_action_state(kActionProfilesTitle, title);
+    app->get_action_state(kActionProfileTitle, title);
 
-    updateProfilesTitle(title, !id.empty());
+    updateProfileTitle(title, !id.empty());
   }
 }
 
@@ -886,15 +886,15 @@ void MainWindow::updateAccentButtons(const Meter& meter)
   }
 }
 
-void MainWindow::updateProfilesList(const ProfilesList& list)
+void MainWindow::updateProfileList(const ProfileList& list)
 {
-  auto& col_id    = profiles_list_store_->columns_.id_;
-  auto& col_title = profiles_list_store_->columns_.title_;
-  auto& col_descr = profiles_list_store_->columns_.description_;
+  auto& col_id    = profile_list_store_->columns_.id_;
+  auto& col_title = profile_list_store_->columns_.title_;
+  auto& col_descr = profile_list_store_->columns_.description_;
 
-  profiles_selection_changed_connection_.block();
+  profile_selection_changed_connection_.block();
 
-  auto children = profiles_list_store_->children();
+  auto children = profile_list_store_->children();
   auto rowit = children.begin();
 
   for (const auto& [id, title, descr] : list)
@@ -908,12 +908,12 @@ void MainWindow::updateProfilesList(const ProfilesList& list)
 
       if (tmp_rowit != children.end())
       {
-        profiles_list_store_->move(tmp_rowit, rowit);
+        profile_list_store_->move(tmp_rowit, rowit);
         rowit = tmp_rowit;
       }
       else
       {
-        rowit = profiles_list_store_->insert(rowit);
+        rowit = profile_list_store_->insert(rowit);
       }
     }
     // update row
@@ -924,31 +924,31 @@ void MainWindow::updateProfilesList(const ProfilesList& list)
   }
 
   while (rowit != children.end())
-    rowit = profiles_list_store_->erase(rowit);
+    rowit = profile_list_store_->erase(rowit);
 
-  profiles_selection_changed_connection_.unblock();
+  profile_selection_changed_connection_.unblock();
 }
 
-void MainWindow::updateProfilesSelect(const Glib::ustring& id)
+void MainWindow::updateProfileSelect(const Glib::ustring& id)
 {
-  auto rows = profiles_list_store_->children();
+  auto rows = profile_list_store_->children();
 
   auto it = std::find_if(rows.begin(), rows.end(),
                          [this,&id] (const auto& row) -> bool {
-                           return row[profiles_list_store_->columns_.id_] == id;
+                           return row[profile_list_store_->columns_.id_] == id;
                          });
 
-  profiles_selection_changed_connection_.block();
+  profile_selection_changed_connection_.block();
   {
     if (it!=rows.end())
-      profiles_tree_view_->get_selection()->select(it);
+      profile_tree_view_->get_selection()->select(it);
     else
-      profiles_tree_view_->get_selection()->unselect_all();
+      profile_tree_view_->get_selection()->unselect_all();
   }
-  profiles_selection_changed_connection_.unblock();
+  profile_selection_changed_connection_.unblock();
 }
 
-void MainWindow::updateProfilesTitle(const Glib::ustring& title, bool has_profile)
+void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile)
 {
   if (has_profile)
   {

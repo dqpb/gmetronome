@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -17,52 +17,52 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_ProfilesManager_h
-#define GMetronome_ProfilesManager_h
+#ifndef GMetronome_ProfileManager_h
+#define GMetronome_ProfileManager_h
 
-#include "ProfilesIOBase.h"
+#include "ProfileIOBase.h"
 #include <sigc++/sigc++.h>
 #include <memory>
 
-class ProfilesManager {
+class ProfileManager {
 
 public:
 
-  ProfilesManager(std::unique_ptr<ProfilesIOBase> ptr = nullptr);
+  ProfileManager(std::unique_ptr<ProfileIOBase> ptr = nullptr);
 
-  ProfilesManager(ProfilesManager&& pmgr);
+  ProfileManager(ProfileManager&& pmgr);
 
-  ~ProfilesManager();
-  
-  void setIOModule(std::unique_ptr<ProfilesIOBase> ptr);  
-  
+  ~ProfileManager();
+
+  void setIOModule(std::unique_ptr<ProfileIOBase> ptr);
+
   Profile::Primer newProfile(const Profile::Header& header = {},
                              const Profile::Content& content = {});
-  
+
   void deleteProfile(Profile::Identifier id);
-  
+
   std::vector<Profile::Primer> profileList();
-  
+
   Profile getProfile(Profile::Identifier id);
-  
+
   void setProfile(Profile::Identifier id, const Profile& profile);
 
   Profile::Content getProfileContent(Profile::Identifier id);
-  
+
   void setProfileContent(Profile::Identifier id, const Profile::Content& content);
 
   Profile::Header getProfileHeader(Profile::Identifier id);
-  
+
   void setProfileHeader(Profile::Identifier id, const Profile::Header& header);
 
   void reorderProfiles(const std::vector<Profile::Identifier>& order);
-  
+
   sigc::signal<void> signal_changed()
   { return signal_changed_; }
-  
+
 private:
   sigc::signal<void> signal_changed_;
-  std::unique_ptr<ProfilesIOBase> io_;
+  std::unique_ptr<ProfileIOBase> io_;
 };
 
-#endif//GMetronome_ProfilesManager_h
+#endif//GMetronome_ProfileManager_h

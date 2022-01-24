@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -17,28 +17,28 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProfilesManager.h"
+#include "ProfileManager.h"
 #include <glib.h>
 
-ProfilesManager::ProfilesManager(std::unique_ptr<ProfilesIOBase> ptr)
+ProfileManager::ProfileManager(std::unique_ptr<ProfileIOBase> ptr)
   : io_(std::move(ptr))
 {}
 
-ProfilesManager::ProfilesManager(ProfilesManager&& pmgr)
+ProfileManager::ProfileManager(ProfileManager&& pmgr)
   : io_(std::move(pmgr.io_))
 {}
 
-ProfilesManager::~ProfilesManager()
+ProfileManager::~ProfileManager()
 {}
-  
-void ProfilesManager::setIOModule(std::unique_ptr<ProfilesIOBase> ptr)
+
+void ProfileManager::setIOModule(std::unique_ptr<ProfileIOBase> ptr)
 {
   io_ = std::move(ptr);
   signal_changed_.emit();
 }
-  
-Profile::Primer ProfilesManager::newProfile(const Profile::Header& header,
-                                            const Profile::Content& content)
+
+Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
+                                           const Profile::Content& content)
 {
   gchar* id = g_uuid_string_random();
   Profile p { header, content };
@@ -47,53 +47,53 @@ Profile::Primer ProfilesManager::newProfile(const Profile::Header& header,
   return {id, p.header};
 }
 
-void ProfilesManager::deleteProfile(Profile::Identifier id)
+void ProfileManager::deleteProfile(Profile::Identifier id)
 {
   io_->remove(id);
   signal_changed_.emit();
 }
-  
-std::vector<Profile::Primer> ProfilesManager::profileList()
+
+std::vector<Profile::Primer> ProfileManager::profileList()
 {
   return io_->list();
 }
-  
-Profile ProfilesManager::getProfile(Profile::Identifier id)
+
+Profile ProfileManager::getProfile(Profile::Identifier id)
 {
   return io_->load(id);
 }
-  
-void ProfilesManager::setProfile(Profile::Identifier id, const Profile& profile)
+
+void ProfileManager::setProfile(Profile::Identifier id, const Profile& profile)
 {
   io_->store(id, profile);
   signal_changed_.emit();
 }
 
-Profile::Content ProfilesManager::getProfileContent(Profile::Identifier id)
+Profile::Content ProfileManager::getProfileContent(Profile::Identifier id)
 {
   return getProfile(id).content;
 }
-  
-void ProfilesManager::setProfileContent(Profile::Identifier id, const Profile::Content& content)
+
+void ProfileManager::setProfileContent(Profile::Identifier id, const Profile::Content& content)
 {
   auto p = getProfile(id);
   p.content = content;
   setProfile(id, p);
 }
 
-Profile::Header ProfilesManager::getProfileHeader(Profile::Identifier id)
+Profile::Header ProfileManager::getProfileHeader(Profile::Identifier id)
 {
   return getProfile(id).header;
 }
-  
-void ProfilesManager::setProfileHeader(Profile::Identifier id, const Profile::Header& header)
+
+void ProfileManager::setProfileHeader(Profile::Identifier id, const Profile::Header& header)
 {
   auto p = getProfile(id);
   p.header = header;
-  setProfile(id, p);  
+  setProfile(id, p);
 }
 
-void ProfilesManager::reorderProfiles(const std::vector<Profile::Identifier>& order)
+void ProfileManager::reorderProfiles(const std::vector<Profile::Identifier>& order)
 {
   io_->reorder(order);
   signal_changed_.emit();

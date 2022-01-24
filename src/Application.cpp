@@ -18,7 +18,7 @@
  */
 
 #include "Application.h"
-#include "ProfilesIOLocalXml.h"
+#include "ProfileIOLocalXml.h"
 #include "MainWindow.h"
 #include "Meter.h"
 #include "Shortcut.h"
@@ -145,16 +145,16 @@ void Application::initActions()
       {kActionMeterCompound4,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound4)},
       {kActionMeterCustom,     sigc::mem_fun(*this, &Application::onMeterChanged_Custom)},
 
-      {kActionProfilesList,         sigc::mem_fun(*this, &Application::onProfilesList)},
-      {kActionProfilesSelect,       sigc::mem_fun(*this, &Application::onProfilesSelect)},
-      {kActionProfilesNew,          sigc::mem_fun(*this, &Application::onProfilesNew)},
-      {kActionProfilesDelete,       sigc::mem_fun(*this, &Application::onProfilesDelete)},
-      {kActionProfilesReset,        sigc::mem_fun(*this, &Application::onProfilesReset)},
-      {kActionProfilesTitle,        sigc::mem_fun(*this, &Application::onProfilesTitle)},
-      {kActionProfilesDescription,  sigc::mem_fun(*this, &Application::onProfilesDescription)},
-      {kActionProfilesReorder,      sigc::mem_fun(*this, &Application::onProfilesReorder)},
+      {kActionProfileList,         sigc::mem_fun(*this, &Application::onProfileList)},
+      {kActionProfileSelect,       sigc::mem_fun(*this, &Application::onProfileSelect)},
+      {kActionProfileNew,          sigc::mem_fun(*this, &Application::onProfileNew)},
+      {kActionProfileDelete,       sigc::mem_fun(*this, &Application::onProfileDelete)},
+      {kActionProfileReset,        sigc::mem_fun(*this, &Application::onProfileReset)},
+      {kActionProfileTitle,        sigc::mem_fun(*this, &Application::onProfileTitle)},
+      {kActionProfileDescription,  sigc::mem_fun(*this, &Application::onProfileDescription)},
+      {kActionProfileReorder,      sigc::mem_fun(*this, &Application::onProfileReorder)},
 
-      {kActionAudioDeviceList,      sigc::mem_fun(*this, &Application::onAudioDeviceList)}
+      {kActionAudioDeviceList,     sigc::mem_fun(*this, &Application::onAudioDeviceList)}
     };
 
   install_actions(*this, kActionDescriptions, kAppActionHandler);
@@ -179,20 +179,20 @@ void Application::initSettings()
 
 void Application::initProfiles()
 {
-  profiles_manager_.signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onProfilesManagerChanged));
+  profile_manager_.signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onProfileManagerChanged));
 
-  profiles_manager_.setIOModule(std::make_unique<ProfilesIOLocalXml>());
+  profile_manager_.setIOModule(std::make_unique<ProfileIOLocalXml>());
 
   Glib::ustring restore_profile_id = "";
 
   if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
-    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
+    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
 
   Glib::Variant<Glib::ustring> state
     = Glib::Variant<Glib::ustring>::create(restore_profile_id);
 
-  activate_action(kActionProfilesSelect, state);
+  activate_action(kActionProfileSelect, state);
 
   if ( restore_profile_id.empty() )
     loadDefaultProfile();
@@ -679,116 +679,116 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
   lookup_simple_action(kActionTrainerAccel)->set_state(new_state);
 }
 
-void Application::onProfilesManagerChanged()
+void Application::onProfileManagerChanged()
 {
-  auto in_list = profiles_manager_.profileList();
+  auto in_list = profile_manager_.profileList();
 
-  ProfilesList out_list;
+  ProfileList out_list;
 
   std::transform(in_list.begin(), in_list.end(), std::back_inserter(out_list),
-                 [] (const auto& primer) -> ProfilesListEntry {
+                 [] (const auto& primer) -> ProfileListEntry {
                    return {primer.id, primer.header.title, primer.header.description};
                  });
 
-  Glib::Variant<ProfilesList> out_list_state
-    = Glib::Variant<ProfilesList>::create(out_list);
+  Glib::Variant<ProfileList> out_list_state
+    = Glib::Variant<ProfileList>::create(out_list);
 
-  lookup_simple_action(kActionProfilesList)->set_state(out_list_state);
+  lookup_simple_action(kActionProfileList)->set_state(out_list_state);
 
   // update selection
   Glib::ustring selected_id;
-  get_action_state(kActionProfilesSelect, selected_id);
+  get_action_state(kActionProfileSelect, selected_id);
 
   if ( !selected_id.empty() )
   {
     auto it = std::find_if(out_list.begin(), out_list.end(),
                            [&selected_id] (const auto& p) -> bool {
-                             auto& id = std::get<kProfilesListEntryIdentifier>(p);
+                             auto& id = std::get<kProfileListEntryIdentifier>(p);
                              return id == selected_id;
                            });
 
     if (it != out_list.end())
     {
       Glib::Variant<Glib::ustring> title_state
-        = Glib::Variant<Glib::ustring>::create(std::get<kProfilesListEntryTitle>(*it));
+        = Glib::Variant<Glib::ustring>::create(std::get<kProfileListEntryTitle>(*it));
 
       Glib::Variant<Glib::ustring> descr_state
-        = Glib::Variant<Glib::ustring>::create(std::get<kProfilesListEntryDescription>(*it));
+        = Glib::Variant<Glib::ustring>::create(std::get<kProfileListEntryDescription>(*it));
 
-      lookup_simple_action(kActionProfilesTitle)->set_state(title_state);
-      lookup_simple_action(kActionProfilesDescription)->set_state(descr_state);
+      lookup_simple_action(kActionProfileTitle)->set_state(title_state);
+      lookup_simple_action(kActionProfileDescription)->set_state(descr_state);
     }
     else
     {
       Glib::Variant<Glib::ustring> empty_state
         = Glib::Variant<Glib::ustring>::create({""});
 
-      activate_action(kActionProfilesSelect, empty_state);
+      activate_action(kActionProfileSelect, empty_state);
     }
   }
 }
 
-void Application::onProfilesList(const Glib::VariantBase& value)
+void Application::onProfileList(const Glib::VariantBase& value)
 {
-  // The "profiles-list" action state is modified in response to "signal_changed"
-  // of the profiles manager. (see onProfilesManagerChanged() signal handler)
+  // The "profile-list" action state is modified in response to "signal_changed"
+  // of the profile manager. (see onProfileManagerChanged() signal handler)
   // It gives clients access to an up-to-date list of all available profiles
   // but can not be modified by clients via activate_action() or change_action_state().
 }
 
-void Application::onProfilesSelect(const Glib::VariantBase& value)
+void Application::onProfileSelect(const Glib::VariantBase& value)
 {
   saveSelectedProfile();
 
   Glib::Variant<Glib::ustring> in_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
-  ProfilesList plist;
-  get_action_state(kActionProfilesList, plist);
+  ProfileList plist;
+  get_action_state(kActionProfileList, plist);
 
   if ( in_state.get().empty() )
   {
-    lookup_simple_action(kActionProfilesDelete)->set_enabled(false);
-    lookup_simple_action(kActionProfilesTitle)->set_enabled(false);
-    lookup_simple_action(kActionProfilesDescription)->set_enabled(false);
+    lookup_simple_action(kActionProfileDelete)->set_enabled(false);
+    lookup_simple_action(kActionProfileTitle)->set_enabled(false);
+    lookup_simple_action(kActionProfileDescription)->set_enabled(false);
 
     Glib::Variant<Glib::ustring> empty_state
       = Glib::Variant<Glib::ustring>::create({""});
 
-    lookup_simple_action(kActionProfilesSelect)->set_state(empty_state);
-    lookup_simple_action(kActionProfilesTitle)->set_state(empty_state);
-    lookup_simple_action(kActionProfilesDescription)->set_state(empty_state);
+    lookup_simple_action(kActionProfileSelect)->set_state(empty_state);
+    lookup_simple_action(kActionProfileTitle)->set_state(empty_state);
+    lookup_simple_action(kActionProfileDescription)->set_state(empty_state);
   }
   else
   {
     auto it = std::find_if(plist.begin(), plist.end(),
                            [&in_state] (auto& e) {
-                             return std::get<kProfilesListEntryIdentifier>(e) == in_state.get();
+                             return std::get<kProfileListEntryIdentifier>(e) == in_state.get();
                            });
     if (it != plist.end())
     {
-      lookup_simple_action(kActionProfilesSelect)->set_state(in_state);
+      lookup_simple_action(kActionProfileSelect)->set_state(in_state);
 
-      Glib::ustring& title = std::get<kProfilesListEntryTitle>(*it);
-      Glib::ustring& description = std::get<kProfilesListEntryDescription>(*it);
+      Glib::ustring& title = std::get<kProfileListEntryTitle>(*it);
+      Glib::ustring& description = std::get<kProfileListEntryDescription>(*it);
 
-      lookup_simple_action(kActionProfilesTitle)
+      lookup_simple_action(kActionProfileTitle)
         ->set_state(Glib::Variant<Glib::ustring>::create( title ));
 
-      lookup_simple_action(kActionProfilesDescription)
+      lookup_simple_action(kActionProfileDescription)
         ->set_state(Glib::Variant<Glib::ustring>::create( description ));
 
-      lookup_simple_action(kActionProfilesDelete)->set_enabled(true);
-      lookup_simple_action(kActionProfilesTitle)->set_enabled(true);
-      lookup_simple_action(kActionProfilesDescription)->set_enabled(true);
+      lookup_simple_action(kActionProfileDelete)->set_enabled(true);
+      lookup_simple_action(kActionProfileTitle)->set_enabled(true);
+      lookup_simple_action(kActionProfileDescription)->set_enabled(true);
     }
   }
 
   Glib::ustring selected_id;
-  get_action_state(kActionProfilesSelect, selected_id);
+  get_action_state(kActionProfileSelect, selected_id);
 
   settings_state_connection_.block();
-  settings_state_->set_string(settings::kKeyStateProfilesSelect, selected_id);
+  settings_state_->set_string(settings::kKeyStateProfileSelect, selected_id);
   settings_state_connection_.unblock();
 
   loadSelectedProfile();
@@ -848,7 +848,7 @@ void Application::convertProfileToAction(const Profile::Content& content)
                   Glib::Variant<double>::create(content.trainer_accel) );
 }
 
-void Application::onProfilesNew(const Glib::VariantBase& value)
+void Application::onProfileNew(const Glib::VariantBase& value)
 {
   Glib::Variant<Glib::ustring> in_title
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
@@ -860,21 +860,21 @@ void Application::onProfilesNew(const Glib::VariantBase& value)
 
   convertActionToProfile(content);
 
-  Profile::Primer primer = profiles_manager_.newProfile(header, content);
+  Profile::Primer primer = profile_manager_.newProfile(header, content);
 
   auto id = Glib::Variant<Glib::ustring>::create(primer.id);
 
-  activate_action(kActionProfilesSelect, id);
+  activate_action(kActionProfileSelect, id);
 }
 
 void Application::loadSelectedProfile()
 {
   Glib::ustring id;
-  get_action_state(kActionProfilesSelect, id);
+  get_action_state(kActionProfileSelect, id);
 
   if (!id.empty())
   {
-    Profile::Content content = profiles_manager_.getProfileContent(id);
+    Profile::Content content = profile_manager_.getProfileContent(id);
 
     convertProfileToAction(content);
   }
@@ -888,7 +888,7 @@ void Application::loadDefaultProfile()
 void Application::saveSelectedProfile()
 {
   Glib::ustring id;
-  get_action_state(kActionProfilesSelect, id);
+  get_action_state(kActionProfileSelect, id);
 
   if (!id.empty())
   {
@@ -897,7 +897,7 @@ void Application::saveSelectedProfile()
     convertActionToProfile(content);
 
     try {
-      profiles_manager_.setProfileContent(id, content);
+      profile_manager_.setProfileContent(id, content);
     }
     catch (...) {
       // the profile does not exist (anymore);
@@ -906,26 +906,26 @@ void Application::saveSelectedProfile()
   }
 }
 
-void Application::onProfilesDelete(const Glib::VariantBase& value)
+void Application::onProfileDelete(const Glib::VariantBase& value)
 {
   Glib::ustring id;
-  get_action_state(kActionProfilesSelect, id);
+  get_action_state(kActionProfileSelect, id);
 
   if (!id.empty())
   {
-    profiles_manager_.deleteProfile(id);
+    profile_manager_.deleteProfile(id);
   }
 }
 
-void Application::onProfilesReset(const Glib::VariantBase& value)
+void Application::onProfileReset(const Glib::VariantBase& value)
 {
   loadDefaultProfile();
 }
 
-void Application::onProfilesTitle(const Glib::VariantBase& value)
+void Application::onProfileTitle(const Glib::VariantBase& value)
 {
   Glib::ustring id;
-  get_action_state(kActionProfilesSelect, id);
+  get_action_state(kActionProfileSelect, id);
 
   if (!id.empty())
   {
@@ -937,19 +937,19 @@ void Application::onProfilesTitle(const Glib::VariantBase& value)
     Glib::Variant<Glib::ustring> out_value
       = Glib::Variant<Glib::ustring>::create(title);
 
-    Profile::Header header = profiles_manager_.getProfileHeader(id);
+    Profile::Header header = profile_manager_.getProfileHeader(id);
     header.title = out_value.get();
 
-    profiles_manager_.setProfileHeader(id, header);
+    profile_manager_.setProfileHeader(id, header);
 
-    lookup_simple_action(kActionProfilesTitle)->set_state(out_value);
+    lookup_simple_action(kActionProfileTitle)->set_state(out_value);
   }
 }
 
-void Application::onProfilesDescription(const Glib::VariantBase& value)
+void Application::onProfileDescription(const Glib::VariantBase& value)
 {
   Glib::ustring id;
-  get_action_state(kActionProfilesSelect, id);
+  get_action_state(kActionProfileSelect, id);
 
   if (!id.empty())
   {
@@ -971,31 +971,31 @@ void Application::onProfilesDescription(const Glib::VariantBase& value)
         ::create(Profile::Header().description); // default description
 #endif
 
-    Profile::Header header = profiles_manager_.getProfileHeader(id);
+    Profile::Header header = profile_manager_.getProfileHeader(id);
     header.description = out_value.get();
 
-    profiles_manager_.setProfileHeader(id, header);
+    profile_manager_.setProfileHeader(id, header);
 
-    lookup_simple_action(kActionProfilesDescription)->set_state(out_value);
+    lookup_simple_action(kActionProfileDescription)->set_state(out_value);
   }
 }
 
-void Application::onProfilesReorder(const Glib::VariantBase& value)
+void Application::onProfileReorder(const Glib::VariantBase& value)
 {
-  Glib::Variant<ProfilesIdentifierList> in_list
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<ProfilesIdentifierList>>(value);
+  Glib::Variant<ProfileIdentifierList> in_list
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<ProfileIdentifierList>>(value);
 
   std::vector<Profile::Identifier> out_list;
 
-  // convert ProfilesIdentifierList to std::vector<Profile::Identifier>
+  // convert ProfileIdentifierList to std::vector<Profile::Identifier>
   auto iter = in_list.get_iter();
   out_list.reserve(in_list.get_n_children());
 
-  Glib::Variant<ProfilesIdentifierList::value_type> id;
+  Glib::Variant<ProfileIdentifierList::value_type> id;
   while (iter.next_value(id))
       out_list.push_back(id.get());
 
-  profiles_manager_.reorderProfiles(out_list);
+  profile_manager_.reorderProfiles(out_list);
 }
 
 void Application::onStart(const Glib::VariantBase& value)
@@ -1116,14 +1116,14 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void Application::onSettingsStateChanged(const Glib::ustring& key)
 {
-  if (key == settings::kKeyStateProfilesSelect)
+  if (key == settings::kKeyStateProfileSelect)
   {
-    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfilesSelect);
+    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
 
     Glib::Variant<Glib::ustring> state
       = Glib::Variant<Glib::ustring>::create(profile_id);
 
-    activate_action(kActionProfilesSelect, state);
+    activate_action(kActionProfileSelect, state);
   }
 }
 

@@ -17,16 +17,16 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_ProfilesListStore_h
-#define GMetronome_ProfilesListStore_h
+#ifndef GMetronome_ProfileListStore_h
+#define GMetronome_ProfileListStore_h
 
 #include <gtkmm.h>
 #include <iostream>
 
-class ProfilesListStore : public Gtk::ListStore
+class ProfileListStore : public Gtk::ListStore
 {
 protected:
-  ProfilesListStore();
+  ProfileListStore();
   
 public: 
   //Tree model columns
@@ -53,7 +53,7 @@ public:
   
   ModelColumns columns_;
   
-  static Glib::RefPtr<ProfilesListStore> create();
+  static Glib::RefPtr<ProfileListStore> create();
 };
 
-#endif//GMetronome_ProfilesListStore_h
+#endif//GMetronome_ProfileListStore_h

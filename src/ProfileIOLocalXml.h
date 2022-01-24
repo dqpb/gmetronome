@@ -17,19 +17,19 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_ProfilesIOLocalXml_h
-#define GMetronome_ProfilesIOLocalXml_h
+#ifndef GMetronome_ProfileIOLocalXml_h
+#define GMetronome_ProfileIOLocalXml_h
 
-#include "ProfilesIOBase.h"
+#include "ProfileIOBase.h"
 #include <gtkmm.h>
 #include <map>
 
-class ProfilesIOLocalXml : public ProfilesIOBase
+class ProfileIOLocalXml : public ProfileIOBase
 {
 public:
-  ProfilesIOLocalXml(Glib::RefPtr<Gio::File> file = defaultFile());
+  ProfileIOLocalXml(Glib::RefPtr<Gio::File> file = defaultFile());
   
-  ~ProfilesIOLocalXml() override;
+  ~ProfileIOLocalXml() override;
 
   std::vector<Profile::Primer> list() override;
   
@@ -60,4 +60,4 @@ protected:
   void exportProfiles();
 };
 
-#endif//GMetronome_ProfilesIOLocalXml_h
+#endif//GMetronome_ProfileIOLocalXml_h

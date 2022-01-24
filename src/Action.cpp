@@ -432,19 +432,19 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : kActionProfilesList
+  /* Action         : kActionProfileList
    * Scope          : Application
    * Parameter type : -
-   * State type     : ProfilesList
+   * State type     : ProfileList
    * State value    : {}
    * State hint     : -
    * Enabled        : true
    */
-  { kActionProfilesList,
+  { kActionProfileList,
     {
       ActionScope::kApp,
       {},
-      Glib::Variant<ProfilesList>::create({}),
+      Glib::Variant<ProfileList>::create({}),
       {},
       true
     }
@@ -458,65 +458,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionProfilesSelect,
-    {
-      ActionScope::kApp,
-      Glib::Variant<Glib::ustring>::variant_type(),
-      Glib::Variant<Glib::ustring>::create(""),
-      {},
-      true
-    }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionProfilesNew,
-    {
-      ActionScope::kApp,
-      Glib::Variant<Glib::ustring>::variant_type(),
-      {},
-      {},
-      true
-    }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionProfilesDelete, { ActionScope::kApp, {}, {}, {}, true }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionProfilesReset, { ActionScope::kApp, {}, {}, {}, true }
-  },
-
-  /* Action         :
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionProfilesTitle,
+  { kActionProfileSelect,
     {
       ActionScope::kApp,
       Glib::Variant<Glib::ustring>::variant_type(),
@@ -534,7 +476,47 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionProfilesDescription,
+  { kActionProfileNew,
+    {
+      ActionScope::kApp,
+      Glib::Variant<Glib::ustring>::variant_type(),
+      {},
+      {},
+      true
+    }
+  },
+
+  /* Action         :
+   * Scope          : Application
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
+   */
+  { kActionProfileDelete, { ActionScope::kApp, {}, {}, {}, true }
+  },
+
+  /* Action         :
+   * Scope          : Application
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
+   */
+  { kActionProfileReset, { ActionScope::kApp, {}, {}, {}, true }
+  },
+
+  /* Action         :
+   * Scope          : Application
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
+   */
+  { kActionProfileTitle,
     {
       ActionScope::kApp,
       Glib::Variant<Glib::ustring>::variant_type(),
@@ -544,19 +526,37 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : kActionProfilesReorder
+  /* Action         :
    * Scope          : Application
-   * Parameter type : ProfilesIdentifierList
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
+   */
+  { kActionProfileDescription,
+    {
+      ActionScope::kApp,
+      Glib::Variant<Glib::ustring>::variant_type(),
+      Glib::Variant<Glib::ustring>::create(""),
+      {},
+      true
+    }
+  },
+
+  /* Action         : kActionProfileReorder
+   * Scope          : Application
+   * Parameter type : ProfileIdentifierList
    * State type     : -
    * State value    : -
    * State hint     : -
    * Enabled        : true
    */
-  { kActionProfilesReorder,
+  { kActionProfileReorder,
     {
       ActionScope::kApp,
-      Glib::Variant<ProfilesIdentifierList>::variant_type(),
-      Glib::Variant<ProfilesIdentifierList>::create({}),
+      Glib::Variant<ProfileIdentifierList>::variant_type(),
+      Glib::Variant<ProfileIdentifierList>::create({}),
       {},
       true
     }

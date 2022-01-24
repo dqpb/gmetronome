@@ -18,14 +18,14 @@
  */
 
 #include <iostream>
-#include "ProfilesListStore.h"
+#include "ProfileListStore.h"
 
-ProfilesListStore::ProfilesListStore()
+ProfileListStore::ProfileListStore()
 {
   set_column_types(columns_);
 }
 
-Glib::RefPtr<ProfilesListStore> ProfilesListStore::create()
+Glib::RefPtr<ProfileListStore> ProfileListStore::create()
 {
-  return Glib::RefPtr<ProfilesListStore>( new ProfilesListStore() );
+  return Glib::RefPtr<ProfileListStore>( new ProfileListStore() );
 }

@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_ProfilesIOBase_h
-#define GMetronome_ProfilesIOBase_h
+#ifndef GMetronome_ProfileIOBase_h
+#define GMetronome_ProfileIOBase_h
 
 #include "Profile.h"
 #include <vector>
@@ -28,13 +28,13 @@
  * @brief Base class for profile i/o modules.
  *
  * This class provides the generic interface for the implementation of
- * profile storage operations used by @link ProfilesManager.
+ * profile storage operations used by @link ProfileManager.
  */
-class ProfilesIOBase {
+class ProfileIOBase {
 
 public:
 
-  virtual ~ProfilesIOBase() {}
+  virtual ~ProfileIOBase() {}
 
   /**
    * Returns an up-to-date list of primers (@link Profile::Primer) of all 
@@ -99,4 +99,4 @@ protected:
   sigc::signal<void> signal_storage_changed_;
 };
 
-#endif//GMetronome_ProfilesIOBase_h
+#endif//GMetronome_ProfileIOBase_h

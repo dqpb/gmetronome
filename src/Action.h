@@ -52,14 +52,14 @@ inline const Glib::ustring  kActionMeterCompound2       {"meter-compound-2"};
 inline const Glib::ustring  kActionMeterCompound3       {"meter-compound-3"};
 inline const Glib::ustring  kActionMeterCompound4       {"meter-compound-4"};
 inline const Glib::ustring  kActionMeterCustom          {"meter-custom"};
-inline const Glib::ustring  kActionProfilesList         {"profiles-list"};
-inline const Glib::ustring  kActionProfilesSelect       {"profiles-select"};
-inline const Glib::ustring  kActionProfilesNew          {"profiles-new"};
-inline const Glib::ustring  kActionProfilesDelete       {"profiles-delete"};
-inline const Glib::ustring  kActionProfilesReset        {"profiles-reset"};
-inline const Glib::ustring  kActionProfilesTitle        {"profiles-title"};
-inline const Glib::ustring  kActionProfilesDescription  {"profiles-description"};
-inline const Glib::ustring  kActionProfilesReorder      {"profiles-reorder"};
+inline const Glib::ustring  kActionProfileList          {"profile-list"};
+inline const Glib::ustring  kActionProfileSelect        {"profile-select"};
+inline const Glib::ustring  kActionProfileNew           {"profile-new"};
+inline const Glib::ustring  kActionProfileDelete        {"profile-delete"};
+inline const Glib::ustring  kActionProfileReset         {"profile-reset"};
+inline const Glib::ustring  kActionProfileTitle         {"profile-title"};
+inline const Glib::ustring  kActionProfileDescription   {"profile-description"};
+inline const Glib::ustring  kActionProfileReorder       {"profile-reorder"};
 inline const Glib::ustring  kActionAudioBackend         {"audio-backend"};
 inline const Glib::ustring  kActionAudioDevice          {"audio-device"};
 inline const Glib::ustring  kActionAudioDeviceList      {"audio-device-list"};
@@ -104,14 +104,14 @@ T clampActionStateValue(T value, const ActionStateHintRange<T>& range)
                      std::get<kActionStateHintRangeMaximum>(range) );
 }
 
-using ProfilesListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
+using ProfileListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
 
-inline constexpr int kProfilesListEntryIdentifier = 0;
-inline constexpr int kProfilesListEntryTitle = 1;
-inline constexpr int kProfilesListEntryDescription = 2;
+inline constexpr int kProfileListEntryIdentifier = 0;
+inline constexpr int kProfileListEntryTitle = 1;
+inline constexpr int kProfileListEntryDescription = 2;
 
-using ProfilesList = std::vector<ProfilesListEntry>;
-using ProfilesIdentifierList = std::vector<Glib::ustring>;
+using ProfileList = std::vector<ProfileListEntry>;
+using ProfileIdentifierList = std::vector<Glib::ustring>;
 
 using ActionDescriptionMap = std::map<Glib::ustring, ActionDescription>;
 

@@ -19,10 +19,10 @@ gmetronome_SOURCES = \
 	Meter.cpp \
 	Pendulum.cpp \
 	Profile.cpp \
-	ProfilesIOBase.cpp \
-	ProfilesIOLocalXml.cpp \
-	ProfilesListStore.cpp \
-	ProfilesManager.cpp \
+	ProfileIOBase.cpp \
+	ProfileIOLocalXml.cpp \
+	ProfileListStore.cpp \
+	ProfileManager.cpp \
 	Settings.cpp \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
@@ -59,10 +59,10 @@ noinst_HEADERS = \
 	Oss.h \
 	Pendulum.h \
 	Profile.h \
-	ProfilesIOBase.h \
-	ProfilesIOLocalXml.h \
-	ProfilesListStore.h \
-	ProfilesManager.h \
+	ProfileIOBase.h \
+	ProfileIOLocalXml.h \
+	ProfileListStore.h \
+	ProfileManager.h \
 	PulseAudio.h \
 	Settings.h \
 	SettingsDialog.h \
