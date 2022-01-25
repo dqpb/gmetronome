@@ -902,7 +902,7 @@ void MainWindow::updateProfileList(const ProfileList& list)
     if (rowit == children.end() || rowit->get_value(col_id) != id)
     {
       auto tmp_rowit = std::find_if(rowit, children.end(),
-                                    [&col_id,&id] (const auto& row) {
+                                    [&col_id,&id = id] (const auto& row) {
                                       return row[col_id] == id;
                                     });
 
