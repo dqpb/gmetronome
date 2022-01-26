@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -17,8 +17,11 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Message.h"
-#include "config.h"
 
 const Message kGenericErrorMessage
 {

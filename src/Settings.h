@@ -91,7 +91,7 @@ namespace settings {
 
   enum PendulumPhaseMode
   {
-    kPendulumPhaseModeLeft = 0,
+    kPendulumPhaseModeLeft  = 0,
     kPendulumPhaseModeRight = 1
   };
 

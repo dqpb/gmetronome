@@ -73,7 +73,7 @@
       <summary>Keyboard shortcut to show the profiles menu</summary>
     </key>
     <key name="show-preferences" type="s">
-      <default>'disabled'</default>
+      <default>'&lt;Primary&gt;comma'</default>
       <summary>Keyboard shortcut to show the preferences dialog</summary>
     </key>
     <key name="show-shortcuts" type="s">

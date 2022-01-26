@@ -17,8 +17,11 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "ProfileIOLocalXml.h"
-#include "config.h"
 #include <iterator>
 #include <charconv>
 #include <iostream>

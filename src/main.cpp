@@ -17,7 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <glibmm/i18n.h>
 #include "Application.h"
 

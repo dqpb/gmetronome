@@ -17,6 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "MainWindow.h"
 #include "Application.h"
 #include "ActionBinding.h"
@@ -25,10 +29,8 @@
 #include "AccentButton.h"
 #include "Settings.h"
 #include "Shortcut.h"
-#include "config.h"
 
 #include <glibmm/i18n.h>
-
 #include <iomanip>
 #include <stdexcept>
 #include <iostream>

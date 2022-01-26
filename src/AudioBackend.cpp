@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -17,7 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "AudioBackend.h"
 #include "AudioBackendDummy.h"
 
@@ -32,7 +35,7 @@
 #endif
 
 namespace audio {
-  
+
   const std::vector<settings::AudioBackend>& availableBackends()
   {
     static const std::vector<settings::AudioBackend> backends = {
@@ -49,11 +52,11 @@ namespace audio {
     };
     return backends;
   }
-  
+
   std::unique_ptr<Backend> createBackend(settings::AudioBackend id)
   {
     std::unique_ptr<Backend> backend = nullptr;
-    
+
     switch (id)
     {
 #ifdef HAVE_ALSA
@@ -74,12 +77,12 @@ namespace audio {
     case settings::kAudioBackendNone:
       backend = std::make_unique<DummyBackend>();
       break;
-      
+
     default:
       return nullptr;
     };
 
     return backend;
   }
-  
+
 }//namespace audio

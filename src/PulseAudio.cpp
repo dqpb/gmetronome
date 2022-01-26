@@ -17,8 +17,11 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "PulseAudio.h"
-#include "config.h"
 #include <cassert>
 #include <iostream>
 
