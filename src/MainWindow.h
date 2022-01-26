@@ -142,6 +142,9 @@ protected:
   bool meter_animation_;
   std::chrono::microseconds animation_sync_;
 
+  gint64 last_meter_action_;
+  sigc::connection pendulum_restore_connection_;
+
   // Initialization
   void initSettings();
   void initActions();
@@ -163,6 +166,7 @@ protected:
   // UI handler
   void onTempoTap();
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
+  void activateMeterAction(const Glib::ustring& action, const Glib::VariantBase& param);
   void onMeterChanged();
   void onBeatsChanged();
   void onSubdivChanged(Gtk::RadioButton* button, int division);

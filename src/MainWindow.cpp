@@ -590,12 +590,47 @@ void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
     unfullscreen();
 }
 
+void MainWindow::activateMeterAction(const Glib::ustring& action,
+                                     const Glib::VariantBase& param)
+{
+  auto app = Gtk::Application::get_default();
+
+  last_meter_action_ = g_get_monotonic_time();
+
+  if (pendulum_restore_connection_.empty() && pendulum_revealer_->get_child_revealed())
+  {
+    pendulum_revealer_->set_size_request(
+      pendulum_revealer_->get_width(),
+      pendulum_revealer_->get_height()
+      );
+    pendulum_revealer_->set_vexpand(false);
+
+    pendulum_restore_connection_ = Glib::signal_timeout().connect(
+      [this] () -> bool {
+        if (g_get_monotonic_time() - last_meter_action_ > 100000)
+        {
+          pendulum_revealer_->set_size_request(-1,-1);
+          pendulum_revealer_->set_vexpand(true);
+          return false;
+        }
+        else return true;
+      }, 100);
+  }
+
+  app->activate_action(action, param);
+
+  if (pendulum_revealer_->get_child_revealed())
+  {
+    int win_width, win_height;
+    get_size(win_width, win_height);
+    resize(win_width, 1);
+  }
+}
+
 void MainWindow::onMeterChanged()
 {
   Glib::ustring param_str = meter_combo_box_->get_active_id();
-
-  Gtk::Application::get_default()
-    ->activate_action(kActionMeterSelect, Glib::Variant<Glib::ustring>::create(param_str));
+  activateMeterAction(kActionMeterSelect, Glib::Variant<Glib::ustring>::create(param_str));
 }
 
 void MainWindow::onBeatsChanged()
@@ -612,7 +647,7 @@ void MainWindow::onBeatsChanged()
   meter.setBeats(beats);
 
   auto new_state = Glib::Variant<Meter>::create(meter);
-  app->activate_action(meter_slot, new_state);
+  activateMeterAction(meter_slot, new_state);
 }
 
 void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
@@ -630,7 +665,7 @@ void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
   meter.setDivision(division);
 
   auto new_state = Glib::Variant<Meter>::create(meter);
-  app->activate_action(meter_slot, new_state);
+  activateMeterAction(meter_slot, new_state);
 }
 
 void MainWindow::onAccentChanged(std::size_t button_index)

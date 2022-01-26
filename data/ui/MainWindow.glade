@@ -640,7 +640,6 @@
                 <property name="can-focus">False</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
-                <property name="margin-top">10</property>
                 <property name="margin-bottom">10</property>
                 <property name="orientation">vertical</property>
                 <child>
@@ -653,6 +652,7 @@
                       <object class="GtkFrame" id="pendulumFrame">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
                           <object class="GtkBox" id="pendulumBox">
@@ -783,7 +783,7 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="spacing">10</property>
+                                <property name="spacing">40</property>
                                 <property name="homogeneous">True</property>
                                 <child type="center">
                                   <object class="GtkBox">
@@ -1063,7 +1063,7 @@
                             <property name="margin-end">10</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
-                            <property name="spacing">10</property>
+                            <property name="spacing">40</property>
                             <property name="homogeneous">True</property>
                             <child type="center">
                               <object class="GtkBox">
