@@ -780,201 +780,239 @@
                             <property name="orientation">vertical</property>
                             <property name="spacing">10</property>
                             <child>
-                              <!-- n-columns=3 n-rows=2 -->
-                              <object class="GtkGrid">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="row-spacing">2</property>
-                                <property name="column-spacing">50</property>
-                                <property name="column-homogeneous">True</property>
-                                <child>
-                                  <object class="GtkLabel">
+                                <property name="spacing">10</property>
+                                <property name="homogeneous">True</property>
+                                <child type="center">
+                                  <object class="GtkBox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="opacity">0.80</property>
-                                    <property name="halign">start</property>
-                                    <property name="hexpand">True</property>
-                                    <property name="label" translatable="yes" context="Main window">Meter</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="beatsLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="opacity">0.80</property>
-                                    <property name="halign">start</property>
-                                    <property name="hexpand">True</property>
-                                    <property name="label" translatable="yes" context="Main window">Beats</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="subdivLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="opacity">0.80</property>
-                                    <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window">Division</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">2</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkComboBoxText" id="meterComboBox">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="active-id">meter-4-simple</property>
-                                    <items>
-                                      <item id="meter-simple-2" translatable="yes" context="Main window">2/4</item>
-                                      <item id="meter-simple-3" translatable="yes" context="Main window">3/4</item>
-                                      <item id="meter-simple-4" translatable="yes" context="Main window">4/4</item>
-                                      <item id="separator">-</item>
-                                      <item id="meter-compound-2" translatable="yes" context="Main window">6/8</item>
-                                      <item id="meter-compound-3" translatable="yes" context="Main window">9/8</item>
-                                      <item id="meter-compound-4" translatable="yes" context="Main window">12/8</item>
-                                      <item id="separator">-</item>
-                                      <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
-                                    </items>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkSpinButton" id="beatsSpinButton">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="halign">start</property>
-                                    <property name="max-length">6</property>
-                                    <property name="input-purpose">number</property>
-                                    <property name="adjustment">beatsAdjustment</property>
-                                    <property name="numeric">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButtonBox" id="subdivButtonBox">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
-                                    <property name="layout-style">expand</property>
+                                    <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="GtkRadioButton" id="subdiv1RadioButton">
+                                      <object class="GtkLabel" id="beatsLabel">
                                         <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">False</property>
-                                        <property name="group">subdiv2RadioButton</property>
-                                        <child>
-                                          <object class="GtkImage">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="icon-name">note-quarter-symbolic</property>
-                                          </object>
-                                        </child>
+                                        <property name="sensitive">False</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="opacity">0.80</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes" context="Main window">Beats</property>
+                                        <attributes>
+                                          <attribute name="scale" value="0.80000000000000004"/>
+                                        </attributes>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkRadioButton" id="subdiv2RadioButton">
+                                      <object class="GtkSpinButton" id="beatsSpinButton">
                                         <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">False</property>
-                                        <property name="group">subdiv1RadioButton</property>
-                                        <child>
-                                          <object class="GtkImage">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="icon-name">note-eighth-symbolic</property>
-                                          </object>
-                                        </child>
+                                        <property name="max-length">6</property>
+                                        <property name="input-purpose">number</property>
+                                        <property name="adjustment">beatsAdjustment</property>
+                                        <property name="numeric">True</property>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="GtkRadioButton" id="subdiv3RadioButton">
+                                      <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">False</property>
-                                        <property name="group">subdiv2RadioButton</property>
-                                        <child>
-                                          <object class="GtkImage">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="icon-name">note-triplet-symbolic</property>
-                                          </object>
-                                        </child>
+                                        <property name="can-focus">False</property>
+                                        <property name="opacity">0.80</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes" context="Main window">Meter</property>
+                                        <attributes>
+                                          <attribute name="scale" value="0.80000000000000004"/>
+                                        </attributes>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">2</property>
+                                        <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkRadioButton" id="subdiv4RadioButton">
+                                      <object class="GtkComboBoxText" id="meterComboBox">
                                         <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">False</property>
-                                        <property name="group">subdiv2RadioButton</property>
-                                        <child>
-                                          <object class="GtkImage">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="icon-name">note-sixteenth-symbolic</property>
-                                          </object>
-                                        </child>
+                                        <property name="can-focus">False</property>
+                                        <property name="active-id">meter-4-simple</property>
+                                        <items>
+                                          <item id="meter-simple-2" translatable="yes" context="Main window">2/4</item>
+                                          <item id="meter-simple-3" translatable="yes" context="Main window">3/4</item>
+                                          <item id="meter-simple-4" translatable="yes" context="Main window">4/4</item>
+                                          <item id="separator">-</item>
+                                          <item id="meter-compound-2" translatable="yes" context="Main window">6/8</item>
+                                          <item id="meter-compound-3" translatable="yes" context="Main window">9/8</item>
+                                          <item id="meter-compound-4" translatable="yes" context="Main window">12/8</item>
+                                          <item id="separator">-</item>
+                                          <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
+                                        </items>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">3</property>
+                                        <property name="position">1</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="left-attach">2</property>
-                                    <property name="top-attach">1</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">end</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkLabel" id="subdivLabel">
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="opacity">0.80</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes" context="Main window">Division</property>
+                                        <attributes>
+                                          <attribute name="scale" value="0.80000000000000004"/>
+                                        </attributes>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButtonBox" id="subdivButtonBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="layout-style">expand</property>
+                                        <child>
+                                          <object class="GtkRadioButton" id="subdiv1RadioButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">subdiv2RadioButton</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="icon-name">note-quarter-symbolic</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="subdiv2RadioButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">subdiv1RadioButton</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="icon-name">note-eighth-symbolic</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="subdiv3RadioButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">subdiv2RadioButton</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="icon-name">note-triplet-symbolic</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="subdiv4RadioButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">subdiv2RadioButton</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="icon-name">note-sixteenth-symbolic</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="pack-type">end</property>
+                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>
@@ -1018,113 +1056,154 @@
                         <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
-                          <!-- n-columns=3 n-rows=2 -->
-                          <object class="GtkGrid">
+                          <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="margin-start">10</property>
                             <property name="margin-end">10</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
-                            <property name="row-spacing">2</property>
-                            <property name="column-spacing">50</property>
-                            <property name="column-homogeneous">True</property>
-                            <child>
-                              <object class="GtkLabel">
+                            <property name="spacing">10</property>
+                            <property name="homogeneous">True</property>
+                            <child type="center">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="opacity">0.80</property>
-                                <property name="halign">start</property>
-                                <property name="hexpand">True</property>
-                                <property name="label" translatable="yes" context="Main window">Start</property>
-                                <property name="justify">fill</property>
-                                <attributes>
-                                  <attribute name="scale" value="0.80000000000000004"/>
-                                </attributes>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes" context="Main window">Target</property>
+                                    <property name="justify">fill</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="trainerEndSpinButton">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="halign">start</property>
+                                    <property name="max-length">9</property>
+                                    <property name="input-purpose">number</property>
+                                    <property name="adjustment">trainerTargetAdjustment</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="opacity">0.80</property>
-                                <property name="halign">start</property>
-                                <property name="hexpand">True</property>
-                                <property name="label" translatable="yes" context="Main window">Target</property>
-                                <property name="justify">fill</property>
-                                <attributes>
-                                  <attribute name="scale" value="0.80000000000000004"/>
-                                </attributes>
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">1</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes" context="Main window">Start</property>
+                                    <property name="justify">fill</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="trainerStartSpinButton">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="halign">start</property>
+                                    <property name="max-length">9</property>
+                                    <property name="input-purpose">number</property>
+                                    <property name="adjustment">trainerStartAdjustment</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="opacity">0.80</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes" context="Main window">Acceleration</property>
-                                <property name="justify">fill</property>
-                                <attributes>
-                                  <attribute name="scale" value="0.80000000000000004"/>
-                                </attributes>
+                                <property name="halign">end</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="opacity">0.80</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes" context="Main window">Acceleration</property>
+                                    <property name="justify">fill</property>
+                                    <attributes>
+                                      <attribute name="scale" value="0.80000000000000004"/>
+                                    </attributes>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="trainerAccelSpinButton">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="halign">start</property>
+                                    <property name="max-length">9</property>
+                                    <property name="input-purpose">number</property>
+                                    <property name="adjustment">trainerAccelAdjustment</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="trainerStartSpinButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="halign">start</property>
-                                <property name="max-length">9</property>
-                                <property name="input-purpose">number</property>
-                                <property name="adjustment">trainerStartAdjustment</property>
-                                <property name="numeric">True</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="trainerEndSpinButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="halign">start</property>
-                                <property name="max-length">9</property>
-                                <property name="input-purpose">number</property>
-                                <property name="adjustment">trainerTargetAdjustment</property>
-                                <property name="numeric">True</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="trainerAccelSpinButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="halign">start</property>
-                                <property name="max-length">9</property>
-                                <property name="input-purpose">number</property>
-                                <property name="adjustment">trainerAccelAdjustment</property>
-                                <property name="numeric">True</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">1</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="pack-type">end</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
