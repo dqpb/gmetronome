@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 #include "Synthesizer.h"
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 #include <cmath>
 
 namespace audio {
@@ -35,13 +36,13 @@ namespace audio {
     assert(!std::isnan(frequency) && frequency>0);
     assert(!std::isnan(volume));
     assert(!std::isnan(balance));
-    
-    volume = std::min( std::max(volume, 0.), 1.0 );
-    balance = std::min( std::max(balance, -1.), 1.0 );
+
+    volume = std::clamp(volume, 0.0, 1.0);
+    balance = std::clamp(balance, -1.0, 1.0);
 
     double balance_l = (balance > 0) ? -1 * balance + 1 : 1;
     double balance_r = (balance < 0) ?  1 * balance + 1 : 1;
-    
+
     Buffer buffer(duration, spec);
 
     if (volume > 0)
@@ -50,9 +51,9 @@ namespace audio {
       auto n_frames = buffer.frames();
       double one_over_n_frames = 1. / n_frames;
       double volume_drop_exp = 2. / volume;
-      
+
       auto frameSize = audio::frameSize(spec);
-      
+
       for(size_t frame = 0; frame < n_frames; ++frame)
       {
         double v = volume * std::pow( 1. - one_over_n_frames * frame, volume_drop_exp );
@@ -69,5 +70,5 @@ namespace audio {
     }
     return buffer;
   }
-  
+
 }//namespace audio
