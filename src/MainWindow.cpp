@@ -56,9 +56,10 @@ MainWindow* MainWindow::create()
 MainWindow::MainWindow(BaseObjectType* cobject,
                        const Glib::RefPtr<Gtk::Builder>& builder)
   : Gtk::ApplicationWindow(cobject),
-    builder_(builder),
-    shortcuts_window_(nullptr),
-    animation_sync_(0)
+    builder_{builder},
+    shortcuts_window_{nullptr},
+    fullscreen_{false},
+    animation_sync_{0}
 {
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
@@ -390,7 +391,6 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
 
   if (window_state_event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
   {
-    bool new_state;
     if (window_state_event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
     {
       header_bar_->reparent(*main_box_);
@@ -399,7 +399,7 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
       full_screen_image_->set_from_icon_name("view-restore-symbolic",
                                              Gtk::ICON_SIZE_BUTTON);
       full_screen_button_->show();
-      new_state = true;
+      fullscreen_ = true;
     }
     else
     {
@@ -408,12 +408,12 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
       full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
                                              Gtk::ICON_SIZE_BUTTON);
       full_screen_button_->hide();
-      new_state = false;
+      fullscreen_ = false;
     }
 
     Glib::RefPtr<Gio::Action> action = lookup_action(kActionFullScreen);
     auto simple_action =  Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(action);
-    simple_action->set_state(Glib::Variant<bool>::create(new_state));
+    simple_action->set_state(Glib::Variant<bool>::create(fullscreen_));
   }
   return true;
 }
@@ -594,7 +594,9 @@ void MainWindow::activateMeterAction(const Glib::ustring& action,
 
   last_meter_action_ = g_get_monotonic_time();
 
-  if (pendulum_restore_connection_.empty() && pendulum_revealer_->get_child_revealed())
+  if (pendulum_restore_connection_.empty()
+      && pendulum_revealer_->get_child_revealed()
+      && !fullscreen_)
   {
     pendulum_revealer_->set_size_request(
       pendulum_revealer_->get_width(),
@@ -616,7 +618,8 @@ void MainWindow::activateMeterAction(const Glib::ustring& action,
 
   app->activate_action(action, param);
 
-  if (pendulum_revealer_->get_child_revealed())
+  if (pendulum_revealer_->get_child_revealed()
+      && !fullscreen_)
   {
     int win_width, win_height;
     get_size(win_width, win_height);

@@ -140,6 +140,7 @@ protected:
 
   // cached preferences
   bool meter_animation_;
+  bool fullscreen_;
   std::chrono::microseconds animation_sync_;
 
   gint64 last_meter_action_;
