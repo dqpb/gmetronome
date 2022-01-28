@@ -58,8 +58,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   : Gtk::ApplicationWindow(cobject),
     builder_{builder},
     shortcuts_window_{nullptr},
-    fullscreen_{false},
-    animation_sync_{0}
+    animation_sync_{0},
+    bottom_resizable_{true}
 {
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
@@ -389,32 +389,41 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
 {
   Gtk::ApplicationWindow::on_window_state_event(window_state_event);
 
-  if (window_state_event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
-  {
-    if (window_state_event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
-    {
-      header_bar_->reparent(*main_box_);
-      header_bar_->set_decoration_layout(":minimize,close");
-      main_box_->reorder_child(*header_bar_, 0);
-      full_screen_image_->set_from_icon_name("view-restore-symbolic",
-                                             Gtk::ICON_SIZE_BUTTON);
-      full_screen_button_->show();
-      fullscreen_ = true;
-    }
-    else
-    {
-      header_bar_->reparent(titlebar_bin_);
-      header_bar_->unset_decoration_layout();
-      full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
-                                             Gtk::ICON_SIZE_BUTTON);
-      full_screen_button_->hide();
-      fullscreen_ = false;
-    }
+  auto win_state = window_state_event->new_window_state;
 
-    Glib::RefPtr<Gio::Action> action = lookup_action(kActionFullScreen);
-    auto simple_action =  Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(action);
-    simple_action->set_state(Glib::Variant<bool>::create(fullscreen_));
+  bool fullscreen = win_state & GDK_WINDOW_STATE_FULLSCREEN;
+  bool maximized = win_state & GDK_WINDOW_STATE_MAXIMIZED;
+  [[maybe_unused]]
+  bool bottom_resizable = win_state & GDK_WINDOW_STATE_BOTTOM_RESIZABLE; // never set?
+  bool tiled = win_state & GDK_WINDOW_STATE_TILED; // deprecated
+
+  if (fullscreen || maximized || tiled) // || !bottom_resizable
+    bottom_resizable_ = false;
+  else
+    bottom_resizable_ = true;
+
+  if (fullscreen)
+  {
+    header_bar_->reparent(*main_box_);
+    header_bar_->set_decoration_layout(":minimize,close");
+    main_box_->reorder_child(*header_bar_, 0);
+    full_screen_image_->set_from_icon_name("view-restore-symbolic",
+                                           Gtk::ICON_SIZE_BUTTON);
+    full_screen_button_->show();
   }
+  else
+  {
+    header_bar_->reparent(titlebar_bin_);
+    header_bar_->unset_decoration_layout();
+    full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
+                                           Gtk::ICON_SIZE_BUTTON);
+    full_screen_button_->hide();
+  }
+
+  Glib::RefPtr<Gio::Action> action = lookup_action(kActionFullScreen);
+  auto simple_action =  Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(action);
+  simple_action->set_state(Glib::Variant<bool>::create(fullscreen));
+
   return true;
 }
 
@@ -596,7 +605,7 @@ void MainWindow::activateMeterAction(const Glib::ustring& action,
 
   if (pendulum_restore_connection_.empty()
       && pendulum_revealer_->get_child_revealed()
-      && !fullscreen_)
+      && bottom_resizable_)
   {
     pendulum_revealer_->set_size_request(
       pendulum_revealer_->get_width(),
@@ -618,8 +627,7 @@ void MainWindow::activateMeterAction(const Glib::ustring& action,
 
   app->activate_action(action, param);
 
-  if (pendulum_revealer_->get_child_revealed()
-      && !fullscreen_)
+  if (pendulum_revealer_->get_child_revealed() && bottom_resizable_)
   {
     int win_width, win_height;
     get_size(win_width, win_height);
