@@ -386,10 +386,7 @@ namespace audio {
       using_dummy_ = true;
     }
 
-    if (success)
-      return true;
-    else
-      return false;
+    return success;
   }
 
   void Ticker::importDeviceConfig()
@@ -564,7 +561,7 @@ namespace audio {
       catch(...)
       {};
 #ifndef NDEBUG
-      std::cerr << "Ticker: error in audio thread (setting error_flag_)" << std::endl;
+      std::cerr << "Ticker: error in audio thread" << std::endl;
 #endif
       audio_thread_error_ = std::current_exception();
       audio_thread_error_flag_.store(true, std::memory_order_release);
