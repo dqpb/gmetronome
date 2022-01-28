@@ -18,6 +18,8 @@
  */
 
 #include "ProfileManager.h"
+#include "Error.h"
+#include <iostream>
 #include <glib.h>
 
 ProfileManager::ProfileManager(std::unique_ptr<ProfileIOBase> ptr)
@@ -42,31 +44,80 @@ Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
 {
   gchar* id = g_uuid_string_random();
   Profile p { header, content };
-  io_->store(id, p);
-  signal_changed_.emit();
-  return {id, p.header};
+
+  try {
+    io_->store(id, p);
+    signal_changed_.emit();
+    return {id, p.header};
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to store new profile ('"
+              << error.what() << "')" << std::endl;
+#endif
+    return {id, p.header};
+  }
 }
 
 void ProfileManager::deleteProfile(Profile::Identifier id)
 {
-  io_->remove(id);
-  signal_changed_.emit();
+  try {
+    io_->remove(id);
+    signal_changed_.emit();
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to remove profile ('"
+              << error.what() << "')" << std::endl;
+#endif
+  }
 }
 
 std::vector<Profile::Primer> ProfileManager::profileList()
 {
-  return io_->list();
+  try {
+    return io_->list();
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to get profile list ('"
+              << error.what() << "')" << std::endl;
+#endif
+    return {};
+  }
 }
 
 Profile ProfileManager::getProfile(Profile::Identifier id)
 {
-  return io_->load(id);
+  try {
+    return io_->load(id);
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to load profile ('"
+              << error.what() << "')" << std::endl;
+#endif
+    return {};
+  }
 }
 
 void ProfileManager::setProfile(Profile::Identifier id, const Profile& profile)
 {
-  io_->store(id, profile);
-  signal_changed_.emit();
+  try {
+    io_->store(id, profile);
+    signal_changed_.emit();
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to store profile ('"
+              << error.what() << "')" << std::endl;
+#endif
+  }
 }
 
 Profile::Content ProfileManager::getProfileContent(Profile::Identifier id)
@@ -95,6 +146,15 @@ void ProfileManager::setProfileHeader(Profile::Identifier id, const Profile::Hea
 
 void ProfileManager::reorderProfiles(const std::vector<Profile::Identifier>& order)
 {
-  io_->reorder(order);
-  signal_changed_.emit();
+  try {
+    io_->reorder(order);
+    signal_changed_.emit();
+  }
+  catch(const GMetronomeError& error)
+  {
+#ifndef NDEBUG
+    std::cerr << "ProfileManager: failed to reorder profiles ('"
+              << error.what() << "')" << std::endl;
+#endif
+  }
 }

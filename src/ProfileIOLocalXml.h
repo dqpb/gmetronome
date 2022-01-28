@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -28,11 +28,11 @@ class ProfileIOLocalXml : public ProfileIOBase
 {
 public:
   ProfileIOLocalXml(Glib::RefPtr<Gio::File> file = defaultFile());
-  
+
   ~ProfileIOLocalXml() override;
 
   std::vector<Profile::Primer> list() override;
-  
+
   Profile load(Profile::Identifier id) override;
 
   void store(Profile::Identifier id, const Profile& profile) override;
@@ -40,9 +40,9 @@ public:
   void reorder(const std::vector<Profile::Identifier>& order) override;
 
   void remove(Profile::Identifier id) override;
-  
+
   void flush() override;
-  
+
 public:
   static Glib::RefPtr<Gio::File> defaultFile();
 
@@ -50,12 +50,16 @@ public:
 
   const ProfileMap& profileMap() const
     { return pmap_; }
-  
+
 protected:
   Glib::RefPtr<Gio::File> file_;
   ProfileMap pmap_;
   std::vector<Profile::Identifier> porder_;
-  
+  bool pending_import_;
+  bool import_error_;
+  bool pending_export_;
+  bool export_error_;
+
   void importProfiles();
   void exportProfiles();
 };

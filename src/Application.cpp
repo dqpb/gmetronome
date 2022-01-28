@@ -88,31 +88,44 @@ void Application::on_startup()
   Gtk::Application::on_startup();
 
   auto desktop_info = Gio::DesktopAppInfo::create("gmetronome.desktop");
-  if (desktop_info)
-  {
-    auto name = desktop_info->get_locale_string("Name");
-    if (!name.empty())
-      Glib::set_application_name(name);
-    else
-      Glib::set_application_name(PACKAGE_NAME);
-  }
-  else Glib::set_application_name(PACKAGE_NAME);
+  if (Glib::ustring appname = desktop_info ? desktop_info->get_locale_string("Name") : "";
+      !appname.empty())
+    Glib::set_application_name(appname);
+  else
+    Glib::set_application_name(PACKAGE_NAME);
 
   // initialize application settings (GSettings)
   initSettings();
   // initialize application actions
   initActions();
+  // initialize UI (i.e.MainWindow)
+  initUI();
   // initialize ticker
   initTicker();
   // initialize profile manager
   initProfiles();
-  // initialize UI (i.e.MainWindow)
-  initUI();
 }
 
 void Application::on_activate()
 {
   main_window_->present();
+}
+
+void Application::initSettings()
+{
+  settings_ = Gio::Settings::create(settings::kSchemaId);
+  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
+  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
+  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
+
+  settings_prefs_connection_ = settings_prefs_->signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
+
+  settings_state_connection_ = settings_state_->signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onSettingsStateChanged));
+
+  settings_shortcuts_connection_ = settings_shortcuts_->signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
 }
 
 void Application::initActions()
@@ -160,44 +173,6 @@ void Application::initActions()
   install_actions(*this, kActionDescriptions, kAppActionHandler);
 }
 
-void Application::initSettings()
-{
-  settings_ = Gio::Settings::create(settings::kSchemaId);
-  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
-  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
-
-  settings_prefs_connection_ = settings_prefs_->signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
-
-  settings_state_connection_ = settings_state_->signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onSettingsStateChanged));
-
-  settings_shortcuts_connection_ = settings_shortcuts_->signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
-}
-
-void Application::initProfiles()
-{
-  profile_manager_.signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onProfileManagerChanged));
-
-  profile_manager_.setIOModule(std::make_unique<ProfileIOLocalXml>());
-
-  Glib::ustring restore_profile_id = "";
-
-  if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
-    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
-
-  Glib::Variant<Glib::ustring> state
-    = Glib::Variant<Glib::ustring>::create(restore_profile_id);
-
-  activate_action(kActionProfileSelect, state);
-
-  if ( restore_profile_id.empty() )
-    loadDefaultProfile();
-}
-
 void Application::initUI()
 {
   main_window_ = MainWindow::create();
@@ -221,7 +196,28 @@ void Application::initUI()
                       shortcut_action.target_value,
                       accel );
     }
-  };
+  }
+}
+
+void Application::initProfiles()
+{
+  profile_manager_.signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onProfileManagerChanged));
+
+  profile_manager_.setIOModule(std::make_unique<ProfileIOLocalXml>());
+
+  Glib::ustring restore_profile_id = "";
+
+  if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
+    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
+
+  Glib::Variant<Glib::ustring> state
+    = Glib::Variant<Glib::ustring>::create(restore_profile_id);
+
+  activate_action(kActionProfileSelect, state);
+
+  if ( restore_profile_id.empty() )
+    loadDefaultProfile();
 }
 
 void Application::initTicker()
@@ -684,7 +680,6 @@ void Application::onProfileManagerChanged()
   auto in_list = profile_manager_.profileList();
 
   ProfileList out_list;
-
   std::transform(in_list.begin(), in_list.end(), std::back_inserter(out_list),
                  [] (const auto& primer) -> ProfileListEntry {
                    return {primer.id, primer.header.title, primer.header.description};
@@ -875,7 +870,6 @@ void Application::loadSelectedProfile()
   if (!id.empty())
   {
     Profile::Content content = profile_manager_.getProfileContent(id);
-
     convertProfileToAction(content);
   }
 }
@@ -893,16 +887,8 @@ void Application::saveSelectedProfile()
   if (!id.empty())
   {
     Profile::Content content;
-
     convertActionToProfile(content);
-
-    try {
-      profile_manager_.setProfileContent(id, content);
-    }
-    catch (...) {
-      // the profile does not exist (anymore);
-      // e.g. this happens after a delete operation ('profile-delete')
-    }
+    profile_manager_.setProfileContent(id, content);
   }
 }
 
@@ -913,6 +899,11 @@ void Application::onProfileDelete(const Glib::VariantBase& value)
 
   if (!id.empty())
   {
+    Glib::Variant<Glib::ustring> empty_state
+      = Glib::Variant<Glib::ustring>::create({""});
+
+    activate_action(kActionProfileSelect, empty_state);
+
     profile_manager_.deleteProfile(id);
   }
 }
@@ -956,20 +947,10 @@ void Application::onProfileDescription(const Glib::VariantBase& value)
     Glib::Variant<Glib::ustring> in_value
       = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
-    Glib::Variant<Glib::ustring> out_value;
+    auto [descr, valid] = validateProfileDescription(in_value.get());
 
-    // validate in_value
-#if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
-    out_value = Glib::Variant<Glib::ustring>
-      ::create(in_value.get().make_valid().substr(0,Profile::kDescriptionMaxLength));
-#else
-    if (in_value.get().validate())
-      out_value = Glib::Variant<Glib::ustring>
-        ::create(in_value.get().substr(0,Profile::kDescriptionMaxLength));
-    else
-      out_value = Glib::Variant<Glib::ustring>
-        ::create(Profile::Header().description); // default description
-#endif
+    Glib::Variant<Glib::ustring> out_value
+      = Glib::Variant<Glib::ustring>::create(descr);
 
     Profile::Header header = profile_manager_.getProfileHeader(id);
     header.description = out_value.get();
@@ -1262,16 +1243,28 @@ std::pair<Glib::ustring,bool> Application::validateMeterSlot(Glib::ustring str)
   }
 }
 
-std::pair<Glib::ustring,bool> Application::validateProfileTitle(Glib::ustring str)
+//helper
+std::pair<Glib::ustring,bool> validateUTF8String(Glib::ustring str, int maxLength = -1)
 {
   Glib::ustring ret;
+
 #if GLIBMM_MAJOR_VERSION == 2 && GLIBMM_MINOR_VERSION >= 62
-    ret = str.make_valid().substr(0, Profile::kTitleMaxLength);
+  ret = str.make_valid();
 #else
-    if (str.validate())
-      ret = str.substr(0, Profile::kTitleMaxLength);
-    else
-      ret = "";
+  if (str.validate())
+    ret = str;
+  else
+    ret = "";
 #endif
-    return {ret, ret.raw() == str.raw()};
+
+  if (maxLength >= 0)
+    ret = ret.substr(0, maxLength);
+
+  return {ret, ret.raw() == str.raw()};
 }
+
+std::pair<Glib::ustring,bool> Application::validateProfileTitle(Glib::ustring str)
+{ return validateUTF8String(str, Profile::kTitleMaxLength); }
+
+std::pair<Glib::ustring,bool> Application::validateProfileDescription(Glib::ustring str)
+{ return validateUTF8String(str, Profile::kDescriptionMaxLength); }

@@ -168,6 +168,7 @@ private:
   std::pair<Meter,bool> validateMeter(Meter meter);
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileTitle(Glib::ustring str);
+  std::pair<Glib::ustring,bool> validateProfileDescription(Glib::ustring str);
 };
 
 #endif//GMetronome_Application_h

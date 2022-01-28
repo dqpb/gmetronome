@@ -22,24 +22,47 @@
 #endif
 
 #include "ProfileIOLocalXml.h"
+#include "Error.h"
 #include <iterator>
 #include <charconv>
 #include <iostream>
+#include <cassert>
 #include <stack>
 
 ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
-  : file_(file)
-{
-  importProfiles();
-}
+  : file_{file},
+    pmap_{},
+    porder_{},
+    pending_import_ {true},
+    import_error_ {false},
+    pending_export_ {false},
+    export_error_ {false}
+{}
 
 ProfileIOLocalXml::~ProfileIOLocalXml()
 {
-  exportProfiles();
+  if (pending_export_)
+  {
+    try { exportProfiles(); }
+    catch (const GMetronomeError& e) {
+#ifndef NDEBUG
+      std::cerr << "ProfileIOLocalXml: failed to save profiles "
+                << "('" << e.what() << "')" << std::endl;
+#endif
+    }
+    catch (...) {
+#ifndef NDEBUG
+      std::cerr << "ProfileIOLocalXml: failed to save profiles" << std::endl;
+#endif
+    }
+  }
 }
 
 std::vector<Profile::Primer> ProfileIOLocalXml::list()
 {
+  if (pending_import_ && !import_error_)
+    importProfiles();
+
   std::vector<Profile::Primer> vec;
 
   for (const auto& id : porder_)
@@ -50,16 +73,22 @@ std::vector<Profile::Primer> ProfileIOLocalXml::list()
 
 Profile ProfileIOLocalXml::load(Profile::Identifier id)
 {
+  if (pending_import_ && !import_error_)
+    importProfiles();
+
   try {
     return pmap_.at(id);
   }
   catch (...) {
-    throw;
+    throw GMetronomeError {"profile with id '" + id + "' does not exist"};
   }
 }
 
 void ProfileIOLocalXml::store(Profile::Identifier id, const Profile& profile)
 {
+  if (pending_import_ && !import_error_)
+    importProfiles();
+
   if (auto it = pmap_.find(id); it != pmap_.end())
   {
     it->second = profile;;
@@ -69,16 +98,22 @@ void ProfileIOLocalXml::store(Profile::Identifier id, const Profile& profile)
     pmap_[id] = profile;
     porder_.push_back(id);
   }
+
+  pending_export_ = true;
 }
 
 void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
 {
+  if (pending_import_ && !import_error_)
+    importProfiles();
+
   std::vector<std::size_t> a;
   a.reserve(order.size());
 
   for (const auto& id : order)
   {
-    if (auto it = std::find(porder_.begin(), porder_.end(), id); it != porder_.end())
+    if (auto it = std::find(porder_.begin(), porder_.end(), id);
+        it != porder_.end())
     {
       a.push_back(std::distance(porder_.begin(), it));
     }
@@ -97,21 +132,33 @@ void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
 
     std::swap(porder_, new_porder);
   }
+
+  pending_export_ = true;
 }
 
 void ProfileIOLocalXml::remove(Profile::Identifier id)
 {
-  if (auto it = std::find(porder_.begin(), porder_.end(), id); it != porder_.end())
+  if (pending_import_ && !import_error_)
+    importProfiles();
+
+  if (auto it = std::find(porder_.begin(), porder_.end(), id);
+      it != porder_.end())
   {
     porder_.erase(it);
   }
-
   pmap_.erase(id);
+  pending_export_ = true;
 }
 
 void ProfileIOLocalXml::flush()
 {
-  exportProfiles();
+  if (pending_export_)
+  {
+    if (pending_import_ && !import_error_)
+      importProfiles();
+
+    exportProfiles();
+  }
 }
 
 Glib::RefPtr<Gio::File> ProfileIOLocalXml::defaultFile()
@@ -398,28 +445,79 @@ namespace {
     std::stack<Glib::ustring> current_block_;
   };
 
+}//unnamed namespace
+
+void ProfileIOLocalXml::importProfiles()
+{
+  MarkupParser parser;
+  Glib::Markup::ParseContext context(parser);
+
+  std::array<char, 4096> buffer;
+
+  try {
+    auto input_stream = file_->read();
+    for (auto bytes_read = input_stream->read(buffer.data(), buffer.size());
+         bytes_read > 0;
+         bytes_read = input_stream->read(buffer.data(), buffer.size()))
+    {
+      context.parse(buffer.data(), buffer.data() + bytes_read);
+    }
+    context.end_parse();
+    pmap_ = parser.move_pmap();
+    porder_ = parser.move_porder();
+  }
+  catch(const Gio::Error& e)
+  {
+    switch (e.code()) {
+    case Gio::Error::NOT_FOUND:
+      // ignore (file might not have been created yet)
+      break;
+    default:
+      import_error_ = true;
+      throw GMetronomeError { e.what() };
+      break;
+    }
+  }
+  catch(const Glib::MarkupError& e)
+  {
+    import_error_ = true;
+    throw GMetronomeError { e.what() };
+  }
+  catch(...)
+  {
+    import_error_ = true;
+    throw;
+  }
+  pending_import_ = false;
+}
+
+namespace {
 
   Glib::RefPtr<Gio::FileOutputStream> createOutputStream( Glib::RefPtr<Gio::File> file )
   {
+    Glib::RefPtr<Gio::FileOutputStream> ostream;
     static const Gio::FileCreateFlags flags = Gio::FILE_CREATE_PRIVATE;
 
     try {
-      return file->replace( std::string(), false, flags );
+      ostream = file->replace( std::string(), false, flags );
     }
-    catch (...) {}
-
-    try {
-      auto parent_dir = file->get_parent();
-      parent_dir->make_directory_with_parents();
+    catch (const Gio::Error& e)
+    {
+      if (e.code() == Gio::Error::NOT_FOUND)
+      {
+        try {
+          auto parent_dir = file->get_parent();
+          parent_dir->make_directory_with_parents();
+          ostream = file->create_file( flags );
+        }
+        catch (const Gio::Error& e)
+        {
+          throw GMetronomeError { e.what() };
+        }
+      }
+      else throw GMetronomeError { e.what() };
     }
-    catch (...) {}
-
-    try {
-      return file->create_file( flags );
-    }
-    catch (...) {}
-
-    return Glib::RefPtr<Gio::FileOutputStream>();
+    return ostream;
   }
 
   void writeProfileHeader(Glib::RefPtr<Gio::FileOutputStream> ostream, const Profile& profile)
@@ -522,52 +620,27 @@ namespace {
 
 }//unnamed namespace
 
-
-void ProfileIOLocalXml::importProfiles()
-{
-  std::string file_contents;
-  try {
-    file_contents = Glib::file_get_contents(file_->get_path());
-  }
-  catch(const Glib::Error& e)
-  {
-#ifndef NDEBUG
-    std::cerr << "ProfileIOLocalXml: file error: " << e.what() << std::endl;
-#endif
-  }
-
-  MarkupParser parser;
-  Glib::Markup::ParseContext context(parser);
-
-  try {
-    context.parse(file_contents);
-    context.end_parse();
-
-    pmap_ = parser.move_pmap();
-    porder_ = parser.move_porder();
-  }
-  catch(const Glib::Error& error)
-  {
-#ifndef NDEBUG
-    std::cerr << "ProfileIOLocalXml: parse error: " << error.what() << std::endl;
-#endif
-  }
-  catch(...) {}
-}
-
 void ProfileIOLocalXml::exportProfiles()
 {
-  auto ostream = createOutputStream(file_);
-
-  if (ostream) {
-    ostream->write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    ostream->write("<" PACKAGE "-profiles version=\"" PACKAGE_VERSION "\">\n");
-    for (const auto& id : porder_)
-    {
-      writeProfile(ostream, pmap_[id], id);
-    }
-    ostream->write("</" PACKAGE "-profiles>\n");
-    ostream->flush();
-    ostream->close();
+  Glib::RefPtr<Gio::FileOutputStream> ostream;
+  try {
+    ostream = createOutputStream(file_);
   }
+  catch (...)
+  {
+    export_error_ = true;
+    throw;
+  }
+
+  assert(ostream);
+
+  ostream->write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  ostream->write("<" PACKAGE "-profiles version=\"" PACKAGE_VERSION "\">\n");
+  for (const auto& id : porder_)
+  {
+    writeProfile(ostream, pmap_[id], id);
+  }
+  ostream->write("</" PACKAGE "-profiles>\n");
+  ostream->flush();
+  ostream->close();
 }
