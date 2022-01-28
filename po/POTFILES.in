@@ -1,5 +1,6 @@
 data/gmetronome.desktop.in
 src/About.cpp
+src/Profile.h
 data/ui/MainWindow.glade
 src/MainWindow.cpp
 data/ui/SettingsDialog.glade
