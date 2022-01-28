@@ -80,7 +80,12 @@ Application::Application() : Gtk::Application("org.gmetronome")
 {}
 
 Application::~Application()
-{}
+{
+  try {
+    settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
+  }
+  catch(...) {}
+}
 
 void Application::on_startup()
 {
@@ -206,18 +211,34 @@ void Application::initProfiles()
 
   profile_manager_.setIOModule(std::make_unique<ProfileIOLocalXml>());
 
-  Glib::ustring restore_profile_id = "";
+  auto profile_list = profile_manager_.profileList();
 
+  Glib::ustring restore_profile_id;
   if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
-    restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
+  {
+    restore_profile_id =
+      restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
+  }
 
-  Glib::Variant<Glib::ustring> state
-    = Glib::Variant<Glib::ustring>::create(restore_profile_id);
+  if (!restore_profile_id.empty())
+  {
+    Glib::Variant<Glib::ustring> state
+      = Glib::Variant<Glib::ustring>::create(restore_profile_id);
 
-  activate_action(kActionProfileSelect, state);
+    activate_action(kActionProfileSelect, state);
+  }
+  else if (settings_state_->get_boolean(settings::kKeyStateFirstLaunch)
+           && profile_list.empty())
+  {
+    Glib::Variant<Glib::ustring> state
+      = Glib::Variant<Glib::ustring>::create(gettext(Profile::kDefaultTitle.c_str()));
 
-  if ( restore_profile_id.empty() )
+    activate_action(kActionProfileNew, state);
+  }
+  else
+  {
     loadDefaultProfile();
+  }
 }
 
 void Application::initTicker()
@@ -743,10 +764,6 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
 
   if ( in_state.get().empty() )
   {
-    lookup_simple_action(kActionProfileDelete)->set_enabled(false);
-    lookup_simple_action(kActionProfileTitle)->set_enabled(false);
-    lookup_simple_action(kActionProfileDescription)->set_enabled(false);
-
     Glib::Variant<Glib::ustring> empty_state
       = Glib::Variant<Glib::ustring>::create({""});
 
@@ -772,10 +789,6 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
 
       lookup_simple_action(kActionProfileDescription)
         ->set_state(Glib::Variant<Glib::ustring>::create( description ));
-
-      lookup_simple_action(kActionProfileDelete)->set_enabled(true);
-      lookup_simple_action(kActionProfileTitle)->set_enabled(true);
-      lookup_simple_action(kActionProfileDescription)->set_enabled(true);
     }
   }
 
@@ -867,16 +880,31 @@ void Application::loadSelectedProfile()
   Glib::ustring id;
   get_action_state(kActionProfileSelect, id);
 
-  if (!id.empty())
+  bool has_selected_id = !id.empty();
+
+  if (has_selected_id)
   {
     Profile::Content content = profile_manager_.getProfileContent(id);
     convertProfileToAction(content);
   }
+
+  lookup_simple_action(kActionProfileDelete)->set_enabled(has_selected_id);
+  lookup_simple_action(kActionProfileTitle)->set_enabled(has_selected_id);
+  lookup_simple_action(kActionProfileDescription)->set_enabled(has_selected_id);
 }
 
 void Application::loadDefaultProfile()
 {
+  Glib::ustring id;
+  get_action_state(kActionProfileSelect, id);
+
+  bool has_selected_id = !id.empty();
+
   convertProfileToAction(kDefaultProfile.content);
+
+  lookup_simple_action(kActionProfileDelete)->set_enabled(has_selected_id);
+  lookup_simple_action(kActionProfileTitle)->set_enabled(has_selected_id);
+  lookup_simple_action(kActionProfileDescription)->set_enabled(has_selected_id);
 }
 
 void Application::saveSelectedProfile()

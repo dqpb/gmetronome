@@ -299,6 +299,11 @@
   </schema>
 
   <schema id="org.gmetronome.state" path="/org/gmetronome/state/">
+    <key name="first-launch" type="b">
+      <default>true</default>
+      <summary></summary>
+      <description></description>
+    </key>
     <key name="profile-select" type="s">
       <default>''</default>
       <summary>Selected profile</summary>

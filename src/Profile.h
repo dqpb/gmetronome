@@ -20,8 +20,9 @@
 #ifndef GMetronome_Profile_h
 #define GMetronome_Profile_h
 
-#include <string>
 #include "Meter.h"
+#include <string>
+#include <glibmm/i18n.h>
 
 struct Profile
 {
@@ -33,8 +34,12 @@ struct Profile
   // number of UTF-8 encoded unicode characters
   static constexpr std::size_t kDescriptionMaxLength = 1024;
 
-  static inline const std::string kDefaultTitle       = "";
-  static inline const std::string kDefaultDescription = "";
+  // default title for new profiles
+  static inline const std::string kDefaultTitle            = N_("New Profile");
+  // placeholder title for untitled profiles
+  static inline const std::string kDefaultTitlePlaceholder = N_("Untitled Profile");
+  // default description for new profiles
+  static inline const std::string kDefaultDescription      = N_("");
 
   static constexpr double  kMinTempo               = 30.0;
   static constexpr double  kMaxTempo               = 250.0;

@@ -170,6 +170,7 @@ namespace settings {
   /*
    * org.gmetronome.state keys
    */
+  inline const Glib::ustring  kKeyStateFirstLaunch               {"first-launch"};
   inline const Glib::ustring  kKeyStateProfileSelect             {"profile-select"};
   inline const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
 

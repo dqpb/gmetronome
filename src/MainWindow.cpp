@@ -128,11 +128,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   accent_button_grid_.show();
   accent_box_->pack_start(accent_button_grid_);
 
-  // default title for new profiles
-  profile_title_new_ = _("New Profile");
-
-  // placeholder title for untitled profiles
-  profile_title_placeholder_ = _("Untitled Profile");
+  profile_title_new_ = gettext(Profile::kDefaultTitle.c_str());
+  profile_title_placeholder_ = gettext(Profile::kDefaultTitlePlaceholder.c_str());
 
   profile_list_store_ = ProfileListStore::create();
   profile_tree_view_->set_model(profile_list_store_);
@@ -814,6 +811,10 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     ProfileList list;
     app->get_action_state(kActionProfileList, list);
     updateProfileList(list);
+
+    Glib::ustring id;
+    app->get_action_state(kActionProfileSelect, id);
+    updateProfileSelect(id);
   }
   else if (action_name.compare(kActionProfileSelect) == 0)
   {
