@@ -32,35 +32,35 @@ enum Accent
 
 using AccentPattern = std::vector<Accent>;
 
-const AccentPattern kAccentPattern1 = {
+inline const AccentPattern kAccentPattern1 = {
   kAccentMid
 };
-const AccentPattern kAccentPattern2 = {
+inline const AccentPattern kAccentPattern2 = {
   kAccentStrong,
   kAccentMid
 };
-const AccentPattern kAccentPattern3 = {
+inline const AccentPattern kAccentPattern3 = {
   kAccentStrong,
-  kAccentMid,
-  kAccentMid
-};
-const AccentPattern kAccentPattern4 = {
-  kAccentStrong,
-  kAccentMid,
   kAccentMid,
   kAccentMid
 };
-const AccentPattern kAccentPatternSimple1 = {
+inline const AccentPattern kAccentPattern4 = {
+  kAccentStrong,
+  kAccentMid,
+  kAccentMid,
+  kAccentMid
+};
+inline const AccentPattern kAccentPatternSimple1 = {
   kAccentMid,
   kAccentOff
 };
-const AccentPattern kAccentPatternSimple2 = {
+inline const AccentPattern kAccentPatternSimple2 = {
   kAccentStrong,
   kAccentOff,
   kAccentMid,
   kAccentOff
 };
-const AccentPattern kAccentPatternSimple3 = {
+inline const AccentPattern kAccentPatternSimple3 = {
   kAccentStrong,
   kAccentOff,
   kAccentMid,
@@ -68,7 +68,7 @@ const AccentPattern kAccentPatternSimple3 = {
   kAccentMid,
   kAccentOff
 };
-const AccentPattern kAccentPatternSimple4 = {
+inline const AccentPattern kAccentPatternSimple4 = {
   kAccentStrong,
   kAccentOff,
   kAccentMid,
@@ -78,12 +78,12 @@ const AccentPattern kAccentPatternSimple4 = {
   kAccentMid,
   kAccentOff
 };
-const AccentPattern kAccentPatternCompound1 = {
+inline const AccentPattern kAccentPatternCompound1 = {
   kAccentMid,
   kAccentOff,
   kAccentOff
 };
-const AccentPattern kAccentPatternCompound2 = {
+inline const AccentPattern kAccentPatternCompound2 = {
   kAccentStrong,
   kAccentOff,
   kAccentOff,
@@ -91,7 +91,7 @@ const AccentPattern kAccentPatternCompound2 = {
   kAccentOff,
   kAccentOff
 };
-const AccentPattern kAccentPatternCompound3 = {
+inline const AccentPattern kAccentPatternCompound3 = {
   kAccentStrong,
   kAccentOff,
   kAccentOff,
@@ -102,7 +102,7 @@ const AccentPattern kAccentPatternCompound3 = {
   kAccentOff,
   kAccentOff
 };
-const AccentPattern kAccentPatternCompound4 = {
+inline const AccentPattern kAccentPatternCompound4 = {
   kAccentStrong,
   kAccentOff,
   kAccentOff,
@@ -167,20 +167,20 @@ private:
   void checkDataIntegrity();
 };
 
-const Meter kMeter1 = {kNoDivision, kSingleMeter, kAccentPattern1};
-const Meter kMeter2 = {kNoDivision, kDupleMeter, kAccentPattern2};
-const Meter kMeter3 = {kNoDivision, kTripleMeter, kAccentPattern3};
-const Meter kMeter4 = {kNoDivision, kQuadrupleMeter, kAccentPattern4};
+inline const Meter kMeter1 = {kNoDivision, kSingleMeter, kAccentPattern1};
+inline const Meter kMeter2 = {kNoDivision, kDupleMeter, kAccentPattern2};
+inline const Meter kMeter3 = {kNoDivision, kTripleMeter, kAccentPattern3};
+inline const Meter kMeter4 = {kNoDivision, kQuadrupleMeter, kAccentPattern4};
 
-const Meter kMeterSimple1 = {kSimpleMeter, kSingleMeter, kAccentPatternSimple1};
-const Meter kMeterSimple2 = {kSimpleMeter, kDupleMeter, kAccentPatternSimple2};
-const Meter kMeterSimple3 = {kSimpleMeter, kTripleMeter, kAccentPatternSimple3};
-const Meter kMeterSimple4 = {kSimpleMeter, kQuadrupleMeter, kAccentPatternSimple4};
+inline const Meter kMeterSimple1 = {kSimpleMeter, kSingleMeter, kAccentPatternSimple1};
+inline const Meter kMeterSimple2 = {kSimpleMeter, kDupleMeter, kAccentPatternSimple2};
+inline const Meter kMeterSimple3 = {kSimpleMeter, kTripleMeter, kAccentPatternSimple3};
+inline const Meter kMeterSimple4 = {kSimpleMeter, kQuadrupleMeter, kAccentPatternSimple4};
 
-const Meter kMeterCompound1 = {kCompoundMeter, kSingleMeter, kAccentPatternCompound1};
-const Meter kMeterCompound2 = {kCompoundMeter, kDupleMeter, kAccentPatternCompound2};
-const Meter kMeterCompound3 = {kCompoundMeter, kTripleMeter, kAccentPatternCompound3};
-const Meter kMeterCompound4 = {kCompoundMeter, kQuadrupleMeter, kAccentPatternCompound4};
+inline const Meter kMeterCompound1 = {kCompoundMeter, kSingleMeter, kAccentPatternCompound1};
+inline const Meter kMeterCompound2 = {kCompoundMeter, kDupleMeter, kAccentPatternCompound2};
+inline const Meter kMeterCompound3 = {kCompoundMeter, kTripleMeter, kAccentPatternCompound3};
+inline const Meter kMeterCompound4 = {kCompoundMeter, kQuadrupleMeter, kAccentPatternCompound4};
 
 
 #include <glibmm/variant.h>
