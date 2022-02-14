@@ -52,9 +52,9 @@ namespace audio {
     void setAccel(double accel);
     void swapMeter(Meter& meter);
 
-    void swapSoundStrong(Buffer& sound);
-    void swapSoundMid(Buffer& sound);
-    void swapSoundWeak(Buffer& sound);
+    void swapSoundStrong(ByteBuffer& sound);
+    void swapSoundMid(ByteBuffer& sound);
+    void swapSoundWeak(ByteBuffer& sound);
 
     const Generator::Statistics& getStatistics() const;
 
@@ -78,10 +78,10 @@ namespace audio {
     double accel_;
     double accel_saved_;
     Meter meter_;
-    const Buffer sound_zero_;
-    Buffer sound_strong_;
-    Buffer sound_mid_;
-    Buffer sound_weak_;
+    const ByteBuffer sound_zero_;
+    ByteBuffer sound_strong_;
+    ByteBuffer sound_mid_;
+    ByteBuffer sound_weak_;
     int current_beat_;
     unsigned next_accent_;
     int frames_total_;

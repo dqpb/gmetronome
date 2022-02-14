@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -18,85 +18,77 @@
  */
 
 #include "AudioBuffer.h"
-#include <stdexcept>
-#include <map>
+#include <cassert>
+#include <iostream>
 
 namespace audio {
-  
-  Buffer::Buffer(size_type nbytes, const StreamSpec& spec)
-    : data_(nbytes,0),
-      spec_(spec)
-  {}
-  
-  Buffer::Buffer(microseconds duration, const StreamSpec& spec)
-    : data_(usecsToBytes(duration,spec),0),
-      spec_(spec)
-  {}
 
-  Buffer::Buffer(byte_container data, const StreamSpec& spec) {
-    std::swap(data_,data);
-    spec_ = spec;
-  }
-  
-  Buffer::Buffer(const std::string& filename) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
+  void ByteBuffer::resample(const StreamSpec& spec)
+  {
+    ByteBuffer resampled = ::audio::resample(*this, spec);
+    (*this) = std::move(resampled);
   }
 
-  Buffer::Buffer(const Buffer& buffer) {
-    data_ = buffer.data_;
-    spec_ = buffer.spec_;
-  }
-  
-  Buffer::Buffer(Buffer&& buffer) {
-    data_ = std::move(buffer.data_);
-    spec_ = std::move(buffer.spec_);
+  template<typename Frames>
+  void resample(Frames to_frames, const ByteBuffer& from_buf)
+  {
+    using SF = SampleFormat;
+
+    switch(from_buf.spec().format)
+    {
+    case SF::kU8: to_frames = viewFrames<SF::kU8>(from_buf); break;
+    case SF::kS8: to_frames = viewFrames<SF::kS8>(from_buf); break;
+    case SF::kS16LE: to_frames = viewFrames<SF::kS16LE>(from_buf); break;
+    case SF::kS16BE: to_frames = viewFrames<SF::kS16BE>(from_buf); break;
+    case SF::kU16LE: to_frames = viewFrames<SF::kU16LE>(from_buf); break;
+    case SF::kU16BE: to_frames = viewFrames<SF::kU16BE>(from_buf); break;
+    case SF::kS32LE: to_frames = viewFrames<SF::kS32LE>(from_buf); break;
+    case SF::kS32BE: to_frames = viewFrames<SF::kS32BE>(from_buf); break;
+    case SF::kFloat32LE: to_frames = viewFrames<SF::kFloat32LE>(from_buf); break;
+    case SF::kFloat32BE: to_frames = viewFrames<SF::kFloat32BE>(from_buf); break;
+    case SF::kUnknown:
+      [[fallthrough]];
+    default:
+#ifndef NDEBUG
+      std::cerr << "ByteBuffer: unable to resample (unknown sample format)" << std::endl;
+#endif
+      break;
+    };
   }
 
-  Buffer::~Buffer() {}
-  
-  void Buffer::load(const std::string& filename) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
+  ByteBuffer resample(const ByteBuffer& buffer, const StreamSpec& to_spec)
+  {
+    // TODO: this should support channel and rate resampling too
+    assert(buffer.spec().channels == to_spec.channels && "not implemented yet");
+    assert(buffer.spec().rate == to_spec.rate && "not implemented yet");
 
-  Buffer Buffer::resample(const StreamSpec& spec) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
+    const ByteBuffer& from_buf = buffer;
+    ByteBuffer to_buf(to_spec, from_buf.frames() * frameSize(to_spec));
 
-  microseconds Buffer::time() const {
-    return bytesToUsecs(data_.size(), spec_);
-  }
+    using SF = SampleFormat;
 
-  Buffer& Buffer::operator=(const Buffer& buffer) {
-    if (&buffer != this) {
-      data_ = buffer.data_;
-      spec_ = buffer.spec_;
-    }
-    return *this;
-  }
-  
-  Buffer& Buffer::operator=(Buffer&& buffer) {
-    if (&buffer != this) {
-      data_ = std::move(buffer.data_);
-      spec_ = std::move(buffer.spec_);
-    }
-    return *this;
-  }
+    switch(to_spec.format)
+    {
+    case SF::kS8:  resample( viewFrames<SF::kS8>(to_buf), from_buf ); break;
+    case SF::kU8:  resample( viewFrames<SF::kU8>(to_buf), from_buf ); break;
+    case SF::kS16LE:  resample( viewFrames<SF::kS16LE>(to_buf), from_buf ); break;
+    case SF::kS16BE:  resample( viewFrames<SF::kS16BE>(to_buf), from_buf ); break;
+    case SF::kU16LE:  resample( viewFrames<SF::kU16LE>(to_buf), from_buf ); break;
+    case SF::kU16BE:  resample( viewFrames<SF::kU16BE>(to_buf), from_buf ); break;
+    case SF::kS32LE:  resample( viewFrames<SF::kS32LE>(to_buf), from_buf ); break;
+    case SF::kS32BE:  resample( viewFrames<SF::kS32BE>(to_buf), from_buf ); break;
+    case SF::kFloat32LE: resample( viewFrames<SF::kFloat32LE>(to_buf), from_buf ); break;
+    case SF::kFloat32BE: resample( viewFrames<SF::kFloat32BE>(to_buf), from_buf ); break;
+    case SF::kUnknown:
+      [[fallthrough]];
+    default:
+#ifndef NDEBUG
+      std::cerr << "ByteBuffer: unable to resample (unknown sample format)" << std::endl;
+#endif
+      break;
+    };
 
-  bool Buffer::operator==(const Buffer&) const {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-  bool Buffer::operator!=(const Buffer&) const {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
-  
-  void Buffer::swap(Buffer& buffer) {
-    std::swap(data_, buffer.data_);
-    std::swap(spec_, buffer.spec_);
-  }
-
-  Buffer::size_type Buffer::frames() const {
-    auto fs = frameSize(spec_);
-    return (fs == 0) ? 0 : data_.size() / fs;
+    return to_buf;
   }
 
 }//namespace audio

@@ -193,7 +193,7 @@ public:
   using CType = guint8;
 
   // Default constructor.
-  Variant<Accent>() : VariantBase() {}
+  Variant() : VariantBase() {}
 
   explicit Variant<Accent>(GVariant* castitem, bool take_a_reference = false)
   : VariantBase(castitem, take_a_reference) {}
@@ -222,7 +222,7 @@ public:
   using CppContainerType = Meter;
 
   // Default constructor.
-  Variant<Meter>() : VariantContainerBase() {}
+  Variant() : VariantContainerBase() {}
 
   explicit Variant<Meter>(GVariant* castitem, bool take_a_reference = false)
     : VariantContainerBase(castitem, take_a_reference) {}

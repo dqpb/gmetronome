@@ -42,7 +42,7 @@ namespace audio {
       accel_(convertAccelToFrameTime(0)),
       accel_saved_(accel_),
       meter_(kMeter1),
-      sound_zero_(2 * kMaxChunkDuration_, kStreamSpec_),
+      sound_zero_(kStreamSpec_, 2 * kMaxChunkDuration_),
       sound_strong_(sound_zero_),
       sound_mid_(sound_zero_),
       sound_weak_(sound_zero_),
@@ -128,17 +128,17 @@ namespace audio {
       next_accent_ = 0;
   }
 
-  void Generator::swapSoundStrong(Buffer& sound)
+  void Generator::swapSoundStrong(ByteBuffer& sound)
   {
     std::swap(sound_strong_,sound);
   }
 
-  void Generator::swapSoundMid(Buffer& sound)
+  void Generator::swapSoundMid(ByteBuffer& sound)
   {
     std::swap(sound_mid_,sound);
   }
 
-  void Generator::swapSoundWeak(Buffer& sound)
+  void Generator::swapSoundWeak(ByteBuffer& sound)
   {
     std::swap(sound_weak_,sound);
   }

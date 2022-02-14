@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
- * 
+ * Copyright (C) 2020-2022 The GMetronome Team
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -20,51 +20,68 @@
 #ifndef GMetronome_Audio_h
 #define GMetronome_Audio_h
 
-#include <vector>
-#include <chrono>
-#include <memory>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include "Settings.h"
+#include <chrono>
 
 namespace audio {
 
-  using std::chrono::seconds;  
-  using std::chrono::microseconds;  
+  using std::chrono::seconds;
+  using std::chrono::microseconds;
   using std::chrono::milliseconds;
-  
+
   using std::literals::chrono_literals::operator""s;
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""us;
 
   /**
    */
-  enum class SampleFormat
+  enum class SampleFormat : unsigned char
   {
-    // U8,
-    // ALAW,
-    // ULAW,
-    S16LE,
-    // S16BE,
-    // Float32LE,
-    // Float32BE,
-    // S32LE,
-    // S32BE,
-    // S24LE,
-    // S24BE,
-    // S24_32LE,
-    // S24_32BE
-    kUnknown
+    kU8 = 0,
+    kS8,
+    kS16LE,
+    kS16BE,
+    kU16LE,
+    kU16BE,
+    kS32LE,
+    kS32BE,
+    kFloat32LE,
+    kFloat32BE,
+    // kS24LE,
+    // kS24BE,
+    // kS24_32LE,
+    // kS24_32BE,
+    // kALAW,
+    // kULAW,
+    kUnknown = 0xf0
+  };
+
+  enum class Endian : unsigned char
+  {
+    kLittle  = 0,
+    kBig     = 1,
+    kUnknown = 0xf0
+  };
+
+  enum class Signedness : unsigned char
+  {
+    kSigned   = 0,
+    kUnsigned = 1,
+    kUnknown  = 0xf0
+  };
+
+  enum class SampleDataType : unsigned char
+  {
+    kIntegral      = 0,
+    kFloatingPoint = 1,
+    kUnknown       = 0xf0
   };
 
   using SampleRate = uint32_t;
 
-  enum class Endianness
-  {
-    Little,
-    Big,
-    Invalid
-  };
-  
   struct StreamSpec
   {
     SampleFormat  format;
@@ -72,7 +89,10 @@ namespace audio {
     unsigned int  channels;
   };
 
-  constexpr SampleFormat kDefaultFormat   = SampleFormat::S16LE;
+  bool operator==(const StreamSpec& lhs, const StreamSpec& rhs);
+  bool operator!=(const StreamSpec& lhs, const StreamSpec& rhs);
+
+  constexpr SampleFormat kDefaultFormat   = SampleFormat::kS16LE;
   constexpr SampleRate   kDefaultRate     = 44100;
   constexpr unsigned int kDefaultChannels = 2;
 
@@ -83,41 +103,156 @@ namespace audio {
     kDefaultChannels
   };
 
+  // SampleValueType
+  template<SampleFormat Format> struct SampleValueType
+  {};
+  template<> struct SampleValueType<SampleFormat::kU8>
+  { using type = uint8_t; };
+  template<> struct SampleValueType<SampleFormat::kS8>
+  { using type = int8_t; };
+  template<> struct SampleValueType<SampleFormat::kS16LE>
+  { using type = int16_t; };
+  template<> struct SampleValueType<SampleFormat::kS16BE>
+  { using type = int16_t; };
+  template<> struct SampleValueType<SampleFormat::kU16LE>
+  { using type = uint16_t; };
+  template<> struct SampleValueType<SampleFormat::kU16BE>
+  { using type = uint16_t; };
+  template<> struct SampleValueType<SampleFormat::kS32LE>
+  { using type = int32_t; };
+  template<> struct SampleValueType<SampleFormat::kS32BE>
+  { using type = int32_t; };
+  template<> struct SampleValueType<SampleFormat::kFloat32LE>
+  { using type = float; };
+  template<> struct SampleValueType<SampleFormat::kFloat32BE>
+  { using type = float; };
+  template<> struct SampleValueType<SampleFormat::kUnknown>
+  { using type = void; };
+
   /** Returns the size of a sample with the specific sample type. */
-  size_t sampleSize(SampleFormat format);
-  
-  /** Return the endianness of a sample format. */
-  Endianness endianness(SampleFormat format);
-  
-  /** Return the size of a frame with a given sample specification. */
+  constexpr int sampleSize(const SampleFormat format)
+  {
+    switch (format)
+    {
+    case SampleFormat::kU8: return 1; break;
+    case SampleFormat::kS8: return 1; break;
+    case SampleFormat::kS16LE: return 2; break;
+    case SampleFormat::kS16BE: return 2; break;
+    case SampleFormat::kU16LE: return 2; break;
+    case SampleFormat::kU16BE: return 2; break;
+    case SampleFormat::kS32LE: return 4; break;
+    case SampleFormat::kS32BE: return 4; break;
+    case SampleFormat::kFloat32LE: return 4; break;
+    case SampleFormat::kFloat32BE: return 4; break;
+    case SampleFormat::kUnknown:
+      [[fallthrough]];
+    default: return 0;
+      break;
+    };
+  }
+
+  /** Returns the endianness of a sample format. */
+  constexpr Endian sampleEndian(const SampleFormat format)
+  {
+    switch (format)
+    {
+    case SampleFormat::kU8: return Endian::kUnknown; break;
+    case SampleFormat::kS8: return Endian::kUnknown; break;
+    case SampleFormat::kS16LE: return Endian::kLittle; break;
+    case SampleFormat::kS16BE: return Endian::kBig; break;
+    case SampleFormat::kU16LE: return Endian::kLittle; break;
+    case SampleFormat::kU16BE: return Endian::kBig; break;
+    case SampleFormat::kS32LE: return Endian::kLittle; break;
+    case SampleFormat::kS32BE: return Endian::kBig; break;
+    case SampleFormat::kFloat32LE: return Endian::kLittle; break;
+    case SampleFormat::kFloat32BE: return Endian::kBig; break;
+    case SampleFormat::kUnknown:
+      [[fallthrough]];
+    default: return Endian::kUnknown;
+      break;
+    };
+  }
+
+  constexpr bool isLittleEndian(SampleFormat format)
+  { return sampleEndian(format) == Endian::kLittle; }
+  constexpr bool isBigEndian(SampleFormat format)
+  { return sampleEndian(format) == Endian::kBig; }
+
+  constexpr Signedness sampleSignedness(const SampleFormat format)
+  {
+    switch (format)
+    {
+    case SampleFormat::kU8: return Signedness::kUnsigned; break;
+    case SampleFormat::kS8: return Signedness::kSigned; break;
+    case SampleFormat::kS16LE: return Signedness::kSigned; break;
+    case SampleFormat::kS16BE: return Signedness::kSigned; break;
+    case SampleFormat::kU16LE: return Signedness::kUnsigned; break;
+    case SampleFormat::kU16BE: return Signedness::kUnsigned; break;
+    case SampleFormat::kS32LE: return Signedness::kSigned; break;
+    case SampleFormat::kS32BE: return Signedness::kSigned; break;
+    case SampleFormat::kFloat32LE: return Signedness::kSigned; break;
+    case SampleFormat::kFloat32BE: return Signedness::kSigned; break;
+    case SampleFormat::kUnknown:
+      [[fallthrough]];
+    default: return Signedness::kUnknown;
+      break;
+    };
+  }
+
+  constexpr bool isSigned(SampleFormat format)
+  { return sampleSignedness(format) == Signedness::kSigned; }
+  constexpr bool isUnsigned(SampleFormat format)
+  { return sampleSignedness(format) == Signedness::kUnsigned; }
+
+  constexpr SampleDataType sampleDataType(const SampleFormat format)
+  {
+    switch (format)
+    {
+    case SampleFormat::kU8: return SampleDataType::kIntegral; break;
+    case SampleFormat::kS8: return SampleDataType::kIntegral; break;
+    case SampleFormat::kS16LE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kS16BE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kU16LE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kU16BE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kS32LE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kS32BE: return SampleDataType::kIntegral; break;
+    case SampleFormat::kFloat32LE: return SampleDataType::kFloatingPoint; break;
+    case SampleFormat::kFloat32BE: return SampleDataType::kFloatingPoint; break;
+    case SampleFormat::kUnknown:
+      [[fallthrough]];
+    default: return SampleDataType::kUnknown;
+      break;
+    };
+  }
+
+  constexpr bool isIntegral(SampleFormat format)
+  { return sampleDataType(format) == SampleDataType::kIntegral; }
+  constexpr bool isFloatingPoint(SampleFormat format)
+  { return sampleDataType(format) == SampleDataType::kFloatingPoint; }
+
+  /** Returns the endianness of the host. */
+  constexpr Endian hostEndian()
+  {
+#ifdef WORDS_BIGENDIAN
+    return Endian::kBig;
+#else
+    return Endian::kLittle;
+#endif
+  }
+
+  /** Returns the byte size of a frame with a given sample specification. */
   size_t frameSize(StreamSpec spec);
-  
-  /** 
-   * Calculates the number of frames that are required for the specified 
-   * time. The return value will always be rounded down for non-integral 
-   * return values. 
-   */
+
+  /** Calculates number of frames required for a given time. */
   size_t usecsToFrames(microseconds usecs, const StreamSpec& spec);
-  
-  /**
-   * Calculate the time the number of frames take to play with the 
-   * specified sample type. The return value will always be rounded 
-   * down for non-integral return values.
-   */
+
+  /** Calculates time a given number of frames will take to play. */
   microseconds framesToUsecs(size_t frames, const StreamSpec& spec);
-  
-  /** 
-   * Calculates the number of bytes that are required for the specified 
-   * time. The return value will always be rounded down for non-integral 
-   * return values. 
-   */
+
+  /** Calculates number of bytes that are required for a given time */
   size_t usecsToBytes(microseconds usecs, const StreamSpec& spec);
-  
-  /**
-   * Calculate the time the number of bytes take to play with the 
-   * specified sample type. The return value will always be rounded 
-   * down for non-integral return values.
-   */
+
+  /** Returns the play time for a given number of bytes. */
   microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec);
 
 }//namespace audio

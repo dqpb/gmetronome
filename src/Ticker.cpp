@@ -179,7 +179,11 @@ namespace audio {
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_strong_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_strong_ = synth::generateSound( frequency,
+                                               volume,
+                                               balance,
+                                               kDefaultSpec,
+                                               kSineDuration );
     }
     sound_strong_imported_flag_.clear(std::memory_order_release);
   }
@@ -188,7 +192,11 @@ namespace audio {
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_mid_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_mid_ = synth::generateSound( frequency,
+                                            volume,
+                                            balance,
+                                            kDefaultSpec,
+                                            kSineDuration );
     }
     sound_mid_imported_flag_.clear(std::memory_order_release);
   }
@@ -197,7 +205,11 @@ namespace audio {
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_weak_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_weak_ = synth::generateSound( frequency,
+                                             volume,
+                                             balance,
+                                             kDefaultSpec,
+                                             kSineDuration );
     }
     sound_weak_imported_flag_.clear(std::memory_order_release);
   }

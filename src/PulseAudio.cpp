@@ -47,19 +47,19 @@ namespace audio {
       pa_spec.channels = spec.channels;
 
       switch(spec.format) {
-      // case SampleFormat::U8        : pa_spec.format = PA_SAMPLE_U8;    break;
-      // case SampleFormat::ALAW      : pa_spec.format = PA_SAMPLE_ALAW;  break;
-      // case SampleFormat::ULAW      : pa_spec.format = PA_SAMPLE_ULAW;  break;
-      case SampleFormat::S16LE     : pa_spec.format = PA_SAMPLE_S16LE; break;
-      // case SampleFormat::S16BE     : pa_spec.format = PA_SAMPLE_S16BE; break;
-      // case SampleFormat::Float32LE : pa_spec.format = PA_SAMPLE_FLOAT32LE; break;
-      // case SampleFormat::Float32BE : pa_spec.format = PA_SAMPLE_FLOAT32BE; break;
-      // case SampleFormat::S32LE     : pa_spec.format = PA_SAMPLE_S32LE; break;
-      // case SampleFormat::S32BE     : pa_spec.format = PA_SAMPLE_S32BE; break;
-      // case SampleFormat::S24LE     : pa_spec.format = PA_SAMPLE_S24LE; break;
-      // case SampleFormat::S24BE     : pa_spec.format = PA_SAMPLE_S24BE; break;
-      // case SampleFormat::S24_32LE  : pa_spec.format = PA_SAMPLE_S32LE; break;
-      // case SampleFormat::S24_32BE  : pa_spec.format = PA_SAMPLE_S32BE; break;
+      // case SampleFormat::kU8        : pa_spec.format = PA_SAMPLE_U8;    break;
+      // case SampleFormat::kALAW      : pa_spec.format = PA_SAMPLE_ALAW;  break;
+      // case SampleFormat::kULAW      : pa_spec.format = PA_SAMPLE_ULAW;  break;
+      case SampleFormat::kS16LE     : pa_spec.format = PA_SAMPLE_S16LE; break;
+      // case SampleFormat::kS16BE     : pa_spec.format = PA_SAMPLE_S16BE; break;
+      // case SampleFormat::kFloat32LE : pa_spec.format = PA_SAMPLE_FLOAT32LE; break;
+      // case SampleFormat::kFloat32BE : pa_spec.format = PA_SAMPLE_FLOAT32BE; break;
+      // case SampleFormat::kS32LE     : pa_spec.format = PA_SAMPLE_S32LE; break;
+      // case SampleFormat::kS32BE     : pa_spec.format = PA_SAMPLE_S32BE; break;
+      // case SampleFormat::kS24LE     : pa_spec.format = PA_SAMPLE_S24LE; break;
+      // case SampleFormat::kS24BE     : pa_spec.format = PA_SAMPLE_S24BE; break;
+      // case SampleFormat::kS24_32LE  : pa_spec.format = PA_SAMPLE_S32LE; break;
+      // case SampleFormat::kS24_32BE  : pa_spec.format = PA_SAMPLE_S32BE; break;
       default:
         pa_spec.format = PA_SAMPLE_INVALID;
         break;

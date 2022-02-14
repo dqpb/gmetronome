@@ -102,9 +102,9 @@ namespace audio {
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
     Meter in_meter_;
-    Buffer in_sound_strong_;
-    Buffer in_sound_mid_;
-    Buffer in_sound_weak_;
+    ByteBuffer in_sound_strong_;
+    ByteBuffer in_sound_mid_;
+    ByteBuffer in_sound_weak_;
     audio::DeviceConfig in_device_config_;
 
     Ticker::Statistics out_stats_;

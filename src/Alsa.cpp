@@ -27,8 +27,6 @@
 
 namespace audio {
 
-  const microseconds kRequiredLatency    = 80ms;
-
   class AlsaDeviceError : public GMetronomeError {
   public:
     AlsaDeviceError(const std::string& msg = "", int error = 0)
@@ -53,6 +51,8 @@ namespace audio {
     AlsaBackendError(BackendState state, int error, const std::string& what = "")
       : AlsaBackendError(state, what, error)
       {}
+    int alsaErrorCode()
+      { return error_; }
   private:
     int error_;
   };
@@ -71,7 +71,7 @@ namespace audio {
   // convert sample formats
   std::vector<std::pair<SampleFormat,snd_pcm_format_t>> kFormatMapping =
   {
-    {SampleFormat::S16LE , SND_PCM_FORMAT_S16_LE}
+    {SampleFormat::kS16LE , SND_PCM_FORMAT_S16_LE}
   };
 
   snd_pcm_format_t  sampleFormatToAlsa(const SampleFormat& fmt)

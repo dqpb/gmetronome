@@ -19,20 +19,172 @@
 
 #include "Synthesizer.h"
 #include <iostream>
-#include <cassert>
 #include <algorithm>
+#include <random>
 #include <cmath>
+#include <cassert>
 
 namespace audio {
 
-  Buffer generateSound(double frequency,
-                       double volume,
-                       double balance,
-                       StreamSpec spec,
-                       microseconds duration)
+namespace synth {
+
+  constexpr SampleFormat defaultSampleFormat()
+  {
+    if (hostEndian() == Endian::kLittle)
+      return SampleFormat::kFloat32LE;
+    else
+      return SampleFormat::kFloat32BE;
+  }
+
+  auto viewSamples(ByteBuffer& buffer)
+  { return audio::viewSamples<defaultSampleFormat()>(buffer); }
+
+  auto viewSamples(const ByteBuffer& buffer)
+  { return audio::viewSamples<defaultSampleFormat()>(buffer); }
+
+  auto viewFrames(ByteBuffer& buffer)
+  { return audio::viewFrames<defaultSampleFormat()>(buffer); }
+
+  auto viewFrames(const ByteBuffer& buffer)
+  { return audio::viewFrames<defaultSampleFormat()>(buffer); }
+
+  void addNoise(ByteBuffer& buffer, NoiseType type)
+  {
+    assert(isFloatingPoint(buffer.spec().format));
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(-1.0, 1.0);
+
+    auto frames = viewFrames(buffer);
+    for (auto& frame : frames)
+    {
+      frame += {dis(gen), dis(gen)};
+      frame /= 2.0;
+    }
+  }
+
+  void addSine(ByteBuffer& buffer, float frequency, float amplitude)
+  {
+    assert(buffer.spec().rate != 0);
+    assert(isFloatingPoint(buffer.spec().format));
+
+    auto frames = viewFrames(buffer);
+    float omega = 2.0 * M_PI * frequency / buffer.spec().rate;
+    for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+    {
+      float sine = std::sin(omega * frame_index);
+      frames[frame_index] += amplitude * sine;
+      frames[frame_index] /= 2.0;
+    }
+  }
+
+  void addTriangle(ByteBuffer& buffer, float frequency, float amplitude)
+  {
+    assert(buffer.spec().rate != 0);
+    assert(isFloatingPoint(buffer.spec().format));
+
+    auto frames = viewFrames(buffer);
+    float omega = 2.0 * M_PI * frequency / buffer.spec().rate;
+    for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+    {
+      float triangle = 2.0 * std::asin(std::sin(omega * frame_index)) / M_PI;
+      frames[frame_index] += amplitude * triangle;
+      frames[frame_index] /= 2.0;
+    }
+  }
+
+  void addSawtooth(ByteBuffer& buffer, float frequency, float amplitude)
+  {
+    assert(buffer.spec().rate != 0);
+    assert(isFloatingPoint(buffer.spec().format));
+
+    auto frames = viewFrames(buffer);
+    float omega = 2.0 * M_PI * frequency / buffer.spec().rate;
+    for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+    {
+      float time = (omega * frame_index) / (2.0 * M_PI);
+      float sawtooth = 2.0 * (time - std::floor(time) - 0.5);
+      frames[frame_index] += amplitude * sawtooth;
+      frames[frame_index] /= 2.0;
+    }
+  }
+
+  void addSquare(ByteBuffer& buffer, float frequency, float amplitude)
+  {
+    assert(buffer.spec().rate != 0);
+    assert(isFloatingPoint(buffer.spec().format));
+
+    auto frames = viewFrames(buffer);
+    float omega = 2.0 * M_PI * frequency / buffer.spec().rate;
+    for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+    {
+      float sine = std::sin(omega * frame_index);
+      if (sine >= 0)
+        frames[frame_index] += amplitude;
+      else
+        frames[frame_index] -= amplitude;
+      frames[frame_index] /= 2.0;
+    }
+  }
+
+  void addOscillator(ByteBuffer& buffer, const std::vector<Oscillator>& oscillators)
+  {
+    for (const auto& osc : oscillators)
+    {
+      switch (osc.shape) {
+      case Waveform::kSine:
+        addSine(buffer, osc.frequency, osc.amplitude);
+        break;
+      case Waveform::kTriangle:
+        addTriangle(buffer, osc.frequency, osc.amplitude);
+        break;
+      case Waveform::kSawtooth:
+        addSawtooth(buffer, osc.frequency, osc.amplitude);
+        break;
+      case Waveform::kSquare:
+        addSquare(buffer, osc.frequency, osc.amplitude);
+        break;
+      }
+    }
+  }
+
+  void applyEnvelope(ByteBuffer& buffer, const Envelope& envelope)
+  {
+    // not implemented yet
+  }
+
+  void applyGain(ByteBuffer& buffer, float gain)
+  {
+    gain = std::clamp<float>(gain, 0.0, 1.0);
+    auto frames = viewFrames(buffer);
+    for (auto& frame : frames)
+      frame *= gain;
+  }
+
+  ByteBuffer mixBuffers(ByteBuffer buffer1, const ByteBuffer& buffer2)
+  {
+    auto frames1 = viewFrames(buffer1);
+    auto frames2 = viewFrames(buffer2);
+
+    auto it2 = frames2.begin();
+    for (auto it1 = frames1.begin();
+         it1 != frames1.end() && it2 != frames2.end();
+         ++it1, ++it2)
+    {
+      *it1 += *it2;
+      *it1 /= 2.0;
+    }
+    return buffer1;
+  }
+
+  ByteBuffer generateSound(double frequency,
+                           double volume,
+                           double balance,
+                           StreamSpec spec,
+                           microseconds duration)
   {
     assert(spec.channels == 2);
-    assert(spec.format == SampleFormat::S16LE);
     assert(!std::isnan(frequency) && frequency>0);
     assert(!std::isnan(volume));
     assert(!std::isnan(balance));
@@ -40,35 +192,36 @@ namespace audio {
     volume = std::clamp(volume, 0.0, 1.0);
     balance = std::clamp(balance, -1.0, 1.0);
 
-    double balance_l = (balance > 0) ? -1 * balance + 1 : 1;
-    double balance_r = (balance < 0) ?  1 * balance + 1 : 1;
+    float balance_l = (balance > 0) ? -1 * balance + 1 : 1;
+    float balance_r = (balance < 0) ?  1 * balance + 1 : 1;
 
-    Buffer buffer(duration, spec);
+    const StreamSpec buffer_spec =
+    {
+      defaultSampleFormat(),
+      spec.rate,
+      spec.channels
+    };
+
+    ByteBuffer buffer(buffer_spec, duration);
 
     if (volume > 0)
     {
-      double sine_fac = 2 * M_PI * frequency / spec.rate;
+      float sine_fac = 2 * M_PI * frequency / spec.rate;
       auto n_frames = buffer.frames();
-      double one_over_n_frames = 1. / n_frames;
-      double volume_drop_exp = 2. / volume;
+      float one_over_n_frames = 1. / n_frames;
+      float volume_drop_exp = 2. / volume;
 
-      auto frameSize = audio::frameSize(spec);
-
+      auto frames = viewFrames(buffer);
       for(size_t frame = 0; frame < n_frames; ++frame)
       {
-        double v = volume * std::pow( 1. - one_over_n_frames * frame, volume_drop_exp );
-        double amplitude = v * std::sin(sine_fac * frame);
+        float v = volume * std::pow( 1.0 - one_over_n_frames * frame, volume_drop_exp );
+        float amplitude = v * std::sin(sine_fac * frame);
 
-        int16_t pcm_l =  balance_l * amplitude * std::numeric_limits<int16_t>::max();
-        int16_t pcm_r =  balance_r * amplitude * std::numeric_limits<int16_t>::max();
-
-        buffer[frame * frameSize + 0] = pcm_l & 0xff;
-        buffer[frame * frameSize + 1] = (pcm_l>>8) & 0xff;
-        buffer[frame * frameSize + 2] = pcm_r & 0xff;
-        buffer[frame * frameSize + 3] = (pcm_r>>8) & 0xff;
+        frames[frame] = { balance_l * amplitude, balance_r * amplitude };
       }
     }
-    return buffer;
+    return resample(buffer, spec);
   }
 
+}//namespace synth
 }//namespace audio

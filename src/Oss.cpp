@@ -44,15 +44,16 @@ namespace audio {
       int oss_format;
 
       switch(format) {
-      // case SampleFormat::U8        : oss_format = AFMT_U8;    break;
-      // case SampleFormat::ALAW      : oss_format = AFMT_A_LAW;  break;
-      // case SampleFormat::ULAW      : oss_format = AFMT_MU_LAW;  break;
-      case SampleFormat::S16LE     : oss_format = AFMT_S16_LE; break;
-      // case SampleFormat::S16BE     : oss_format = AFMT_S16_BE; break;
-      // case SampleFormat::S32LE     : oss_format = AFMT_S32_LE; break;
-      // case SampleFormat::S32BE     : oss_format = AFMT_S32_BE; break;
-      // case SampleFormat::S24LE     : oss_format = AFMT_S24_LE; break;
-      // case SampleFormat::S24BE     : oss_format = AFMT_S24_BE; break;
+      // case SampleFormat::kU8        : oss_format = AFMT_U8;    break;
+      // case SampleFormat::kS8        : oss_format = AFMT_S8;    break;
+      case SampleFormat::kS16LE     : oss_format = AFMT_S16_LE; break;
+      // case SampleFormat::kS16BE     : oss_format = AFMT_S16_BE; break;
+      // case SampleFormat::kS32LE     : oss_format = AFMT_S32_LE; break;
+      // case SampleFormat::kS32BE     : oss_format = AFMT_S32_BE; break;
+      // case SampleFormat::kS24LE     : oss_format = AFMT_S24_LE; break;
+      // case SampleFormat::kS24BE     : oss_format = AFMT_S24_BE; break;
+      // case SampleFormat::kALAW      : oss_format = AFMT_A_LAW;  break;
+      // case SampleFormat::kULAW      : oss_format = AFMT_MU_LAW;  break;
       default:
         oss_format = -1;
         break;

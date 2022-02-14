@@ -24,6 +24,7 @@
 #include "Error.h"
 #include "Settings.h"
 #include <vector>
+#include <memory>
 
 namespace audio {
 
