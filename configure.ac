@@ -33,7 +33,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
   [[#include <charconv>]],
   [[const char* str = "3.14";
     double value;
-    std::from_chars<double>(str, str + 4, value);]])],
+    std::from_chars(str, str + 4, value);]])],
   [AC_DEFINE([HAVE_CPP_LIB_TO_CHARS], [1],
     [Define if standard lib supports std::to_chars])]
 )
