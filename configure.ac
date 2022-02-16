@@ -26,6 +26,20 @@ AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX([17],[noext],[mandatory])
 
 #
+# Check C++ std lib features
+#
+AC_LANG_PUSH([C++])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+  [[#include <charconv>]],
+  [[const char* str = "3.14";
+    double value;
+    std::from_chars<double>(str, str + 4, value);]])],
+  [AC_DEFINE([HAVE_CPP_LIB_TO_CHARS], [1],
+    [Define if standard lib supports std::to_chars])]
+)
+AC_LANG_POP([C++])
+
+#
 # Libraries
 #
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
@@ -72,17 +86,17 @@ esac
 # Audio backend: Alsa
 #
 AC_ARG_WITH([alsa],
-            [AS_HELP_STRING([--with-alsa], [enable alsa support])],
-            [],
-            [with_alsa=$default_with_alsa])
+	    [AS_HELP_STRING([--with-alsa], [enable alsa support])],
+	    [],
+	    [with_alsa=$default_with_alsa])
 
 AS_IF([test "x$with_alsa" != "xno"],
   [PKG_CHECK_MODULES([ALSA], [alsa],
      have_alsa=yes
      AC_DEFINE([HAVE_ALSA], [1], [Define if you have alsa support]),
      have_alsa=no
-     AS_IF([test "x$with_alsa" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-alsa was given but test for libasound failed])
+     AS_IF([test "x$with_alsa" != "xcheck"],
+	AC_MSG_FAILURE([--with-alsa was given but test for libasound failed])
      )
   )],
   [have_alsa=no]
@@ -94,9 +108,9 @@ AM_CONDITIONAL([HAVE_ALSA], [test "x$have_alsa" = "xyes"])
 # Audio backend: OSS
 #
 AC_ARG_WITH([oss],
-            [AS_HELP_STRING([--with-oss], [enable oss support])],
-            [],
-            [with_oss=$default_with_oss])
+	    [AS_HELP_STRING([--with-oss], [enable oss support])],
+	    [],
+	    [with_oss=$default_with_oss])
 
 AS_IF([test "x$with_oss" != "xno"],
   [AC_CHECK_HEADER([sys/soundcard.h],
@@ -104,7 +118,7 @@ AS_IF([test "x$with_oss" != "xno"],
      AC_DEFINE([HAVE_OSS], [1], [Define if you have oss support]),
      have_oss=no
      AS_IF([test "x$with_oss" != "xcheck"],
-        AC_MSG_FAILURE([--with-oss was given but test for sys/soundcard.h failed])
+	AC_MSG_FAILURE([--with-oss was given but test for sys/soundcard.h failed])
      )
   )],
   [have_oss=no]
@@ -116,17 +130,17 @@ AM_CONDITIONAL([HAVE_OSS], [test "x$have_oss" = "xyes"])
 # Audio backend: Pulseaudio
 #
 AC_ARG_WITH([pulseaudio],
-            [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
-            [],
-            [with_pulseaudio=$default_with_pulseaudio])
+	    [AS_HELP_STRING([--with-pulseaudio], [enable pulseaudio support])],
+	    [],
+	    [with_pulseaudio=$default_with_pulseaudio])
 
 AS_IF([test "x$with_pulseaudio" != "xno"],
   [PKG_CHECK_MODULES([PULSEAUDIO], [libpulse-simple],
      have_pulseaudio=yes
      AC_DEFINE([HAVE_PULSEAUDIO], [1], [Define if you have pulseaudio support]),
      have_pulseaudio=no
-     AS_IF([test "x$with_pulseaudio" != "xcheck"], 
-      	AC_MSG_FAILURE([--with-pulseaudio was given but test for libpulse-simple failed])
+     AS_IF([test "x$with_pulseaudio" != "xcheck"],
+	AC_MSG_FAILURE([--with-pulseaudio was given but test for libpulse-simple failed])
      )
   )],
   [have_pulseaudio=no]
@@ -138,13 +152,13 @@ AM_CONDITIONAL([HAVE_PULSEAUDIO], [test "x$have_pulseaudio" = "xyes"])
 # Default audio backend
 #
 AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
-        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[$preferred_audio_backend])],
+	[AC_SUBST([DEFAULT_AUDIO_BACKEND],[$preferred_audio_backend])],
       [test "x$have_pulseaudio" = "xyes"],
-        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio])],
+	[AC_SUBST([DEFAULT_AUDIO_BACKEND],[pulseaudio])],
       [test "x$have_alsa" = "xyes"],
-        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa])],
+	[AC_SUBST([DEFAULT_AUDIO_BACKEND],[alsa])],
       [test "x$have_oss" = "xyes"],
-        [AC_SUBST([DEFAULT_AUDIO_BACKEND],[oss])],
+	[AC_SUBST([DEFAULT_AUDIO_BACKEND],[oss])],
       [AC_SUBST([DEFAULT_AUDIO_BACKEND],[none])]
 )
 
@@ -173,7 +187,7 @@ AC_CONFIG_FILES([data/org.gmetronome.gschema.xml])
 GETTEXT_PACKAGE=gmetronome
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
-                   [The domain to use with gettext])
+		   [The domain to use with gettext])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.6])
 AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])

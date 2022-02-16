@@ -29,6 +29,10 @@
 #include <cassert>
 #include <stack>
 
+#ifndef HAVE_CPP_LIB_TO_CHARS
+# include <sstream>
+#endif
+
 ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
   : file_{file},
     pmap_{},
@@ -178,24 +182,51 @@ namespace {
   template<class T>
   std::string numberToString(const T& value)
   {
+#ifdef HAVE_CPP_LIB_TO_CHARS
     std::array<char,kConvBufSize> str;
-
     if(auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), value);
        ec == std::errc())
       return std::string(str.data(), p - str.data());
     else
       throw std::runtime_error {"failed to convert number to string"};
+#else
+    std::stringstream sstr;
+    sstr.imbue(std::locale::classic());
+    sstr << value;
+
+    std::string s;
+    sstr >> s;
+
+    if (sstr.fail())
+      throw std::runtime_error {"failed to convert number to string"};
+
+    return s;
+#endif
   }
 
   template<class T>
   T stringToNumber(const std::string& str)
   {
+#ifdef HAVE_CPP_LIB_TO_CHARS
     T value;
     if(auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
        ec == std::errc())
       return value;
     else
       throw std::runtime_error {"failed to convert string to number"};
+#else
+    std::stringstream sstr;
+    sstr.imbue(std::locale::classic());
+    sstr << str;
+
+    T value;
+    sstr >> value;
+
+    if (sstr.fail())
+      throw std::runtime_error {"failed to convert string to number"};
+
+    return value;
+#endif
   }
 
   std::string doubleToString(double value)
