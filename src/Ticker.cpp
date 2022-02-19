@@ -175,41 +175,41 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundStrong(double frequency, double volume, double balance)
+  void Ticker::setSoundStrong(double timbre, double pitch, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_strong_ = synth::generateSound( frequency,
+      in_sound_strong_ = synth::generateClick( kDefaultSpec,
+                                               timbre,
+                                               pitch,
                                                volume,
-                                               balance,
-                                               kDefaultSpec,
-                                               kSineDuration );
+                                               balance );
     }
     sound_strong_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundMid(double frequency, double volume, double balance)
+  void Ticker::setSoundMid(double timbre, double pitch, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_mid_ = synth::generateSound( frequency,
+      in_sound_mid_ = synth::generateClick( kDefaultSpec,
+                                            timbre,
+                                            pitch,
                                             volume,
-                                            balance,
-                                            kDefaultSpec,
-                                            kSineDuration );
+                                            balance );
     }
     sound_mid_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundWeak(double frequency, double volume, double balance)
+  void Ticker::setSoundWeak(double timbre, double pitch, double volume, double balance)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_weak_ = synth::generateSound( frequency,
+      in_sound_weak_ = synth::generateClick( kDefaultSpec,
+                                             timbre,
+                                             pitch,
                                              volume,
-                                             balance,
-                                             kDefaultSpec,
-                                             kSineDuration );
+                                             balance );
     }
     sound_weak_imported_flag_.clear(std::memory_order_release);
   }

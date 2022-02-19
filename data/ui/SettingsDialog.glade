@@ -14,12 +14,18 @@
     <property name="step-increment">0.01</property>
     <property name="page-increment">0.10</property>
   </object>
-  <object class="GtkAdjustment" id="soundMidFreqAdjustment">
+  <object class="GtkAdjustment" id="soundMidPitchAdjustment">
     <property name="lower">20</property>
     <property name="upper">20000</property>
     <property name="value">1100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundMidTimbreAdjustment">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="soundMidVolAdjustment">
     <property name="upper">100</property>
@@ -33,12 +39,18 @@
     <property name="step-increment">0.01</property>
     <property name="page-increment">0.10</property>
   </object>
-  <object class="GtkAdjustment" id="soundStrongFreqAdjustment">
+  <object class="GtkAdjustment" id="soundStrongPitchAdjustment">
     <property name="lower">20</property>
     <property name="upper">20000</property>
     <property name="value">1100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundStrongTimbreAdjustment">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="soundStrongVolAdjustment">
     <property name="upper">100</property>
@@ -50,14 +62,20 @@
     <property name="lower">-1</property>
     <property name="upper">1</property>
     <property name="step-increment">0.01</property>
-    <property name="page-increment">1</property>
+    <property name="page-increment">0.10</property>
   </object>
-  <object class="GtkAdjustment" id="soundWeakFreqAdjustment">
+  <object class="GtkAdjustment" id="soundWeakPitchAdjustment">
     <property name="lower">20</property>
     <property name="upper">20000</property>
     <property name="value">1100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundWeakTimbreAdjustment">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="soundWeakVolAdjustment">
     <property name="upper">100</property>
@@ -448,115 +466,6 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
-                <property name="valign">start</property>
-                <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Balance:</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Volume:</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin-start">10</property>
-                <property name="label" translatable="yes" context="Preferences dialog">Frequency:</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundStrongFreqAdjustment</property>
-                <property name="climb-rate">0.10</property>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundMidFreqAdjustment</property>
-                <property name="climb-rate">0.10</property>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundWeakFreqAdjustment</property>
-                <property name="climb-rate">0.10000000022351742</property>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundStrongVolAdjustment</property>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundMidVolAdjustment</property>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">soundWeakVolAdjustment</property>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
                 <property name="label" translatable="yes" context="Preferences dialog">Sound</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
@@ -569,6 +478,132 @@
               </packing>
             </child>
             <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Pitch:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundStrongPitchAdjustment</property>
+                <property name="climb-rate">0.10</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundMidPitchAdjustment</property>
+                <property name="climb-rate">0.10</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundWeakPitchAdjustment</property>
+                <property name="climb-rate">0.10000000022351742</property>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Timbre:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundStrongTimbreAdjustment</property>
+                <property name="restrict-to-fill-level">False</property>
+                <property name="fill-level">1</property>
+                <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
+                <property name="has-origin">False</property>
+                <property name="value-pos">bottom</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundMidTimbreAdjustment</property>
+                <property name="restrict-to-fill-level">False</property>
+                <property name="fill-level">1</property>
+                <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
+                <property name="has-origin">False</property>
+                <property name="value-pos">bottom</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundWeakTimbreAdjustment</property>
+                <property name="restrict-to-fill-level">False</property>
+                <property name="fill-level">1</property>
+                <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
+                <property name="has-origin">False</property>
+                <property name="value-pos">bottom</property>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Balance:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkScale">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -576,6 +611,7 @@
                 <property name="restrict-to-fill-level">False</property>
                 <property name="fill-level">1</property>
                 <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
                 <property name="has-origin">False</property>
                 <property name="value-pos">bottom</property>
               </object>
@@ -592,6 +628,7 @@
                 <property name="restrict-to-fill-level">False</property>
                 <property name="fill-level">1</property>
                 <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
                 <property name="has-origin">False</property>
                 <property name="value-pos">bottom</property>
               </object>
@@ -608,6 +645,7 @@
                 <property name="restrict-to-fill-level">False</property>
                 <property name="fill-level">1</property>
                 <property name="round-digits">1</property>
+                <property name="draw-value">False</property>
                 <property name="has-origin">False</property>
                 <property name="value-pos">bottom</property>
               </object>
@@ -617,16 +655,50 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Volume:</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundMidVolAdjustment</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">5</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundWeakVolAdjustment</property>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">5</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkSpinButton">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">soundStrongVolAdjustment</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">5</property>
+              </packing>
             </child>
             <child>
               <placeholder/>

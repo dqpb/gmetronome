@@ -27,28 +27,13 @@
 namespace audio {
 namespace synth {
 
-  enum EnvelopePointShape
+  struct AutomationPoint
   {
-    kLinear = 1,
-    kPow8   = 8,
-    kPow10  = 10
+    microseconds time;
+    float value;
   };
 
-  struct EnvelopePoint
-  {
-    milliseconds time;
-    float amplitude;
-    EnvelopePointShape shape;
-  };
-
-  using Envelope = std::vector<EnvelopePoint>;
-
-  enum class NoiseType
-  {
-    kWhite = 0,
-    kPink  = 1,
-    kBrown = 2
-  };
+  using Automation = std::vector<AutomationPoint>;
 
   enum class Waveform
   {
@@ -65,7 +50,8 @@ namespace synth {
     Waveform shape;
   };
 
-  void addNoise(ByteBuffer& buffer, NoiseType type = NoiseType::kWhite);
+
+  void addNoise(ByteBuffer& buffer, float amplitude);
 
   void addSine(ByteBuffer& buffer, float frequency, float amplitude);
 
@@ -77,18 +63,23 @@ namespace synth {
 
   void addOscillator(ByteBuffer& buffer, const std::vector<Oscillator>& osc);
 
-  void applyEnvelope(ByteBuffer& buffer, const Envelope& envelope);
-
   void applyGain(ByteBuffer& buffer, float gain);
+  void applyGain(ByteBuffer& buffer, float gain_l, float gain_r);
+  void applyGain(ByteBuffer& buffer, const Automation& gain);
+
+  void normalize(ByteBuffer& buffer, float gain);
+  void normalize(ByteBuffer& buffer, float gain_l, float gain_r);
+
+  void applySmoothing(ByteBuffer& buffer, microseconds kernel_width);
+  void applySmoothing(ByteBuffer& buffer, const Automation& kernel_width);
 
   ByteBuffer mixBuffers(ByteBuffer buffer1, const ByteBuffer& buffer2);
 
-  ByteBuffer generateSound(double frequency,
-                           double volume,
-                           double balance,
-                           StreamSpec spec,
-                           microseconds duration);
-
+  ByteBuffer generateClick(const StreamSpec& spec,
+                           float timbre = -1.0,
+                           float pitch = 800,
+                           float volume = 1.0,
+                           float balance = 0.0);
 }//namespace synth
 }//namespace audio
 #endif//GMetronome_Synthesizer_h

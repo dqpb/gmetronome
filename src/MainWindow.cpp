@@ -1054,8 +1054,8 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  static const Glib::ustring kAccelUpSymbol     = "\xe2\x96\xbe"; // "▴"
-  static const Glib::ustring kAccelDownSymbol   = "\xe2\x96\xb4"; // "▾"
+  static const Glib::ustring kAccelUpSymbol     = "\xe2\x96\xb4"; // "▴"
+  static const Glib::ustring kAccelDownSymbol   = "\xe2\x96\xbe"; // "▾"
   static const Glib::ustring kAccelStableSymbol = "\xe2\x80\xa2"; // "•"
 
   static const int precision = 2;

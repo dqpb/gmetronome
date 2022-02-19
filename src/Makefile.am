@@ -69,8 +69,7 @@ noinst_HEADERS = \
 	Shortcut.h \
 	SpinLock.h \
 	Synthesizer.h \
-	Ticker.h \
-	View.h
+	Ticker.h
 
 top_src_datadir = $(top_srcdir)/data
 

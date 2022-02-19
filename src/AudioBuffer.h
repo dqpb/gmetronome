@@ -21,12 +21,12 @@
 #define GMetronome_AudioBuffer_h
 
 #include "Audio.h"
-#include "View.h"
 
 #include <vector>
 #include <chrono>
 #include <initializer_list>
 #include <algorithm>
+#include <iterator>
 #include <cmath>
 #include <cstring>
 #include <cassert>
@@ -138,6 +138,180 @@ namespace audio {
     StreamSpec spec_;
     container_type data_;
   };
+
+  /**
+   * @class View
+   * @brief Base class for proxy objects to access data in a storage
+   */
+  template<typename StoreIter>
+  struct View
+  {
+    using StorageIterator = StoreIter;
+
+    explicit View(StoreIter iter) : iter_{iter} {}
+
+    StoreIter alignment() const
+      { return iter_; }
+    void align(StoreIter iter)
+      { iter_ = iter; }
+    std::size_t extent() const;
+
+  private:
+    StoreIter iter_;
+  };
+
+  /**
+   * @class StrideIterator
+   */
+  template<typename ProxyView>
+  class StrideIterator {
+  public:
+    // traits
+    using ProxyViewType     = ProxyView;
+    using difference_type   = std::size_t;
+    using value_type        = ProxyViewType;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+    using iterator_category = std::forward_iterator_tag;
+
+    explicit StrideIterator(ProxyViewType view) : view_(std::move(view))
+      {}
+    StrideIterator& operator++()
+      {view_.align(view_.alignment() + view_.extent()); return *this;}
+    StrideIterator operator++(int)
+      {StrideIterator retval = *this; ++(*this); return retval;}
+    bool operator==(StrideIterator other) const
+      {return view_.alignment() == other.view_.alignment();}
+    bool operator!=(StrideIterator other) const
+      {return !(*this == other);}
+    ProxyView& operator*()
+      { return view_; }
+    ProxyView* operator->()
+      { return &view_; }
+
+  private:
+    ProxyView view_;
+  };
+
+  /**
+   * @class ContainerView<V,...>
+   */
+  template<typename ProxyView, typename StoreIter>
+  struct ContainerView : public View<StoreIter>
+  {
+    using ProxyViewType        = ProxyView;
+    using Iterator             = StrideIterator<ProxyView>;
+
+    static_assert(std::is_base_of_v<View<StoreIter>, ProxyView>);
+
+    template<typename... ProxyArgs>
+    ContainerView(StoreIter iter, size_t size, ProxyArgs... args)
+      : View<StoreIter>(iter), size_{size}, proxy_view_(iter, args...)
+      {};
+
+    StoreIter alignment() const
+      { return View<StoreIter>::alignment(); }
+
+    std::size_t extent() const
+      { return size_ * proxy_view_.extent(); }
+
+    std::size_t size() const
+      { return size_; }
+
+    template<typename OtherProxyView, typename OtherStoreIter>
+    ContainerView& operator=(const ContainerView<OtherProxyView, OtherStoreIter>& other)
+      {
+        std::copy_n(other.begin(), std::min(size(), other.size()), begin());
+        return *this;
+      }
+
+    ProxyView& operator[](std::size_t index)
+      {
+        proxy_view_.align(alignment() + index * proxy_view_.extent());
+        return proxy_view_;
+      }
+    Iterator begin()
+      {
+        ProxyViewType tmp = proxy_view_;
+        tmp.align(alignment());
+        return Iterator(tmp);
+      }
+    Iterator end()
+      {
+        ProxyViewType tmp = proxy_view_;
+        tmp.align(alignment() + extent());
+        return Iterator(tmp);
+      }
+    Iterator begin() const
+      {
+        ProxyView tmp = proxy_view_;
+        tmp.align(alignment());
+        return Iterator(tmp);
+      }
+    Iterator end() const
+      {
+        ProxyView tmp = proxy_view_;
+        tmp.align(alignment() + extent());
+        return Iterator(tmp);
+      }
+
+  private:
+    std::size_t size_;
+    ProxyView proxy_view_;
+  };
+
+  /**
+   * @class ContainerView<V,N,...>
+   * @brief Partial specialization for compile time sized container views
+   */
+/*
+  template<typename V, typename BytePointerType std::size_t N, std::size_t...Rest>
+  class ContainerView<V, N, Rest...> : public View {
+  public:
+  using ViewType = V;
+  using Iterator = StrideIterator<ViewType>;
+  static constexpr std::size_t kSize = N;
+
+  template<typename...VArgs>
+  ContainerView(BytePointer ptr, VArgs...vargs)
+  : View(ptr), view_proxy_{ptr, vargs...}
+  {}
+
+  template<typename OtherContainer>
+  ContainerView<V,Rest...>& operator=(const OtherContainer& other)
+  {
+  std::copy_n(other.begin(), std::min(size(), other.size()), begin());
+  return *this;
+  }
+
+  std::size_t extent() const
+  { return size() * view_proxy_.extent(); }
+
+  static constexpr std::size_t size()
+  { return kSize; }
+
+  ViewType& operator[](std::size_t index)
+  {
+  view_proxy_.align(alignment() + index * view_proxy_.extent());
+  return view_proxy_;
+  }
+  Iterator begin()
+  {
+  ViewType tmp = view_proxy_;
+  tmp.align(alignment());
+  return Iterator(tmp);
+  }
+  Iterator end()
+  {
+  ViewType tmp = view_proxy_;
+  tmp.align(alignment() + extent());
+  return Iterator(tmp);
+  }
+  private:
+  ViewType view_proxy_;
+  };
+*/
+
 
   /**
    * @class SampleView
@@ -518,91 +692,132 @@ namespace audio {
     using Base::operator=;
 
     FrameContainerView(StoreIter iter, size_t frames, size_t channels)
-      : ContainerView<ProxyViewType, StoreIter>(iter, frames, channels)
+      : Base(iter, frames, channels)
       {}
-
     explicit FrameContainerView(ByteBuffer& buffer)
-      : ContainerView<ProxyViewType, StoreIter>(buffer.data(),
-                                                buffer.frames(),
-                                                buffer.channels())
+      : Base(buffer.data(), buffer.frames(), buffer.channels())
       {}
     explicit FrameContainerView(const ByteBuffer& buffer)
-      : ContainerView<ProxyViewType, StoreIter>(buffer.data(),
-                                                buffer.frames(),
-                                                buffer.channels())
+      : Base(buffer.data(), buffer.frames(), buffer.channels())
       {}
   };
 
-  // template<SampleFormat Format, typename StoreIter>
-  // class ChannelSelectView : public ElementSelectView<FrameView<Format, StoreIter>>
-  // {
+  /**
+   * @class ChannelSampleView
+   */
+  template<SampleFormat Format, typename StoreIter>
+  struct ChannelSampleView : public SampleView<Format, StoreIter>
+  {
+    using Base = SampleView<Format, StoreIter>;
 
-  // };
+    using Base::operator=;
 
-  // /**
-  //  * @class ChannelView
-  //  */
-  // template<SampleFormat Format, typename StoreIter>
-  // struct ChannelView : public ContainerView<ChannelSelectView<Format, StoreIter>, StoreIter>
-  // {
-  //   using ProxyViewType = FrameView<Format, StoreIter>;
-  //   using Base = ContainerView<ProxyViewType, StoreIter>;
+    // ctors
+    ChannelSampleView(StoreIter iter, size_t channels)
+      : Base(iter), channels_{channels}
+      {}
 
-  //   using Base::operator=;
+    std::size_t extent() const
+      { return Base::extent() * channels_; }
 
-  //   ChannelView(StoreIter iter, size_t frames, size_t channels)
-  //     : ContainerView<ProxyViewType, StoreIter>(iter, frames, channels)
-  //     {}
+  private:
+    size_t channels_;
+  };
 
-  //   explicit FrameContainerView(ByteBuffer& buffer)
-  //     : ContainerView<ProxyViewType, StoreIter>(buffer.data(),
-  //                                               buffer.frames(),
-  //                                               buffer.channels())
-  //     {}
-  //   explicit FrameContainerView(const ByteBuffer& buffer)
-  //     : ContainerView<ProxyViewType, StoreIter>(buffer.data(),
-  //                                               buffer.frames(),
-  //                                               buffer.channels())
-  //     {}
-  // };
+  /**
+   * @class ChannelView
+   */
+  template<SampleFormat Format, typename StoreIter>
+  struct ChannelView : public ContainerView<ChannelSampleView<Format, StoreIter>, StoreIter>
+  {
+    using ProxyViewType = ChannelSampleView<Format, StoreIter>;
+    using Base = ContainerView<ProxyViewType, StoreIter>;
 
+    using Base::operator=;
+
+    ChannelView(StoreIter iter, size_t frames, size_t channels)
+      : Base(iter, frames, channels)
+      {}
+    explicit ChannelView(ByteBuffer& buffer, size_t select)
+      : Base(buffer.data() + sampleSize(Format) * select, buffer.frames(), buffer.channels())
+      {}
+    explicit ChannelView(const ByteBuffer& buffer, size_t select)
+      : Base(buffer.data() + sampleSize(Format) * select, buffer.frames(), buffer.channels())
+      {}
+    constexpr std::size_t extent() const
+      { return SampleView<Format, StoreIter>::extent(); }
+  };
+
+  /**
+   * @class ChannelContainerView
+   */
+  template<SampleFormat Format, typename StoreIter>
+  struct ChannelContainerView : public ContainerView<ChannelView<Format, StoreIter>, StoreIter>
+  {
+    using ProxyViewType = ChannelView<Format, StoreIter>;
+    using Base = ContainerView<ProxyViewType, StoreIter>;
+
+    using Base::operator=;
+
+    ChannelContainerView(StoreIter iter, size_t channels, size_t frames)
+      : Base(iter, channels, frames, channels)
+      {}
+    explicit ChannelContainerView(ByteBuffer& buffer)
+      : Base(buffer.data(), buffer.channels(), buffer.frames(), buffer.channels())
+      {}
+    explicit ChannelContainerView(const ByteBuffer& buffer)
+      : Base(buffer.data(), buffer.channels(), buffer.frames(), buffer.channels())
+      {}
+  };
 
   // helper to construct views from byte buffers
   template<SampleFormat Format>
   auto viewSample(ByteBuffer& buffer)
-    -> SampleView<Format, ByteBuffer::pointer>
   { return SampleView<Format, ByteBuffer::pointer>(buffer); }
 
   template<SampleFormat Format>
   auto viewSample(const ByteBuffer& buffer)
-    -> SampleView<Format, ByteBuffer::pointer>
   { return SampleView<Format, ByteBuffer::const_pointer>(buffer); }
 
   template<SampleFormat Format>
   auto viewSamples(ByteBuffer& buffer)
-    -> SampleContainerView<Format, ByteBuffer::pointer>
   { return SampleContainerView<Format, ByteBuffer::pointer>(buffer); }
 
   template<SampleFormat Format>
   auto viewSamples(const ByteBuffer& buffer)
-    -> SampleContainerView<Format, ByteBuffer::const_pointer>
   { return SampleContainerView<Format, ByteBuffer::const_pointer>(buffer); }
 
   template<SampleFormat Format>
-  auto viewFrame(ByteBuffer& buffer) -> FrameView<Format, ByteBuffer::pointer>
+  auto viewFrame(ByteBuffer& buffer)
   { return FrameView<Format, ByteBuffer::pointer>(buffer); }
 
   template<SampleFormat Format>
-  auto viewFrame(const ByteBuffer& buffer) -> FrameView<Format, ByteBuffer::const_pointer>
+  auto viewFrame(const ByteBuffer& buffer)
   { return FrameView<Format, ByteBuffer::const_pointer>(buffer); }
 
   template<SampleFormat Format>
-  auto viewFrames(ByteBuffer& buffer) -> FrameContainerView<Format, ByteBuffer::pointer>
+  auto viewFrames(ByteBuffer& buffer)
   { return FrameContainerView<Format, ByteBuffer::pointer>(buffer); }
 
   template<SampleFormat Format>
-  auto viewFrames(const ByteBuffer& buffer) -> FrameContainerView<Format, ByteBuffer::const_pointer>
+  auto viewFrames(const ByteBuffer& buffer)
   { return FrameContainerView<Format, ByteBuffer::const_pointer>(buffer); }
+
+  template<SampleFormat Format>
+  auto viewChannel(ByteBuffer& buffer, size_t channel)
+  { return ChannelView<Format, ByteBuffer::pointer>(buffer, channel); }
+
+  template<SampleFormat Format>
+  auto viewChannel(const ByteBuffer& buffer, size_t channel)
+  { return ChannelView<Format, ByteBuffer::const_pointer>(buffer, channel); }
+
+  template<SampleFormat Format>
+  auto viewChannels(ByteBuffer& buffer)
+  { return ChannelContainerView<Format, ByteBuffer::pointer>(buffer); }
+
+  template<SampleFormat Format>
+  auto viewChannels(const ByteBuffer& buffer)
+  { return ChannelContainerView<Format, ByteBuffer::const_pointer>(buffer); }
 
   // resample an audio buffer
   ByteBuffer resample(const ByteBuffer& buffer, const StreamSpec& to_spec);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021,2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -36,19 +36,39 @@ namespace synth {
       return SampleFormat::kFloat32BE;
   }
 
-  auto viewSamples(ByteBuffer& buffer)
+  using Sample   = SampleView<defaultSampleFormat(), ByteBuffer::pointer>;
+  using Frame    = FrameView<defaultSampleFormat(), ByteBuffer::pointer>;
+  using Channel  = ChannelView<defaultSampleFormat(), ByteBuffer::pointer>;
+  using Samples  = SampleContainerView<defaultSampleFormat(), ByteBuffer::pointer>;
+  using Frames   = FrameContainerView<defaultSampleFormat(), ByteBuffer::pointer>;
+  using Channels = ChannelContainerView<defaultSampleFormat(), ByteBuffer::pointer>;
+
+  using ConstSample   = SampleView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+  using ConstFrame    = FrameView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+  using ConstChannel  = ChannelView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+  using ConstSamples  = SampleContainerView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+  using ConstFrames   = FrameContainerView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+  using ConstChannels = ChannelContainerView<defaultSampleFormat(), ByteBuffer::const_pointer>;
+
+  Samples viewSamples(ByteBuffer& buffer)
   { return audio::viewSamples<defaultSampleFormat()>(buffer); }
 
-  auto viewSamples(const ByteBuffer& buffer)
+  ConstSamples viewSamples(const ByteBuffer& buffer)
   { return audio::viewSamples<defaultSampleFormat()>(buffer); }
 
-  auto viewFrames(ByteBuffer& buffer)
+  Frames viewFrames(ByteBuffer& buffer)
   { return audio::viewFrames<defaultSampleFormat()>(buffer); }
 
-  auto viewFrames(const ByteBuffer& buffer)
+  ConstFrames viewFrames(const ByteBuffer& buffer)
   { return audio::viewFrames<defaultSampleFormat()>(buffer); }
 
-  void addNoise(ByteBuffer& buffer, NoiseType type)
+  Channels viewChannels(ByteBuffer& buffer)
+  { return audio::viewChannels<defaultSampleFormat()>(buffer); }
+
+  ConstChannels viewChannels(const ByteBuffer& buffer)
+  { return audio::viewChannels<defaultSampleFormat()>(buffer); }
+
+  void addNoise(ByteBuffer& buffer, float amplitude)
   {
     assert(isFloatingPoint(buffer.spec().format));
 
@@ -59,8 +79,7 @@ namespace synth {
     auto frames = viewFrames(buffer);
     for (auto& frame : frames)
     {
-      frame += {dis(gen), dis(gen)};
-      frame /= 2.0;
+      frame += {amplitude * dis(gen), amplitude * dis(gen)};
     }
   }
 
@@ -75,7 +94,6 @@ namespace synth {
     {
       float sine = std::sin(omega * frame_index);
       frames[frame_index] += amplitude * sine;
-      frames[frame_index] /= 2.0;
     }
   }
 
@@ -90,7 +108,6 @@ namespace synth {
     {
       float triangle = 2.0 * std::asin(std::sin(omega * frame_index)) / M_PI;
       frames[frame_index] += amplitude * triangle;
-      frames[frame_index] /= 2.0;
     }
   }
 
@@ -106,7 +123,6 @@ namespace synth {
       float time = (omega * frame_index) / (2.0 * M_PI);
       float sawtooth = 2.0 * (time - std::floor(time) - 0.5);
       frames[frame_index] += amplitude * sawtooth;
-      frames[frame_index] /= 2.0;
     }
   }
 
@@ -124,7 +140,6 @@ namespace synth {
         frames[frame_index] += amplitude;
       else
         frames[frame_index] -= amplitude;
-      frames[frame_index] /= 2.0;
     }
   }
 
@@ -149,18 +164,130 @@ namespace synth {
     }
   }
 
-  void applyEnvelope(ByteBuffer& buffer, const Envelope& envelope)
+  void applyAutomation(const ByteBuffer& buffer,
+                       const Automation& points,
+                       const std::function<void(size_t frame_index, float value)>& fun)
   {
-    // not implemented yet
+    assert(buffer.spec().rate > 0);
+
+    assert(std::is_sorted(points.begin(), points.end(),
+                          [] (const auto& lhs, const auto& rhs)
+                            { return lhs.time < rhs.time; }));
+
+    if (points.empty() || buffer.empty())
+      return;
+
+    float cur_value = points.front().value;
+    size_t cur_frame = 0;
+
+    for (const auto& pt : points)
+    {
+      size_t pt_frame = usecsToFrames(pt.time, buffer.spec());
+      float delta_value = pt.value - cur_value;
+      float delta_frames = pt_frame - cur_frame + 1;
+
+      if (delta_frames > 0)
+      {
+        float slope = delta_value / delta_frames;
+        for (; cur_frame <= pt_frame && cur_frame < buffer.frames(); ++cur_frame)
+        {
+          cur_value += slope;
+          fun(cur_frame, cur_value);
+        }
+      }
+    }
+   for (; cur_frame < buffer.frames(); ++cur_frame)
+     fun(cur_frame, cur_value);
+  }
+
+  void applyAutomation(ByteBuffer& buffer,
+                       const Automation& points,
+                       const std::function<void(Frames& frames, Frame& frame, float value)>& fun)
+  {
+    auto frames = viewFrames(buffer);
+    auto fu = [&frames, &fun] (size_t frame_index, float value)
+      { fun(frames, frames[frame_index], value); };
+
+    applyAutomation(buffer, points, fu);
+  }
+
+  void applyAutomation(ByteBuffer& buffer,
+                       const Automation& points,
+                       const std::function<void(Frame& frame, float value)>& fun)
+  {
+    auto frames = viewFrames(buffer);
+    auto fu = [&frames, &fun] (size_t frame_index, float value)
+      { fun(frames[frame_index], value); };
+
+    applyAutomation(buffer, points, fu);
+  }
+
+  void applyGain(Frame& frame, float gain_l, float gain_r)
+  { frame *= {gain_l, gain_r}; }
+
+  void applyGain(Frame& frame, float gain)
+  { applyGain(frame, gain, gain); }
+
+  void applyGain(ByteBuffer& buffer, float gain_l, float gain_r)
+  {
+    assert(buffer.spec().channels == 2);
+
+    auto frames = viewFrames(buffer);
+    for (auto& frame : frames)
+      applyGain(frame, gain_l, gain_r);
   }
 
   void applyGain(ByteBuffer& buffer, float gain)
+  { applyGain(buffer, gain, gain); }
+
+  void applyGain(ByteBuffer& buffer, const Automation& gain)
+  { applyAutomation(buffer, gain, [] (Frame& f, float v) { applyGain(f,v); }); }
+
+  void normalize(ByteBuffer& buffer, float gain_l, float gain_r)
   {
-    gain = std::clamp<float>(gain, 0.0, 1.0);
+    assert(buffer.spec().channels == 2);
+
     auto frames = viewFrames(buffer);
+
+    float max = 0.0;
     for (auto& frame : frames)
-      frame *= gain;
+      max = std::max(max, std::max(std::abs(frame[0]), std::abs(frame[1])));
+
+    for (auto& frame : frames)
+      frame *= { gain_l / max, gain_r / max};
   }
+
+  void normalize(ByteBuffer& buffer, float gain)
+  { normalize(buffer, gain, gain); }
+
+
+  void applySmoothing(ByteBuffer& buffer, const Automation& kernel_width)
+  {
+    auto channels = viewChannels(buffer);
+
+    for (auto& channel : channels)
+    {
+      applyAutomation(buffer, kernel_width, [&buffer, &channel] (size_t frame_index, float value)
+        {
+          int kw_half = usecsToFrames(microseconds(int(value)), buffer.spec()) / 2;
+
+          if (kw_half <= 0)
+            return;
+
+          auto start = std::max<int>(frame_index - kw_half, 0);
+          auto end = std::min<int>(frame_index + kw_half + 1, channel.size());
+          float avg = 0;
+
+          for (int i=start; i<end; ++i)
+            avg += channel[i];
+
+          channel[frame_index] = avg / (end-start);
+        });
+    }
+  }
+
+  void applySmoothing(ByteBuffer& buffer, microseconds kernel_width)
+  { applySmoothing(buffer, {{0ms, float(kernel_width.count())}}); }
 
   ByteBuffer mixBuffers(ByteBuffer buffer1, const ByteBuffer& buffer2)
   {
@@ -173,52 +300,102 @@ namespace synth {
          ++it1, ++it2)
     {
       *it1 += *it2;
-      *it1 /= 2.0;
     }
     return buffer1;
   }
 
-  ByteBuffer generateSound(double frequency,
-                           double volume,
-                           double balance,
-                           StreamSpec spec,
-                           microseconds duration)
+
+  ByteBuffer generateClick(const StreamSpec& spec,
+                           float timbre,
+                           float pitch,
+                           float volume,
+                           float balance)
   {
     assert(spec.channels == 2);
-    assert(!std::isnan(frequency) && frequency>0);
     assert(!std::isnan(volume));
     assert(!std::isnan(balance));
 
-    volume = std::clamp(volume, 0.0, 1.0);
-    balance = std::clamp(balance, -1.0, 1.0);
+    static const milliseconds kBufferDuration = 60ms;
+
+    volume = std::clamp(volume, 0.0f, 1.0f);
+    balance = std::clamp(balance, -1.0f, 1.0f);
 
     float balance_l = (balance > 0) ? -1 * balance + 1 : 1;
     float balance_r = (balance < 0) ?  1 * balance + 1 : 1;
 
     const StreamSpec buffer_spec =
-    {
-      defaultSampleFormat(),
-      spec.rate,
-      spec.channels
-    };
+      {
+        defaultSampleFormat(),
+        spec.rate,
+        spec.channels
+      };
 
-    ByteBuffer buffer(buffer_spec, duration);
+    ByteBuffer buffer(buffer_spec, kBufferDuration);
 
     if (volume > 0)
     {
-      float sine_fac = 2 * M_PI * frequency / spec.rate;
-      auto n_frames = buffer.frames();
-      float one_over_n_frames = 1. / n_frames;
-      float volume_drop_exp = 2. / volume;
+      ByteBuffer osc_buffer(buffer_spec, kBufferDuration);
 
-      auto frames = viewFrames(buffer);
-      for(size_t frame = 0; frame < n_frames; ++frame)
-      {
-        float v = volume * std::pow( 1.0 - one_over_n_frames * frame, volume_drop_exp );
-        float amplitude = v * std::sin(sine_fac * frame);
+      const std::vector<Oscillator> osc = {
+        {pitch,         1.0f, Waveform::kSine},
+        // {pitch * 0.67f, 0.6f, Waveform::kSine},
+        // {pitch * 1.32f, 0.6f, Waveform::kSine},
+        // {pitch * 0.43f, 0.3f, Waveform::kSine},
 
-        frames[frame] = { balance_l * amplitude, balance_r * amplitude };
-      }
+        // {pitch * 1.68f, 0.3f, Waveform::kSine},
+        // {pitch * 2.68f, 0.1f, Waveform::kSine}
+
+        {pitch *  3.0f / 2.0f, 0.2f, Waveform::kTriangle},
+        {pitch *  5.0f / 4.0f, 0.1f, Waveform::kSine},
+        // {pitch * 15.0f / 8.0f, 0.05f, Waveform::kSquare}
+      };
+
+      addOscillator(osc_buffer, osc);
+
+      applyGain(osc_buffer, (timbre + 1.0)/2.0);
+
+      static const Automation osc_envelope = {
+        {0ms,  0.0},
+        {3ms,  0.7},
+        {7ms,  0.3},
+        {8ms,  0.7},
+        {12ms, 0.15},
+        {30ms, 0.05},
+        {60ms, 0.0}
+      };
+      applyGain(osc_buffer, osc_envelope);
+
+      addNoise(buffer, std::max(-timbre, 0.0f));
+
+      static const Automation noise_smoothing_kw = {
+          {0ms,  100.0f},
+          {1ms,   30.0f},
+          {5ms,   80.0f},
+          {6ms,   30.0f},
+          {11ms,  80.0f},
+          {60ms, 200.0f},
+      };
+      applySmoothing(buffer, noise_smoothing_kw);
+
+      static const Automation noise_envelope = {
+        {0ms,  0.0},
+        {1ms,  1.0},
+        {5ms,  0.2},
+        {6ms,  1.0},
+        {11ms, 0.2},
+        {60ms, 0.0}
+      };
+      applyGain(buffer, noise_envelope);
+
+      buffer = mixBuffers(std::move(buffer), osc_buffer);
+
+      static const Automation final_smoothing = {
+        {0ms,  0.0f},
+        {60ms, 200.0f},
+      };
+      applySmoothing(buffer, final_smoothing);
+
+      normalize(buffer, volume * balance_l, volume * balance_r);
     }
     return resample(buffer, spec);
   }

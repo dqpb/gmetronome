@@ -54,13 +54,16 @@ private:
 
   // Sound tab
   Gtk::Grid* sound_grid_;
-  Glib::RefPtr<Gtk::Adjustment> sound_strong_freq_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_strong_timbre_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_strong_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_vol_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_bal_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_mid_freq_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_mid_timbre_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_mid_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_mid_vol_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_mid_bal_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_weak_freq_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_weak_timbre_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> sound_weak_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_weak_vol_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_weak_bal_adjustment_;
 

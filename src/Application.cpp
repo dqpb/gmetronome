@@ -258,7 +258,8 @@ void Application::configureTickerSoundStrong()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongFrequency),
+  ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongTimbre),
+                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongPitch),
                          settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
                          settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                          settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance));
@@ -268,7 +269,8 @@ void Application::configureTickerSoundMid()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidFrequency),
+  ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidTimbre),
+                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidPitch),
                       settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                       settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance));
@@ -278,7 +280,8 @@ void Application::configureTickerSoundWeak()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakFrequency),
+  ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakTimbre),
+                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakPitch),
                        settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
                        settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
                        settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance));
@@ -1095,19 +1098,22 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
   {
     configureTickerSound();
   }
-  else if (key == settings::kKeyPrefsSoundStrongFrequency
+  else if (key == settings::kKeyPrefsSoundStrongTimbre
+           || key == settings::kKeyPrefsSoundStrongPitch
            || key == settings::kKeyPrefsSoundStrongVolume
            || key == settings::kKeyPrefsSoundStrongBalance)
   {
     configureTickerSoundStrong();
   }
-  else if (key == settings::kKeyPrefsSoundMidFrequency
+  else if (key == settings::kKeyPrefsSoundMidTimbre
+           || key == settings::kKeyPrefsSoundMidPitch
            || key == settings::kKeyPrefsSoundMidVolume
            || key == settings::kKeyPrefsSoundMidBalance)
   {
     configureTickerSoundMid();
   }
-  else if (key == settings::kKeyPrefsSoundWeakFrequency
+  else if (key == settings::kKeyPrefsSoundWeakTimbre
+           || key == settings::kKeyPrefsSoundWeakPitch
            || key == settings::kKeyPrefsSoundWeakVolume
            || key == settings::kKeyPrefsSoundWeakBalance)
   {

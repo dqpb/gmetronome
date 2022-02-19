@@ -45,20 +45,26 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
 
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
-  sound_strong_freq_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongFreqAdjustment"));
+  sound_strong_timbre_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongTimbreAdjustment"));
+  sound_strong_pitch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongPitchAdjustment"));
   sound_strong_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongVolAdjustment"));
   sound_strong_bal_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundStrongBalAdjustment"));
-  sound_mid_freq_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidFreqAdjustment"));
+  sound_mid_timbre_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidTimbreAdjustment"));
+  sound_mid_pitch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidPitchAdjustment"));
   sound_mid_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidVolAdjustment"));
   sound_mid_bal_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundMidBalAdjustment"));
-  sound_weak_freq_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakFreqAdjustment"));
+  sound_weak_timbre_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakTimbreAdjustment"));
+  sound_weak_pitch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakPitchAdjustment"));
   sound_weak_vol_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakVolAdjustment"));
   sound_weak_bal_adjustment_ =
@@ -175,13 +181,16 @@ void SettingsDialog::initBindings()
   settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, accent_animation_switch_->property_state());
   settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
   settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongFrequency, sound_strong_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongTimbre, sound_strong_timbre_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundStrongPitch, sound_strong_pitch_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidFrequency, sound_mid_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidTimbre, sound_mid_timbre_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundMidPitch, sound_mid_pitch_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakFrequency, sound_weak_freq_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakTimbre, sound_weak_timbre_adjustment_->property_value());
+  settings_prefs_->bind(settings::kKeyPrefsSoundWeakPitch, sound_weak_pitch_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
   settings_prefs_->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_->property_state());
