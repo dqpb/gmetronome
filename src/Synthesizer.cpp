@@ -18,14 +18,16 @@
  */
 
 #include "Synthesizer.h"
-#include <iostream>
 #include <algorithm>
 #include <random>
+#include <future>
 #include <cmath>
 #include <cassert>
 
-namespace audio {
+//debug
+#include <iostream>
 
+namespace audio {
 namespace synth {
 
   constexpr SampleFormat defaultSampleFormat()
@@ -304,7 +306,6 @@ namespace synth {
     return buffer1;
   }
 
-
   ByteBuffer generateClick(const StreamSpec& spec,
                            float timbre,
                            float pitch,
@@ -345,14 +346,14 @@ namespace synth {
         // {pitch * 1.68f, 0.3f, Waveform::kSine},
         // {pitch * 2.68f, 0.1f, Waveform::kSine}
 
-        {pitch *  3.0f / 2.0f, 0.2f, Waveform::kTriangle},
+        {pitch *  3.0f / 2.0f, 0.2f, Waveform::kSine},
         {pitch *  5.0f / 4.0f, 0.1f, Waveform::kSine},
         // {pitch * 15.0f / 8.0f, 0.05f, Waveform::kSquare}
       };
 
       addOscillator(osc_buffer, osc);
 
-      applyGain(osc_buffer, (timbre + 1.0)/2.0);
+      applyGain(osc_buffer, (timbre + 1.0) / 2.0);
 
       static const Automation osc_envelope = {
         {0ms,  0.0},
@@ -370,9 +371,9 @@ namespace synth {
       static const Automation noise_smoothing_kw = {
           {0ms,  100.0f},
           {1ms,   30.0f},
-          {5ms,   80.0f},
+          {5ms,  100.0f},
           {6ms,   30.0f},
-          {11ms,  80.0f},
+          {11ms, 100.0f},
           {60ms, 200.0f},
       };
       applySmoothing(buffer, noise_smoothing_kw);
@@ -380,9 +381,9 @@ namespace synth {
       static const Automation noise_envelope = {
         {0ms,  0.0},
         {1ms,  1.0},
-        {5ms,  0.2},
+        {5ms,  0.1},
         {6ms,  1.0},
-        {11ms, 0.2},
+        {11ms, 0.1},
         {60ms, 0.0}
       };
       applyGain(buffer, noise_envelope);
@@ -391,6 +392,7 @@ namespace synth {
 
       static const Automation final_smoothing = {
         {0ms,  0.0f},
+        {30ms, 0.0f},
         {60ms, 200.0f},
       };
       applySmoothing(buffer, final_smoothing);
@@ -398,6 +400,29 @@ namespace synth {
       normalize(buffer, volume * balance_l, volume * balance_r);
     }
     return resample(buffer, spec);
+  }
+
+  SoundPackage generateClickPackage(const StreamSpec& spec,
+                                    float timbre,
+                                    float pitch,
+                                    float volume,
+                                    float balance,
+                                    std::size_t package_size)
+  {
+    std::vector<std::future<ByteBuffer>> results;
+    results.reserve(package_size);
+
+    for (std::size_t p = 0; p < package_size; ++p)
+      results.push_back( std::async(std::launch::async,
+                                    generateClick,
+                                    spec, timbre, pitch, volume, balance) );
+    SoundPackage package;
+    package.reserve(package_size);
+
+    for (auto& result : results)
+      package.push_back( result.get() );
+
+    return package;
   }
 
 }//namespace synth

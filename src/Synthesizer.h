@@ -50,36 +50,42 @@ namespace synth {
     Waveform shape;
   };
 
-
-  void addNoise(ByteBuffer& buffer, float amplitude);
-
-  void addSine(ByteBuffer& buffer, float frequency, float amplitude);
-
-  void addTriangle(ByteBuffer& buffer, float frequency, float amplitude);
-
-  void addSawtooth(ByteBuffer& buffer, float frequency, float amplitude);
-
-  void addSquare(ByteBuffer& buffer, float frequency, float amplitude);
-
-  void addOscillator(ByteBuffer& buffer, const std::vector<Oscillator>& osc);
-
-  void applyGain(ByteBuffer& buffer, float gain);
-  void applyGain(ByteBuffer& buffer, float gain_l, float gain_r);
-  void applyGain(ByteBuffer& buffer, const Automation& gain);
-
-  void normalize(ByteBuffer& buffer, float gain);
-  void normalize(ByteBuffer& buffer, float gain_l, float gain_r);
-
-  void applySmoothing(ByteBuffer& buffer, microseconds kernel_width);
-  void applySmoothing(ByteBuffer& buffer, const Automation& kernel_width);
-
-  ByteBuffer mixBuffers(ByteBuffer buffer1, const ByteBuffer& buffer2);
+  void addNoise (ByteBuffer& buffer, float amplitude);
+  void addSine (ByteBuffer& buffer, float frequency, float amplitude);
+  void addTriangle (ByteBuffer& buffer, float frequency, float amplitude);
+  void addSawtooth (ByteBuffer& buffer, float frequency, float amplitude);
+  void addSquare (ByteBuffer& buffer, float frequency, float amplitude);
+  void addOscillator (ByteBuffer& buffer, const std::vector<Oscillator>& oscillators);
+  void applyGain (ByteBuffer& buffer, float gain_l, float gain_r);
+  void applyGain (ByteBuffer& buffer, float gain);
+  void applyGain (ByteBuffer& buffer, const Automation& gain);
+  void normalize (ByteBuffer& buffer, float gain_l, float gain_r);
+  void normalize (ByteBuffer& buffer, float gain);
+  void applySmoothing (ByteBuffer& buffer, const Automation& kernel_width);
+  void applySmoothing (ByteBuffer& buffer, microseconds kernel_width);
+  ByteBuffer mixBuffers (ByteBuffer buffer1, const ByteBuffer& buffer2);
 
   ByteBuffer generateClick(const StreamSpec& spec,
                            float timbre = -1.0,
                            float pitch = 800,
                            float volume = 1.0,
                            float balance = 0.0);
+
+  using SoundPackage = std::vector<ByteBuffer>;
+
+  /**
+   * @brief Generates a collection of slightly different sounds.
+   *
+   * This function calls generateClick() to create the sounds, but
+   * tries to parallelize the sound generation in accordance with
+   * the system capabilities.
+   */
+  SoundPackage generateClickPackage(const StreamSpec& spec,
+                                    float timbre = -1.0,
+                                    float pitch = 800,
+                                    float volume = 1.0,
+                                    float balance = 0.0,
+                                    std::size_t package_size = 3);
 }//namespace synth
 }//namespace audio
 #endif//GMetronome_Synthesizer_h
