@@ -24,9 +24,6 @@
 #include <cmath>
 #include <cassert>
 
-//debug
-#include <iostream>
-
 namespace audio {
 namespace synth {
 
@@ -70,19 +67,36 @@ namespace synth {
   ConstChannels viewChannels(const ByteBuffer& buffer)
   { return audio::viewChannels<defaultSampleFormat()>(buffer); }
 
+  // pseudo random (-1f, 1f)
+  float uniform_distribution()
+  {
+    static std::uint32_t value = static_cast<std::uint32_t>(
+      std::chrono::high_resolution_clock::now().time_since_epoch().count());
+
+    value = value * 214013 + 2531011;
+    return 2.0f * (((value & 0x3FFFFFFF) >> 15) / 32767.0) - 1.0f;
+  }
+
   void addNoise(ByteBuffer& buffer, float amplitude)
   {
     assert(isFloatingPoint(buffer.spec().format));
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(-1.0, 1.0);
-
     auto frames = viewFrames(buffer);
     for (auto& frame : frames)
     {
-      frame += {amplitude * dis(gen), amplitude * dis(gen)};
+      frame += {
+        amplitude * uniform_distribution(),
+        amplitude * uniform_distribution()
+      };
     }
+  }
+
+  // range: (-pi/2,pi/2)
+  float bhaskaraCos(float x)
+  {
+    static constexpr float kPi2 = M_PI * M_PI;
+    float x2 = x * x;
+    return (kPi2 - 4*x2) / (kPi2 + x2);
   }
 
   void addSine(ByteBuffer& buffer, float frequency, float amplitude)
@@ -92,10 +106,18 @@ namespace synth {
 
     auto frames = viewFrames(buffer);
     float omega = 2.0 * M_PI * frequency / buffer.spec().rate;
-    for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+    float arg = -M_PI_2;
+
+    for (auto& frame : frames)
     {
-      float sine = std::sin(omega * frame_index);
-      frames[frame_index] += amplitude * sine;
+      if (arg > M_PI_2)
+        frame -= amplitude * bhaskaraCos(arg - M_PI);
+      else
+        frame += amplitude * bhaskaraCos(arg);
+
+      arg += omega;
+      if (arg > (3.0 * M_PI_2))
+        arg = arg - (2.0 * M_PI);
     }
   }
 
@@ -262,7 +284,6 @@ namespace synth {
   void normalize(ByteBuffer& buffer, float gain)
   { normalize(buffer, gain, gain); }
 
-
   void applySmoothing(ByteBuffer& buffer, const Automation& kernel_width)
   {
     auto channels = viewChannels(buffer);
@@ -348,7 +369,7 @@ namespace synth {
 
         {pitch *  3.0f / 2.0f, 0.2f, Waveform::kSine},
         {pitch *  5.0f / 4.0f, 0.1f, Waveform::kSine},
-        // {pitch * 15.0f / 8.0f, 0.05f, Waveform::kSquare}
+        //{pitch * 15.0f / 8.0f, 0.05f, Waveform::kSquare}
       };
 
       addOscillator(osc_buffer, osc);
@@ -369,12 +390,13 @@ namespace synth {
       addNoise(buffer, std::max(-timbre, 0.0f));
 
       static const Automation noise_smoothing_kw = {
-          {0ms,  100.0f},
-          {1ms,   30.0f},
-          {5ms,  100.0f},
-          {6ms,   30.0f},
-          {11ms, 100.0f},
-          {60ms, 200.0f},
+          {0ms,    0.0f},
+          {1ms,   20.0f},
+          {5ms,   70.0f},
+          {6ms,   20.0f},
+          {11ms,  70.0f},
+          //{30ms,  30.0f},
+          //{60ms,  70.0f},
       };
       applySmoothing(buffer, noise_smoothing_kw);
 
@@ -390,12 +412,12 @@ namespace synth {
 
       buffer = mixBuffers(std::move(buffer), osc_buffer);
 
-      static const Automation final_smoothing = {
-        {0ms,  0.0f},
-        {30ms, 0.0f},
-        {60ms, 200.0f},
-      };
-      applySmoothing(buffer, final_smoothing);
+      // static const Automation final_smoothing = {
+      //   {0ms,  0.0f},
+      //   {30ms, 0.0f},
+      //   {60ms, 200.0f},
+      // };
+      // applySmoothing(buffer, final_smoothing);
 
       normalize(buffer, volume * balance_l, volume * balance_r);
     }

@@ -26,7 +26,7 @@
 constexpr double kAnimationFrameRate = 65.0 / 1000000.;  // frames/usecs
 
 // behaviour
-constexpr double kActionAngleReal     = M_PI / 7.0;  // rad
+constexpr double kActionAngleReal     = M_PI / 5.0;  // rad
 constexpr double kActionAngleCenter   = 0.0;         // rad
 constexpr double kActionAngleEdge     = M_PI / 2.0;  // rad
 constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
