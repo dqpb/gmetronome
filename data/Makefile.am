@@ -88,6 +88,9 @@ install-data-local: install-gsettings-schemas
 
 mostlyclean-local: clean-gsettings-schemas
 
+install-data-hook:
+	touch $(datadir)/icons/hicolor
+
 CLEANFILES = \
 	$(desktop_file)
 
