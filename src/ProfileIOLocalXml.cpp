@@ -28,6 +28,7 @@
 #include <iostream>
 #include <cassert>
 #include <stack>
+#include <array>
 
 #ifndef HAVE_CPP_LIB_TO_CHARS
 # include <sstream>
