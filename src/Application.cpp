@@ -82,9 +82,10 @@ Application::Application() : Gtk::Application("org.gmetronome")
 Application::~Application()
 {
   try {
-    settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
+    if (settings_state_)
+      settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
   }
-  catch(...) {}
+  catch (...) {}
 }
 
 void Application::on_startup()
