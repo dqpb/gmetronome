@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -41,28 +41,28 @@ namespace audio {
     using  size_type       = byte_container::size_type;
     using  iterator        = byte_container::iterator;
     using  const_iterator  = byte_container::const_iterator;
-    
+
   public:
 
     /** Constructs a buffer of nbytes zero initialized bytes. */
     Buffer(size_type nbytes = 0, const StreamSpec& spec = kDefaultSpec);
 
-    /** Constructs a zero initialized buffer capable of holding 
-	the specified time of audio data. */
-    Buffer(microseconds duration, const StreamSpec& spec = kDefaultSpec);
+    /** Constructs a zero initialized buffer capable of holding
+        the specified time of audio data. */
+    explicit Buffer(microseconds duration, const StreamSpec& spec = kDefaultSpec);
 
     /** Constructs a buffer with a byte_container. */
-    Buffer(byte_container data, const StreamSpec& spec = kDefaultSpec);
+    explicit Buffer(byte_container data, const StreamSpec& spec = kDefaultSpec);
 
     /** Construct the buffer with the contents of an audio file. */
-    Buffer(const std::string& filename);
+    explicit Buffer(const std::string& filename);
 
     /** Copy constructor. */
     Buffer(const Buffer& buffer);
-    
+
     /** Move constructor. */
     Buffer(Buffer&& buffer);
-    
+
     /** Destructor. */
     ~Buffer();
 
@@ -72,7 +72,7 @@ namespace audio {
     /** Returns a reference to the sample specification. */
     const StreamSpec& spec() const
     { return spec_; }
-    
+
     void load(const std::string& filename);
     Buffer resample(const StreamSpec& spec);
     microseconds time() const;
@@ -81,7 +81,7 @@ namespace audio {
     Buffer& operator=(Buffer&&);
     bool operator==(const Buffer&) const;
     bool operator!=(const Buffer&) const;
-    
+
     iterator begin()
     { return data_.begin(); }
     const_iterator begin() const
@@ -93,15 +93,15 @@ namespace audio {
     const_iterator end() const
     { return data_.end(); }
     const_iterator cend() const
-    { return data_.cend(); }    
-    
+    { return data_.cend(); }
+
     reference operator[]( size_type pos )
     { return data_[pos]; }
     const_reference operator[]( size_type pos ) const
     { return data_[pos]; }
-    
+
     void swap(Buffer&);
-    
+
     size_type size() const
     { return data_.size(); }
     size_type max_size() const
@@ -111,7 +111,7 @@ namespace audio {
     size_type frames() const;
     bool empty() const
     { return data_.empty(); }
-    
+
   private:
     byte_container data_;
     StreamSpec spec_;
