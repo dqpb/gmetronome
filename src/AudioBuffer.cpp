@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -22,12 +22,12 @@
 #include <map>
 
 namespace audio {
-  
+
   Buffer::Buffer(size_type nbytes, const StreamSpec& spec)
     : data_(nbytes,0),
       spec_(spec)
   {}
-  
+
   Buffer::Buffer(microseconds duration, const StreamSpec& spec)
     : data_(usecsToBytes(duration,spec),0),
       spec_(spec)
@@ -37,26 +37,18 @@ namespace audio {
     std::swap(data_,data);
     spec_ = spec;
   }
-  
-  Buffer::Buffer(const std::string& filename) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
 
   Buffer::Buffer(const Buffer& buffer) {
     data_ = buffer.data_;
     spec_ = buffer.spec_;
   }
-  
+
   Buffer::Buffer(Buffer&& buffer) {
     data_ = std::move(buffer.data_);
     spec_ = std::move(buffer.spec_);
   }
 
   Buffer::~Buffer() {}
-  
-  void Buffer::load(const std::string& filename) {
-    throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
-  }
 
   Buffer Buffer::resample(const StreamSpec& spec) {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
@@ -73,7 +65,7 @@ namespace audio {
     }
     return *this;
   }
-  
+
   Buffer& Buffer::operator=(Buffer&& buffer) {
     if (&buffer != this) {
       data_ = std::move(buffer.data_);
@@ -88,7 +80,7 @@ namespace audio {
   bool Buffer::operator!=(const Buffer&) const {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
   }
-  
+
   void Buffer::swap(Buffer& buffer) {
     std::swap(data_, buffer.data_);
     std::swap(spec_, buffer.spec_);

@@ -54,9 +54,6 @@ namespace audio {
     /** Constructs a buffer with a byte_container. */
     explicit Buffer(byte_container data, const StreamSpec& spec = kDefaultSpec);
 
-    /** Construct the buffer with the contents of an audio file. */
-    explicit Buffer(const std::string& filename);
-
     /** Copy constructor. */
     Buffer(const Buffer& buffer);
 
@@ -73,7 +70,6 @@ namespace audio {
     const StreamSpec& spec() const
     { return spec_; }
 
-    void load(const std::string& filename);
     Buffer resample(const StreamSpec& spec);
     microseconds time() const;
 
