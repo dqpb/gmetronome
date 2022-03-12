@@ -1082,7 +1082,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
      text = kAccelStableSymbol;
   else if (stats.current_accel > 0)
      text = kAccelUpSymbol;
-  else if (stats.current_accel < 0)
+  else
     text = kAccelDownSymbol;
 
   if (text != tempo_divider_label_->get_text())
