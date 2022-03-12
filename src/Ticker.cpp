@@ -55,15 +55,23 @@ namespace audio {
       device_config_ {kDefaultConfig},
       actual_device_config_ {kDefaultConfig},
       state_ {0},
+      in_tempo_ {0},
+      in_target_tempo_ {0},
+      in_accel_ {0},
+      in_meter_ {},
+      in_sound_strong_ {},
+      in_sound_mid_ {},
+      in_sound_weak_ {},
+      in_device_config_ {kDefaultConfig},
+      out_stats_ {0us, 0.0, 0.0, 0.0, 0, 0us, 0us},
       stop_audio_thread_flag_ {true},
       audio_thread_error_ {nullptr},
       audio_thread_error_flag_ {false},
       using_dummy_ {true},
       ready_to_swap_ {false},
-      backend_swapped_ {false}
+      backend_swapped_ {false},
+      need_restart_backend_ {false}
   {
-    backend_ = createBackend(settings::kAudioBackendNone); // dummy backend
-
     tempo_imported_flag_.test_and_set();
     target_tempo_imported_flag_.test_and_set();
     accel_imported_flag_.test_and_set();

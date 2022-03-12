@@ -269,7 +269,9 @@ namespace {
   public:
     MarkupParser()
       : current_profile_ {nullptr},
-        current_meter_ {nullptr}
+        current_meter_ {nullptr},
+        current_meter_division_ {0},
+        current_meter_beats_ {0}
       {}
 
     ProfileMap move_pmap() const
