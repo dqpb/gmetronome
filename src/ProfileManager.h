@@ -39,21 +39,21 @@ public:
   Profile::Primer newProfile(const Profile::Header& header = {},
                              const Profile::Content& content = {});
 
-  void deleteProfile(Profile::Identifier id);
+  void deleteProfile(const Profile::Identifier& id);
 
   std::vector<Profile::Primer> profileList();
 
-  Profile getProfile(Profile::Identifier id);
+  Profile getProfile(const Profile::Identifier& id);
 
-  void setProfile(Profile::Identifier id, const Profile& profile);
+  void setProfile(const Profile::Identifier& id, const Profile& profile);
 
-  Profile::Content getProfileContent(Profile::Identifier id);
+  Profile::Content getProfileContent(const Profile::Identifier& id);
 
-  void setProfileContent(Profile::Identifier id, const Profile::Content& content);
+  void setProfileContent(const Profile::Identifier& id, const Profile::Content& content);
 
-  Profile::Header getProfileHeader(Profile::Identifier id);
+  Profile::Header getProfileHeader(const Profile::Identifier& id);
 
-  void setProfileHeader(Profile::Identifier id, const Profile::Header& header);
+  void setProfileHeader(const Profile::Identifier& id, const Profile::Header& header);
 
   void reorderProfiles(const std::vector<Profile::Identifier>& order);
 

@@ -57,6 +57,7 @@ namespace audio {
     /** Returns the byte_container with the audio data. */
     const byte_container& data() const
     { return data_; }
+
     /** Returns a reference to the sample specification. */
     const StreamSpec& spec() const
     { return spec_; }
