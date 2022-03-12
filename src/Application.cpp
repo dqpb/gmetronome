@@ -720,7 +720,7 @@ void Application::onProfileManagerChanged()
   {
     auto it = std::find_if(out_list.begin(), out_list.end(),
                            [&selected_id] (const auto& p) -> bool {
-                             auto& id = std::get<kProfileListEntryIdentifier>(p);
+                             const auto& id = std::get<kProfileListEntryIdentifier>(p);
                              return id == selected_id;
                            });
 
