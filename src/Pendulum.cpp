@@ -22,9 +22,6 @@
 #include <algorithm>
 #include <iostream>
 
-// animation
-constexpr double kAnimationFrameRate = 65.0 / 1000000.;  // frames/usecs
-
 // behaviour
 constexpr double kActionAngleReal     = M_PI / 5.0;  // rad
 constexpr double kActionAngleCenter   = 0.0;         // rad
@@ -64,7 +61,6 @@ Pendulum::Pendulum()
     target_omega_{0.0},
     target_theta_{phase_mode_shift_},
     last_frame_time_{0},
-    animation_last_frame_time_{0},
     needle_amplitude_{0.0},
     needle_theta_{0.0},
     needle_length_{0.9},
@@ -161,7 +157,6 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
 void Pendulum::startAnimation()
 {
   last_frame_time_ = 0;
-  animation_last_frame_time_ = 0;
   add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
 }
 
@@ -216,51 +211,47 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     target_theta_ += target_omega_ * frame_time_delta;
 
-    gint64 animation_frame_time_delta = frame_time - animation_last_frame_time_;
-    if (animation_frame_time_delta > 1.0 / kAnimationFrameRate)
+    bool redraw_marking = false;
+    double marking_target_amplitude = needleAmplitude(target_omega_);
+
+    if (std::abs(marking_target_amplitude - marking_amplitude_) > 0.001)
     {
-      bool redraw_marking = false;
-      double marking_target_amplitude = needleAmplitude(target_omega_);
-
-      if (std::abs(marking_target_amplitude - marking_amplitude_) > 0.001)
-      {
-        marking_amplitude_ += kMarkingAmplitudeChangeRate
-          * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta;
-        redraw_marking = true;
-      }
-
-      double needle_target_amplitude = marking_target_amplitude;
-      if (target_omega_ == 0.0)
-        needle_target_amplitude = 0.0;
-
-      needle_amplitude_ += kNeedleAmplitudeChangeRate
-        * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta;
-
-      needle_theta_ = needle_amplitude_ * std::sin( theta_ );
-
-      auto old_needle_tip = needle_tip_;
-      needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
-      needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
-
-      int x, y, w, h;
-
-      if(redraw_marking)
-      {
-        x = needle_base_[0] - needle_length_;
-        y = 0;
-        w = 2.0 * needle_length_;
-        h = get_allocated_height();
-      }
-      else
-      {
-        x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
-        y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
-        w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
-        h = needle_base_[1] - y + kNeedleWidth;
-      };
-      animation_last_frame_time_ = frame_time;
-      queue_draw_area(x,y,w,h);
+      marking_amplitude_ += kMarkingAmplitudeChangeRate
+        * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta;
+      redraw_marking = true;
     }
+
+    double needle_target_amplitude = marking_target_amplitude;
+    if (target_omega_ == 0.0)
+      needle_target_amplitude = 0.0;
+
+    needle_amplitude_ += kNeedleAmplitudeChangeRate
+      * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta;
+
+    needle_theta_ = needle_amplitude_ * std::sin( theta_ );
+
+    auto old_needle_tip = needle_tip_;
+    needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
+    needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
+
+    int x, y, w, h;
+
+    if(redraw_marking)
+    {
+      x = needle_base_[0] - needle_length_;
+      y = 0;
+      w = 2.0 * needle_length_;
+      h = get_allocated_height();
+    }
+    else
+    {
+      x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
+      y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
+      w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
+      h = needle_base_[1] - y + kNeedleWidth;
+    };
+
+    queue_draw_area(x,y,w,h);
   }
 
   double center_deviation = std::abs(std::remainder(theta_, M_PI));
