@@ -22,6 +22,16 @@
 #include <algorithm>
 #include <iostream>
 
+using std::chrono::seconds;
+using std::chrono::microseconds;
+using std::chrono::milliseconds;
+
+using std::literals::chrono_literals::operator""s;
+using std::literals::chrono_literals::operator""ms;
+using std::literals::chrono_literals::operator""us;
+
+using seconds_dbl = std::chrono::duration<double>;
+
 // behaviour
 constexpr double kActionAngleReal     = M_PI / 5.0;  // rad
 constexpr double kActionAngleCenter   = 0.0;         // rad
@@ -119,10 +129,6 @@ void Pendulum::setPhaseMode(PhaseMode mode)
 void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
                            const std::chrono::microseconds& sync)
 {
-  using std::chrono::microseconds;
-  using std::chrono::seconds;
-  using seconds_dbl = std::chrono::duration<double>;
-
   if (!animation_running_)
   {
     alpha_ = 0.0;
@@ -143,20 +149,20 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     microseconds click_time = stats.timestamp + stats.backend_latency + sync;
     seconds_dbl time_delta = now - click_time;
 
-    target_omega_ = stats.current_tempo / 60. * M_PI;
+    target_omega_ = stats.current_tempo / 60.0 * M_PI;
 
     target_theta_ = stats.current_beat * M_PI;
     target_theta_ += target_omega_ * time_delta.count();
     target_theta_ += action_angle_;
     target_theta_ += phase_mode_shift_;
 
-    target_theta_ = std::fmod(target_theta_ + 2. * M_PI, 2. * M_PI);
+    target_theta_ = std::fmod(target_theta_ + 2.0 * M_PI, 2.0 * M_PI);
   }
 }
 
 void Pendulum::startAnimation()
 {
-  last_frame_time_ = 0;
+  last_frame_time_ = 0us;
   add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
 }
 
@@ -171,24 +177,24 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
   if (clock)
   {
-    gint64 frame_time = 0;
+    microseconds frame_time {0};
 
     auto timings = clock->get_current_timings();
     if (timings)
     {
-      frame_time = timings->get_predicted_presentation_time();
+      frame_time = microseconds(timings->get_predicted_presentation_time());
 
-      if (frame_time == 0)
-        frame_time = timings->get_presentation_time();
+      if (frame_time.count() == 0)
+        frame_time = microseconds(timings->get_presentation_time());
     }
 
     // no timings or (predicted) presentation time available
-    if (frame_time == 0)
-      frame_time = clock->get_frame_time();
+    if (frame_time.count() == 0)
+      frame_time = microseconds(clock->get_frame_time());
 
-    double frame_time_delta = (frame_time - last_frame_time_) / 1000000.;
+    seconds_dbl frame_time_delta = (frame_time - last_frame_time_);
 
-    if (frame_time_delta > .5)
+    if (frame_time_delta > 0.5s)
     {
       last_frame_time_ = frame_time;
       return true;
@@ -203,13 +209,13 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     alpha_ += kMaxAlpha * std::sin(target_theta_ - theta_);
 
     // update needle velocity (rad/s)
-    omega_ += alpha_ * frame_time_delta;
+    omega_ += alpha_ * frame_time_delta.count();
 
     // update needle phase (rad)
-    theta_ += omega_ * frame_time_delta;
+    theta_ += omega_ * frame_time_delta.count();
     theta_ = std::fmod(theta_, 2 * M_PI);
 
-    target_theta_ += target_omega_ * frame_time_delta;
+    target_theta_ += target_omega_ * frame_time_delta.count();
 
     bool redraw_marking = false;
     double marking_target_amplitude = needleAmplitude(target_omega_);
@@ -217,7 +223,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     if (std::abs(marking_target_amplitude - marking_amplitude_) > 0.001)
     {
       marking_amplitude_ += kMarkingAmplitudeChangeRate
-        * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta;
+        * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta.count();
       redraw_marking = true;
     }
 
@@ -226,7 +232,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       needle_target_amplitude = 0.0;
 
     needle_amplitude_ += kNeedleAmplitudeChangeRate
-      * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta;
+      * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta.count();
 
     needle_theta_ = needle_amplitude_ * std::sin( theta_ );
 
@@ -288,12 +294,12 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   static const Gdk::RGBA highlight_color("rgb(255,255,255,.6)");
 
   Gdk::RGBA marking_color = primary_color;
-  marking_color.set_alpha(.5);
+  marking_color.set_alpha(0.5);
 
   static const double three_pi_half = 3.0 * M_PI / 2.0;
   const double sin_marking_amplitude = std::sin(marking_amplitude_);
   const double cos_marking_amplitude = std::cos(marking_amplitude_);
-  const double needle_length_half = needle_length_ / 2.;
+  const double needle_length_half = needle_length_ / 2.0;
 
   // debug: draw a frame
   // Gdk::Cairo::set_source_rgba(cr, primary_color);
@@ -334,13 +340,13 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->fill_preserve();
 
   Gdk::Cairo::set_source_rgba(cr, marking_color);
-  cr->set_line_width(1.);
+  cr->set_line_width(1.0);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->stroke();
 
   cr->move_to(needle_base_[0], needle_base_[1]);
   cr->line_to(needle_base_[0], needle_base_[1] - marking_radius_);
-  cr->set_dash(std::vector<double>({4.,4.}),0);
+  cr->set_dash(std::vector<double>({4.0, 4.0}), 0);
   cr->stroke();
   cr->restore();
 
@@ -348,7 +354,7 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   Gdk::Cairo::set_source_rgba(cr, shadow_color);
   cr->set_line_width(kNeedleWidth);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-  cr->move_to(needle_base_[0], needle_base_[1] + kNeedleShadowOffset);
+  cr->move_to(needle_base_[0], needle_base_[1]);
   cr->line_to(needle_tip_[0], needle_tip_[1] + kNeedleShadowOffset);
   cr->stroke();
 
