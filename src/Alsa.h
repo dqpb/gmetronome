@@ -87,7 +87,7 @@ namespace audio {
 
     class AlsaDevice {
     public:
-      AlsaDevice(const std::string& name);
+      explicit AlsaDevice(const std::string& name);
       AlsaDevice(const AlsaDevice& device) = delete;
       AlsaDevice(AlsaDevice&& device) noexcept;
       ~AlsaDevice();
