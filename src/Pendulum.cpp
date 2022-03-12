@@ -374,9 +374,6 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   return true;
 }
 
-void Pendulum::drawMarking(const Cairo::RefPtr<Cairo::Context>& cr)
-{}
-
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
 {
   return Gtk::SIZE_REQUEST_WIDTH_FOR_HEIGHT;

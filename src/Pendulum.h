@@ -77,7 +77,6 @@ private:
   Gdk::RGBA getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
-  void drawMarking(const Cairo::RefPtr<Cairo::Context>& cr);
 
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;
