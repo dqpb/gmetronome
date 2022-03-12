@@ -52,7 +52,7 @@ namespace audio {
       double one_over_n_frames = 1. / n_frames;
       double volume_drop_exp = 2. / volume;
 
-      auto frameSize = audio::frameSize(spec);
+      auto frame_size = audio::frameSize(spec);
 
       for(size_t frame = 0; frame < n_frames; ++frame)
       {
@@ -62,10 +62,10 @@ namespace audio {
         int16_t pcm_l =  balance_l * amplitude * std::numeric_limits<int16_t>::max();
         int16_t pcm_r =  balance_r * amplitude * std::numeric_limits<int16_t>::max();
 
-        buffer[frame * frameSize + 0] = pcm_l & 0xff;
-        buffer[frame * frameSize + 1] = (pcm_l>>8) & 0xff;
-        buffer[frame * frameSize + 2] = pcm_r & 0xff;
-        buffer[frame * frameSize + 3] = (pcm_r>>8) & 0xff;
+        buffer[frame * frame_size + 0] = pcm_l & 0xff;
+        buffer[frame * frame_size + 1] = (pcm_l>>8) & 0xff;
+        buffer[frame * frame_size + 2] = pcm_r & 0xff;
+        buffer[frame * frame_size + 3] = (pcm_r>>8) & 0xff;
       }
     }
     return buffer;
