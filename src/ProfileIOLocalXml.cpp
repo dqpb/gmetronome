@@ -533,21 +533,21 @@ namespace {
     try {
       ostream = file->replace( std::string(), false, flags );
     }
-    catch (const Gio::Error& e)
+    catch (const Gio::Error& replace_error)
     {
-      if (e.code() == Gio::Error::NOT_FOUND)
+      if (replace_error.code() == Gio::Error::NOT_FOUND)
       {
         try {
           auto parent_dir = file->get_parent();
           parent_dir->make_directory_with_parents();
           ostream = file->create_file( flags );
         }
-        catch (const Gio::Error& e)
+        catch (const Gio::Error& mkdir_error)
         {
-          throw GMetronomeError { e.what() };
+          throw GMetronomeError { mkdir_error.what() };
         }
       }
-      else throw GMetronomeError { e.what() };
+      else throw GMetronomeError { replace_error.what() };
     }
     return ostream;
   }
