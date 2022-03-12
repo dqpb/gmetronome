@@ -33,22 +33,10 @@ namespace audio {
       spec_(spec)
   {}
 
-  Buffer::Buffer(byte_container data, const StreamSpec& spec) {
-    std::swap(data_,data);
-    spec_ = spec;
-  }
-
-  Buffer::Buffer(const Buffer& buffer) {
-    data_ = buffer.data_;
-    spec_ = buffer.spec_;
-  }
-
-  Buffer::Buffer(Buffer&& buffer) {
-    data_ = std::move(buffer.data_);
-    spec_ = std::move(buffer.spec_);
-  }
-
-  Buffer::~Buffer() {}
+  Buffer::Buffer(byte_container data, const StreamSpec& spec)
+    : data_(std::move(data)),
+      spec_(spec)
+  {}
 
   Buffer Buffer::resample(const StreamSpec& spec) {
     throw std::runtime_error(std::string(__FUNCTION__) + " not implemented yet");
@@ -56,22 +44,6 @@ namespace audio {
 
   microseconds Buffer::time() const {
     return bytesToUsecs(data_.size(), spec_);
-  }
-
-  Buffer& Buffer::operator=(const Buffer& buffer) {
-    if (&buffer != this) {
-      data_ = buffer.data_;
-      spec_ = buffer.spec_;
-    }
-    return *this;
-  }
-
-  Buffer& Buffer::operator=(Buffer&& buffer) {
-    if (&buffer != this) {
-      data_ = std::move(buffer.data_);
-      spec_ = std::move(buffer.spec_);
-    }
-    return *this;
   }
 
   bool Buffer::operator==(const Buffer&) const {

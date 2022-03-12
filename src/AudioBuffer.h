@@ -54,15 +54,6 @@ namespace audio {
     /** Constructs a buffer with a byte_container. */
     explicit Buffer(byte_container data, const StreamSpec& spec = kDefaultSpec);
 
-    /** Copy constructor. */
-    Buffer(const Buffer& buffer);
-
-    /** Move constructor. */
-    Buffer(Buffer&& buffer);
-
-    /** Destructor. */
-    ~Buffer();
-
     /** Returns the byte_container with the audio data. */
     const byte_container& data() const
     { return data_; }
@@ -73,8 +64,6 @@ namespace audio {
     Buffer resample(const StreamSpec& spec);
     microseconds time() const;
 
-    Buffer& operator=(const Buffer&);
-    Buffer& operator=(Buffer&&);
     bool operator==(const Buffer&) const;
     bool operator!=(const Buffer&) const;
 
