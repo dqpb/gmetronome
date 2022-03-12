@@ -765,11 +765,15 @@ void MainWindow::onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
   profile_selection_changed_connection_.unblock();
 
   auto rows = profile_list_store_->children();
+
   ProfileIdentifierList id_list;
-  for (const auto& row :rows)
-    {
-      id_list.push_back(row[profile_list_store_->columns_.id_]);
-    }
+  id_list.reserve(rows.size());
+
+  std::transform(rows.begin(), rows.end(), std::back_inserter(id_list),
+                 [this] (const auto& row) {
+                   return row[profile_list_store_->columns_.id_];
+                 });
+
   Gtk::Application::get_default()
     ->activate_action(kActionProfileReorder, Glib::Variant<ProfileIdentifierList>::create(id_list));
 

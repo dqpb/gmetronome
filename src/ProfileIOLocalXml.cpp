@@ -68,12 +68,15 @@ std::vector<Profile::Primer> ProfileIOLocalXml::list()
   if (pending_import_ && !import_error_)
     importProfiles();
 
-  std::vector<Profile::Primer> vec;
+  std::vector<Profile::Primer> primers;
+  primers.reserve(porder_.size());
 
-  for (const auto& id : porder_)
-    vec.push_back({id,pmap_[id].header});
+  std::transform(porder_.begin(), porder_.end(), std::back_inserter(primers),
+                 [this] (const auto& id) -> Profile::Primer {
+                   return {id, pmap_[id].header};
+                 });
 
-  return vec;
+  return primers;
 }
 
 Profile ProfileIOLocalXml::load(Profile::Identifier id)
@@ -132,8 +135,8 @@ void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
     decltype(porder_) new_porder;
     new_porder.reserve(porder_.size());
 
-    for (const auto& idx : a)
-      new_porder.push_back(porder_[idx]);
+    std::transform(a.begin(), a.end(), std::back_inserter(new_porder),
+                   [this] (const auto& idx) { return porder_[idx]; });
 
     std::swap(porder_, new_porder);
   }

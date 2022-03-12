@@ -303,8 +303,8 @@ void Application::configureAudioBackend()
       std::vector<Glib::ustring> dev_list;
       dev_list.reserve(audio_devices.size());
 
-      for (auto& dev : audio_devices)
-        dev_list.push_back(dev.name);
+      std::transform(audio_devices.begin(), audio_devices.end(), std::back_inserter(dev_list),
+                     [] (const auto& dev) { return dev.name; });
 
       Glib::Variant<std::vector<Glib::ustring>> dev_list_state
         = Glib::Variant<std::vector<Glib::ustring>>::create(dev_list);
