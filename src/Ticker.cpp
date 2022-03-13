@@ -109,13 +109,16 @@ namespace audio {
   void Ticker::swapBackend(std::unique_ptr<Backend>& backend,
                            const microseconds& timeout)
   {
-    auto cur_state = state();
+    // If the audio thread is still running after a stop() call or in the
+    // error state, we explicitly join it and swap the audio backends directly,
+    // otherwise we try to synchronize the threads with a conditional variable
+    // to prevent data races during the swap operation.
 
-    if ( cur_state.test(TickerStateFlag::kRunning)
-         && ( ! cur_state.test(TickerStateFlag::kStarted)
-              || cur_state.test(TickerStateFlag::kError) ) )
+    if (auto s = state();
+        s.test(TickerStateFlag::kRunning)
+        && ( ! s.test(TickerStateFlag::kStarted) || s.test(TickerStateFlag::kError) ) )
     {
-      stopAudioThread(true);
+      stopAudioThread(true); // join
     }
 
     if ( state().test(TickerStateFlag::kRunning) )
@@ -233,7 +236,7 @@ namespace audio {
     }
 
     if (current_state.test(TickerStateFlag::kRunning))
-      stopAudioThread(true);
+      stopAudioThread(true); // join
 
     startAudioThread();
 
@@ -251,7 +254,7 @@ namespace audio {
     }
 
     if (current_state.test(TickerStateFlag::kRunning))
-      stopAudioThread();
+      stopAudioThread(false); // do not join
 
     state_.reset(TickerStateFlag::kStarted);
   }
@@ -259,7 +262,7 @@ namespace audio {
   void Ticker::reset() noexcept
   {
     try {
-      if (audio_thread_) stopAudioThread(true);
+      if (audio_thread_) stopAudioThread(true); // join
 
       state_.reset();
       audio_thread_error_ = nullptr;
