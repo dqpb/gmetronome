@@ -34,7 +34,7 @@ namespace audio {
 
     class OssError : public BackendError {
     public:
-      OssError(BackendState state, const char* what = "")
+      explicit OssError(BackendState state, const char* what = "")
         : BackendError(settings::kAudioBackendOss, state, what)
         {}
       OssError(BackendState state, int error)

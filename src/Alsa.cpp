@@ -50,7 +50,7 @@ namespace audio {
 
   class AlsaBackendError : public BackendError {
   public:
-    AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
+    explicit AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
       : BackendError(settings::kAudioBackendAlsa, state, what),
         error_(error)
       {}

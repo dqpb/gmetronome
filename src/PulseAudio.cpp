@@ -31,7 +31,7 @@ namespace audio {
 
     class PulseaudioError : public BackendError {
     public:
-      PulseaudioError(BackendState state, const char* what = "")
+      explicit PulseaudioError(BackendState state, const char* what = "")
         : BackendError(settings::kAudioBackendPulseaudio, state, what)
       {}
       PulseaudioError(BackendState state, int error)
