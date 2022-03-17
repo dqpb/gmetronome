@@ -71,9 +71,9 @@ noinst_HEADERS = \
 	Synthesizer.h \
 	Ticker.h
 
-top_src_datadir = $(top_srcdir)/data
+resourcesdir = $(top_srcdir)/src/resources
 
-gresource_xml_file = $(top_src_datadir)/gmetronome.gresource.xml
+gresource_xml_file = $(resourcesdir)/gmetronome.gresource.xml
 
 resources_file = resources.cpp
 
@@ -82,20 +82,19 @@ nodist_gmetronome_SOURCES = $(resources_file)
 BUILT_SOURCES = $(resources_file)
 
 gresources_deps = \
-	$(top_src_datadir)/ui/ShortcutDialog.glade \
-	$(top_src_datadir)/ui/MainWindow.glade \
-	$(top_src_datadir)/ui/SettingsDialog.glade \
-	$(top_src_datadir)/icons/scalable/org.gnome.dqpb.GMetronome.svg \
-	$(top_src_datadir)/icons/scalable/note-quarter-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-eighth-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-triplet-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-sixteenth-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/profile-access-symbolic.svg \
-	$(top_src_datadir)/css/global.css
+	$(resourcesdir)/ui/ShortcutDialog.glade \
+	$(resourcesdir)/ui/MainWindow.glade \
+	$(resourcesdir)/ui/SettingsDialog.glade \
+	$(resourcesdir)/icons/note-quarter-symbolic.svg \
+	$(resourcesdir)/icons/note-eighth-symbolic.svg \
+	$(resourcesdir)/icons/note-triplet-symbolic.svg \
+	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
+	$(resourcesdir)/icons/profile-access-symbolic.svg \
+	$(resourcesdir)/css/global.css
 
 $(resources_file): $(gresource_xml_file) $(gresources_deps)
 	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(gresource_xml_file) \
-		--target=$@ --sourcedir=$(top_src_datadir) --generate-source
+		--target=$@ --sourcedir=$(resourcesdir) --generate-source
 
 gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
 gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@

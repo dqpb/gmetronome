@@ -40,17 +40,14 @@ GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
   set_translator_credits(C_("About dialog", "translator-credits"));
 
   auto copyright = Glib::ustring::compose(
-    //Parameters:
+    //The following parameters will be replaced:
     // %1 - year of the last commit
     // %2 - localized application name
     C_("About dialog", "Copyright © 2020-%1 The %2 Team"),
     year, Glib::get_application_name());
 
   set_copyright(copyright);
-
   set_website(PACKAGE_URL);
   set_website_label( C_("About dialog", "Website") );
-
-  set_logo(Gdk::Pixbuf::create_from_resource(
-             "/org/gnome/dqpb/GMetronome/icons/scalable/org.gnome.dqpb.GMetronome.svg", 128, 128));
+  set_logo_icon_name("org.gnome.dqpb.GMetronome");
 }

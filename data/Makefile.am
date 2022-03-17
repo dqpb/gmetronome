@@ -37,28 +37,7 @@ iconsscalable_DATA = icons/scalable/org.gnome.dqpb.GMetronome.svg
 iconssymbolicdir = $(datadir)/icons/hicolor/symbolic/apps
 iconssymbolic_DATA = icons/scalable/org.gnome.dqpb.GMetronome-symbolic.svg
 
-### Resources
-resource_files = \
-	ui/SettingsDialog.glade \
-	ui/MainWindow.glade \
-	ui/ShortcutDialog.glade \
-	icons/16x16/org.gnome.dqpb.GMetronome.png \
-	icons/32x32/org.gnome.dqpb.GMetronome.png \
-	icons/48x48/org.gnome.dqpb.GMetronome.png \
-	icons/64x64/org.gnome.dqpb.GMetronome.png \
-	icons/256x256/org.gnome.dqpb.GMetronome.png \
-	icons/scalable/org.gnome.dqpb.GMetronome.svg \
-	icons/scalable/org.gnome.dqpb.GMetronome-symbolic.svg \
-	icons/scalable/note-quarter-symbolic.svg \
-	icons/scalable/note-eighth-symbolic.svg \
-	icons/scalable/note-triplet-symbolic.svg \
-	icons/scalable/note-sixteenth-symbolic.svg \
-	icons/scalable/profile-access-symbolic.svg \
-	css/global.css
-
-gresource_xml_file = gmetronome.gresource.xml
-
-### GSchema files
+### GSchema
 gschema_in_file = org.gnome.dqpb.GMetronome.gschema.xml.in
 gschema_file = $(gschema_in_file:.xml.in=.xml)
 gschema_valid_file = $(gschema_file:.xml=.valid)
@@ -98,13 +77,18 @@ mostlyclean-local: clean-gsettings-schemas
 install-data-hook:
 	touch $(datadir)/icons/hicolor
 
-DISTCLEANFILES = \
+CLEANFILES = \
 	$(desktop_file) \
 	$(metainfo_file) \
 	$(gschema_file)
 
 EXTRA_DIST = \
 	$(desktop_in_file) \
-	$(resource_files) \
-	$(gresource_xml_file) \
-	$(gschema_in_file)
+	$(gschema_in_file) \
+	icons/16x16/org.gnome.dqpb.GMetronome.png \
+	icons/32x32/org.gnome.dqpb.GMetronome.png \
+	icons/48x48/org.gnome.dqpb.GMetronome.png \
+	icons/64x64/org.gnome.dqpb.GMetronome.png \
+	icons/256x256/org.gnome.dqpb.GMetronome.png \
+	icons/scalable/org.gnome.dqpb.GMetronome.svg \
+	icons/scalable/org.gnome.dqpb.GMetronome-symbolic.svg
