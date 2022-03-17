@@ -82,4 +82,4 @@ See [INSTALL](INSTALL) for further details.
 
 How to report bugs
 ------------------
-Bugs should be reported on the project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues/new).
+Bugs should be reported on the project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).
