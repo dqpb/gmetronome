@@ -73,15 +73,7 @@ noinst_HEADERS = \
 
 resourcesdir = $(top_srcdir)/src/resources
 
-gresource_xml_file = $(resourcesdir)/gmetronome.gresource.xml
-
-resources_file = resources.cpp
-
-nodist_gmetronome_SOURCES = $(resources_file)
-
-BUILT_SOURCES = $(resources_file)
-
-gresources_deps = \
+resources = \
 	$(resourcesdir)/ui/ShortcutDialog.glade \
 	$(resourcesdir)/ui/MainWindow.glade \
 	$(resourcesdir)/ui/SettingsDialog.glade \
@@ -92,7 +84,15 @@ gresources_deps = \
 	$(resourcesdir)/icons/profile-access-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
-$(resources_file): $(gresource_xml_file) $(gresources_deps)
+gresource_xml_file = $(resourcesdir)/gmetronome.gresource.xml
+
+resources_cpp_file = resources.cpp
+
+nodist_gmetronome_SOURCES = $(resources_cpp_file)
+
+BUILT_SOURCES = $(resources_cpp_file)
+
+$(resources_cpp_file): $(gresource_xml_file) $(resources)
 	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(gresource_xml_file) \
 		--target=$@ --sourcedir=$(resourcesdir) --generate-source
 
@@ -100,4 +100,6 @@ gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@ -DPGRM_LO
 gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@
 gmetronome_LDADD = @GTKMM_LIBS@ @PULSEAUDIO_LIBS@ @ALSA_LIBS@
 
-CLEANFILES = $(resources_file)
+EXTRA_DIST = $(gresource_xml_file) $(resources)
+
+CLEANFILES = $(resources_cpp_file)
