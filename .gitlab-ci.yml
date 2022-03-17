@@ -48,10 +48,10 @@ distcheck:
       - ${BUILD_DIR}
       - ${INSTALL_DIR}
   script:
-    - autoreconf --install
+    - NOCONFIGURE=1 ./autogen.sh
     - mkdir ${BUILD_DIR}
     - cd ${BUILD_DIR}
-    - ../configure --prefix=${CI_PROJECT_DIR}/${INSTALL_DIR} --with-oss
+    - ../configure CXXFLAGS="-Wall" --prefix=${CI_PROJECT_DIR}/${INSTALL_DIR} --with-oss
     - make -j "$(nproc)"
     - make -j "$(nproc)" install
     - make -j "$(nproc)" dist-bzip2
