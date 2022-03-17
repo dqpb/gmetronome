@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/gmetronome">
+  <gresource prefix="/org/gnome/dqpb/GMetronome">
     <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
-    <file>icons/scalable/gmetronome.svg</file>
+    <file>icons/scalable/org.gnome.dqpb.GMetronome.svg</file>
     <file>icons/scalable/note-quarter-symbolic.svg</file>
     <file>icons/scalable/note-eighth-symbolic.svg</file>
     <file>icons/scalable/note-triplet-symbolic.svg</file>

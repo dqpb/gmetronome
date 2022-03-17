@@ -48,9 +48,9 @@ GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
 
   set_copyright(copyright);
 
-  // set_website(PACKAGE_URL);
-  // set_website_label( get_website() );
+  set_website(PACKAGE_URL);
+  set_website_label( C_("About dialog", "Website") );
 
   set_logo(Gdk::Pixbuf::create_from_resource(
-             "/org/gmetronome/icons/scalable/gmetronome.svg", 128, 128));
+             "/org/gnome/dqpb/GMetronome/icons/scalable/org.gnome.dqpb.GMetronome.svg", 128, 128));
 }

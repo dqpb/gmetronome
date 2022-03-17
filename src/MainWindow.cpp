@@ -40,10 +40,10 @@
 //static
 MainWindow* MainWindow::create()
 {
-  Gtk::IconTheme::get_default()->add_resource_path("/org/gmetronome/icons/scalable");
+  Gtk::IconTheme::get_default()->add_resource_path("/org/gnome/dqpb/GMetronome/icons/scalable");
 
   // Load the Builder file and instantiate its widgets.
-  auto builder_ = Gtk::Builder::create_from_resource("/org/gmetronome/ui/MainWindow.glade");
+  auto builder_ = Gtk::Builder::create_from_resource("/org/gnome/dqpb/GMetronome/ui/MainWindow.glade");
 
   MainWindow* window = nullptr;
   builder_->get_widget_derived("mainWindow", window);

@@ -80,7 +80,7 @@ Glib::RefPtr<Application> Application::create()
   return Glib::RefPtr<Application>(new Application());
 }
 
-Application::Application() : Gtk::Application("org.gmetronome")
+Application::Application() : Gtk::Application("org.gnome.dqpb.GMetronome")
 {}
 
 Application::~Application()
@@ -97,7 +97,7 @@ void Application::on_startup()
   //call the base class's implementation
   Gtk::Application::on_startup();
 
-  auto desktop_info = Gio::DesktopAppInfo::create("gmetronome.desktop");
+  auto desktop_info = Gio::DesktopAppInfo::create("org.gnome.dqpb.GMetronome.desktop");
   if (Glib::ustring appname = desktop_info ? desktop_info->get_locale_string("Name") : "";
       !appname.empty())
     Glib::set_application_name(appname);

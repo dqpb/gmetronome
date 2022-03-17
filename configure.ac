@@ -1,8 +1,8 @@
-AC_COPYRIGHT([Copyright (c) 2020-2022 The GMetronome team. All rights reserved.])
+AC_COPYRIGHT([Copyright (c) 2020-2022 The GMetronome Team. All rights reserved.])
 
 AC_INIT([GMetronome],
 	[0.1.0],
-	[https://gitlab.gnome.org/dqpb/gmetronome/issues/new],
+	[https://gitlab.gnome.org/dqpb/gmetronome/issues],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
 
@@ -186,17 +186,18 @@ AS_IF([test "x$have_pulseaudio" = "xyes"],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],[""]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],[""])],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],["<!--"]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],["-->"])]
 )
-AC_CONFIG_FILES([data/org.gmetronome.gschema.xml])
+AC_CONFIG_FILES([
+  data/org.gnome.dqpb.GMetronome.gschema.xml
+  data/org.gnome.dqpb.GMetronome.metainfo.xml
+])
 
 #
 # Gettext i18n support
 #
 GETTEXT_PACKAGE=gmetronome
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
-		   [The domain to use with gettext])
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"], [The domain to use with gettext])
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.6])
 AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
 
 PGRM_LOCALEDIR=[${datadir}/locale]

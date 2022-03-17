@@ -1,4 +1,5 @@
-data/gmetronome.desktop.in
+data/org.gnome.dqpb.GMetronome.metainfo.xml.in
+data/org.gnome.dqpb.GMetronome.desktop.in
 src/About.cpp
 src/Profile.h
 data/ui/MainWindow.glade

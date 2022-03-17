@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2022 dqpb <dqpb@mailbox.org> -->
+<component type="desktop-application">
+  <id>org.gnome.dqpb.GMetronome</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>GMetronome</name>
+  <summary>Maintain tempo while practicing your instrument</summary>
+
+  <description></description>
+
+  <url type="homepage">@PACKAGE_URL@</url>
+  <url type="bugtracker">@PACKAGE_BUGREPORT@</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The main window</caption>
+      <image>https://gitlab.gnome.org/dqpb/gmetronome/raw/main/data/screenshots/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+
+  <keywords>
+    <keyword>Metronome</keyword>
+    <keyword>Music</keyword>
+  </keywords>
+
+  <kudos>
+    <kudo>HiDpiIcon</kudo>
+    <kudo>HighContrast</kudo>
+    <kudo>ModernToolkit</kudo>
+    <kudo>UserDocs</kudo>
+  </kudos>
+  <project_group>GNOME</project_group>
+
+  <launchable type="desktop-id">org.gnome.dqpb.GMetronome</launchable>
+
+  <provides>
+    <binary>gmetronome</binary>
+  </provides>
+
+  <_releases>
+    <release version="xx.xx.xx" date="xxxx-xx-xx">
+      <description></description>
+    </release>
+  </_releases>
+</component>

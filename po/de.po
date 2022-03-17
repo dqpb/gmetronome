@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
-"POT-Creation-Date: 2022-01-28 15:14+0100\n"
+"POT-Creation-Date: 2022-03-17 19:09+0100\n"
 "PO-Revision-Date: 2022-01-28 16:52+0100\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
@@ -21,13 +21,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Generator: Gtranslator 40.0\n"
 
-#: data/gmetronome.desktop.in:5
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:7
+#: data/org.gnome.dqpb.GMetronome.desktop.in:5
 msgid "GMetronome"
 msgstr "GMetronome"
 
-#: data/gmetronome.desktop.in:6
-msgid "Metronome application"
-msgstr "Ein Metronom"
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:8
+#: data/org.gnome.dqpb.GMetronome.desktop.in:6
+msgid "Maintain tempo while practicing your instrument"
+msgstr ""
+
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:17
+msgid "The main window"
+msgstr ""
 
 #. Put one translator per line, in the form
 #. NAME <EMAIL>, YEAR1, YEAR2
@@ -43,6 +49,11 @@ msgstr "dqpb <dqpb@mailbox.org>, 2021, 2022"
 msgctxt "About dialog"
 msgid "Copyright © 2020-%1 The %2 Team"
 msgstr "Copyright © 2020-%1 Das %2 Team"
+
+#: src/About.cpp:52
+msgctxt "About dialog"
+msgid "Website"
+msgstr ""
 
 #. default title for new profiles
 #: src/Profile.h:38
@@ -625,3 +636,6 @@ msgstr "Trainer"
 msgctxt "Shortcut title"
 msgid "Enable / Disable Trainer"
 msgstr "Trainer Ein / Aus"
+
+#~ msgid "Metronome application"
+#~ msgstr "Ein Metronom"
