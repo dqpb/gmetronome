@@ -27,6 +27,8 @@
 GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
   : AboutDialog(use_header_bar)
 {
+  set_icon_name(PACKAGE_ID);
+
   // year of last commit
   static const int year = 2022;
 
