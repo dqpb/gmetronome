@@ -40,8 +40,8 @@
 //static
 MainWindow* MainWindow::create()
 {
-  //auto icons_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/icons/scalable";
-  //Gtk::IconTheme::get_default()->add_resource_path(icons_resource_path);
+  auto icons_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/icons";
+  Gtk::IconTheme::get_default()->add_resource_path(icons_resource_path);
 
   // Load the Builder file and instantiate its widgets.
   auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/MainWindow.glade";
