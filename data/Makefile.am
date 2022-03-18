@@ -6,7 +6,7 @@ desktopdir = $(datadir)/applications
 desktop_DATA = $(desktop_file)
 
 $(desktop_file): $(desktop_in_file) $(top_srcdir)/po/*.po
-	$(AM_V_GEN)$(MSGFMT) --desktop --template $(srcdir)/$(desktop_in_file) -d $(top_srcdir)/po -o $@
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $(desktop_in_file) -d $(top_srcdir)/po -o $@
 
 ### Appstream
 metainfo_in_file = org.gnome.dqpb.GMetronome.metainfo.xml.in
@@ -14,6 +14,9 @@ metainfo_file = $(metainfo_in_file:.xml.in=.xml)
 
 metainfodir = $(datadir)/metainfo
 metainfo_DATA = $(metainfo_file)
+
+$(metainfo_file): $(metainfo_in_file) $(top_srcdir)/po/*.po
+	$(AM_V_GEN)$(MSGFMT) --xml --template $(metainfo_in_file) -d $(top_srcdir)/po -o $@
 
 ### Icons
 icons16dir = $(datadir)/icons/hicolor/16x16/apps

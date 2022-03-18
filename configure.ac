@@ -202,8 +202,8 @@ AS_IF([test "x$have_pulseaudio" = "xyes"],
 
 AC_CONFIG_FILES([
   data/org.gnome.dqpb.GMetronome.gschema.xml
-  data/org.gnome.dqpb.GMetronome.metainfo.xml
-  data/org.gnome.dqpb.GMetronome.desktop
+  data/org.gnome.dqpb.GMetronome.metainfo.xml.in
+  data/org.gnome.dqpb.GMetronome.desktop.in
   src/resources/org.gnome.dqpb.GMetronome.gresource.xml
 ])
 
