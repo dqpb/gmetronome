@@ -58,6 +58,20 @@ distcheck:
     - make -j "$(nproc)" distcheck
   needs: ["build-image"]
 
+flatpak:
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
+  stage: build
+  interruptible: true
+  tags:
+    - flatpak
+  script:
+    # Report the installed versions of the runtime
+    - flatpak info org.freedesktop.Platform
+    - flatpak info org.freedesktop.Sdk
+
+    # Print the date, since appstream depends on local timezone
+    - date && date -u
+
 source-tarball:
   stage: package
   rules:
