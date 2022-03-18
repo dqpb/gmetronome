@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
-"POT-Creation-Date: 2022-03-17 23:15+0100\n"
-"PO-Revision-Date: 2022-03-17 23:21+0100\n"
+"POT-Creation-Date: 2022-03-18 19:57+0100\n"
+"PO-Revision-Date: 2022-03-18 20:07+0100\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -19,23 +19,28 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Generator: Gtranslator 40.0\n"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:7
-#: data/org.gnome.dqpb.GMetronome.desktop.in:5
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:7
+#: data/org.gnome.dqpb.GMetronome.desktop.in.in:5
 msgid "GMetronome"
 msgstr "GMetronome"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:8
-#: data/org.gnome.dqpb.GMetronome.desktop.in:6
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:8
+#: data/org.gnome.dqpb.GMetronome.desktop.in.in:6
 msgid "Maintain tempo while practicing your instrument"
 msgstr "Halte das Tempo beim Üben deines Instruments"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in:17
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:10
+msgid ""
+"A practical and precise tempo measurement tool for composers and musicians."
+msgstr "Ein praktischer Taktmesser für Komponisten und Musiker."
+
+#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:16
 msgid "The main window"
 msgstr "Das Hauptfenster"
 
 #. Put one translator per line, in the form
 #. NAME <EMAIL>, YEAR1, YEAR2
-#: src/About.cpp:40
+#: src/About.cpp:42
 msgctxt "About dialog"
 msgid "translator-credits"
 msgstr "dqpb <dqpb@mailbox.org>, 2021, 2022"
@@ -43,12 +48,12 @@ msgstr "dqpb <dqpb@mailbox.org>, 2021, 2022"
 #. The following parameters will be replaced:
 #. %1 - year of the last commit
 #. %2 - localized application name
-#: src/About.cpp:46
+#: src/About.cpp:48
 msgctxt "About dialog"
 msgid "Copyright © 2020-%1 The %2 Team"
 msgstr "Copyright © 2020-%1 Das %2 Team"
 
-#: src/About.cpp:51
+#: src/About.cpp:53
 msgctxt "About dialog"
 msgid "Website"
 msgstr "Webseite"
@@ -451,12 +456,12 @@ msgid "Preferences"
 msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:151
+#: src/SettingsDialog.cpp:152
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:157
+#: src/SettingsDialog.cpp:158
 msgid "Shortcut"
 msgstr "Tastenkombination"
 
