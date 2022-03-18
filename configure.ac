@@ -6,6 +6,8 @@ AC_INIT([GMetronome],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
 
+package_id="org.gnome.dqpb.GMetronome"
+
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
@@ -170,6 +172,17 @@ AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
 )
 
 #
+# Output application id
+#
+AC_SUBST([PACKAGE_ID], $package_id)
+AC_DEFINE_UNQUOTED([PACKAGE_ID], "$package_id",
+		   [Application ID])
+
+AC_SUBST([PACKAGE_ID_PATH], "/${package_id//.//}")
+AC_DEFINE_UNQUOTED([PACKAGE_ID_PATH], "/${package_id//.//}",
+   [Application ID (PACKAGE_ID) with dots replaced by slashes including a leading slash])
+
+#
 # Create gschema.xml from template
 #
 AC_SUBST([GSCHEMAXML_DEFAULT_AUDIO_BACKEND],[\'$DEFAULT_AUDIO_BACKEND\'])
@@ -186,9 +199,11 @@ AS_IF([test "x$have_pulseaudio" = "xyes"],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],[""]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],[""])],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],["<!--"]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],["-->"])]
 )
+
 AC_CONFIG_FILES([
   data/org.gnome.dqpb.GMetronome.gschema.xml
   data/org.gnome.dqpb.GMetronome.metainfo.xml
+  src/resources/org.gnome.dqpb.GMetronome.gresource.xml
 ])
 
 #

@@ -84,7 +84,7 @@ resources = \
 	$(resourcesdir)/icons/profile-access-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
-gresource_xml_file = $(resourcesdir)/gmetronome.gresource.xml
+gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml
 
 resources_cpp_file = resources.cpp
 

@@ -49,5 +49,5 @@ GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
   set_copyright(copyright);
   set_website(PACKAGE_URL);
   set_website_label( C_("About dialog", "Website") );
-  set_logo_icon_name("org.gnome.dqpb.GMetronome");
+  set_logo_icon_name(PACKAGE_ID);
 }

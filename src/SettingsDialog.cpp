@@ -76,7 +76,8 @@ SettingsDialog::~SettingsDialog() {}
 SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
 {
   // load the Builder file and instantiate its widgets
-  auto builder = Gtk::Builder::create_from_resource("/org/gnome/dqpb/GMetronome/ui/SettingsDialog.glade");
+  auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/SettingsDialog.glade";
+  auto builder = Gtk::Builder::create_from_resource(win_resource_path);
 
   SettingsDialog* dialog = nullptr;
   builder->get_widget_derived("settingsDialog", dialog);

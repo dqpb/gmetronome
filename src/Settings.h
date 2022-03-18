@@ -32,7 +32,7 @@ namespace settings {
   /*
    * GSettings schema id's
    */
-  inline const Glib::ustring kSchemaId                   {"org.gmetronome"};
+  inline const Glib::ustring kSchemaId                   {PACKAGE_ID};
   inline const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
   inline const Glib::ustring kSchemaIdStateBasename      {"state"};
   inline const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
@@ -50,7 +50,7 @@ namespace settings {
   /*
    * GSettings schema paths
    */
-  inline const Glib::ustring kSchemaPath                   {"/org/gmetronome/"};
+  inline const Glib::ustring kSchemaPath                   {PACKAGE_ID_PATH"/"};
   inline const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
   inline const Glib::ustring kSchemaPathStateBasename      {"state"};
   inline const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};

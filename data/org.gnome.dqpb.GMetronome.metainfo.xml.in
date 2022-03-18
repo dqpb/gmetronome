@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2022 dqpb <dqpb@mailbox.org> -->
 <component type="desktop-application">
-  <id>org.gnome.dqpb.GMetronome</id>
+  <id>@PACKAGE_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <name>GMetronome</name>
   <summary>Maintain tempo while practicing your instrument</summary>
 
-  <description></description>
+  <description>A practical and precise tempo measurement tool for composers and musicians.</description>
 
   <url type="homepage">@PACKAGE_URL@</url>
   <url type="bugtracker">@PACKAGE_BUGREPORT@</url>
@@ -32,7 +32,7 @@
   </kudos>
   <project_group>GNOME</project_group>
 
-  <launchable type="desktop-id">org.gnome.dqpb.GMetronome</launchable>
+  <launchable type="desktop-id">@PACKAGE_ID@</launchable>
 
   <provides>
     <binary>gmetronome</binary>

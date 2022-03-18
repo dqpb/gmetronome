@@ -19,26 +19,26 @@
 -->
 <schemalist>
 
-  <enum id="org.gmetronome.AudioBackend">
+  <enum id="@PACKAGE_ID@.AudioBackend">
     <value nick='none' value='0'/>
     @GSCHEMAXML_ALSA_BEGIN@<value nick='alsa' value='1'/>@GSCHEMAXML_ALSA_END@
     @GSCHEMAXML_OSS_BEGIN@<value nick='oss' value='2'/>@GSCHEMAXML_OSS_END@
     @GSCHEMAXML_PULSEAUDIO_BEGIN@<value nick='pulseaudio' value='3'/>@GSCHEMAXML_PULSEAUDIO_END@
   </enum>
 
-  <enum id="org.gmetronome.PendulumAction">
+  <enum id="@PACKAGE_ID@.PendulumAction">
     <value nick='center' value='0'/>
     <value nick='real' value='1'/>
     <value nick='edge' value='2'/>
   </enum>
 
-  <enum id="org.gmetronome.PendulumPhaseMode">
+  <enum id="@PACKAGE_ID@.PendulumPhaseMode">
     <value nick='left' value='0'/>
     <value nick='right' value='1'/>
   </enum>
 
   <!--
-  <schema id="org.gmetronome.preferences.custom-shortcut" >
+  <schema id="@PACKAGE_ID@.preferences.custom-shortcut" >
     <key name="action-name" type="s">
       <default>''</default>
       <summary></summary>
@@ -57,8 +57,8 @@
   </schema>
   -->
 
-  <schema id="org.gmetronome.preferences.shortcuts"
-	  path="/org/gmetronome/preferences/shortcuts/">
+  <schema id="@PACKAGE_ID@.preferences.shortcuts"
+	  path="@PACKAGE_ID_PATH@/preferences/shortcuts/">
 
     <key name="quit" type="s">
       <default>'&lt;Primary&gt;q'</default>
@@ -179,7 +179,8 @@
     </key>
   </schema>
 
-  <schema id="org.gmetronome.preferences" path="/org/gmetronome/preferences/">
+  <schema id="@PACKAGE_ID@.preferences"
+	  path="@PACKAGE_ID_PATH@/preferences/">
 
     <key name="volume" type="d">
       <range min="0." max="100."/>
@@ -192,12 +193,12 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="pendulum-action" enum="org.gmetronome.PendulumAction">
+    <key name="pendulum-action" enum="@PACKAGE_ID@.PendulumAction">
       <default>'real'</default>
       <summary></summary>
       <description></description>
     </key>
-    <key name="pendulum-phase-mode" enum="org.gmetronome.PendulumPhaseMode">
+    <key name="pendulum-phase-mode" enum="@PACKAGE_ID@.PendulumPhaseMode">
       <default>'left'</default>
       <summary></summary>
       <description></description>
@@ -267,7 +268,7 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="audio-backend" enum="org.gmetronome.AudioBackend">
+    <key name="audio-backend" enum="@PACKAGE_ID@.AudioBackend">
       <default>@GSCHEMAXML_DEFAULT_AUDIO_BACKEND@</default>
       <summary>Audio backend</summary>
       <description></description>
@@ -295,10 +296,11 @@
       <description></description>
     </key>
     @GSCHEMAXML_PULSEAUDIO_END@
-    <child name="shortcuts" schema="org.gmetronome.preferences.shortcuts"/>
+    <child name="shortcuts" schema="@PACKAGE_ID@.preferences.shortcuts"/>
   </schema>
 
-  <schema id="org.gmetronome.state" path="/org/gmetronome/state/">
+  <schema id="@PACKAGE_ID@.state"
+	  path="@PACKAGE_ID_PATH@/state/">
     <key name="first-launch" type="b">
       <default>true</default>
       <summary></summary>
@@ -316,9 +318,9 @@
     </key>
   </schema>
 
-  <schema id="org.gmetronome" path="/org/gmetronome/">
-    <child name="preferences" schema="org.gmetronome.preferences"/>
-    <child name="state" schema="org.gmetronome.state"/>
+  <schema id="@PACKAGE_ID@" path="@PACKAGE_ID_PATH@/">
+    <child name="preferences" schema="@PACKAGE_ID@.preferences"/>
+    <child name="state" schema="@PACKAGE_ID@.state"/>
   </schema>
 
 </schemalist>
