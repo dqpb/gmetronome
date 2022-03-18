@@ -66,8 +66,8 @@ flatpak:
     - flatpak
   script:
     # Report the installed versions of the runtime
-    - flatpak info org.freedesktop.Platform
-    - flatpak info org.freedesktop.Sdk
+    - flatpak info org.gnome.Platform
+    - flatpak info org.gnome.Sdk
 
     # Print the date, since appstream depends on local timezone
     - date && date -u
