@@ -28,7 +28,7 @@
     <kudo>UserDocs</kudo>
   </kudos>
   <project_group>GNOME</project_group>
-  <launchable type="desktop-id">@PACKAGE_ID@</launchable>
+  <launchable type="desktop-id">@PACKAGE_ID@.desktop</launchable>
   <provides>
     <binary>gmetronome</binary>
   </provides>
