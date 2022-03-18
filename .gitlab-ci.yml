@@ -59,8 +59,12 @@ distcheck:
   needs: ["build-image"]
 
 flatpak:
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
   stage: build
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG != null'
   interruptible: true
   tags:
     - flatpak
@@ -68,9 +72,9 @@ flatpak:
     # Report the installed versions of the runtime
     - flatpak info org.gnome.Platform
     - flatpak info org.gnome.Sdk
-
     # Print the date, since appstream depends on local timezone
     - date && date -u
+    # ...
 
 source-tarball:
   stage: package
