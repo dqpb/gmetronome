@@ -90,6 +90,12 @@ Application::~Application()
       settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
   }
   catch (...) {}
+
+  try {
+    if (settings_prefs_ && settings_prefs_->get_has_unapplied())
+      settings_prefs_->apply();
+  }
+  catch (...) {}
 }
 
 void Application::on_startup()
@@ -137,6 +143,10 @@ void Application::initSettings()
 
   settings_shortcuts_connection_ = settings_shortcuts_->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
+
+  // to prevent heavy i/o (e.g. during volume adjustment) we cache prefs
+  // and propagate them to the backend in the destructor
+  settings_prefs_->delay();
 }
 
 void Application::initActions()

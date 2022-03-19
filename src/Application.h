@@ -42,6 +42,15 @@ public:
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics()
     { return signal_ticker_statistics_; }
 
+  Glib::RefPtr<Gio::Settings> getSettings()
+    { return settings_; }
+  Glib::RefPtr<Gio::Settings> getSettingsPrefs()
+    { return settings_prefs_; }
+  Glib::RefPtr<Gio::Settings> getSettingsState()
+    { return settings_state_; }
+  Glib::RefPtr<Gio::Settings> getSettingsShortcuts()
+    { return settings_shortcuts_; }
+
 protected:
   // Overrides of default signal handlers:
   void on_startup() override;

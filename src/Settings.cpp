@@ -18,9 +18,10 @@
  */
 
 #include "Settings.h"
+#include "Application.h"
 
 namespace settings {
-  
+
   const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap
   {
 #if HAVE_ALSA
@@ -46,5 +47,26 @@ namespace settings {
     { settings::kKeyPrefsAudioDevicePulseaudio, settings::kAudioBackendPulseaudio },
 #endif
   };
+
+  Glib::RefPtr<Gio::Settings> settings()
+  {
+    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
+    return (app) ? app->getSettings() : Glib::RefPtr<Gio::Settings>();
+  }
+  Glib::RefPtr<Gio::Settings> preferences()
+  {
+    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
+    return (app) ? app->getSettingsPrefs() : Glib::RefPtr<Gio::Settings>();
+  }
+  Glib::RefPtr<Gio::Settings> state()
+  {
+    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
+    return (app) ? app->getSettingsState() : Glib::RefPtr<Gio::Settings>();
+  }
+  Glib::RefPtr<Gio::Settings> shortcuts()
+  {
+    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
+    return (app) ? app->getSettingsShortcuts() : Glib::RefPtr<Gio::Settings>();
+  }
 
 }//namespace settings

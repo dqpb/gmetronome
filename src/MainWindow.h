@@ -147,7 +147,6 @@ protected:
   sigc::connection pendulum_restore_connection_;
 
   // Initialization
-  void initSettings();
   void initActions();
   void initUI();
   void initBindings();
