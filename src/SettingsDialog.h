@@ -94,7 +94,6 @@ private:
   Gtk::CellRendererAccel accel_cell_renderer_;
 
   // Initialization
-  void initSettings();
   void initActions();
   void initUI();
   void initBindings();

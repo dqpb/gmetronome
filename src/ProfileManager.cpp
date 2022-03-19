@@ -60,7 +60,7 @@ Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
   }
 }
 
-void ProfileManager::deleteProfile(Profile::Identifier id)
+void ProfileManager::deleteProfile(const Profile::Identifier& id)
 {
   try {
     io_->remove(id);
@@ -90,7 +90,7 @@ std::vector<Profile::Primer> ProfileManager::profileList()
   }
 }
 
-Profile ProfileManager::getProfile(Profile::Identifier id)
+Profile ProfileManager::getProfile(const Profile::Identifier& id)
 {
   try {
     return io_->load(id);
@@ -105,7 +105,7 @@ Profile ProfileManager::getProfile(Profile::Identifier id)
   }
 }
 
-void ProfileManager::setProfile(Profile::Identifier id, const Profile& profile)
+void ProfileManager::setProfile(const Profile::Identifier& id, const Profile& profile)
 {
   try {
     io_->store(id, profile);
@@ -120,24 +120,24 @@ void ProfileManager::setProfile(Profile::Identifier id, const Profile& profile)
   }
 }
 
-Profile::Content ProfileManager::getProfileContent(Profile::Identifier id)
+Profile::Content ProfileManager::getProfileContent(const Profile::Identifier& id)
 {
   return getProfile(id).content;
 }
 
-void ProfileManager::setProfileContent(Profile::Identifier id, const Profile::Content& content)
+void ProfileManager::setProfileContent(const Profile::Identifier& id, const Profile::Content& content)
 {
   auto p = getProfile(id);
   p.content = content;
   setProfile(id, p);
 }
 
-Profile::Header ProfileManager::getProfileHeader(Profile::Identifier id)
+Profile::Header ProfileManager::getProfileHeader(const Profile::Identifier& id)
 {
   return getProfile(id).header;
 }
 
-void ProfileManager::setProfileHeader(Profile::Identifier id, const Profile::Header& header)
+void ProfileManager::setProfileHeader(const Profile::Identifier& id, const Profile::Header& header)
 {
   auto p = getProfile(id);
   p.header = header;

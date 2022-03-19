@@ -195,7 +195,7 @@ public:
   // Default constructor.
   Variant() : VariantBase() {}
 
-  explicit Variant<Accent>(GVariant* castitem, bool take_a_reference = false)
+  explicit Variant(GVariant* castitem, bool take_a_reference = false)
   : VariantBase(castitem, take_a_reference) {}
 
   static const VariantType& variant_type() G_GNUC_CONST {
@@ -224,7 +224,7 @@ public:
   // Default constructor.
   Variant() : VariantContainerBase() {}
 
-  explicit Variant<Meter>(GVariant* castitem, bool take_a_reference = false)
+  explicit Variant(GVariant* castitem, bool take_a_reference = false)
     : VariantContainerBase(castitem, take_a_reference) {}
 
   static Variant<Meter> create(const Meter& data) {

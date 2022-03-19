@@ -28,6 +28,11 @@
 #include <iostream>
 #include <cassert>
 #include <stack>
+#include <array>
+
+#ifndef HAVE_CPP_LIB_TO_CHARS
+# include <sstream>
+#endif
 
 ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
   : file_{file},
@@ -63,12 +68,15 @@ std::vector<Profile::Primer> ProfileIOLocalXml::list()
   if (pending_import_ && !import_error_)
     importProfiles();
 
-  std::vector<Profile::Primer> vec;
+  std::vector<Profile::Primer> primers;
+  primers.reserve(porder_.size());
 
-  for (const auto& id : porder_)
-    vec.push_back({id,pmap_[id].header});
+  std::transform(porder_.begin(), porder_.end(), std::back_inserter(primers),
+                 [this] (const auto& id) -> Profile::Primer {
+                   return {id, pmap_[id].header};
+                 });
 
-  return vec;
+  return primers;
 }
 
 Profile ProfileIOLocalXml::load(Profile::Identifier id)
@@ -127,8 +135,8 @@ void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
     decltype(porder_) new_porder;
     new_porder.reserve(porder_.size());
 
-    for (const auto& idx : a)
-      new_porder.push_back(porder_[idx]);
+    std::transform(a.begin(), a.end(), std::back_inserter(new_porder),
+                   [this] (const auto& idx) { return porder_[idx]; });
 
     std::swap(porder_, new_porder);
   }
@@ -178,24 +186,51 @@ namespace {
   template<class T>
   std::string numberToString(const T& value)
   {
+#ifdef HAVE_CPP_LIB_TO_CHARS
     std::array<char,kConvBufSize> str;
-
     if(auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), value);
        ec == std::errc())
       return std::string(str.data(), p - str.data());
     else
       throw std::runtime_error {"failed to convert number to string"};
+#else
+    std::stringstream sstr;
+    sstr.imbue(std::locale::classic());
+    sstr << value;
+
+    std::string s;
+    sstr >> s;
+
+    if (sstr.fail())
+      throw std::runtime_error {"failed to convert number to string"};
+
+    return s;
+#endif
   }
 
   template<class T>
   T stringToNumber(const std::string& str)
   {
+#ifdef HAVE_CPP_LIB_TO_CHARS
     T value;
     if(auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
        ec == std::errc())
       return value;
     else
       throw std::runtime_error {"failed to convert string to number"};
+#else
+    std::stringstream sstr;
+    sstr.imbue(std::locale::classic());
+    sstr << str;
+
+    T value;
+    sstr >> value;
+
+    if (sstr.fail())
+      throw std::runtime_error {"failed to convert string to number"};
+
+    return value;
+#endif
   }
 
   std::string doubleToString(double value)
@@ -234,7 +269,9 @@ namespace {
   public:
     MarkupParser()
       : current_profile_ {nullptr},
-        current_meter_ {nullptr}
+        current_meter_ {nullptr},
+        current_meter_division_ {0},
+        current_meter_beats_ {0}
       {}
 
     ProfileMap move_pmap() const
@@ -501,21 +538,21 @@ namespace {
     try {
       ostream = file->replace( std::string(), false, flags );
     }
-    catch (const Gio::Error& e)
+    catch (const Gio::Error& replace_error)
     {
-      if (e.code() == Gio::Error::NOT_FOUND)
+      if (replace_error.code() == Gio::Error::NOT_FOUND)
       {
         try {
           auto parent_dir = file->get_parent();
           parent_dir->make_directory_with_parents();
           ostream = file->create_file( flags );
         }
-        catch (const Gio::Error& e)
+        catch (const Gio::Error& mkdir_error)
         {
-          throw GMetronomeError { e.what() };
+          throw GMetronomeError { mkdir_error.what() };
         }
       }
-      else throw GMetronomeError { e.what() };
+      else throw GMetronomeError { replace_error.what() };
     }
     return ostream;
   }

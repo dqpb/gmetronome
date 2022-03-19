@@ -71,34 +71,35 @@ noinst_HEADERS = \
 	Synthesizer.h \
 	Ticker.h
 
-top_src_datadir = $(top_srcdir)/data
+resourcesdir = $(top_srcdir)/src/resources
 
-gresource_xml_file = $(top_src_datadir)/gmetronome.gresource.xml
+resources = \
+	$(resourcesdir)/ui/ShortcutDialog.glade \
+	$(resourcesdir)/ui/MainWindow.glade \
+	$(resourcesdir)/ui/SettingsDialog.glade \
+	$(resourcesdir)/icons/note-quarter-symbolic.svg \
+	$(resourcesdir)/icons/note-eighth-symbolic.svg \
+	$(resourcesdir)/icons/note-triplet-symbolic.svg \
+	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
+	$(resourcesdir)/icons/profile-access-symbolic.svg \
+	$(resourcesdir)/css/global.css
 
-resources_file = resources.cpp
+gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml
 
-nodist_gmetronome_SOURCES = $(resources_file)
+resources_cpp_file = resources.cpp
 
-BUILT_SOURCES = $(resources_file)
+nodist_gmetronome_SOURCES = $(resources_cpp_file)
 
-gresources_deps = \
-	$(top_src_datadir)/ui/ShortcutDialog.glade \
-	$(top_src_datadir)/icons/scalable/gmetronome.svg \
-	$(top_src_datadir)/icons/scalable/note-quarter-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-eighth-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-triplet-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/note-sixteenth-symbolic.svg \
-	$(top_src_datadir)/icons/scalable/profile-access-symbolic.svg \
-	$(top_src_datadir)/ui/MainWindow.glade \
-	$(top_src_datadir)/ui/SettingsDialog.glade \
-	$(top_src_datadir)/css/global.css
+BUILT_SOURCES = $(resources_cpp_file)
 
-$(resources_file): $(gresource_xml_file) $(gresources_deps)
+$(resources_cpp_file): $(gresource_xml_file) $(resources)
 	$(AM_V_GEN)$(GLIB_COMPILE_RESOURCES) $(gresource_xml_file) \
-		--target=$@ --sourcedir=$(top_src_datadir) --generate-source
+		--target=$@ --sourcedir=$(resourcesdir) --generate-source
 
 gmetronome_CPPFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@ -DPGRM_LOCALEDIR=\"${PGRM_LOCALEDIR}\"
 gmetronome_LDFLAGS = @GTKMM_CFLAGS@ @PULSEAUDIO_CFLAGS@ @ALSA_CFLAGS@
 gmetronome_LDADD = @GTKMM_LIBS@ @PULSEAUDIO_LIBS@ @ALSA_LIBS@
 
-CLEANFILES = $(resources_file)
+EXTRA_DIST = $(gresource_xml_file) $(resources)
+
+CLEANFILES = $(resources_cpp_file)

@@ -1,8 +1,12 @@
+AC_COPYRIGHT([Copyright (c) 2020-2022 The GMetronome Team. All rights reserved.])
+
 AC_INIT([GMetronome],
-	[0.1],
-	[https://gitlab.gnome.org/dqpb/gmetronome/issues/new],
+	[0.1.0],
+	[https://gitlab.gnome.org/dqpb/gmetronome/issues],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
+
+package_id="org.gnome.dqpb.GMetronome"
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -29,6 +33,25 @@ AC_PROG_CXX
 # Compiler
 #
 AX_CXX_COMPILE_STDCXX([17],[noext],[mandatory])
+
+#
+# Check C++ std lib features
+#
+AC_LANG_PUSH([C++])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+  [[#include <charconv>]],
+  [[const char* str = "3.14";
+    double value;
+    std::from_chars(str, str + 4, value);]])],
+  [AC_DEFINE([HAVE_CPP_LIB_TO_CHARS], [1],
+    [Define if standard lib supports std::to_chars])]
+)
+AC_LANG_POP([C++])
+
+#
+# Header files
+#
+AC_HEADER_ASSERT
 
 #
 # Libraries
@@ -154,6 +177,17 @@ AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
 )
 
 #
+# Output application id
+#
+AC_SUBST([PACKAGE_ID], $package_id)
+AC_DEFINE_UNQUOTED([PACKAGE_ID], "$package_id",
+		   [Application ID])
+
+AC_SUBST([PACKAGE_ID_PATH], "/${package_id//.//}")
+AC_DEFINE_UNQUOTED([PACKAGE_ID_PATH], "/${package_id//.//}",
+   [Application ID (PACKAGE_ID) with dots replaced by slashes including a leading slash])
+
+#
 # Create gschema.xml from template
 #
 AC_SUBST([GSCHEMAXML_DEFAULT_AUDIO_BACKEND],[\'$DEFAULT_AUDIO_BACKEND\'])
@@ -170,18 +204,22 @@ AS_IF([test "x$have_pulseaudio" = "xyes"],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],[""]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],[""])],
       [AC_SUBST([GSCHEMAXML_PULSEAUDIO_BEGIN],["<!--"]) AC_SUBST([GSCHEMAXML_PULSEAUDIO_END],["-->"])]
 )
-AC_CONFIG_FILES([data/org.gmetronome.gschema.xml])
+
+AC_CONFIG_FILES([
+  data/org.gnome.dqpb.GMetronome.gschema.xml
+  data/org.gnome.dqpb.GMetronome.metainfo.xml.in
+  data/org.gnome.dqpb.GMetronome.desktop.in
+  src/resources/org.gnome.dqpb.GMetronome.gresource.xml
+])
 
 #
 # Gettext i18n support
 #
 GETTEXT_PACKAGE=gmetronome
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"],
-		   [The domain to use with gettext])
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"], [The domain to use with gettext])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.6])
-AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.6])
 
 PGRM_LOCALEDIR=[${datadir}/locale]
 AC_SUBST(PGRM_LOCALEDIR)

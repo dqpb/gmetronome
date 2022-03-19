@@ -17,6 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Application.h"
 #include "ProfileIOLocalXml.h"
 #include "MainWindow.h"
@@ -76,15 +80,22 @@ Glib::RefPtr<Application> Application::create()
   return Glib::RefPtr<Application>(new Application());
 }
 
-Application::Application() : Gtk::Application("org.gmetronome")
+Application::Application() : Gtk::Application(PACKAGE_ID)
 {}
 
 Application::~Application()
 {
   try {
-    settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
+    if (settings_state_)
+      settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
   }
-  catch(...) {}
+  catch (...) {}
+
+  try {
+    if (settings_prefs_ && settings_prefs_->get_has_unapplied())
+      settings_prefs_->apply();
+  }
+  catch (...) {}
 }
 
 void Application::on_startup()
@@ -92,7 +103,8 @@ void Application::on_startup()
   //call the base class's implementation
   Gtk::Application::on_startup();
 
-  auto desktop_info = Gio::DesktopAppInfo::create("gmetronome.desktop");
+  auto desktop_id = Glib::ustring(PACKAGE_ID) + ".desktop";
+  auto desktop_info = Gio::DesktopAppInfo::create(desktop_id);
   if (Glib::ustring appname = desktop_info ? desktop_info->get_locale_string("Name") : "";
       !appname.empty())
     Glib::set_application_name(appname);
@@ -131,6 +143,10 @@ void Application::initSettings()
 
   settings_shortcuts_connection_ = settings_shortcuts_->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
+
+  // to prevent heavy i/o (e.g. during volume adjustment) we cache prefs
+  // and propagate them to the backend in the destructor
+  settings_prefs_->delay();
 }
 
 void Application::initActions()
@@ -305,8 +321,8 @@ void Application::configureAudioBackend()
       std::vector<Glib::ustring> dev_list;
       dev_list.reserve(audio_devices.size());
 
-      for (auto& dev : audio_devices)
-        dev_list.push_back(dev.name);
+      std::transform(audio_devices.begin(), audio_devices.end(), std::back_inserter(dev_list),
+                     [] (const auto& dev) { return dev.name; });
 
       Glib::Variant<std::vector<Glib::ustring>> dev_list_state
         = Glib::Variant<std::vector<Glib::ustring>>::create(dev_list);
@@ -722,7 +738,7 @@ void Application::onProfileManagerChanged()
   {
     auto it = std::find_if(out_list.begin(), out_list.end(),
                            [&selected_id] (const auto& p) -> bool {
-                             auto& id = std::get<kProfileListEntryIdentifier>(p);
+                             const auto& id = std::get<kProfileListEntryIdentifier>(p);
                              return id == selected_id;
                            });
 

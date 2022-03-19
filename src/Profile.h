@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -39,7 +39,7 @@ struct Profile
   // placeholder title for untitled profiles
   static inline const std::string kDefaultTitlePlaceholder = N_("Untitled Profile");
   // default description for new profiles
-  static inline const std::string kDefaultDescription      = N_("");
+  static inline const std::string kDefaultDescription      = "";
 
   static constexpr double  kMinTempo               = 30.0;
   static constexpr double  kMaxTempo               = 250.0;

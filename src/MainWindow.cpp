@@ -40,10 +40,12 @@
 //static
 MainWindow* MainWindow::create()
 {
-  Gtk::IconTheme::get_default()->add_resource_path("/org/gmetronome/icons/scalable");
+  auto icons_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/icons";
+  Gtk::IconTheme::get_default()->add_resource_path(icons_resource_path);
 
   // Load the Builder file and instantiate its widgets.
-  auto builder_ = Gtk::Builder::create_from_resource("/org/gmetronome/ui/MainWindow.glade");
+  auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/MainWindow.glade";
+  auto builder_ = Gtk::Builder::create_from_resource(win_resource_path);
 
   MainWindow* window = nullptr;
   builder_->get_widget_derived("mainWindow", window);
@@ -140,7 +142,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
 
   preferences_dialog_ = SettingsDialog::create(*this);
 
-  initSettings();
   initActions();
   initUI();
   initBindings();
@@ -149,17 +150,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   updatePrefPendulumPhaseMode();
   updatePrefMeterAnimation();
   updatePrefAnimationSync();
-}
-
-void MainWindow::initSettings()
-{
-  settings_ = Gio::Settings::create(settings::kSchemaId);
-  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
-  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
-
-  settings_prefs_->signal_changed()
-    .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 }
 
 void MainWindow::initActions()
@@ -172,7 +162,7 @@ void MainWindow::initActions()
       {kActionShowShortcuts,           sigc::mem_fun(*this, &MainWindow::onShowShortcuts)},
       {kActionShowHelp,                sigc::mem_fun(*this, &MainWindow::onShowHelp)},
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
-      {kActionShowPendulum,            settings_state_},
+      {kActionShowPendulum,            settings::state()},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
     };
 
@@ -251,20 +241,23 @@ void MainWindow::initBindings()
 {
   auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
 
-  settings_prefs_->bind(settings::kKeyPrefsVolume,
-                        volume_button_,
-                        "value",
-                        Gio::SETTINGS_BIND_DEFAULT);
+  settings::preferences()->signal_changed()
+    .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 
-  settings_state_->bind(settings::kKeyStateShowPendulum,
-                        pendulum_revealer_,
-                        "reveal-child",
-                        Gio::SETTINGS_BIND_GET);
+  settings::preferences()->bind(settings::kKeyPrefsVolume,
+                                volume_button_,
+                                "value",
+                                Gio::SETTINGS_BIND_DEFAULT);
 
-  settings_state_->bind(settings::kKeyStateShowPendulum,
-                        pendulum_revealer_,
-                        "vexpand",
-                        Gio::SETTINGS_BIND_GET);
+  settings::state()->bind(settings::kKeyStateShowPendulum,
+                          pendulum_revealer_,
+                          "reveal-child",
+                          Gio::SETTINGS_BIND_GET);
+
+  settings::state()->bind(settings::kKeyStateShowPendulum,
+                          pendulum_revealer_,
+                          "vexpand",
+                          Gio::SETTINGS_BIND_GET);
   bindings_
     .push_back( Glib::Binding::bind_property( trainer_toggle_button_->property_active(),
                                               trainer_frame_->property_sensitive() ));
@@ -532,9 +525,9 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
     }
     else
     {
-      auto accel = settings_shortcuts_->get_string(key);
+      auto accel = settings::shortcuts()->get_string(key);
 
-        // validate accelerator
+      // validate accelerator
       guint accel_key;
       GdkModifierType accel_mods;
 
@@ -720,7 +713,7 @@ void MainWindow::onProfileSelectionChanged()
 }
 
 void MainWindow::onProfileTitleStartEditing(Gtk::CellEditable* editable,
-                                             const Glib::ustring& path_string)
+                                            const Glib::ustring& path_string)
 {
   Gtk::TreePath path(path_string);
   ProfileListStore::iterator row_it = profile_list_store_->get_iter(path);
@@ -733,7 +726,7 @@ void MainWindow::onProfileTitleStartEditing(Gtk::CellEditable* editable,
 }
 
 void MainWindow::onProfileTitleChanged(const Glib::ustring& path_string,
-                                        const Glib::ustring& text)
+                                       const Glib::ustring& text)
 {
   auto app = Gtk::Application::get_default();
 
@@ -765,11 +758,15 @@ void MainWindow::onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
   profile_selection_changed_connection_.unblock();
 
   auto rows = profile_list_store_->children();
+
   ProfileIdentifierList id_list;
-  for (const auto& row :rows)
-    {
-      id_list.push_back(row[profile_list_store_->columns_.id_]);
-    }
+  id_list.reserve(rows.size());
+
+  std::transform(rows.begin(), rows.end(), std::back_inserter(id_list),
+                 [this] (const auto& row) {
+                   return row[profile_list_store_->columns_.id_];
+                 });
+
   Gtk::Application::get_default()
     ->activate_action(kActionProfileReorder, Glib::Variant<ProfileIdentifierList>::create(id_list));
 
@@ -1079,10 +1076,10 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
     tempo_fraction_label_->set_text(text);
 
   if (stats.current_accel == 0)
-     text = kAccelStableSymbol;
+    text = kAccelStableSymbol;
   else if (stats.current_accel > 0)
-     text = kAccelUpSymbol;
-  else if (stats.current_accel < 0)
+    text = kAccelUpSymbol;
+  else
     text = kAccelDownSymbol;
 
   if (text != tempo_divider_label_->get_text())
@@ -1158,7 +1155,7 @@ void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
 
 void MainWindow::updatePrefPendulumAction()
 {
-  int action = settings_prefs_->get_enum(settings::kKeyPrefsPendulumAction);
+  int action = settings::preferences()->get_enum(settings::kKeyPrefsPendulumAction);
   switch (action)
   {
   case settings::kPendulumActionCenter:
@@ -1178,7 +1175,7 @@ void MainWindow::updatePrefPendulumAction()
 
 void MainWindow::updatePrefPendulumPhaseMode()
 {
-  int mode = settings_prefs_->get_enum(settings::kKeyPrefsPendulumPhaseMode);
+  int mode = settings::preferences()->get_enum(settings::kKeyPrefsPendulumPhaseMode);
   switch (mode)
   {
   case settings::kPendulumPhaseModeLeft:
@@ -1195,11 +1192,11 @@ void MainWindow::updatePrefPendulumPhaseMode()
 
 void MainWindow::updatePrefMeterAnimation()
 {
-  meter_animation_ = settings_prefs_->get_boolean(settings::kKeyPrefsMeterAnimation);
+  meter_animation_ = settings::preferences()->get_boolean(settings::kKeyPrefsMeterAnimation);
 }
 
 void MainWindow::updatePrefAnimationSync()
 {
   animation_sync_ = std::chrono::microseconds(
-    std::lround(settings_prefs_->get_double(settings::kKeyPrefsAnimationSync) * 1000.));
+    std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync) * 1000.));
 }

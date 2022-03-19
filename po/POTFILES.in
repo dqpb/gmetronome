@@ -1,8 +1,9 @@
-data/gmetronome.desktop.in
+data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in
+data/org.gnome.dqpb.GMetronome.desktop.in.in
 src/About.cpp
 src/Profile.h
-data/ui/MainWindow.glade
+src/resources/ui/MainWindow.glade
 src/MainWindow.cpp
-data/ui/SettingsDialog.glade
+src/resources/ui/SettingsDialog.glade
 src/SettingsDialog.cpp
 src/Shortcut.cpp

@@ -70,7 +70,6 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   sound_weak_bal_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("soundWeakBalAdjustment"));
 
-  initSettings();
   initActions();
   initUI();
   initBindings();
@@ -82,7 +81,8 @@ SettingsDialog::~SettingsDialog() {}
 SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
 {
   // load the Builder file and instantiate its widgets
-  auto builder = Gtk::Builder::create_from_resource("/org/gmetronome/ui/SettingsDialog.glade");
+  auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/SettingsDialog.glade";
+  auto builder = Gtk::Builder::create_from_resource(win_resource_path);
 
   SettingsDialog* dialog = nullptr;
   builder->get_widget_derived("settingsDialog", dialog);
@@ -91,13 +91,6 @@ SettingsDialog* SettingsDialog::create(Gtk::Window& parent)
 
   dialog->set_transient_for(parent);
   return dialog;
-}
-
-void SettingsDialog::initSettings()
-{
-  settings_ = Gio::Settings::create(settings::kSchemaId);
-  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
 }
 
 void SettingsDialog::initActions() {}
@@ -176,29 +169,29 @@ void SettingsDialog::initBindings()
   signal_key_press_event()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onKeyPressEvent));
 
-  settings_prefs_->bind(settings::kKeyPrefsPendulumAction, pendulum_action_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsPendulumPhaseMode, pendulum_phase_mode_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsMeterAnimation, accent_animation_switch_->property_state());
-  settings_prefs_->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
-  settings_prefs_->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongTimbre, sound_strong_timbre_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongPitch, sound_strong_pitch_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidTimbre, sound_mid_timbre_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidPitch, sound_mid_pitch_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakTimbre, sound_weak_timbre_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakPitch, sound_weak_pitch_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
-  settings_prefs_->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_->property_state());
+  settings::preferences()->bind(settings::kKeyPrefsPendulumAction, pendulum_action_combo_box_->property_active_id());
+  settings::preferences()->bind(settings::kKeyPrefsPendulumPhaseMode, pendulum_phase_mode_combo_box_->property_active_id());
+  settings::preferences()->bind(settings::kKeyPrefsMeterAnimation, accent_animation_switch_->property_state());
+  settings::preferences()->bind(settings::kKeyPrefsAudioBackend, audio_backend_combo_box_->property_active_id());
+  settings::preferences()->bind(settings::kKeyPrefsAnimationSync, animation_sync_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundStrongTimbre, sound_strong_timbre_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundStrongPitch, sound_strong_pitch_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundStrongVolume, sound_strong_vol_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundStrongBalance, sound_strong_bal_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundMidTimbre, sound_mid_timbre_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundMidPitch, sound_mid_pitch_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundMidVolume, sound_mid_vol_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundMidBalance, sound_mid_bal_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundWeakTimbre, sound_weak_timbre_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundWeakPitch, sound_weak_pitch_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundWeakVolume, sound_weak_vol_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsSoundWeakBalance, sound_weak_bal_adjustment_->property_value());
+  settings::preferences()->bind(settings::kKeyPrefsRestoreProfile, restore_profile_switch_->property_state());
 
-  settings_prefs_->signal_changed()
+  settings::preferences()->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsPrefsChanged));
 
-  settings_shortcuts_->signal_changed()
+  settings::shortcuts()->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsShortcutsChanged));
 
   app->signal_action_state_changed()
@@ -287,12 +280,12 @@ void SettingsDialog::onAudioDeviceEntryFocusOut()
 void SettingsDialog::onAudioDeviceChanged()
 {
   settings::AudioBackend backend = (settings::AudioBackend)
-    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+    settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
   if (auto it = settings::kBackendToDeviceMap.find(backend);
       it != settings::kBackendToDeviceMap.end())
   {
-    settings_prefs_->set_string(it->second, audio_device_entry_->get_text());
+    settings::preferences()->set_string(it->second, audio_device_entry_->get_text());
   }
 }
 
@@ -315,12 +308,12 @@ void SettingsDialog::updateAudioDeviceList()
 void SettingsDialog::updateAudioDevice()
 {
   settings::AudioBackend backend = (settings::AudioBackend)
-    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+    settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
   if (auto it = settings::kBackendToDeviceMap.find(backend);
       it != settings::kBackendToDeviceMap.end())
   {
-    auto device = settings_prefs_->get_string(it->second);
+    auto device = settings::preferences()->get_string(it->second);
 
     audio_device_entry_changed_connection_.block();
 
@@ -351,18 +344,18 @@ void SettingsDialog::onAccelCellData(Gtk::CellRenderer* cell,
   }
   else
   {
-    Glib::ustring accel = settings_shortcuts_->get_string(key);
+    Glib::ustring accel = settings::shortcuts()->get_string(key);
 
     guint accel_key;
     GdkModifierType accel_mods;
 
     gtk_accelerator_parse(accel.c_str(), &accel_key, &accel_mods);
 
-    bool writable = settings_shortcuts_->is_writable(key);
+    bool writable = settings::shortcuts()->is_writable(key);
 
     Glib::Variant<Glib::ustring> variant;
 
-    bool custom = settings_shortcuts_->get_user_value(key, variant);
+    bool custom = settings::shortcuts()->get_user_value(key, variant);
 
     accel_cell->property_accel_key() = accel_key;
     accel_cell->property_accel_mods() = (Gdk::ModifierType) accel_mods;
@@ -396,7 +389,7 @@ void SettingsDialog::onAccelEdited(const Glib::ustring& path_string,
     if (!key.empty())
     {
       Glib::ustring accel = gtk_accelerator_name(accel_key, (GdkModifierType) accel_mods);
-      settings_shortcuts_->set_string(key, accel);
+      settings::shortcuts()->set_string(key, accel);
     }
   }
 }
@@ -405,13 +398,13 @@ void SettingsDialog::onResetShortcuts()
 {
   for (const auto& entry  : ShortcutList())
     if (!entry.key.empty())
-      settings_shortcuts_->reset(entry.key);
+      settings::shortcuts()->reset(entry.key);
 }
 
 void SettingsDialog::onSettingsPrefsChanged(const Glib::ustring& key)
 {
   settings::AudioBackend backend = (settings::AudioBackend)
-    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+    settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
   if (key == settings::kKeyPrefsAudioBackend)
   {

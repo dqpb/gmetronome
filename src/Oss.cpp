@@ -17,6 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Oss.h"
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -30,7 +34,7 @@ namespace audio {
 
     class OssError : public BackendError {
     public:
-      OssError(BackendState state, const char* what = "")
+      explicit OssError(BackendState state, const char* what = "")
         : BackendError(settings::kAudioBackendOss, state, what)
         {}
       OssError(BackendState state, int error)

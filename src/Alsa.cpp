@@ -17,6 +17,10 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Alsa.h"
 #include <memory>
 #include <algorithm>
@@ -44,7 +48,7 @@ namespace audio {
 
   class AlsaBackendError : public BackendError {
   public:
-    AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
+    explicit AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
       : BackendError(settings::kAudioBackendAlsa, state, what),
         error_(error)
       {}
@@ -399,7 +403,7 @@ namespace audio {
     if (error < 0)
       throw AlsaDeviceError {"failed to get minimum number of channels", error};
 
-    snd_pcm_hw_params_get_channels_max( hw_params, &max_channels );
+    error = snd_pcm_hw_params_get_channels_max( hw_params, &max_channels );
     if (error < 0)
       throw AlsaDeviceError {"failed to get maximum number of channels", error};
 
@@ -494,7 +498,6 @@ namespace audio {
     std::vector<AlsaDeviceDescription> devices;
 
     void **hints, **n;
-    char *name, *descr, *io;
 
     int error = snd_device_name_hint(-1, "pcm", &hints);
     if (error < 0)
@@ -504,9 +507,9 @@ namespace audio {
 
     while (*n != NULL)
     {
-      name = snd_device_name_get_hint(*n, "NAME");
-      descr = snd_device_name_get_hint(*n, "DESC");
-      io = snd_device_name_get_hint(*n, "IOID");
+      char* name  = snd_device_name_get_hint(*n, "NAME");
+      char* descr = snd_device_name_get_hint(*n, "DESC");
+      char* io    = snd_device_name_get_hint(*n, "IOID");
 
       if (io == NULL || strcmp(io, "Output") == 0)
       {

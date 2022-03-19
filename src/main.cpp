@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -21,8 +21,23 @@
 # include <config.h>
 #endif
 
-#include <glibmm/i18n.h>
 #include "Application.h"
+#include <glibmm/i18n.h>
+#include <iostream>
+
+int onHandleLocalOptions(const Glib::RefPtr<Glib::VariantDict>& options_dict)
+{
+  if(bool display_version;
+     options_dict->lookup_value("version", display_version))
+  {
+    if (display_version)
+      std::cout << PACKAGE_NAME << " " << PACKAGE_VERSION << std::endl;
+
+    return 0;
+  }
+  // continue normal processing
+  return -1;
+}
 
 int main (int argc, char *argv[])
 {
@@ -31,5 +46,11 @@ int main (int argc, char *argv[])
   textdomain(GETTEXT_PACKAGE);
 
   auto app = Application::create();
+
+  app->add_main_option_entry(Gio::Application::OPTION_TYPE_BOOL, "version");
+
+  app->signal_handle_local_options()
+    .connect(&onHandleLocalOptions,true);
+
   return app->run(argc, argv);
 }

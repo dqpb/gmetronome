@@ -22,6 +22,7 @@
 
 #include <gtkmm.h>
 #include <array>
+#include <chrono>
 #include "Meter.h"
 #include "Ticker.h"
 
@@ -60,8 +61,7 @@ private:
   double omega_;
   double target_omega_;
   double target_theta_;
-  gint64 last_frame_time_;
-  gint64 animation_last_frame_time_;
+  std::chrono::microseconds last_frame_time_;
   double needle_amplitude_;
   double needle_theta_;
   double needle_length_;
@@ -77,7 +77,6 @@ private:
   Gdk::RGBA getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
-  void drawMarking(const Cairo::RefPtr<Cairo::Context>& cr);
 
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;

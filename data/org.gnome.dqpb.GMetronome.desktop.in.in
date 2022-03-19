@@ -2,10 +2,10 @@
 Version=1.0
 Encoding=UTF-8
 Name=GMetronome
-Comment=Metronome application
+Comment=Maintain tempo while practicing your instrument
 Exec=gmetronome
-Icon=gmetronome
+Icon=@PACKAGE_ID@
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=GTK;Audio;
+Categories=Audio;AudioVideo;Music;GTK;

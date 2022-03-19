@@ -17,8 +17,11 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Generator.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
+#include "Generator.h"
 #include <cmath>
 #include <cassert>
 #include <iostream>

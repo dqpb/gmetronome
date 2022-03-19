@@ -44,7 +44,7 @@ $ cd gmetronome
 $ autoreconf --install
 ```
 
-Then run the traditional GNU triplet:
+Then run the traditional GNU triplet to install GMetronome with the default installation prefix (/usr/local):
 
 ```
 $ ./configure
@@ -54,8 +54,32 @@ $ make
 $ make install
 ```
 
+To run GMetronome type:
+
+```
+$ gmetronome
+```
+
+### Custom installation directory
+
+To install GMetronome with a different installation prefix (e.g. /my/install/dir) use the --prefix option of the 'configure' script. In this case you also need to tell GMetronome where to find it's resources, e.g. by setting the environment variable XDG_DATA_DIRS:
+
+```
+$ ./configure --prefix=/my/install/dir
+$ make
+$ make install
+
+$ export XDG_DATA_DIRS=/my/install/dir/share/:$XDG_DATA_DIRS
+```
+
+Then run GMetronome:
+
+```
+$ /my/install/dir/bin/gmetronome
+```
+
 See [INSTALL](INSTALL) for further details.
 
 How to report bugs
 ------------------
-Bugs should be reported on the project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues/new).
+Bugs should be reported on the project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).

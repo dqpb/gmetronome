@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="@PACKAGE_ID_PATH@">
+    <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
+    <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
+    <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
+    <file>icons/note-quarter-symbolic.svg</file>
+    <file>icons/note-eighth-symbolic.svg</file>
+    <file>icons/note-triplet-symbolic.svg</file>
+    <file>icons/note-sixteenth-symbolic.svg</file>
+    <file>icons/profile-access-symbolic.svg</file>
+    <file>css/global.css</file>
+  </gresource>
+</gresources>

@@ -25,6 +25,8 @@
 #endif
 
 #include <glibmm/ustring.h>
+#include <glibmm/refptr.h>
+#include <giomm/settings.h>
 #include <map>
 
 namespace settings {
@@ -32,7 +34,7 @@ namespace settings {
   /*
    * GSettings schema id's
    */
-  inline const Glib::ustring kSchemaId                   {"org.gmetronome"};
+  inline const Glib::ustring kSchemaId                   {PACKAGE_ID};
   inline const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
   inline const Glib::ustring kSchemaIdStateBasename      {"state"};
   inline const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
@@ -50,7 +52,7 @@ namespace settings {
   /*
    * GSettings schema paths
    */
-  inline const Glib::ustring kSchemaPath                   {"/org/gmetronome/"};
+  inline const Glib::ustring kSchemaPath                   {PACKAGE_ID_PATH"/"};
   inline const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
   inline const Glib::ustring kSchemaPathStateBasename      {"state"};
   inline const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};
@@ -66,7 +68,7 @@ namespace settings {
   };
 
   /*
-   * org.gmetronome enum types
+   * schema enum types
    */
   enum AudioBackend
   {
@@ -100,7 +102,7 @@ namespace settings {
   inline constexpr  double    kMaxVolume      = 100;
 
   /*
-   * org.gmetronome.preferences keys
+   * .preferences keys
    */
   inline const Glib::ustring  kKeyPrefsVolume                    {"volume"};
   inline const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
@@ -139,7 +141,7 @@ namespace settings {
   extern const std::map<Glib::ustring, settings::AudioBackend> kDeviceToBackendMap;
 
   /*
-   * org.gmetronome.preferences.shortcuts keys
+   * .preferences.shortcuts keys
    */
   inline const Glib::ustring  kKeyShortcutsQuit                  {"quit"};
   inline const Glib::ustring  kKeyShortcutsShowPrimaryMenu       {"show-primary-menu"};
@@ -171,11 +173,19 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
 
   /*
-   * org.gmetronome.state keys
+   * .state keys
    */
   inline const Glib::ustring  kKeyStateFirstLaunch               {"first-launch"};
   inline const Glib::ustring  kKeyStateProfileSelect             {"profile-select"};
   inline const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
+
+  /*
+   * Access Gio::Settings objects of the main application
+   */
+  Glib::RefPtr<Gio::Settings> settings();
+  Glib::RefPtr<Gio::Settings> preferences();
+  Glib::RefPtr<Gio::Settings> state();
+  Glib::RefPtr<Gio::Settings> shortcuts();
 
 }//namespace settings
 #endif//GMetronome_Settings_h
