@@ -5,14 +5,10 @@
     "sdk": "org.gnome.Sdk",
     "command": "gmetronome",
     "finish-args": [
-        "--share=ipc",
         "--socket=wayland",
         "--socket=fallback-x11",
-        "--socket=pulseaudio",
-        "--filesystem=host",
-        "--filesystem=xdg-run/gvfs",
-        "--filesystem=xdg-run/gvfsd",
-        "--talk-name=org.gtk.vfs.*"
+        "--share=ipc",
+        "--socket=pulseaudio"
     ],
     "cleanup": [
         "/include",
