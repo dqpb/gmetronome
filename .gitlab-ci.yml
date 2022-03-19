@@ -67,7 +67,7 @@ flatpak:
     - if: '$CI_COMMIT_TAG != null'
   variables:
     GIT_SUBMODULE_STRATEGY: normal
-    FLATPAK_MANIFEST_PATH: 'flatpak/org.gnome.dqpb.GMetronome.yml'
+    FLATPAK_MANIFEST_PATH: "flatpak/org.gnome.dqpb.GMetronome.yml"
     FLATPAK_MODULE: '${PACKAGE_TARNAME}'
   tags:
     - flatpak
