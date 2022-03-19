@@ -60,12 +60,15 @@ distcheck:
 
 flatpak:
   stage: build
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:41'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_TAG != null'
-  interruptible: true
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+    FLATPAK_MANIFEST_PATH: 'flatpak/org.gnome.dqpb.GMetronome.yml'
+    FLATPAK_MODULE: '${PACKAGE_TARNAME}'
   tags:
     - flatpak
   script:
@@ -74,7 +77,17 @@ flatpak:
     - flatpak info org.gnome.Sdk
     # Print the date, since appstream depends on local timezone
     - date && date -u
-    # ...
+    - rewrite-flatpak-manifest ${FLATPAK_MANIFEST_PATH} ${FLATPAK_MODULE} ${CONFIG_OPTS}
+    - flatpak-builder --user --disable-rofiles-fuse --jobs $(nproc) ${FLATPAK_MODULE}-build ${FLATPAK_MANIFEST_PATH}
+  cache:
+    - key: "$CI_JOB_NAME"
+      paths:
+        - '.flatpak-builder/downloads'
+        - '.flatpak-builder/git'
+    - key: "$CI_JOB_NAME"
+      paths:
+        - '.flatpak-builder/cache'
+        - '.flatpak-builder/ccache'
 
 source-tarball:
   stage: package
