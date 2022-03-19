@@ -139,22 +139,22 @@
                 }
             ]
         }
-	,
+        ,
         {
             "name": "gmetronome",
             "buildsystem": "autotools",
             "config-opts": [
-	        "--disable-assert",
+                "--disable-assert",
                 "--with-pulseaudio",
                 "--without-alsa",
                 "--without-oss"
             ],
-	    "sources": [
-	        {
+            "sources": [
+                {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/dqpb/gmetronome.git",
                     "branch": "main"
-		}
+                }
             ]
         }
     ]
