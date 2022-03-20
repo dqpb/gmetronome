@@ -175,11 +175,11 @@ AS_IF([AS_VAR_IF([have_$preferred_audio_backend], [yes], [true], [false])],
 # Output application id
 #
 AC_SUBST([PACKAGE_ID], $package_id)
-AC_DEFINE_UNQUOTED([PACKAGE_ID], "$package_id",
-		   [Application ID])
+AC_DEFINE_UNQUOTED([PACKAGE_ID], "$package_id", [Application ID])
 
-AC_SUBST([PACKAGE_ID_PATH], "/${package_id//.//}")
-AC_DEFINE_UNQUOTED([PACKAGE_ID_PATH], "/${package_id//.//}",
+package_id_path=/$(printf $package_id | tr "." "/")
+AC_SUBST([PACKAGE_ID_PATH], $package_id_path)
+AC_DEFINE_UNQUOTED([PACKAGE_ID_PATH], "$package_id_path",
    [Application ID (PACKAGE_ID) with dots replaced by slashes including a leading slash])
 
 #
