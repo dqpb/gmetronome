@@ -126,9 +126,9 @@ namespace filter {
     Gain(double gain_l, double gain_r)
       : gain_l_{static_cast<float>(gain_l)}, gain_r_{static_cast<float>(gain_r)}
       { /* nothing */ }
-    Gain(double gain) : Gain(gain, gain)
+    explicit Gain(double gain) : Gain(gain, gain)
       { /* nothing */ }
-    Gain(const Automation& points) : gain_l_{1}, gain_r_{1}, points_(points)
+    explicit Gain(const Automation& points) : gain_l_{1}, gain_r_{1}, points_(points)
       {
         assert(std::is_sorted(points_.begin(), points_.end(), autoPointTimeLess));
       }
@@ -193,7 +193,7 @@ namespace filter {
       "this filter only supports floating point types at the moment");
 
   public:
-    Noise(double amplitude) : amp_{static_cast<float>(amplitude)} {}
+    explicit Noise(double amplitude) : amp_{static_cast<float>(amplitude)} {}
 
     void operator()(ByteBuffer& buffer)
       {
@@ -413,7 +413,7 @@ namespace filter {
       "this filter only supports floating point types at the moment");
 
   public:
-    Osc(const std::vector<Oscillator>& oscs) : oscs_{oscs}
+    explicit Osc(const std::vector<Oscillator>& oscs) : oscs_{oscs}
       {/*nothing*/}
 
     Osc(float frequency, float amplitude, Waveform form)
@@ -457,7 +457,7 @@ namespace filter {
   public:
     Normalize(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
       {/*nothing*/}
-    Normalize(float gain) : Normalize(gain, gain)
+    explicit Normalize(float gain) : Normalize(gain, gain)
       {/*nothing*/}
     void operator()(ByteBuffer& buffer)
       {
@@ -519,7 +519,7 @@ namespace filter {
     using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
 
   public:
-    Smooth(const Automation& points) : points_{points}, cache_frames_{0}, channels_{0}
+    explicit Smooth(const Automation& points) : points_{points}, cache_frames_{0}, channels_{0}
       {
         assert(std::is_sorted(points_.begin(), points_.end(), autoPointTimeLess));
 
@@ -527,7 +527,7 @@ namespace filter {
         cache_.reserve(std::max<size_t>(0, it->value) + 1);
       }
 
-    Smooth(size_t kernel_width)
+    explicit Smooth(size_t kernel_width)
       : points_{{{0ms}, {(float)kernel_width}}}, cache_frames_{0}, channels_{0}
       { /* nothing */ }
 
@@ -550,7 +550,7 @@ namespace filter {
           float delta_value = pt.value - cur_value;
           float delta_frames = pt_frame - cur_frame + 1;
 
-          if (delta_frames > 0)
+          // if (delta_frames > 0) // this is always true
           {
             float slope = delta_value / delta_frames;
             size_t end_frame = std::min(pt_frame + 1, n_frames);
