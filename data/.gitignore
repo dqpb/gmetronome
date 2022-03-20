@@ -3,7 +3,9 @@
 /Makefile.in
 /org.gnome.dqpb.GMetronome.gschema.valid
 /org.gnome.dqpb.GMetronome.gschema.xml
+/org.gnome.dqpb.GMetronome.metainfo.xml.in
 /org.gnome.dqpb.GMetronome.metainfo.xml
+/org.gnome.dqpb.GMetronome.desktop.in
 /org.gnome.dqpb.GMetronome.desktop
 /.dirstamp
 /TAGS
