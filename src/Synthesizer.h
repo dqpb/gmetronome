@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021, 2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -26,44 +26,6 @@
 
 namespace audio {
 namespace synth {
-
-  struct AutomationPoint
-  {
-    microseconds time;
-    float value;
-  };
-
-  using Automation = std::vector<AutomationPoint>;
-
-  enum class Waveform
-  {
-    kSine,
-    kTriangle,
-    kSawtooth,
-    kSquare
-  };
-
-  struct Oscillator
-  {
-    float frequency;
-    float amplitude;
-    Waveform shape;
-  };
-
-  void addNoise (ByteBuffer& buffer, float amplitude);
-  void addSine (ByteBuffer& buffer, float frequency, float amplitude);
-  void addTriangle (ByteBuffer& buffer, float frequency, float amplitude);
-  void addSawtooth (ByteBuffer& buffer, float frequency, float amplitude);
-  void addSquare (ByteBuffer& buffer, float frequency, float amplitude);
-  void addOscillator (ByteBuffer& buffer, const std::vector<Oscillator>& oscillators);
-  void applyGain (ByteBuffer& buffer, float gain_l, float gain_r);
-  void applyGain (ByteBuffer& buffer, float gain);
-  void applyGain (ByteBuffer& buffer, const Automation& gain);
-  void normalize (ByteBuffer& buffer, float gain_l, float gain_r);
-  void normalize (ByteBuffer& buffer, float gain);
-  void applySmoothing (ByteBuffer& buffer, const Automation& kernel_width);
-  void applySmoothing (ByteBuffer& buffer, microseconds kernel_width);
-  ByteBuffer mixBuffers (ByteBuffer buffer1, const ByteBuffer& buffer2);
 
   ByteBuffer generateClick(const StreamSpec& spec,
                            float timbre = -1.0,
