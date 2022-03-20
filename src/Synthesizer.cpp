@@ -92,13 +92,13 @@ namespace synth {
 
       // smoothing kernel width
       static const filter::Automation noise_smooth_kw = {
-        {0ms,  usecsToFrames(0us, buffer_spec)},
-        {1ms,  usecsToFrames(20us, buffer_spec)},
-        {5ms,  usecsToFrames(70us, buffer_spec)},
-        {6ms,  usecsToFrames(20us, buffer_spec)},
-        {11ms, usecsToFrames(70us, buffer_spec)},
-        //{30ms, usecsToFrames(30us, buffer_spec)},
-        //{60ms, usecsToFrames(70us, buffer_spec)},
+        {0ms,  static_cast<float>(usecsToFrames(0us, buffer_spec))},
+        {1ms,  static_cast<float>(usecsToFrames(20us, buffer_spec))},
+        {5ms,  static_cast<float>(usecsToFrames(70us, buffer_spec))},
+        {6ms,  static_cast<float>(usecsToFrames(20us, buffer_spec))},
+        {11ms, static_cast<float>(usecsToFrames(70us, buffer_spec))},
+        //{30ms, static_cast<float>(usecsToFrames(30us, buffer_spec))},
+        //{60ms, static_cast<float>(usecsToFrames(70us, buffer_spec))},
       };
 
       static const filter::Automation noise_envelope = {
@@ -117,9 +117,9 @@ namespace synth {
       float balance_r = (balance < 0) ?  volume * balance + 1 : volume;
 
       // static const filter::Automation final_smooth_kw = {
-      //   {0ms,  usecsToFrames(0us, buffer_spec)},
-      //   {30ms, usecsToFrames(0us, buffer_spec)},
-      //   {60ms, usecsToFrames(200us, buffer_spec)},
+      //   {0ms,  static_cast<float>(usecsToFrames(0us, buffer_spec))},
+      //   {30ms, static_cast<float>(usecsToFrames(0us, buffer_spec))},
+      //   {60ms, static_cast<float>(usecsToFrames(200us, buffer_spec))},
       // };
 
       auto noise_filter =
