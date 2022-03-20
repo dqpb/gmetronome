@@ -26,6 +26,9 @@
 #include <cmath>
 #include <cassert>
 
+// debug
+#include <iostream>
+
 namespace audio {
 namespace synth {
 
@@ -113,8 +116,8 @@ namespace synth {
       volume = std::clamp(volume, 0.0f, 1.0f);
       balance = std::clamp(balance, -1.0f, 1.0f);
 
-      float balance_l = (balance > 0) ? -volume * balance + 1 : volume;
-      float balance_r = (balance < 0) ?  volume * balance + 1 : volume;
+      float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
+      float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
 
       // static const filter::Automation final_smooth_kw = {
       //   {0ms,  static_cast<float>(usecsToFrames(0us, buffer_spec))},
