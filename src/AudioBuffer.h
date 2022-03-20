@@ -594,28 +594,28 @@ namespace audio {
     FrameView& operator+=(const FrameView<OtherFormat, OtherStoreIter>& other)
       {
         applyElementwise(Base::begin(), Base::end(), other.begin(), other.end(),
-                         [] (auto& lhs, auto& rhs) { lhs += rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs += rhs; });
         return *this;
       }
     template<SampleFormat OtherFormat, typename OtherStoreIter>
     FrameView& operator-=(const FrameView<OtherFormat, OtherStoreIter>& other)
       {
         applyElementwise(Base::begin(), Base::end(), other.begin(), other.end(),
-                         [] (auto& lhs, auto& rhs) { lhs -= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs -= rhs; });
         return *this;
       }
     template<SampleFormat OtherFormat, typename OtherStoreIter>
     FrameView& operator*=(const FrameView<OtherFormat, OtherStoreIter>& other)
       {
         applyElementwise(Base::begin(), Base::end(), other.begin(), other.end(),
-                         [] (auto& lhs, auto& rhs) { lhs *= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs *= rhs; });
         return *this;
       }
     template<SampleFormat OtherFormat, typename OtherStoreIter>
     FrameView& operator/=(const FrameView<OtherFormat, OtherStoreIter>& other)
       {
         applyElementwise(Base::begin(), Base::end(), other.begin(), other.end(),
-                         [] (auto& lhs, auto& rhs) { lhs /= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs /= rhs; });
         return *this;
       }
 
@@ -623,28 +623,28 @@ namespace audio {
     FrameView& operator+=(const std::initializer_list<T>& list)
       {
         applyElementwise(Base::begin(), Base::end(), list.begin(), list.end(),
-                         [] (auto& lhs, auto& rhs) { lhs += rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs += rhs; });
         return *this;
       }
     template<typename T>
     FrameView& operator-=(const std::initializer_list<T>& list)
       {
         applyElementwise(Base::begin(), Base::end(), list.begin(), list.end(),
-                         [] (auto& lhs, auto& rhs) { lhs -= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs -= rhs; });
         return *this;
       }
     template<typename T>
     FrameView& operator*=(const std::initializer_list<T>& list)
       {
         applyElementwise(Base::begin(), Base::end(), list.begin(), list.end(),
-                         [] (auto& lhs, auto& rhs) { lhs *= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs *= rhs; });
         return *this;
       }
     template<typename T>
     FrameView& operator/=(const std::initializer_list<T>& list)
       {
         applyElementwise(Base::begin(), Base::end(), list.begin(), list.end(),
-                         [] (auto& lhs, auto& rhs) { lhs /= rhs; });
+                         [] (auto& lhs, const auto& rhs) { lhs /= rhs; });
         return *this;
       }
 
