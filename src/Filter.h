@@ -27,6 +27,7 @@
 #include <chrono>
 #include <cassert>
 #include <algorithm>
+#include <functional>
 #include <cmath>
 
 namespace audio {

@@ -27,6 +27,7 @@
 #include <initializer_list>
 #include <algorithm>
 #include <iterator>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <cassert>
