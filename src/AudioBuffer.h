@@ -492,12 +492,8 @@ namespace audio {
       {
         using ValueTypeSigned = std::make_signed_t<ValueType>;
 
-        constexpr long offset = []() -> long {
-          if constexpr (isUnsigned(Format))
-            return std::numeric_limits<ValueTypeSigned>::min();
-          else
-            return 0;
-        }();
+        constexpr long offset = isUnsigned(Format) ?
+          std::numeric_limits<ValueTypeSigned>::min() : 0;
 
         (*this) = (std::clamp(double(other), -1.0, 1.0)
                    * std::numeric_limits<ValueTypeSigned>::max()) - offset;
@@ -510,12 +506,8 @@ namespace audio {
         using OtherType = typename SampleValueType<OtherFormat>::type;
         using OtherTypeSigned = std::make_signed_t<OtherType>;
 
-        constexpr long offset = []() -> long {
-          if constexpr (isUnsigned(OtherFormat))
-            return std::numeric_limits<OtherTypeSigned>::min();
-          else
-            return 0;
-        }();
+        constexpr long offset = isUnsigned(OtherFormat) ?
+          std::numeric_limits<OtherTypeSigned>::min() : 0;
 
         (*this) = (other + offset) / (double) -std::numeric_limits<OtherTypeSigned>::min();
       }
