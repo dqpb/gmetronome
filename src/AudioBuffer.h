@@ -66,7 +66,7 @@ namespace audio {
 
     ByteBuffer(const StreamSpec& spec, microseconds duration)
       : spec_{spec},
-        data_(usecsToBytes(duration,spec), 0)
+        data_(usecsToBytes(duration, spec), 0)
       {}
 
     ByteBuffer(const StreamSpec& spec, container_type data)
@@ -80,11 +80,20 @@ namespace audio {
       { return data_.data(); }
     const StreamSpec& spec() const
       { return spec_; }
+    microseconds time() const
+      { return bytesToUsecs(data_.size(), spec_); }
 
     void resample(const StreamSpec& spec);
 
-    microseconds time() const
-      { return bytesToUsecs(data_.size(), spec_); }
+    void resize(const StreamSpec& spec, microseconds duration)
+      {
+        spec_ = spec;
+        data_.resize(usecsToBytes(duration, spec), 0);
+      }
+    void resize(microseconds duration)
+      { data_.resize(usecsToBytes(duration, spec_), 0); }
+    void resize(size_type count)
+      { data_.resize(count); }
 
     bool operator==(const ByteBuffer& other) const
       { return data_ == other.data_ && spec_ == other.spec_; }
