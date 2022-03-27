@@ -85,6 +85,9 @@ namespace audio {
 
     void resample(const StreamSpec& spec);
 
+    void reinterpret(const StreamSpec& spec)
+      { spec_ = spec; }
+
     void resize(const StreamSpec& spec, microseconds duration)
       {
         spec_ = spec;
