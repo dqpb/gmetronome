@@ -21,7 +21,7 @@
 #define GMetronome_Generator_h
 
 #include "AudioBuffer.h"
-#include "Synthesizer.h"
+#include "SoundLibrary.h"
 #include "Meter.h"
 #include <memory>
 #include <array>

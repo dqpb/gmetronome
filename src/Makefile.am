@@ -69,6 +69,7 @@ noinst_HEADERS = \
 	Settings.h \
 	SettingsDialog.h \
 	Shortcut.h \
+	SoundLibrary.h \
 	SpinLock.h \
 	Synthesizer.h \
 	Ticker.h
