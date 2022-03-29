@@ -824,8 +824,16 @@ namespace audio {
   auto viewChannels(const ByteBuffer& buffer)
   { return ChannelContainerView<Format, ByteBuffer::const_pointer>(buffer); }
 
-  // resample an audio buffer
-  ByteBuffer resample(const ByteBuffer& buffer, const StreamSpec& to_spec);
+  /**
+   * Resample a source buffer to the stream specification of the target buffer.
+   * The target buffer should be able to hold at least the same number of frames
+   * as the source buffer. No buffer resizing or other heap allocations will take
+   * place.
+   */
+  void resample(const ByteBuffer& source, ByteBuffer& target);
+
+  /** Resample an audio buffer to a target stream specification. */
+  ByteBuffer resample(const ByteBuffer& source, const StreamSpec& target_spec);
 
 }//namespace audio
 #endif//GMetronome_AudioBuffer_h
