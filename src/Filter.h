@@ -98,7 +98,7 @@ namespace filter {
     Filter(Callable fu) : fu_{std::move(fu)}
       {}
     template<typename...Args>
-    Filter(Args...args) : fu_{std::forward<Args>(args)...}
+    Filter(Args&&...args) : fu_{std::forward<Args>(args)...}
       {}
     template<typename DataType> void operator()(DataType& data)
       { std::invoke(fu_, data); }
