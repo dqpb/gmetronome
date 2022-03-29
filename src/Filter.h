@@ -266,34 +266,6 @@ namespace filter {
     float freq_;
     float amp_;
 
-    // range: (-pi,pi)
-    float chebyshevSin(float x)
-      {
-        static const std::array<float,6> coeffs =
-          {
-            -0.10132118f,          // x
-             0.0066208798f,        // x^3
-            -0.00017350505f,       // x^5
-             0.0000025222919f,     // x^7
-            -0.000000023317787f,   // x^9
-             0.00000000013291342f, // x^11
-          };
-
-        static const float pi_major = 3.1415927f;
-        static const float pi_minor = -0.00000008742278f;
-
-        float x2  = x*x;
-        float p11 = coeffs[5];
-        float p9  = p11*x2 + coeffs[4];
-        float p7  = p9*x2  + coeffs[3];
-        float p5  = p7*x2  + coeffs[2];
-        float p3  = p5*x2  + coeffs[1];
-        float p1  = p3*x2  + coeffs[0];
-
-        return (x - pi_major - pi_minor) *
-          (x + pi_major + pi_minor) * p1 * x;
-      }
-
     // range: (-pi/2,pi/2)
     float bhaskaraCos(float x)
       {
@@ -551,7 +523,7 @@ namespace filter {
           float delta_value = pt.value - cur_value;
           float delta_frames = pt_frame - cur_frame + 1;
 
-          // if (delta_frames > 0) // this is always true
+          if (delta_frames > 0)
           {
             float slope = delta_value / delta_frames;
             size_t end_frame = std::min(pt_frame + 1, n_frames);
