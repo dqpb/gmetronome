@@ -274,33 +274,39 @@ void Application::configureTickerSoundStrong()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongTimbre),
-                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongPitch),
-                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
-                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance));
+  ticker_.setSoundStrong({
+      settings_prefs_->get_double(settings::kKeyPrefsSoundStrongTimbre),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundStrongPitch),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
+      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
+      settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance)
+    });
 }
 
 void Application::configureTickerSoundMid()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidTimbre),
-                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidPitch),
-                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
-                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance));
+  ticker_.setSoundMid({
+      settings_prefs_->get_double(settings::kKeyPrefsSoundMidTimbre),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundMidPitch),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
+      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
+      settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance)
+    });
 }
 
 void Application::configureTickerSoundWeak()
 {
   constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
 
-  ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakTimbre),
-                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakPitch),
-                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
-                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance));
+  ticker_.setSoundWeak({
+      settings_prefs_->get_double(settings::kKeyPrefsSoundWeakTimbre),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundWeakPitch),
+      settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
+      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
+      settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance)
+    });
 }
 
 void Application::configureAudioBackend()

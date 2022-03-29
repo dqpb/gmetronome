@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021, 2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -21,15 +21,16 @@
 #define GMetronome_Generator_h
 
 #include "AudioBuffer.h"
+#include "Synthesizer.h"
 #include "Meter.h"
 #include <memory>
+#include <array>
 
 namespace audio {
 
   class Generator {
 
   public:
-
     struct Statistics
     {
       double  current_tempo;
@@ -40,7 +41,6 @@ namespace audio {
     };
 
   public:
-
     Generator(StreamSpec spec = kDefaultSpec,
               microseconds maxChunkDuration = 80ms,
               microseconds avgChunkDuration = 50ms);
@@ -52,9 +52,7 @@ namespace audio {
     void setAccel(double accel);
     void swapMeter(Meter& meter);
 
-    void swapSoundStrong(ByteBuffer& sound);
-    void swapSoundMid(ByteBuffer& sound);
-    void swapSoundWeak(ByteBuffer& sound);
+    void updateSound(Accent accent, const SoundParameters& params);
 
     const Generator::Statistics& getStatistics() const;
 
@@ -79,9 +77,7 @@ namespace audio {
     double accel_saved_;
     Meter meter_;
     const ByteBuffer sound_zero_;
-    ByteBuffer sound_strong_;
-    ByteBuffer sound_mid_;
-    ByteBuffer sound_weak_;
+    SoundLibrary<Accent> sounds_;
     int current_beat_;
     unsigned next_accent_;
     int frames_total_;

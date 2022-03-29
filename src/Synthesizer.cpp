@@ -17,46 +17,77 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Filter.h"
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
+#include "Filter.h"
 #include "Synthesizer.h"
+
 #include <vector>
 #include <algorithm>
-#include <future>
 #include <cmath>
 #include <cassert>
 
-// debug
-#include <iostream>
+#ifndef NDEBUG
+#  include <iostream>
+#endif
 
 namespace audio {
-namespace synth {
 
-  ByteBuffer generateClick(const StreamSpec& spec,
-                           float timbre,
-                           float pitch,
-                           float volume,
-                           float balance)
+  SoundGenerator::SoundGenerator(const StreamSpec& spec)
+  { prepare(spec); }
+
+  void SoundGenerator::prepare(const StreamSpec& spec)
   {
+    assert(spec.rate > 0);
     assert(spec.channels == 2);
-    assert(!std::isnan(volume));
-    assert(!std::isnan(balance));
 
-    static const milliseconds kBufferDuration = 60ms;
+    const StreamSpec filter_buffer_spec =
+      { filter::defaultSampleFormat(), spec.rate, 2 };
 
-    const StreamSpec buffer_spec =
-      {
-        filter::defaultSampleFormat(),
-        spec.rate,
-        spec.channels
-      };
+    osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
+    noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
 
-    ByteBuffer buffer(buffer_spec, kBufferDuration);
+    spec_ = spec;
+  }
+
+  ByteBuffer SoundGenerator::generate(const SoundParameters& params)
+  {
+    ByteBuffer buffer(spec_, kSoundDuration);
+    generate(buffer, params);
+    return buffer;
+  }
+
+  void SoundGenerator::generate(ByteBuffer& buffer, const SoundParameters& params)
+  {
+    assert(!std::isnan(params.timbre));
+    assert(!std::isnan(params.pitch));
+    assert(!std::isnan(params.volume));
+    assert(!std::isnan(params.balance));
+
+    if (buffer.spec() != spec_)
+    {
+#ifndef NDEBUG
+      std::cerr << "SoundGenerator: incompatible buffer spec (reinterpreting buffer)"
+                << std::endl;
+#endif
+      buffer.reinterpret(spec_);
+    }
+
+#ifndef NDEBUG
+    if (buffer.frames() < usecsToFrames(kSoundDuration, buffer.spec()))
+      std::cerr << "SoundGenerator: target buffer too small (sound will be truncated)"
+                << std::endl;
+#endif
+
+    float timbre = std::clamp(params.timbre, -1.0f, 1.0f);
+    float pitch = std::clamp(params.pitch, 20.0f, 20000.0f);
+    float volume = std::clamp(params.volume, 0.0f, 1.0f);
+    float balance = std::clamp(params.balance, -1.0f, 1.0f);
 
     if (volume > 0)
     {
-      ByteBuffer osc_buffer(buffer_spec, kBufferDuration);
-
       const std::vector<filter::Oscillator> oscillators = {
         {pitch,         1.0f, filter::Waveform::kSine},
         // {pitch * 0.67f, 0.6f, filter::Waveform::kSine},
@@ -89,19 +120,19 @@ namespace synth {
         | filter::std::Gain {osc_envelope};
 
       // apply filter
-      osc_filter(osc_buffer);
+      osc_filter(osc_buffer_);
 
       float noise_gain = std::max(-timbre, 0.0f);
 
       // smoothing kernel width
-      static const filter::Automation noise_smooth_kw = {
-        {0ms,  static_cast<float>(usecsToFrames(0us, buffer_spec))},
-        {1ms,  static_cast<float>(usecsToFrames(20us, buffer_spec))},
-        {5ms,  static_cast<float>(usecsToFrames(70us, buffer_spec))},
-        {6ms,  static_cast<float>(usecsToFrames(20us, buffer_spec))},
-        {11ms, static_cast<float>(usecsToFrames(70us, buffer_spec))},
-        //{30ms, static_cast<float>(usecsToFrames(30us, buffer_spec))},
-        //{60ms, static_cast<float>(usecsToFrames(70us, buffer_spec))},
+      const filter::Automation noise_smooth_kw = {
+        {0ms,  static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
+        {1ms,  static_cast<float>(usecsToFrames(20us, noise_buffer_.spec()))},
+        {5ms,  static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
+        {6ms,  static_cast<float>(usecsToFrames(20us, noise_buffer_.spec()))},
+        {11ms, static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
+        //{30ms, static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
+        //{60ms, static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
       };
 
       static const filter::Automation noise_envelope = {
@@ -113,53 +144,26 @@ namespace synth {
         {60ms, 0.0}
       };
 
-      volume = std::clamp(volume, 0.0f, 1.0f);
-      balance = std::clamp(balance, -1.0f, 1.0f);
-
       float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
       float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
 
       // static const filter::Automation final_smooth_kw = {
-      //   {0ms,  static_cast<float>(usecsToFrames(0us, buffer_spec))},
-      //   {30ms, static_cast<float>(usecsToFrames(0us, buffer_spec))},
-      //   {60ms, static_cast<float>(usecsToFrames(200us, buffer_spec))},
+      //   {0ms,  static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
+      //   {30ms, static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
+      //   {60ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
       // };
 
       auto noise_filter =
           filter::std::Noise {noise_gain}
         | filter::std::Smooth {noise_smooth_kw}
         | filter::std::Gain {noise_envelope}
-        | filter::std::Mix {osc_buffer}
+        | filter::std::Mix {osc_buffer_}
         | filter::std::Normalize {balance_l, balance_r};
 
       // apply filter
-      noise_filter(buffer);
+      noise_filter(noise_buffer_);
     }
-    return resample(buffer, spec);
+    return resample(noise_buffer_, buffer);
   }
 
-  SoundPackage generateClickPackage(const StreamSpec& spec,
-                                    float timbre,
-                                    float pitch,
-                                    float volume,
-                                    float balance,
-                                    std::size_t package_size)
-  {
-    std::vector<std::future<ByteBuffer>> results;
-    results.reserve(package_size);
-
-    for (std::size_t p = 0; p < package_size; ++p)
-      results.push_back( std::async(std::launch::async,
-                                    generateClick,
-                                    spec, timbre, pitch, volume, balance) );
-    SoundPackage package;
-    package.reserve(package_size);
-
-    for (auto& result : results)
-      package.push_back( result.get() );
-
-    return package;
-  }
-
-}//namespace synth
 }//namespace audio

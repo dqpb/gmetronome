@@ -82,9 +82,9 @@ namespace audio {
     void setAccel(double accel);
     void setMeter(Meter meter);
 
-    void setSoundStrong(double timbre, double pitch, double volume, double balance);
-    void setSoundMid(double timbre, double pitch, double volume, double balance);
-    void setSoundWeak(double timbre, double pitch, double volume, double balance);
+    void setSoundStrong(const SoundParameters& params);
+    void setSoundMid(const SoundParameters& params);
+    void setSoundWeak(const SoundParameters& params);
 
     Ticker::Statistics getStatistics() const;
 
@@ -102,9 +102,9 @@ namespace audio {
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
     Meter in_meter_;
-    ByteBuffer in_sound_strong_;
-    ByteBuffer in_sound_mid_;
-    ByteBuffer in_sound_weak_;
+    SoundParameters in_sound_strong_;
+    SoundParameters in_sound_mid_;
+    SoundParameters in_sound_weak_;
     audio::DeviceConfig in_device_config_;
 
     Ticker::Statistics out_stats_;
