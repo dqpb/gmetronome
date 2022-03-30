@@ -88,18 +88,14 @@ namespace audio {
 
     if (volume > 0)
     {
+      float overtone_gain = std::clamp((1.0f - timbre), 0.0f, 1.0f);
+      
       const std::vector<filter::Oscillator> oscillators = {
         {pitch,         1.0f, filter::Waveform::kSine},
-        // {pitch * 0.67f, 0.6f, filter::Waveform::kSine},
-        // {pitch * 1.32f, 0.6f, filter::Waveform::kSine},
-        // {pitch * 0.43f, 0.3f, filter::Waveform::kSine},
 
-        // {pitch * 1.68f, 0.3f, filter::Waveform::kSine},
-        // {pitch * 2.68f, 0.1f, filter::Waveform::kSine}
-
-        {pitch *  3.0f / 2.0f, 0.2f, filter::Waveform::kSine},
-        {pitch *  5.0f / 4.0f, 0.1f, filter::Waveform::kSine},
-        //{pitch * 15.0f / 8.0f, 0.05f, filter::Waveform::kSquare}
+        {pitch *  3.0f / 2.0f, overtone_gain * 0.4f, filter::Waveform::kSine},
+        {pitch *  5.0f / 4.0f, overtone_gain * 0.2f, filter::Waveform::kSine},
+        //{pitch * 15.0f / 8.0f, overtone_gain * 0.1f, filter::Waveform::kSquare}
       };
 
       static const filter::Automation osc_envelope = {
@@ -115,7 +111,8 @@ namespace audio {
       float osc_gain = (timbre + 1.0) / 2.0;
 
       auto osc_filter =
-          filter::std::Osc {oscillators}
+          filter::std::Zero {}
+        | filter::std::Osc {oscillators}
         | filter::std::Gain {osc_gain}
         | filter::std::Gain {osc_envelope};
 
@@ -154,7 +151,8 @@ namespace audio {
       // };
 
       auto noise_filter =
-          filter::std::Noise {noise_gain}
+          filter::std::Zero {}
+        | filter::std::Noise {noise_gain}
         | filter::std::Smooth {noise_smooth_kw}
         | filter::std::Gain {noise_envelope}
         | filter::std::Mix {osc_buffer_}
