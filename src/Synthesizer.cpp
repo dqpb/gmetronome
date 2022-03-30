@@ -86,10 +86,14 @@ namespace audio {
     float volume = std::clamp(params.volume, 0.0f, 1.0f);
     float balance = std::clamp(params.balance, -1.0f, 1.0f);
 
-    if (volume > 0)
+    if (volume == 0)
+    {
+      filter::std::Zero{}(noise_buffer_);
+    }
+    else
     {
       float overtone_gain = std::clamp((1.0f - timbre), 0.0f, 1.0f);
-      
+
       const std::vector<filter::Oscillator> oscillators = {
         {pitch,         1.0f, filter::Waveform::kSine},
 
@@ -124,12 +128,11 @@ namespace audio {
       // smoothing kernel width
       const filter::Automation noise_smooth_kw = {
         {0ms,  static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
-        {1ms,  static_cast<float>(usecsToFrames(20us, noise_buffer_.spec()))},
-        {5ms,  static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
-        {6ms,  static_cast<float>(usecsToFrames(20us, noise_buffer_.spec()))},
-        {11ms, static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
-        //{30ms, static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
-        //{60ms, static_cast<float>(usecsToFrames(70us, noise_buffer_.spec()))},
+        {1ms,  static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
+        {5ms,  static_cast<float>(usecsToFrames(120us, noise_buffer_.spec()))},
+        {6ms,  static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
+        {11ms, static_cast<float>(usecsToFrames(120us, noise_buffer_.spec()))},
+        {60ms, static_cast<float>(usecsToFrames(170us, noise_buffer_.spec()))},
       };
 
       static const filter::Automation noise_envelope = {
