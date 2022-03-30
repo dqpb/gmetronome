@@ -109,6 +109,25 @@ namespace filter {
   };
 
   /**
+   * @class Zero
+   *
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class Zero {
+
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types at the moment");
+
+  public:
+    Zero() { /* nothing */ }
+
+    void operator()(ByteBuffer& buffer)
+      {
+        std::fill(buffer.begin(), buffer.end(), 0);
+      }
+  };
+
+  /**
    * @class Gain
    *
    */
@@ -323,7 +342,8 @@ namespace filter {
       "this filter only supports floating point types at the moment");
 
   public:
-    Sawtooth(float frequency, float amplitude) : freq_{frequency}, amp_{amplitude}
+    Sawtooth(double frequency, double amplitude)
+      : freq_{static_cast<float>(frequency)}, amp_{static_cast<float>(amplitude)}
       {}
     void operator()(ByteBuffer& buffer)
       {
@@ -598,6 +618,7 @@ namespace filter {
   namespace std {
 
     // some shortcuts for default filters
+    using Zero      = Filter<Zero<kDefaultSampleFormat>>;
     using Gain      = Filter<Gain<kDefaultSampleFormat>>;
     using Noise     = Filter<Noise<kDefaultSampleFormat>>;
     using Sine      = Filter<Sine<kDefaultSampleFormat>>;
