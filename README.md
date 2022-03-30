@@ -11,6 +11,7 @@ Features
 * Divisible beats for simple and compound meters
 * Three accentuation levels for strong, middle and weak accents
 * Pre defined patterns for widely used meters and time signatures
+* Integrated synthesizer to customize click sounds
 * Accurate trainer function to smoothly raise or lower tempo
 * Profiles to (automatically) save and restore metronome settings
 * Customizable keyboard shortcuts for nearly all metronome functions
@@ -69,7 +70,7 @@ $ ./configure --prefix=/my/install/dir
 $ make
 $ make install
 
-$ export XDG_DATA_DIRS=/my/install/dir/share/:$XDG_DATA_DIRS
+$ export XDG_DATA_DIRS=/my/install/dir/share:$XDG_DATA_DIRS
 ```
 
 Then run GMetronome:
