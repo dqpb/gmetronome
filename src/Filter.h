@@ -33,13 +33,8 @@
 namespace audio {
 namespace filter {
 
-  constexpr SampleFormat defaultSampleFormat()
-  {
-    if (hostEndian() == Endian::kLittle)
-      return SampleFormat::kFloat32LE;
-    else
-      return SampleFormat::kFloat32BE;
-  }
+  constexpr SampleFormat kDefaultSampleFormat =
+    (hostEndian() == Endian::kLittle) ? SampleFormat::kFloat32LE : SampleFormat::kFloat32BE;
 
   struct AutomationPoint
   {
@@ -117,7 +112,7 @@ namespace filter {
    * @class Gain
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Gain {
 
     static_assert(isFloatingPoint(Format),
@@ -187,7 +182,7 @@ namespace filter {
   /**
    * @class Noise
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Noise {
 
     static_assert(isFloatingPoint(Format),
@@ -199,6 +194,9 @@ namespace filter {
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.format() == Format);
+
+        if (amp_ == 0.0f)
+          return;
 
         auto frames = viewFrames<Format>(buffer);
         for (auto& frame : frames)
@@ -226,7 +224,7 @@ namespace filter {
    * @class Sine
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Sine {
 
     static_assert(isFloatingPoint(Format),
@@ -240,6 +238,9 @@ namespace filter {
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
+
+        if (amp_ == 0.0f)
+          return;
 
         constexpr float kPi = M_PI;
         constexpr float kTwoPi = 2.0f * kPi;
@@ -279,7 +280,7 @@ namespace filter {
    * @class Triangle
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Triangle {
 
     static_assert(isFloatingPoint(Format),
@@ -293,6 +294,9 @@ namespace filter {
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
+
+        if (amp_ == 0.0f)
+          return;
 
         auto frames = viewFrames<Format>(buffer);
         float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
@@ -312,7 +316,7 @@ namespace filter {
    * @class Sawtooth
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Sawtooth {
 
     static_assert(isFloatingPoint(Format),
@@ -325,6 +329,9 @@ namespace filter {
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
+
+        if (amp_ == 0.0f)
+          return;
 
         auto frames = viewFrames<Format>(buffer);
         float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
@@ -344,7 +351,7 @@ namespace filter {
    * @class Square
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Square {
 
     static_assert(isFloatingPoint(Format),
@@ -358,6 +365,9 @@ namespace filter {
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
+
+        if (amp_ == 0.0f)
+          return;
 
         auto frames = viewFrames<Format>(buffer);
         float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
@@ -379,7 +389,7 @@ namespace filter {
    * @class Osc
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Osc {
 
     static_assert(isFloatingPoint(Format),
@@ -421,7 +431,7 @@ namespace filter {
    * @class Normalize
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Normalize {
 
     static_assert(isFloatingPoint(Format),
@@ -452,7 +462,7 @@ namespace filter {
    * @class Mix
    *
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Mix {
 
     static_assert(isFloatingPoint(Format),
@@ -482,7 +492,7 @@ namespace filter {
   /**
    * @class Smooth
    */
-  template<SampleFormat Format = defaultSampleFormat()>
+  template<SampleFormat Format = kDefaultSampleFormat>
   class Smooth {
 
     static_assert(isFloatingPoint(Format),
@@ -588,16 +598,16 @@ namespace filter {
   namespace std {
 
     // some shortcuts for default filters
-    using Gain      = Filter<Gain<defaultSampleFormat()>>;
-    using Noise     = Filter<Noise<defaultSampleFormat()>>;
-    using Sine      = Filter<Sine<defaultSampleFormat()>>;
-    using Triangle  = Filter<Triangle<defaultSampleFormat()>>;
-    using Sawtooth  = Filter<Sawtooth<defaultSampleFormat()>>;
-    using Square    = Filter<Square<defaultSampleFormat()>>;
-    using Osc       = Filter<Osc<defaultSampleFormat()>>;
-    using Normalize = Filter<Normalize<defaultSampleFormat()>>;
-    using Mix       = Filter<Mix<defaultSampleFormat()>>;
-    using Smooth    = Filter<Smooth<defaultSampleFormat()>>;
+    using Gain      = Filter<Gain<kDefaultSampleFormat>>;
+    using Noise     = Filter<Noise<kDefaultSampleFormat>>;
+    using Sine      = Filter<Sine<kDefaultSampleFormat>>;
+    using Triangle  = Filter<Triangle<kDefaultSampleFormat>>;
+    using Sawtooth  = Filter<Sawtooth<kDefaultSampleFormat>>;
+    using Square    = Filter<Square<kDefaultSampleFormat>>;
+    using Osc       = Filter<Osc<kDefaultSampleFormat>>;
+    using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
+    using Mix       = Filter<Mix<kDefaultSampleFormat>>;
+    using Smooth    = Filter<Smooth<kDefaultSampleFormat>>;
 
   }//namespace std
 

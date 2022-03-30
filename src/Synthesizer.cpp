@@ -44,7 +44,7 @@ namespace audio {
     assert(spec.channels == 2);
 
     const StreamSpec filter_buffer_spec =
-      { filter::defaultSampleFormat(), spec.rate, 2 };
+      { filter::kDefaultSampleFormat, spec.rate, 2 };
 
     osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
     noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
