@@ -451,7 +451,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=3 n-rows=5 -->
+          <!-- n-columns=3 n-rows=4 -->
           <object class="GtkGrid" id="soundGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -467,6 +467,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-start">10</property>
+                <property name="margin-top">10</property>
                 <property name="row-spacing">10</property>
                 <property name="column-spacing">10</property>
                 <child>
@@ -848,7 +849,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">1</property>
                 <property name="width">3</property>
               </packing>
             </child>
@@ -895,17 +896,6 @@
               <packing>
                 <property name="left-attach">0</property>
                 <property name="top-attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparator">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">2</property>
-                <property name="width">3</property>
               </packing>
             </child>
             <child>
