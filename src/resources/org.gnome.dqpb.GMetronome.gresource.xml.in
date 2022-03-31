@@ -9,6 +9,8 @@
     <file>icons/note-triplet-symbolic.svg</file>
     <file>icons/note-sixteenth-symbolic.svg</file>
     <file>icons/profile-access-symbolic.svg</file>
+    <file>icons/sound-classic-symbolic.svg</file>
+    <file>icons/sound-modern-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>
 </gresources>

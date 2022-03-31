@@ -85,6 +85,8 @@ resources = \
 	$(resourcesdir)/icons/note-triplet-symbolic.svg \
 	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
 	$(resourcesdir)/icons/profile-access-symbolic.svg \
+	$(resourcesdir)/icons/sound-classic-symbolic.svg \
+	$(resourcesdir)/icons/sound-modern-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml
