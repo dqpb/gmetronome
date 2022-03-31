@@ -54,6 +54,15 @@ private:
 
   // Sound tab
   Gtk::Grid* sound_grid_;
+  Gtk::ComboBoxText* sound_theme_combo_box_;
+
+  Gtk::Grid* custom_sound_grid_;
+  Gtk::Scale* sound_strong_timbre_scale_;
+  Gtk::Scale* sound_strong_balance_scale_;
+  Gtk::Scale* sound_middle_timbre_scale_;
+  Gtk::Scale* sound_middle_balance_scale_;
+  Gtk::Scale* sound_weak_timbre_scale_;
+  Gtk::Scale* sound_weak_balance_scale_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> sound_strong_vol_adjustment_;

@@ -42,6 +42,12 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
   builder_->get_widget("soundGrid", sound_grid_);
+  builder_->get_widget("soundThemeComboBox", sound_theme_combo_box_);
+  builder_->get_widget("customSoundGrid", custom_sound_grid_);
+  builder_->get_widget("soundStrongBalanceScale", sound_strong_balance_scale_);
+  builder_->get_widget("soundMiddleBalanceScale", sound_middle_balance_scale_);
+  builder_->get_widget("soundWeakBalanceScale", sound_weak_balance_scale_);
+
 
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
@@ -98,17 +104,36 @@ void SettingsDialog::initActions() {}
 void SettingsDialog::initUI()
 {
   // init sound section
+  int id_col = sound_theme_combo_box_->get_id_column();
+  sound_theme_combo_box_->set_row_separator_func(
+    [id_col] (const Glib::RefPtr<Gtk::TreeModel>& model,
+              const Gtk::TreeModel::iterator& iter) -> bool
+      {
+        Gtk::TreeModel::Row row = *iter;
+        Glib::ustring id_str;
+        row.get_value(id_col, id_str);
+        return id_str == "separator";
+      });
+
   strong_accent_drawing_.setAccentState(kAccentStrong);
   mid_accent_drawing_.setAccentState(kAccentMid);
   weak_accent_drawing_.setAccentState(kAccentWeak);
+
+  strong_accent_drawing_.set_valign(Gtk::ALIGN_CENTER);
+  mid_accent_drawing_.set_valign(Gtk::ALIGN_CENTER);
+  weak_accent_drawing_.set_valign(Gtk::ALIGN_CENTER);
 
   strong_accent_drawing_.show();
   mid_accent_drawing_.show();
   weak_accent_drawing_.show();
 
-  sound_grid_->attach(strong_accent_drawing_, 1, 1);
-  sound_grid_->attach(mid_accent_drawing_, 2, 1);
-  sound_grid_->attach(weak_accent_drawing_, 3, 1);
+  custom_sound_grid_->attach(strong_accent_drawing_, 0, 1);
+  custom_sound_grid_->attach(mid_accent_drawing_, 0, 2);
+  custom_sound_grid_->attach(weak_accent_drawing_, 0, 3);
+
+  sound_strong_balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
+  sound_middle_balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
+  sound_weak_balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
   // init audio device section
   // remove unavailable audio backends from combo box
