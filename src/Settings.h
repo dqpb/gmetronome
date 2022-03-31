@@ -110,6 +110,7 @@ namespace settings {
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode         {"pendulum-phase-mode"};
   inline const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
   inline const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
+  inline const Glib::ustring  kKeyPrefsSoundTheme                {"sound-theme"};
   inline const Glib::ustring  kKeyPrefsSoundStrongTimbre         {"sound-strong-timbre"};
   inline const Glib::ustring  kKeyPrefsSoundStrongPitch          {"sound-strong-pitch"};
   inline const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};

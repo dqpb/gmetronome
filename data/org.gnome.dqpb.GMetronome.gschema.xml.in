@@ -214,6 +214,11 @@
       <summary></summary>
       <description></description>
     </key>
+    <key name="sound-theme" type="s">
+      <default>'classic'</default>
+      <summary></summary>
+      <description></description>
+    </key>
     <key name="sound-strong-timbre" type="d">
       <range min="-1.0" max="1.0"/>
       <default>0.0</default>
