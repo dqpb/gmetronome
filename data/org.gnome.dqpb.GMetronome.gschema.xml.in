@@ -102,18 +102,28 @@
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-02/">
     <override name="title">'Plastic'</override>
-    <override name="strong-params">(1.0, 900.0, false, 0.8, 0.0, 1.0)</override>
-    <override name="mid-params">(1.0, 700.0, false, 0.8, 0.0, 0.75)</override>
-    <override name="weak-params">(1.0, 700.0, false, 0.8, 0.0, 0.25)</override>
+    <override name="strong-params">(-0.16, 790.0, false, 0.80, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.08, 590.0, false, 0.80, 0.0, 0.92)</override>
+    <override name="weak-params">(0.17, 590.0, false, 0.80, 0.0, 0.12)</override>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-03"
+	  extends="@PACKAGE_ID@.preferences.sound.theme"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-03/">
+    <override name="title">'Bass &amp; Snare'</override>
+    <override name="strong-params">(-0.09, 80.0, false, 0.80, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.60, 300.0, false, 0.80, 0.0, 1.0)</override>
+    <override name="weak-params">(-0.17, 10000.0, true, 0.80, 0.0, 0.32)</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
 	  extends="@PACKAGE_ID@.settings-list"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/">
-    <override name="entries">['default-01','default-02']</override>
+    <override name="entries">['default-01','default-02','default-03']</override>
     <override name="selected-entry">'default-01'</override>
     <child name="default-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01"/>
     <child name="default-02" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-02"/>
+    <child name="default-03" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-03"/>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound"
