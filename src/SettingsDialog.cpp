@@ -231,11 +231,12 @@ void SettingsDialog::initBindings()
                                 pendulum_action_combo_box_->property_active_id());
   settings::preferences()->bind(settings::kKeyPrefsPendulumPhaseMode,
                                 pendulum_phase_mode_combo_box_->property_active_id());
-  settings::preferences()->bind(settings::kKeyPrefsAnimationSync,
-                                animation_sync_adjustment_->property_value());
+
   animation_sync_spin_button_->signal_value_changed()
     .connect( sigc::mem_fun(*this, &SettingsDialog::onAnimationSyncChanged) );
 
+  settings::preferences()->bind(settings::kKeyPrefsAnimationSync,
+                                animation_sync_adjustment_->property_value());
   //
   // Sound tab
   //
