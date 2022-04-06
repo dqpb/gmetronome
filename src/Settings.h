@@ -28,22 +28,39 @@
 #include <glibmm/refptr.h>
 #include <giomm/settings.h>
 #include <map>
+#include <tuple>
 
 namespace settings {
 
   /*
    * GSettings schema id's
    */
-  inline const Glib::ustring kSchemaId                   {PACKAGE_ID};
-  inline const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
-  inline const Glib::ustring kSchemaIdStateBasename      {"state"};
-  inline const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
+  inline const Glib::ustring kSchemaId                        {PACKAGE_ID};
+  inline const Glib::ustring kSchemaIdSettingsListBasename    {"settings-list"};
+  inline const Glib::ustring kSchemaIdPrefsBasename           {"preferences"};
+  inline const Glib::ustring kSchemaIdStateBasename           {"state"};
+  inline const Glib::ustring kSchemaIdSoundBasename           {"sound"};
+  inline const Glib::ustring kSchemaIdSoundThemeBasename      {"theme"};
+  inline const Glib::ustring kSchemaIdSoundThemeListBasename  {"theme-list"};
+  inline const Glib::ustring kSchemaIdShortcutsBasename       {"shortcuts"};
 
+  inline const Glib::ustring kSchemaIdSettingsList {
+    kSchemaId + "." + kSchemaIdSettingsListBasename
+  };
   inline const Glib::ustring kSchemaIdPrefs {
     kSchemaId + "." + kSchemaIdPrefsBasename
   };
   inline const Glib::ustring kSchemaIdState {
     kSchemaId + "." + kSchemaIdStateBasename
+  };
+  inline const Glib::ustring kSchemaIdSound {
+    kSchemaIdPrefs + "." + kSchemaIdSoundBasename
+  };
+  inline const Glib::ustring kSchemaIdSoundTheme {
+    kSchemaIdSound + "." + kSchemaIdSoundThemeBasename
+  };
+  inline const Glib::ustring kSchemaIdSoundThemeList {
+    kSchemaIdSound + "." + kSchemaIdSoundThemeListBasename
   };
   inline const Glib::ustring kSchemaIdShortcuts {
     kSchemaIdPrefs + "." + kSchemaIdShortcutsBasename
@@ -52,16 +69,28 @@ namespace settings {
   /*
    * GSettings schema paths
    */
-  inline const Glib::ustring kSchemaPath                   {PACKAGE_ID_PATH"/"};
-  inline const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
-  inline const Glib::ustring kSchemaPathStateBasename      {"state"};
-  inline const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};
+  inline const Glib::ustring kSchemaPath                        {PACKAGE_ID_PATH"/"};
+  inline const Glib::ustring kSchemaPathSettingsListBasename    {"settings-list"};
+  inline const Glib::ustring kSchemaPathPrefsBasename           {"preferences"};
+  inline const Glib::ustring kSchemaPathStateBasename           {"state"};
+  inline const Glib::ustring kSchemaPathSoundBasename           {"sound"};
+  inline const Glib::ustring kSchemaPathSoundThemeListBasename  {"theme-list"};
+  inline const Glib::ustring kSchemaPathShortcutsBasename       {"shortcuts"};
 
+  inline const Glib::ustring kSchemaPathSettingsList {
+    kSchemaPath + kSchemaPathSettingsListBasename + "/"
+  };
   inline const Glib::ustring kSchemaPathPrefs {
     kSchemaPath + kSchemaPathPrefsBasename + "/"
   };
   inline const Glib::ustring kSchemaPathState {
     kSchemaPath + kSchemaPathStateBasename + "/"
+  };
+  inline const Glib::ustring kSchemaPathSound {
+    kSchemaPathPrefs + kSchemaPathSoundBasename + "/"
+  };
+  inline const Glib::ustring kSchemaPathSoundThemeList {
+    kSchemaPathSound + kSchemaPathSoundThemeListBasename + "/"
   };
   inline const Glib::ustring kSchemaPathShortcuts {
     kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
@@ -97,32 +126,32 @@ namespace settings {
     kPendulumPhaseModeRight = 1
   };
 
-  inline constexpr  double    kDefaultVolume  = 80;
-  inline constexpr  double    kMinVolume      = 0;
-  inline constexpr  double    kMaxVolume      = 100;
+  /*
+   * default values
+   */
+  inline constexpr  double    kDefaultVolume  = 0.8;
+  inline constexpr  double    kMinVolume      = 0.0;
+  inline constexpr  double    kMaxVolume      = 1.0;
+
+  /*
+   * types
+   */
+  using SoundParametersTuple = std::tuple<double, double, bool, double, double, double>;
+
+  /*
+   * .SettingsList keys
+   */
+  inline const Glib::ustring  kKeySettingsListEntries            {"entries"};
+  inline const Glib::ustring  kKeySettingsListSelectedEntry      {"selected-entry"};
 
   /*
    * .preferences keys
    */
-  inline const Glib::ustring  kKeyPrefsVolume                    {"volume"};
   inline const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
   inline const Glib::ustring  kKeyPrefsPendulumAction            {"pendulum-action"};
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode         {"pendulum-phase-mode"};
   inline const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
   inline const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
-  inline const Glib::ustring  kKeyPrefsSoundTheme                {"sound-theme"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongTimbre         {"sound-strong-timbre"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongPitch          {"sound-strong-pitch"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongBalance        {"sound-strong-balance"};
-  inline const Glib::ustring  kKeyPrefsSoundMidTimbre            {"sound-mid-timbre"};
-  inline const Glib::ustring  kKeyPrefsSoundMidPitch             {"sound-mid-pitch"};
-  inline const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundMidBalance           {"sound-mid-balance"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakTimbre           {"sound-weak-timbre"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakPitch            {"sound-weak-pitch"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakBalance          {"sound-weak-balance"};
   inline const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
 
 #if HAVE_ALSA
@@ -140,6 +169,20 @@ namespace settings {
   // and vice versa
   extern const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap;
   extern const std::map<Glib::ustring, settings::AudioBackend> kDeviceToBackendMap;
+
+  /*
+   * .preferences.sound keys
+   */
+  inline const Glib::ustring  kKeySoundVolume                    {"volume"};
+  inline const Glib::ustring  kKeySoundThemeList                 {"theme-list"};
+
+  /*
+   * .preferences.sound.theme keys
+   */
+  inline const Glib::ustring  kKeySoundThemeTitle                {"title"};
+  inline const Glib::ustring  kKeySoundThemeStrongParams         {"strong-params"};
+  inline const Glib::ustring  kKeySoundThemeMidParams            {"mid-params"};
+  inline const Glib::ustring  kKeySoundThemeWeakParams           {"weak-params"};
 
   /*
    * .preferences.shortcuts keys
@@ -180,13 +223,22 @@ namespace settings {
   inline const Glib::ustring  kKeyStateProfileSelect             {"profile-select"};
   inline const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
 
+}//namespace settings
+
+#include "SettingsList.h"
+#include "SoundTheme.h"
+
+namespace settings {
   /*
-   * Access Gio::Settings objects of the main application
+   * Access Gio::Settings or SettingLists of the application
    */
   Glib::RefPtr<Gio::Settings> settings();
   Glib::RefPtr<Gio::Settings> preferences();
-  Glib::RefPtr<Gio::Settings> state();
+  Glib::RefPtr<Gio::Settings> sound();
+  Glib::RefPtr<SettingsList<SoundTheme>> soundThemeList();
+  Glib::RefPtr<Gio::Settings> soundSelectedTheme();
   Glib::RefPtr<Gio::Settings> shortcuts();
+  Glib::RefPtr<Gio::Settings> state();
 
 }//namespace settings
 #endif//GMetronome_Settings_h

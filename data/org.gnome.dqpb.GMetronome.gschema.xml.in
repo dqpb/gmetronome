@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (C) 2020 The GMetronome Team
+ Copyright (C) 2020-2022 The GMetronome Team
 
  This file is part of GMetronome.
 
@@ -37,6 +37,15 @@
     <value nick='right' value='1'/>
   </enum>
 
+  <schema id="@PACKAGE_ID@.settings-list">
+    <key name="entries" type="as">
+      <default>[]</default>
+    </key>
+    <key name="selected-entry" type="s">
+      <default>''</default>
+    </key>
+  </schema>
+
   <!--
   <schema id="@PACKAGE_ID@.preferences.custom-shortcut" >
     <key name="action-name" type="s">
@@ -57,9 +66,69 @@
   </schema>
   -->
 
+  <schema id="@PACKAGE_ID@.preferences.sound.theme" >
+    <key name="title" type="s">
+      <default>'Untitled'</default>
+      <summary>Title of the sound theme</summary>
+      <description></description>
+    </key>
+    <key name="strong-params" type="(ddbddd)">
+      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <summary>Sound parameters for the strong accent level</summary>
+      <description></description>
+    </key>
+    <key name="mid-params" type="(ddbddd)">
+      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <summary>Sound parameters for the middle accent level</summary>
+      <description></description>
+    </key>
+    <key name="weak-params" type="(ddbddd)">
+      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <summary>Sound parameters for the weak accent level</summary>
+      <description></description>
+    </key>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-01"
+	  extends="@PACKAGE_ID@.preferences.sound.theme"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/">
+    <override name="title">'Wooden Metronome'</override>
+    <override name="strong-params">(-0.65, 470.0, true, 0.8, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.58, 470.0, false, 0.8, 0.0, 0.75)</override>
+    <override name="weak-params">(-0.30, 470.0, false, 0.8, 0.0, 0.25)</override>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-02"
+	  extends="@PACKAGE_ID@.preferences.sound.theme"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-02/">
+    <override name="title">'Plastic'</override>
+    <override name="strong-params">(1.0, 900.0, false, 0.8, 0.0, 1.0)</override>
+    <override name="mid-params">(1.0, 700.0, false, 0.8, 0.0, 0.75)</override>
+    <override name="weak-params">(1.0, 700.0, false, 0.8, 0.0, 0.25)</override>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
+	  extends="@PACKAGE_ID@.settings-list"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/">
+    <override name="entries">['default-01','default-02']</override>
+    <override name="selected-entry">'default-01'</override>
+    <child name="default-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01"/>
+    <child name="default-02" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-02"/>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/">
+    <key name="volume" type="d">
+      <range min="0.0" max="1.0"/>
+      <default>0.8</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <child name="theme-list" schema="@PACKAGE_ID@.preferences.sound.theme-list"/>
+  </schema>
+
   <schema id="@PACKAGE_ID@.preferences.shortcuts"
 	  path="@PACKAGE_ID_PATH@/preferences/shortcuts/">
-
     <key name="quit" type="s">
       <default>'&lt;Primary&gt;q'</default>
       <summary>Keyboard shortcut to quit the application</summary>
@@ -172,22 +241,17 @@
       <default>'&lt;Primary&gt;t'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
+    <!--
     <key name="custom-shortcuts" type="as">
       <default>[]</default>
       <summary></summary>
       <description></description>
     </key>
+    -->
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences"
 	  path="@PACKAGE_ID_PATH@/preferences/">
-
-    <key name="volume" type="d">
-      <range min="0." max="100."/>
-      <default>80.</default>
-      <summary></summary>
-      <description></description>
-    </key>
     <key name="restore-profile" type="b">
       <default>true</default>
       <summary></summary>
@@ -211,83 +275,6 @@
     <key name="animation-sync" type="d">
       <range min="-10000." max="10000."/>
       <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-theme" type="s">
-      <default>'classic'</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-timbre" type="d">
-      <range min="-1.0" max="1.0"/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-pitch" type="d">
-      <range min="20." max="20000."/>
-      <default>1479.978</default> <!-- F#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-balance" type="d">
-      <range min="-1." max="1."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-volume" type="d">
-      <range min="0." max="100."/>
-      <default>100.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-timbre" type="d">
-      <range min="-1.0" max="1.0"/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-pitch" type="d">
-      <range min="20." max="20000."/>
-      <default>1108.731</default> <!-- C#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-balance" type="d">
-      <range min="-1." max="1."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-volume" type="d">
-      <range min="0." max="100."/>
-      <default>100.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-timbre" type="d">
-      <range min="-1.0" max="1.0"/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-pitch" type="d">
-      <range min="20." max="20000."/>
-      <default>1108.731</default> <!-- C#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-balance" type="d">
-      <range min="-1." max="1."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-volume" type="d">
-      <range min="0." max="100."/>
-      <default>40</default>
       <summary></summary>
       <description></description>
     </key>
@@ -319,6 +306,7 @@
       <description></description>
     </key>
     @GSCHEMAXML_PULSEAUDIO_END@
+    <child name="sound" schema="@PACKAGE_ID@.preferences.sound"/>
     <child name="shortcuts" schema="@PACKAGE_ID@.preferences.shortcuts"/>
   </schema>
 

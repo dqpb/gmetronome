@@ -81,90 +81,113 @@ namespace audio {
                 << std::endl;
 #endif
 
-    float timbre = std::clamp(params.timbre, -1.0f, 1.0f);
-    float pitch = std::clamp(params.pitch, 20.0f, 20000.0f);
-    float volume = std::clamp(params.volume, 0.0f, 1.0f);
-    float balance = std::clamp(params.balance, -1.0f, 1.0f);
+    float timbre      = std::clamp(params.timbre, -1.0f, 1.0f);
+    float pitch       = std::clamp(params.pitch, 20.0f, 20000.0f);
+    bool  bell        = params.bell;
+    float bell_volume = std::clamp(params.bell_volume, 0.0f, 1.0f);
+    float balance     = std::clamp(params.balance, -1.0f, 1.0f);
+    float volume      = std::clamp(params.volume, 0.0f, 1.0f);
 
     if (volume == 0)
     {
-      filter::std::Zero{}(noise_buffer_);
+      filter::std::Zero{}(buffer);
+      return;
     }
-    else
+
+    float osc_gain = (timbre + 1.0f) / 2.0f;
+    float osc_attack_gain = std::abs((timbre - 1.0f) / 2.0f);
+    float noise_gain = std::max(-timbre, 0.0f);
+
+    static const filter::Automation attack_envelope = {
+       {8ms,  0.0},
+       {13ms, 1.0},
+       {14ms, 0.3},
+       {20ms, 0.0}
+     };
+
+    const StreamSpec filter_buffer_spec =
+      { filter::kDefaultSampleFormat, spec_.rate, 2 };
+
+    ByteBuffer osc_attack_buffer {filter_buffer_spec, kSoundDuration};
+
+    auto osc_attack_filter =
+        filter::std::Square {pitch * 2.1f, osc_attack_gain * 0.4f}
+      | filter::std::Square {pitch * 7.6f, osc_attack_gain * 0.2f}
+      | filter::std::Gain {attack_envelope};
+
+    osc_attack_filter(osc_attack_buffer);
+
+    static const filter::Automation osc_envelope = {
+      {8ms,  0.0},
+      {13ms, 1.0},
+      {25ms, 0.1},
+      {60ms, 0.0}
+    };
+
+
+    auto osc_filter =
+      filter::std::Zero {}
+      | filter::std::Sine {pitch, osc_gain}
+      | filter::std::Mix {osc_attack_buffer}
+      | filter::std::Gain {osc_envelope};
+
+    // apply filter
+    osc_filter(osc_buffer_);
+
+
+    ByteBuffer bell_buffer {filter_buffer_spec, kSoundDuration};
+
+    if (bell)
     {
-      float overtone_gain = std::clamp((1.0f - timbre), 0.0f, 1.0f);
-
-      const std::vector<filter::Oscillator> oscillators = {
-        {pitch,         1.0f, filter::Waveform::kSine},
-
-        {pitch *  3.0f / 2.0f, overtone_gain * 0.4f, filter::Waveform::kSine},
-        {pitch *  5.0f / 4.0f, overtone_gain * 0.2f, filter::Waveform::kSine},
-        //{pitch * 15.0f / 8.0f, overtone_gain * 0.1f, filter::Waveform::kSquare}
-      };
-
-      static const filter::Automation osc_envelope = {
-        {0ms,  0.0},
-        {3ms,  0.7},
-        {7ms,  0.3},
-        {8ms,  0.7},
-        {12ms, 0.15},
-        {30ms, 0.05},
+      static const filter::Automation bell_envelope = {
+        { 2ms, 0.0},
+        { 3ms, 1.0},
         {60ms, 0.0}
       };
 
-      float osc_gain = (timbre + 1.0) / 2.0;
+      auto bell_filter =
+          filter::std::Sine {7000, 0.3f}
+        | filter::std::Gain {bell_envelope};
 
-      auto osc_filter =
-          filter::std::Zero {}
-        | filter::std::Osc {oscillators}
-        | filter::std::Gain {osc_gain}
-        | filter::std::Gain {osc_envelope};
-
-      // apply filter
-      osc_filter(osc_buffer_);
-
-      float noise_gain = std::max(-timbre, 0.0f);
-
-      // smoothing kernel width
-      const filter::Automation noise_smooth_kw = {
-        {0ms,  static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
-        {1ms,  static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
-        {5ms,  static_cast<float>(usecsToFrames(120us, noise_buffer_.spec()))},
-        {6ms,  static_cast<float>(usecsToFrames(30us, noise_buffer_.spec()))},
-        {11ms, static_cast<float>(usecsToFrames(120us, noise_buffer_.spec()))},
-        {60ms, static_cast<float>(usecsToFrames(170us, noise_buffer_.spec()))},
-      };
-
-      static const filter::Automation noise_envelope = {
-        {0ms,  0.0},
-        {1ms,  1.0},
-        {5ms,  0.1},
-        {6ms,  1.0},
-        {11ms, 0.1},
-        {60ms, 0.0}
-      };
-
-      float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
-      float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
-
-      // static const filter::Automation final_smooth_kw = {
-      //   {0ms,  static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
-      //   {30ms, static_cast<float>(usecsToFrames(0us, noise_buffer_.spec()))},
-      //   {60ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-      // };
-
-      auto noise_filter =
-          filter::std::Zero {}
-        | filter::std::Noise {noise_gain}
-        | filter::std::Smooth {noise_smooth_kw}
-        | filter::std::Gain {noise_envelope}
-        | filter::std::Mix {osc_buffer_}
-        | filter::std::Normalize {balance_l, balance_r};
-
-      // apply filter
-      noise_filter(noise_buffer_);
+      bell_filter(bell_buffer);
     }
-    return resample(noise_buffer_, buffer);
+
+    // smoothing kernel width
+    const filter::Automation noise_smooth_kw = {
+      { 0ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
+      { 5ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
+      { 8ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
+      {10ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
+      {13ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
+      {60ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
+    };
+
+    static const filter::Automation noise_envelope = {
+      { 0ms, 0.0},
+      { 3ms, 0.2},
+      { 4ms, 0.5},
+      { 5ms, 1.0},
+      { 7ms, 0.1},
+      {10ms, 1.0},
+      {12ms, 0.1},
+      {60ms, 0.0}
+    };
+
+    float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
+    float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
+
+    auto noise_filter =
+      filter::std::Zero {}
+      | filter::std::Noise {noise_gain}
+      | filter::std::Smooth {noise_smooth_kw}
+      | filter::std::Gain {noise_envelope}
+      | filter::std::Mix {osc_buffer_}
+      | filter::std::Mix {bell_buffer}
+      | filter::std::Normalize {balance_l, balance_r};
+
+    // apply filter
+    noise_filter(noise_buffer_);
+    resample(noise_buffer_, buffer);
   }
 
 }//namespace audio

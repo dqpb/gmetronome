@@ -23,22 +23,43 @@
 #include "Audio.h"
 #include "AudioBuffer.h"
 
+#ifndef NDEBUG
+# include <iostream>
+#endif
+
 namespace audio {
 
   struct SoundParameters
   {
-    float timbre  {-1.0}; // [-1.0, 1.0]
-    float pitch   {800};  // [20.0, 20000.0] (hertz)
-    float volume  {1.0};  // [0.0, 100.0] (percent)
-    float balance {0.0};  // [-1.0f, 1.0f]
+    float timbre       {0.0};    // [-1.0f, 1.0f]
+    float pitch        {1000};   // [20.0f, 20000.0f] (hertz)
+    bool  bell         {false};
+    float bell_volume  {1.0};    // [ 0.0f, 1.0f]
+    float balance      {0.0};    // [-1.0f, 1.0f]
+    float volume       {1.0};    // [ 0.0f, 1.0f]
+
+    friend std::ostream& operator<<(std::ostream& o, const SoundParameters& params)
+      {
+        o << "["
+          << params.timbre << ", "
+          << params.pitch << ", "
+          << params.bell << ", "
+          << params.bell_volume << ", "
+          << params.balance << ", "
+          << params.volume
+          << "]";
+        return o;
+      }
   };
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)
   {
     return lhs.timbre == rhs.timbre
       && lhs.pitch == rhs.pitch
-      && lhs.volume == rhs.volume
-      && lhs.balance == rhs.balance;
+      && lhs.bell == rhs.bell
+      && lhs.bell_volume == rhs.bell_volume
+      && lhs.balance == rhs.balance
+      && lhs.volume == rhs.volume;
   }
 
   inline bool operator!=(const SoundParameters& lhs, const SoundParameters& rhs)

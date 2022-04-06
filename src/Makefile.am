@@ -68,6 +68,7 @@ noinst_HEADERS = \
 	PulseAudio.h \
 	Settings.h \
 	SettingsDialog.h \
+	SettingsList.h \
 	Shortcut.h \
 	SoundLibrary.h \
 	SpinLock.h \
@@ -87,6 +88,14 @@ resources = \
 	$(resourcesdir)/icons/profile-access-symbolic.svg \
 	$(resourcesdir)/icons/sound-classic-symbolic.svg \
 	$(resourcesdir)/icons/sound-modern-symbolic.svg \
+	$(resourcesdir)/icons/sound-bell-symbolic.svg \
+	$(resourcesdir)/icons/sound-timbre-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml

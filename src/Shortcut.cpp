@@ -103,16 +103,16 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
     { kActionStart, {} }
   },
   { settings::kKeyShortcutsVolumeIncrease1,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(1.) }
+    { kActionVolumeIncrease, Glib::Variant<double>::create(0.01) }
   },
   { settings::kKeyShortcutsVolumeDecrease1,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(1.) }
+    { kActionVolumeDecrease, Glib::Variant<double>::create(0.01) }
   },
   { settings::kKeyShortcutsVolumeIncrease10,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(10.) }
+    { kActionVolumeIncrease, Glib::Variant<double>::create(0.1) }
   },
   { settings::kKeyShortcutsVolumeDecrease10,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(10.) }
+    { kActionVolumeDecrease, Glib::Variant<double>::create(0.1) }
   },
   { settings::kKeyShortcutsTempoIncrease1,
     { kActionTempoIncrease, Glib::Variant<double>::create(1.) }

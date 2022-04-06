@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -20,11 +20,13 @@
 #ifndef GMetronome_Application_h
 #define GMetronome_Application_h
 
-#include <gtkmm.h>
 #include "ProfileManager.h"
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
+
+#include <gtkmm.h>
+#include <bitset>
 
 class MainWindow;
 
@@ -36,20 +38,11 @@ public:
 
   static Glib::RefPtr<Application> create();
 
-  sigc::signal<void, const Message&> signal_message()
+  sigc::signal<void, const Message&> signalMessage()
     { return signal_message_; }
 
-  sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics()
+  sigc::signal<void, const audio::Ticker::Statistics&> signalTickerStatistics()
     { return signal_ticker_statistics_; }
-
-  Glib::RefPtr<Gio::Settings> getSettings()
-    { return settings_; }
-  Glib::RefPtr<Gio::Settings> getSettingsPrefs()
-    { return settings_prefs_; }
-  Glib::RefPtr<Gio::Settings> getSettingsState()
-    { return settings_state_; }
-  Glib::RefPtr<Gio::Settings> getSettingsShortcuts()
-    { return settings_shortcuts_; }
 
 protected:
   // Overrides of default signal handlers:
@@ -60,17 +53,12 @@ private:
   audio::Ticker ticker_;
   ProfileManager profile_manager_;
 
-  // GSettings
-  Glib::RefPtr<Gio::Settings> settings_;
-  Glib::RefPtr<Gio::Settings> settings_prefs_;
-  Glib::RefPtr<Gio::Settings> settings_state_;
-  Glib::RefPtr<Gio::Settings> settings_shortcuts_;
-
-  sigc::connection settings_prefs_connection_;
+  // Connections
   sigc::connection settings_state_connection_;
-  sigc::connection settings_shortcuts_connection_;
+  sigc::connection settings_sound_theme_connection_;
   sigc::connection timer_connection_;
 
+  // Signals
   sigc::signal<void, const Message&> signal_message_;
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics_;
 
@@ -83,14 +71,13 @@ private:
   void initUI();
   void initTicker();
 
-  void configureTickerSound();
-  void configureTickerSoundStrong();
-  void configureTickerSoundMid();
-  void configureTickerSoundWeak();
+  using AccentMask = std::bitset<3>; // strong, mid, weak
+
+  void configureTickerSound(const AccentMask& accents);
   void configureAudioBackend();
   void configureAudioDevice();
 
-  Glib::RefPtr<Gio::SimpleAction> lookup_simple_action(const Glib::ustring& name);
+  Glib::RefPtr<Gio::SimpleAction> lookupSimpleAction(const Glib::ustring& name);
 
   void setAccelerator(const ActionScope& scope,
                       const Glib::ustring& action_name,
@@ -161,6 +148,7 @@ private:
   // Settings
   void onSettingsPrefsChanged(const Glib::ustring& key);
   void onSettingsStateChanged(const Glib::ustring& key);
+  void onSettingsSoundChanged(const Glib::ustring& key);
   void onSettingsShortcutsChanged(const Glib::ustring& key);
 
   // Timer
