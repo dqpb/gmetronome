@@ -38,6 +38,7 @@ namespace audio {
     float balance      {0.0};    // [-1.0f, 1.0f]
     float volume       {1.0};    // [ 0.0f, 1.0f]
 
+#ifndef NDEBUG
     friend std::ostream& operator<<(std::ostream& o, const SoundParameters& params)
       {
         o << "["
@@ -50,6 +51,7 @@ namespace audio {
           << "]";
         return o;
       }
+#endif
   };
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)
