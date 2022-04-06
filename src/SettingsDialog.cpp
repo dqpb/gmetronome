@@ -139,6 +139,10 @@ void SettingsDialog::initUI()
   mid_accent_drawing_.show();
   weak_accent_drawing_.show();
 
+  sound_strong_radio_button_->add(strong_accent_drawing_);
+  sound_mid_radio_button_->add(mid_accent_drawing_);
+  sound_weak_radio_button_->add(weak_accent_drawing_);
+
   sound_balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
   updateSoundThemeList();
