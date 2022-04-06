@@ -243,7 +243,8 @@ void SettingsDialog::initBindings()
   settings::sound()->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsSoundChanged));
 
-  settings::soundThemeList()->settings()->signal_changed()
+  sound_theme_settings_list_connection_ =
+    settings::soundThemeList()->settings()->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsSoundChanged));
 
   sound_theme_selection_changed_connection_ =
@@ -401,16 +402,17 @@ void SettingsDialog::onSoundThemeAdd()
 {
   std::cerr << __PRETTY_FUNCTION__ << std::endl;
 
+  auto id = settings::soundThemeList()->selected();
   try {
-    // duplicate the selected sound theme
-    auto id = settings::soundThemeList()->selected();
+    sound_theme_settings_list_connection_.block();
     if (!id.empty())
     {
+      // duplicate the selected sound theme
       auto theme = settings::soundThemeList()->get(id);
       theme.title = sound_theme_title_new_;
-      settings::soundThemeList()->append(theme);
+      id = settings::soundThemeList()->append(theme);
     }
-    else settings::soundThemeList()->append({});
+    else id = settings::soundThemeList()->append({});
   }
   catch (...)
   {
@@ -418,6 +420,12 @@ void SettingsDialog::onSoundThemeAdd()
     std::cerr << "SettingsDialog: could not create new sound theme" << std::endl;
 #endif
   }
+  // select new theme
+  settings::soundThemeList()->select(id);
+  // update ui
+  updateSoundThemeList();
+
+  sound_theme_settings_list_connection_.unblock();
 }
 
 void SettingsDialog::onSoundThemeRemove()

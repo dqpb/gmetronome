@@ -113,6 +113,7 @@ private:
   Gtk::CellRendererAccel accel_cell_renderer_;
 
   // Connections
+  sigc::connection sound_theme_settings_list_connection_;
   std::vector<sigc::connection> sound_theme_parameters_connections_;
   sigc::connection sound_theme_selection_changed_connection_;
   sigc::connection audio_device_entry_changed_connection_;
