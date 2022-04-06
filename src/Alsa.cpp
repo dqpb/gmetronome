@@ -591,7 +591,8 @@ namespace audio {
   {
     assert(state_ == BackendState::kConfig);
     try {
-      alsa_device_ = std::make_unique<AlsaDevice>(cfg_.name);
+      std::string dev_name = cfg_.name.empty() ? "default" : cfg_.name;
+      alsa_device_ = std::make_unique<AlsaDevice>(dev_name);
       alsa_device_->open();
     }
     catch(const AlsaDeviceError& e) {
