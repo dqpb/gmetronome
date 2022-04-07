@@ -17,10 +17,13 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm>
-#include <iostream>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include "Meter.h"
+#include <algorithm>
+#include <cmath>
 
 Meter::Meter(int division, int beats, const AccentPattern& accents)
   : division_(division),
@@ -37,12 +40,13 @@ void Meter::setDivision(int division)
   if (division != division_)
   {
     AccentPattern new_accents(beats_ * division, kAccentOff);
+    double ratio = (double) division / division_;
 
-    for (int beat_index = 0; beat_index < beats_; ++beat_index)
+    for (size_t src_index = 0; src_index < accents_.size(); ++src_index)
     {
-      auto source_it = accents_.cbegin() + (beat_index * division_);
-      auto target_it = new_accents.begin() + (beat_index * division);
-      std::copy_n(source_it, std::min(division, division_), target_it);
+      size_t tgt_index = std::round(src_index * ratio);
+      if (accents_[src_index] > new_accents[tgt_index])
+        new_accents[tgt_index] = accents_[src_index];
     }
     accents_.swap(new_accents);
     division_ = division;
