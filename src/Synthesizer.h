@@ -31,8 +31,8 @@ namespace audio {
 
   struct SoundParameters
   {
-    float timbre       {0.0};    // [-1.0f, 1.0f]
-    float pitch        {1000};   // [20.0f, 20000.0f] (hertz)
+    float timbre       {1.0};    // [-1.0f, 1.0f]
+    float pitch        {900};    // [20.0f, 20000.0f] (hertz)
     bool  bell         {false};
     float bell_volume  {1.0};    // [ 0.0f, 1.0f]
     float balance      {0.0};    // [-1.0f, 1.0f]

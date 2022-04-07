@@ -73,17 +73,17 @@
       <description></description>
     </key>
     <key name="strong-params" type="(ddbddd)">
-      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <default>(1.0, 900.0, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the strong accent level</summary>
       <description></description>
     </key>
     <key name="mid-params" type="(ddbddd)">
-      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <default>(1.0, 900.0, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the middle accent level</summary>
       <description></description>
     </key>
     <key name="weak-params" type="(ddbddd)">
-      <default>(-0.8, 500.0, false, 0.8, 0.0, 0.8)</default>
+      <default>(1.0, 900.0, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the weak accent level</summary>
       <description></description>
     </key>
