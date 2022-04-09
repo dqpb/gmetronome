@@ -24,11 +24,14 @@
 #include <gtkmm.h>
 
 // data model for sound theme TreeView
-class SoundThemesModelColumns : public Gtk::TreeModel::ColumnRecord {
+class SoundThemeModelColumns : public Gtk::TreeModel::ColumnRecord {
 public:
-  SoundThemesModelColumns()
-    { add(title); add(id); add(settings); add(settings_connection); }
+  SoundThemeModelColumns()
+    { add(type); add(id); add(title); add(settings); add(settings_connection); }
 
+  enum class Type { kHeadline, kSeparator, kPreset, kCustom };
+
+  Gtk::TreeModelColumn<Type> type;
   Gtk::TreeModelColumn<Glib::ustring> id;
   Gtk::TreeModelColumn<Glib::ustring> title;
   Gtk::TreeModelColumn<Glib::RefPtr<Gio::Settings>> settings;
@@ -76,14 +79,15 @@ private:
   // Sound tab
   Gtk::Grid* sound_grid_;
   Gtk::TreeView* sound_theme_tree_view_;
-  SoundThemesModelColumns sound_theme_model_columns_;
-  Glib::RefPtr<Gtk::ListStore> sound_theme_list_store_;
+  SoundThemeModelColumns sound_theme_model_columns_;
+  Glib::RefPtr<Gtk::TreeStore> sound_theme_tree_store_;
   Gtk::Button* sound_theme_add_button_;
   Gtk::Button* sound_theme_remove_button_;
+  Gtk::Button* sound_theme_reset_button_;
   Gtk::RadioButton* sound_strong_radio_button_;
   Gtk::RadioButton* sound_mid_radio_button_;
   Gtk::RadioButton* sound_weak_radio_button_;
-  Gtk::Scale* sound_timbre_scale_;
+  Gtk::Grid* sound_theme_parameters_grid_;
   Gtk::Switch* sound_bell_switch_;
   Gtk::Scale* sound_balance_scale_;
   Glib::RefPtr<Gtk::Adjustment> sound_timbre_adjustment_;
@@ -97,6 +101,7 @@ private:
   AccentButtonDrawingArea weak_accent_drawing_;
 
   Glib::ustring sound_theme_title_new_;
+  Glib::ustring sound_theme_title_duplicate_;
   Glib::ustring sound_theme_title_placeholder_;
 
   // Audio Device tab
@@ -134,10 +139,15 @@ private:
   void onSoundThemeRemove();
   void onSoundThemeAccentChanged();
   void onSoundThemeParametersChanged();
-  void updateSoundThemeList();
+
+  void updateSoundThemeModelRows(const Gtk::TreeModel::Children& rows,
+                                 const std::vector<Glib::ustring>& themes,
+                                 const SoundThemeModelColumns::Type& type);
+
+  void updateSoundThemeTreeStore();
   void updateSoundThemeSelection();
   void updateSoundThemeTitle(const Glib::ustring& theme_id);
-  void updateSoundThemeParameters(const Glib::ustring& theme_id);
+  void updateSoundThemeParameters();
   void onAudioDeviceEntryActivate();
   void onAudioDeviceEntryChanged();
   void onAudioDeviceEntryFocusIn();
