@@ -39,6 +39,9 @@ struct SoundTheme
   // placeholder title for untitled sound themes
   static inline const std::string kDefaultTitlePlaceholder = N_("Untitled");
 
+  // title of duplicated sound themes, %1 will be replaced by the old title
+  static inline const std::string kDefaultTitleDuplicate = _("%1 (copy)");
+
   std::string title = kDefaultTitle;
 
   audio::SoundParameters strong_params;
@@ -47,7 +50,7 @@ struct SoundTheme
 };
 
 template<>
-struct SettingsListConverter<SoundTheme>
+struct SettingsListDelegate<SoundTheme>
 {
   using ParamsTuple = settings::SoundParametersTuple;
 
@@ -109,6 +112,21 @@ struct SettingsListConverter<SoundTheme>
       copyParameters(theme.weak_params, tpl);
       settings->set_value(settings::kKeySoundThemeWeakParams,
                           Glib::Variant<ParamsTuple>::create(tpl));
+    }
+
+  static bool modified(Glib::RefPtr<Gio::Settings> settings)
+    {
+      bool m = false;
+
+      Glib::Variant<Glib::ustring> title_value;
+      m = m || settings->get_user_value(settings::kKeySoundThemeTitle, title_value);
+
+      Glib::Variant<ParamsTuple> params_value;
+      m = m || settings->get_user_value(settings::kKeySoundThemeStrongParams, params_value);
+      m = m || settings->get_user_value(settings::kKeySoundThemeMidParams, params_value);
+      m = m || settings->get_user_value(settings::kKeySoundThemeWeakParams, params_value);
+
+      return m;
     }
 };
 

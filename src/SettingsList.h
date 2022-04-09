@@ -40,7 +40,7 @@
 
 // clients need to specialize this converter class template
 template<typename ValueType>
-struct SettingsListConverter
+struct SettingsListDelegate
 {
   static ValueType load(Glib::RefPtr<Gio::Settings> settings);
   static void store(const ValueType& value, Glib::RefPtr<Gio::Settings> settings);
@@ -50,7 +50,7 @@ template<typename ValueType>
 class SettingsList : public Glib::Object {
 public:
   using Identifier = Glib::ustring;
-  using Converter = SettingsListConverter<ValueType>;
+  using Delegate = SettingsListDelegate<ValueType>;
 
   static Glib::RefPtr<SettingsList<ValueType>>
   create(Glib::RefPtr<Gio::Settings> base_settings, std::string entry_schema_id)
@@ -69,20 +69,39 @@ public:
 
   ValueType get(const Identifier& id)
     {
-      auto settings = getCachedEntrySettings(id);
-      if (settings)
-        return Converter::load(settings);
+      if (auto settings = getCachedEntrySettings(id); settings)
+        return Delegate::load(settings);
       else
         throw GMetronomeError {"could not get Gio::Settings to access list entry"};
     }
 
   void update(const Identifier& id, const ValueType& value)
     {
-      auto settings = getCachedEntrySettings(id);
-      if (settings)
-        Converter::store(value, settings);
+      if (auto settings = getCachedEntrySettings(id); settings)
+        Delegate::store(value, settings);
       else
-        throw GMetronomeError {"could not get Gio::Settings to access list entry"};
+        throw GMetronomeError {"could not get Gio::Settings to update list entry"};
+    }
+
+  void reset(const Identifier& id)
+    {
+      if (auto settings = getCachedEntrySettings(id); settings)
+        resetRecursively(settings);
+      else
+      {
+#ifndef NDEBUG
+        std::cerr << "SettingsList: could not get Gio::Settings to reset entry "
+                  << "'" << id << "'" << std::endl;
+#endif
+      }
+    }
+
+  bool modified(const Identifier& id)
+    {
+      if (auto settings = getCachedEntrySettings(id); settings)
+        return Delegate::modified(settings);
+      else
+        throw GMetronomeError {"could not get Gio::Settings to check entry modification"};
     }
 
   Identifier append(const ValueType& value)
@@ -91,9 +110,8 @@ public:
       Identifier id {uuid};
       g_free(uuid);
 
-      auto settings = createEntrySettings(id);
-      if (settings)
-        Converter::store(value, settings);
+      if (auto settings = createEntrySettings(id); settings)
+        Delegate::store(value, settings);
       else
         throw GMetronomeError {"could not create Gio::Settings to append list entry"};
 
@@ -159,31 +177,58 @@ public:
   Identifier selected()
     { return base_settings_->get_string(settings::kKeySettingsListSelectedEntry); }
 
-  std::vector<Identifier> list()
+  // returns a complete list of entries
+  std::vector<Identifier> list(bool include_defaults = true)
     {
       std::vector<Identifier> list = entries();
 
-      // Check if the list contains the default entries (child schemas) and insert
-      // them in front of the list if necessary.
-      // TODO: optimize to prevent unnecessary vector copies
-      auto children = defaults();
-      for (auto it = children.rbegin(); it != children.rend(); ++it)
+      if (include_defaults)
       {
-        if (std::find(list.begin(), list.end(), *it) == list.end())
-          list.insert(list.begin(), std::move(*it));
+        // Check if the list contains the default entries (child schemas) and insert
+        // them in front of the list if absent.
+        // TODO: optimize to prevent unnecessary vector copies
+        auto children = defaults();
+        for (auto it = children.rbegin(); it != children.rend(); ++it)
+        {
+          if (std::find(list.begin(), list.end(), *it) == list.end())
+            list.insert(list.begin(), std::move(*it));
+        }
       }
-      // TODO: cache this list and monitor settings::kKeySettingsListEntries
-      //       for changes
+      else
+      {
+        // Remove default entries (if there are any)
+        // TODO: optimize to prevent unnecessary vector copies
+        for (const auto& child : defaults())
+        {
+          if (auto it = std::find(list.begin(), list.end(), child); it != list.end())
+            list.erase(it);
+        }
+      }
       return list;
     }
 
-  std::vector<Identifier> entries()
+  // returns a list as stored in the settings backend
+  std::vector<Identifier> entries() const
     {
+      // TODO: ckeck list for id uniqueness, cache result and monitor
+      //       settings::kKeySettingsListEntries to update cache if necessary
       return base_settings_->get_string_array(settings::kKeySettingsListEntries);
     }
 
+  // returns the list defaults
   std::vector<Identifier> defaults() const
-    { return base_settings_->list_children(); }
+    {
+      auto defaults = base_settings_->list_children();
+      auto defaults_swap_it = defaults.begin();
+
+      // if defaults occur in the entry list, we synchronize the order
+      for (const auto& entry : entries())
+      {
+        if (auto it = std::find(defaults.begin(), defaults.end(), entry); it != defaults.end())
+          std::swap(*defaults_swap_it++, *it);
+      }
+      return defaults;
+    }
 
   Glib::RefPtr<Gio::Settings> settings(const Identifier& id)
     { return getCachedEntrySettings(id); }
@@ -217,6 +262,15 @@ private:
   Glib::RefPtr<Gio::Settings> createEntrySettings(const Identifier& id)
     {
       Glib::RefPtr<Gio::Settings> settings;
+
+      if (id.empty())
+      {
+#ifndef NDEBUG
+        std::cerr << "SettingsList: ignoring attempt to create settings with invalid id "
+                  << "'" << id << "'" << std::endl;
+#endif
+        return settings;
+      }
 
       auto children = base_settings_->list_children();
       if (std::find(children.begin(), children.end(), id) != children.end())
