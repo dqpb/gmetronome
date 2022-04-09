@@ -316,6 +316,9 @@ void Application::configureTickerSound(const AccentMask& accents)
       std::cerr << "Application: no sound theme selected" << std::endl;
 #endif
       settings_sound_theme_connection_.disconnect();
+      ticker_.setSoundStrong({});
+      ticker_.setSoundMid({});
+      ticker_.setSoundWeak({});
     }
   }
   catch(...)
