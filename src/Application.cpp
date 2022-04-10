@@ -302,13 +302,6 @@ void Application::configureTickerSound(const AccentMask& accents)
         theme.weak_params.volume *= global_volume;
         ticker_.setSoundWeak(theme.weak_params);
       }
-#ifndef NDEBUG //remove this
-      std::cerr << "Configure ticker with theme '" << theme.title << "':" << std::endl
-                << " Strong : " << theme.strong_params << std::endl
-                << " Mid    : " << theme.mid_params << std::endl
-                << " Weak   : " << theme.weak_params << std::endl
-                << std::endl;
-#endif
     }
     else
     {
@@ -1160,8 +1153,6 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
 }
 void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
-  std::cout << __PRETTY_FUNCTION__ << " key: " << key << std::endl;
-
   if (key == settings::kKeySoundVolume)
   {
     configureTickerSound(kAccentMaskAll);

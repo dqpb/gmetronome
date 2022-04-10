@@ -210,8 +210,7 @@ public:
   // returns a list as stored in the settings backend
   std::vector<Identifier> entries() const
     {
-      // TODO: ckeck list for id uniqueness, cache result and monitor
-      //       settings::kKeySettingsListEntries to update cache if necessary
+      // TODO: ckeck list for id uniqueness
       return base_settings_->get_string_array(settings::kKeySettingsListEntries);
     }
 
@@ -228,6 +227,19 @@ public:
           std::swap(*defaults_swap_it++, *it);
       }
       return defaults;
+    }
+
+  bool contains(const Identifier& id)
+    {
+      auto entry_list = entries();
+      if (std::find(entry_list.begin(), entry_list.end(), id) != entry_list.end())
+        return true;
+
+      auto defaults_list = defaults();
+      if (std::find(defaults_list.begin(), defaults_list.end(), id) != defaults_list.end())
+        return true;
+
+      return false;
     }
 
   Glib::RefPtr<Gio::Settings> settings(const Identifier& id)

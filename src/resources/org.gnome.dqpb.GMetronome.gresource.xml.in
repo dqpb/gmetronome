@@ -4,6 +4,7 @@
     <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
+    <file preprocess="xml-stripblanks">ui/SoundThemeEditor.glade</file>
     <file>icons/note-quarter-symbolic.svg</file>
     <file>icons/note-eighth-symbolic.svg</file>
     <file>icons/note-triplet-symbolic.svg</file>

@@ -22,6 +22,9 @@
 
 #include "AccentButton.h"
 #include <gtkmm.h>
+#include <map>
+
+class SoundThemeEditor;
 
 // data model for sound theme TreeView
 class SoundThemeModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -83,26 +86,14 @@ private:
   Glib::RefPtr<Gtk::TreeStore> sound_theme_tree_store_;
   Gtk::Button* sound_theme_add_button_;
   Gtk::Button* sound_theme_remove_button_;
-  Gtk::Button* sound_theme_reset_button_;
-  Gtk::RadioButton* sound_strong_radio_button_;
-  Gtk::RadioButton* sound_mid_radio_button_;
-  Gtk::RadioButton* sound_weak_radio_button_;
-  Gtk::Grid* sound_theme_parameters_grid_;
-  Gtk::Switch* sound_bell_switch_;
-  Gtk::Scale* sound_balance_scale_;
-  Glib::RefPtr<Gtk::Adjustment> sound_timbre_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_pitch_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_bell_volume_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_balance_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> sound_volume_adjustment_;
-
-  AccentButtonDrawingArea strong_accent_drawing_;
-  AccentButtonDrawingArea mid_accent_drawing_;
-  AccentButtonDrawingArea weak_accent_drawing_;
+  Gtk::Button* sound_theme_edit_button_;
 
   Glib::ustring sound_theme_title_new_;
   Glib::ustring sound_theme_title_duplicate_;
   Glib::ustring sound_theme_title_placeholder_;
+
+  // sound theme editor dialogs
+  std::map<Glib::ustring, SoundThemeEditor*> sound_theme_editors_;
 
   // Audio Device tab
   Gtk::ComboBoxText* audio_backend_combo_box_;
@@ -119,7 +110,6 @@ private:
 
   // Connections
   sigc::connection sound_theme_settings_list_connection_;
-  std::vector<sigc::connection> sound_theme_parameters_connections_;
   sigc::connection sound_theme_selection_changed_connection_;
   sigc::connection audio_device_entry_changed_connection_;
 
@@ -131,14 +121,14 @@ private:
 
   // Callbacks
   bool onKeyPressEvent(GdkEventKey* key_event);
+  void onHideSoundThemeEditor(const Glib::ustring& id);
   void onAnimationSyncChanged();
   void onSoundThemeSelect();
   void onSoundThemeTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
   void onSoundThemeTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
   void onSoundThemeAdd();
   void onSoundThemeRemove();
-  void onSoundThemeAccentChanged();
-  void onSoundThemeParametersChanged();
+  void onSoundThemeEdit();
 
   void updateSoundThemeModelRows(const Gtk::TreeModel::Children& rows,
                                  const std::vector<Glib::ustring>& themes,
@@ -147,7 +137,6 @@ private:
   void updateSoundThemeTreeStore();
   void updateSoundThemeSelection();
   void updateSoundThemeTitle(const Glib::ustring& theme_id);
-  void updateSoundThemeParameters();
   void onAudioDeviceEntryActivate();
   void onAudioDeviceEntryChanged();
   void onAudioDeviceEntryFocusIn();

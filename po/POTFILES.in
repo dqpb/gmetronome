@@ -2,9 +2,10 @@ data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in
 data/org.gnome.dqpb.GMetronome.desktop.in.in
 src/About.cpp
 src/Profile.h
-src/SoundTheme.h
 src/resources/ui/MainWindow.glade
 src/MainWindow.cpp
 src/resources/ui/SettingsDialog.glade
 src/SettingsDialog.cpp
+src/SoundTheme.h
+src/resources/ui/SoundThemeEditor.glade
 src/Shortcut.cpp

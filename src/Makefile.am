@@ -27,6 +27,7 @@ gmetronome_SOURCES = \
 	Settings.cpp \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
+	SoundThemeEditor.cpp \
 	Synthesizer.cpp \
 	Ticker.cpp
 
@@ -72,6 +73,7 @@ noinst_HEADERS = \
 	Shortcut.h \
 	SoundLibrary.h \
 	SoundTheme.h \
+	SoundThemeEditor.h \
 	SpinLock.h \
 	Synthesizer.h \
 	Ticker.h
@@ -82,6 +84,7 @@ resources = \
 	$(resourcesdir)/ui/ShortcutDialog.glade \
 	$(resourcesdir)/ui/MainWindow.glade \
 	$(resourcesdir)/ui/SettingsDialog.glade \
+	$(resourcesdir)/ui/SoundThemeEditor.glade \
 	$(resourcesdir)/icons/note-quarter-symbolic.svg \
 	$(resourcesdir)/icons/note-eighth-symbolic.svg \
 	$(resourcesdir)/icons/note-triplet-symbolic.svg \

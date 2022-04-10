@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: dqpb@mailbox.org\n"
-"POT-Creation-Date: 2022-04-09 11:15+0200\n"
-"PO-Revision-Date: 2022-04-09 11:31+0200\n"
+"POT-Creation-Date: 2022-04-11 00:04+0200\n"
+"PO-Revision-Date: 2022-04-11 00:03+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -67,21 +67,6 @@ msgstr "Neues Profil"
 #: src/Profile.h:40
 msgid "Untitled Profile"
 msgstr "Unbenanntes Profil"
-
-#. default title for new sound themes
-#: src/SoundTheme.h:37
-msgid "New Sound Theme"
-msgstr "Neues Sound Thema"
-
-#. placeholder title for untitled sound themes
-#: src/SoundTheme.h:40
-msgid "Untitled"
-msgstr "Unbenannt"
-
-#. title of duplicated sound themes, %1 will be replaced by the old title
-#: src/SoundTheme.h:43
-msgid "%1 (copy)"
-msgstr "%1 (Kopie)"
 
 #: src/resources/ui/MainWindow.glade:126
 msgctxt "Message bar"
@@ -292,95 +277,95 @@ msgctxt "Main window"
 msgid "_Start"
 msgstr "_Start"
 
-#: src/resources/ui/SettingsDialog.glade:69
+#: src/resources/ui/SettingsDialog.glade:61
 msgid "_General"
 msgstr "_Allgemein"
 
-#: src/resources/ui/SettingsDialog.glade:93
+#: src/resources/ui/SettingsDialog.glade:85
 msgid "_Animation"
 msgstr "A_nimation"
 
-#: src/resources/ui/SettingsDialog.glade:118
+#: src/resources/ui/SettingsDialog.glade:110
 msgid "_Sound"
 msgstr "_Klang"
 
-#: src/resources/ui/SettingsDialog.glade:143
+#: src/resources/ui/SettingsDialog.glade:135
 msgid "Audio _Device"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:168
+#: src/resources/ui/SettingsDialog.glade:160
 msgid "Short_cuts"
 msgstr "_Tastenkürzel"
 
-#: src/resources/ui/SettingsDialog.glade:204
+#: src/resources/ui/SettingsDialog.glade:196
 msgctxt "Preferences dialog"
 msgid "Startup"
 msgstr "Programmstart"
 
-#: src/resources/ui/SettingsDialog.glade:220
+#: src/resources/ui/SettingsDialog.glade:212
 msgctxt "Preferences dialog"
 msgid "_Restore previous profile:"
 msgstr "Letztes Profil _wiederherstellen:"
 
-#: src/resources/ui/SettingsDialog.glade:326
+#: src/resources/ui/SettingsDialog.glade:318
 msgctxt "Preferences dialog"
-msgid "Start direction:"
-msgstr "Startrichtung:"
+msgid "S_tart direction:"
+msgstr "S_tartrichtung:"
 
-#: src/resources/ui/SettingsDialog.glade:339
+#: src/resources/ui/SettingsDialog.glade:333
 msgctxt "Preferences dialog"
-msgid "Click spot:"
-msgstr "Klick-Punkt:"
+msgid "Click sp_ot:"
+msgstr "Klick-_Punkt:"
 
-#: src/resources/ui/SettingsDialog.glade:352
+#: src/resources/ui/SettingsDialog.glade:348
 msgctxt "Preferences dialog"
 msgid "Left"
 msgstr "Links"
 
-#: src/resources/ui/SettingsDialog.glade:353
+#: src/resources/ui/SettingsDialog.glade:349
 msgctxt "Preferences dialog"
 msgid "Right"
 msgstr "Rechts"
 
-#: src/resources/ui/SettingsDialog.glade:367
+#: src/resources/ui/SettingsDialog.glade:363
 msgctxt "Preferences dialog"
 msgid "Center"
 msgstr "Mitte"
 
-#: src/resources/ui/SettingsDialog.glade:368
+#: src/resources/ui/SettingsDialog.glade:364
 msgctxt "Preferences dialog"
 msgid "Real"
 msgstr "Echt"
 
-#: src/resources/ui/SettingsDialog.glade:369
+#: src/resources/ui/SettingsDialog.glade:365
 msgctxt "Preferences dialog"
 msgid "Edge"
 msgstr "Rand"
 
-#: src/resources/ui/SettingsDialog.glade:382
+#: src/resources/ui/SettingsDialog.glade:378
 msgctxt "Preferences dialog"
 msgid "Pendulum"
 msgstr "Pendel"
 
-#: src/resources/ui/SettingsDialog.glade:397
+#: src/resources/ui/SettingsDialog.glade:393
 msgctxt "Preferences dialog"
 msgid "Accents"
 msgstr "Betonung"
 
-#: src/resources/ui/SettingsDialog.glade:413
+#: src/resources/ui/SettingsDialog.glade:409
 msgctxt "Preferences dialog"
-msgid "Accent Animation:"
-msgstr "Betonungs-Animationen:"
+msgid "Acc_ent Animation:"
+msgstr "Bet_onungs-Animationen:"
 
-#: src/resources/ui/SettingsDialog.glade:436
+#: src/resources/ui/SettingsDialog.glade:434
 msgctxt "Preferences dialog"
 msgid "General"
 msgstr "Allgemein"
 
-#: src/resources/ui/SettingsDialog.glade:452
+#: src/resources/ui/SettingsDialog.glade:450
 msgctxt "Preferences dialog"
-msgid "Synchronization (ms):"
-msgstr "Synchronisation (ms):"
+msgid "S_ynchronization (ms):"
+msgstr "S_ynchronisation (ms):"
 
 #. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
 #: src/resources/ui/SettingsDialog.glade:464
@@ -396,100 +381,133 @@ msgstr ""
 "Zahlenwerte zu Problemen bis hin zu vollständigem Animationsausfall führen."
 
 #: src/resources/ui/SettingsDialog.glade:544
-msgid "Sound Theme"
-msgstr "Sound Thema"
+msgid "Sound _Theme"
+msgstr "Sound _Thema"
 
-#: src/resources/ui/SettingsDialog.glade:650
-msgctxt "Preferences dialog"
-msgid "_Timbre:"
-msgstr "_Klangfarbe:"
+#: src/resources/ui/SettingsDialog.glade:654
+msgid "_Edit"
+msgstr "_Bearbeiten"
 
-#: src/resources/ui/SettingsDialog.glade:664
-msgctxt "Preferences dialog"
-msgid "_Pitch:"
-msgstr "_Tonhöhe:"
-
-#: src/resources/ui/SettingsDialog.glade:678
-msgid "B_ell:"
-msgstr "_Glocke:"
-
-#: src/resources/ui/SettingsDialog.glade:692
-msgctxt "Preferences dialog"
-msgid "_Balance:"
-msgstr "_Balance:"
-
-#: src/resources/ui/SettingsDialog.glade:706
-msgctxt "Preferences dialog"
-msgid "_Volume:"
-msgstr "_Lautstärke:"
-
-#: src/resources/ui/SettingsDialog.glade:1091
+#: src/resources/ui/SettingsDialog.glade:705
 msgctxt "Preferences dialog"
 msgid "Audio Device:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:1104
+#: src/resources/ui/SettingsDialog.glade:718
 msgctxt "Preferences dialog"
 msgid "Audio backend:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:1117
+#: src/resources/ui/SettingsDialog.glade:731
 msgctxt "Preferences dialog"
 msgid "None"
 msgstr "Ohne"
 
-#: src/resources/ui/SettingsDialog.glade:1118
+#: src/resources/ui/SettingsDialog.glade:732
 msgctxt "Preferences dialog"
 msgid "Alsa"
 msgstr "Alsa"
 
-#: src/resources/ui/SettingsDialog.glade:1119
+#: src/resources/ui/SettingsDialog.glade:733
 msgctxt "Preferences dialog"
 msgid "Oss"
 msgstr "Oss"
 
-#: src/resources/ui/SettingsDialog.glade:1120
+#: src/resources/ui/SettingsDialog.glade:734
 msgctxt "Preferences dialog"
 msgid "Pulseaudio"
 msgstr "Pulseaudio"
 
-#: src/resources/ui/SettingsDialog.glade:1133
+#: src/resources/ui/SettingsDialog.glade:747
 msgctxt "Preferences dialog"
 msgid "Audio Device"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:1165
+#: src/resources/ui/SettingsDialog.glade:779
 msgctxt "Preferences dialog"
 msgid "Default"
 msgstr "Standard"
 
-#: src/resources/ui/SettingsDialog.glade:1233
+#: src/resources/ui/SettingsDialog.glade:847
 msgctxt "Preferences dialog"
 msgid "_Reset shortcuts"
 msgstr "Tastenkürzel _zurücksetzen"
 
-#: src/resources/ui/SettingsDialog.glade:1272
+#: src/resources/ui/SettingsDialog.glade:886
 msgctxt "Preferences dialog"
 msgid "Preferences"
 msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:216
+#: src/SettingsDialog.cpp:209
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:222
+#: src/SettingsDialog.cpp:215
 msgid "Shortcut"
 msgstr "Tastenkombination"
 
-#: src/SettingsDialog.cpp:662
+#: src/SettingsDialog.cpp:620
 msgid "Presets"
 msgstr "Voreinstellungen"
 
-#: src/SettingsDialog.cpp:677
+#: src/SettingsDialog.cpp:635
 msgid "Custom"
 msgstr "Eigene"
+
+#. default title for new sound themes
+#: src/SoundTheme.h:37
+msgid "New Sound Theme"
+msgstr "Neues Sound Thema"
+
+#. placeholder title for untitled sound themes
+#: src/SoundTheme.h:40
+msgid "Untitled"
+msgstr "Unbenannt"
+
+#. title of duplicated sound themes, %1 will be replaced by the old title
+#: src/SoundTheme.h:43
+msgid "%1 (copy)"
+msgstr "%1 (Kopie)"
+
+#: src/resources/ui/SoundThemeEditor.glade:59
+msgid "Title:"
+msgstr "Titel:"
+
+#: src/resources/ui/SoundThemeEditor.glade:107
+msgctxt "Preferences dialog"
+msgid "_Timbre:"
+msgstr "_Klangfarbe:"
+
+#: src/resources/ui/SoundThemeEditor.glade:121
+msgctxt "Preferences dialog"
+msgid "_Pitch:"
+msgstr "_Tonhöhe:"
+
+#: src/resources/ui/SoundThemeEditor.glade:135
+msgid "B_ell:"
+msgstr "_Glocke:"
+
+#: src/resources/ui/SoundThemeEditor.glade:149
+msgctxt "Preferences dialog"
+msgid "_Balance:"
+msgstr "_Balance:"
+
+#: src/resources/ui/SoundThemeEditor.glade:163
+msgctxt "Preferences dialog"
+msgid "_Volume:"
+msgstr "_Lautstärke:"
+
+#. This appears in the sound theme editor if the theme was removed in the settings backend.
+#: src/resources/ui/SoundThemeEditor.glade:456
+msgid "Not available anymore."
+msgstr "Nicht mehr verfügbar."
+
+#: src/resources/ui/SoundThemeEditor.glade:470
+msgctxt "Preferences dialog"
+msgid "Sound Theme Editor"
+msgstr "Sound Thema Editor"
 
 #: src/Shortcut.cpp:27
 msgctxt "Shortcut group title"

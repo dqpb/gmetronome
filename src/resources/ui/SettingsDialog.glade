@@ -27,22 +27,14 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="soundTimbreAdjustment">
-    <property name="lower">-1</property>
-    <property name="upper">1</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundVolumeAdjustment">
-    <property name="upper">1</property>
-    <property name="value">0.80</property>
-    <property name="step-increment">0.05</property>
-    <property name="page-increment">0.10</property>
+  <object class="GtkImage" id="soundThemeEditImage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">document-edit-symbolic</property>
   </object>
   <object class="GtkWindow" id="settingsDialog">
     <property name="can-focus">False</property>
     <property name="icon-name">gtk-preferences</property>
-    <property name="type-hint">dialog</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -323,7 +315,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Start direction:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">S_tart direction:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">pendulumPhaseModeComboBox</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -336,7 +330,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Click spot:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Click sp_ot:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">pendulumActionComboBox</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -410,7 +406,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Accent Animation:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Acc_ent Animation:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">accentAnimationSwitch</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -449,7 +447,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Synchronization (ms):</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">S_ynchronization (ms):</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">animationSyncSpinButton</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -526,7 +526,7 @@
               </packing>
             </child>
             <child>
-              <!-- n-columns=2 n-rows=3 -->
+              <!-- n-columns=1 n-rows=2 -->
               <object class="GtkGrid" id="soundGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -536,13 +536,14 @@
                 <property name="margin-bottom">10</property>
                 <property name="row-spacing">10</property>
                 <property name="column-spacing">10</property>
-                <property name="column-homogeneous">True</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
-                    <property name="label" translatable="yes">Sound Theme</property>
+                    <property name="label" translatable="yes">Sound _Theme</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">soundThemeTreeView</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                     </attributes>
@@ -550,410 +551,15 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">0</property>
-                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkFrame">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">10</property>
                     <property name="hexpand">True</property>
-                    <property name="label-xalign">0.5</property>
-                    <property name="shadow-type">in</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">10</property>
-                        <child>
-                          <object class="GtkButtonBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="halign">center</property>
-                            <property name="layout-style">expand</property>
-                            <child>
-                              <object class="GtkRadioButton" id="soundStrongRadioButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw-indicator">False</property>
-                                <property name="group">soundMidRadioButton</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="soundMidRadioButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="draw-indicator">False</property>
-                                <property name="group">soundStrongRadioButton</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="soundWeakRadioButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="draw-indicator">False</property>
-                                <property name="group">soundStrongRadioButton</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <!-- n-columns=3 n-rows=5 -->
-                          <object class="GtkGrid" id="soundThemeParametersGrid">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="row-spacing">10</property>
-                            <property name="column-spacing">10</property>
-                            <property name="row-homogeneous">True</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes" context="Preferences dialog">_Timbre:</property>
-                                <property name="use-underline">True</property>
-                                <property name="mnemonic-widget">soundTimbreScale</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes" context="Preferences dialog">_Pitch:</property>
-                                <property name="use-underline">True</property>
-                                <property name="mnemonic-widget">soundPitchSpinButton</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes">B_ell:</property>
-                                <property name="use-underline">True</property>
-                                <property name="mnemonic-widget">soundBellSwitch</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes" context="Preferences dialog">_Balance:</property>
-                                <property name="use-underline">True</property>
-                                <property name="mnemonic-widget">soundBalanceScale</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes" context="Preferences dialog">_Volume:</property>
-                                <property name="use-underline">True</property>
-                                <property name="mnemonic-widget">soundVolumeScale</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">sound-volume-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">sound-balance-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">sound-bell-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">note-quarter-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">sound-timbre-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkScale" id="soundVolumeScale">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="hexpand">True</property>
-                                <property name="adjustment">soundVolumeAdjustment</property>
-                                <property name="restrict-to-fill-level">False</property>
-                                <property name="fill-level">1</property>
-                                <property name="round-digits">1</property>
-                                <property name="draw-value">False</property>
-                                <property name="has-origin">False</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkScale" id="soundBalanceScale">
-                                <property name="width-request">80</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="adjustment">soundBalanceAdjustment</property>
-                                <property name="restrict-to-fill-level">False</property>
-                                <property name="fill-level">1</property>
-                                <property name="round-digits">1</property>
-                                <property name="draw-value">False</property>
-                                <property name="has-origin">False</property>
-                                <property name="value-pos">bottom</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="spacing">10</property>
-                                <child>
-                                  <object class="GtkSwitch" id="soundBellSwitch">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">center</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <child>
-                                      <object class="GtkImage">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="icon-name">sound-volume-symbolic</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkScale" id="soundBellVolumeScale">
-                                        <property name="width-request">80</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="adjustment">soundBellVolumeAdjustment</property>
-                                        <property name="restrict-to-fill-level">False</property>
-                                        <property name="fill-level">1</property>
-                                        <property name="round-digits">1</property>
-                                        <property name="draw-value">False</property>
-                                        <property name="has-origin">False</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkSpinButton" id="soundPitchSpinButton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="input-purpose">number</property>
-                                <property name="adjustment">soundPitchAdjustment</property>
-                                <property name="climb-rate">0.10</property>
-                                <property name="numeric">True</property>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="icon-name">sound-classic-symbolic</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkScale" id="soundTimbreScale">
-                                    <property name="width-request">80</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="adjustment">soundTimbreAdjustment</property>
-                                    <property name="restrict-to-fill-level">False</property>
-                                    <property name="fill-level">1</property>
-                                    <property name="round-digits">0</property>
-                                    <property name="draw-value">False</property>
-                                    <property name="has-origin">False</property>
-                                    <property name="value-pos">bottom</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="icon-name">sound-modern-symbolic</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">0</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFrame">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="vexpand">True</property>
                     <property name="label-xalign">0</property>
                     <property name="shadow-type">in</property>
                     <child>
@@ -967,6 +573,7 @@
                           <object class="GtkScrolledWindow">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="min-content-width">220</property>
                             <child>
                               <object class="GtkTreeView" id="soundThemeTreeView">
                                 <property name="visible">True</property>
@@ -1042,6 +649,20 @@
                                 <property name="position">0</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkButton" id="soundThemeEditButton">
+                                <property name="label" translatable="yes">_Edit</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="image">soundThemeEditImage</property>
+                                <property name="use-underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="pack-type">end</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1056,12 +677,6 @@
                     <property name="left-attach">0</property>
                     <property name="top-attach">1</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -1284,5 +899,17 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="soundTimbreAdjustment">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundVolumeAdjustment">
+    <property name="upper">1</property>
+    <property name="value">0.80</property>
+    <property name="step-increment">0.05</property>
+    <property name="page-increment">0.10</property>
   </object>
 </interface>
