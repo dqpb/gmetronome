@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -27,13 +27,13 @@ class ProfileListStore : public Gtk::ListStore
 {
 protected:
   ProfileListStore();
-  
-public: 
+
+public:
   //Tree model columns
   class ModelColumns : public Gtk::TreeModel::ColumnRecord
   {
   public:
-     
+
     ModelColumns()
     {
       add(id_);
@@ -46,13 +46,13 @@ public:
     Gtk::TreeModelColumn<Glib::ustring> id_;
     Gtk::TreeModelColumn<Glib::ustring> title_;
     Gtk::TreeModelColumn<Glib::ustring> description_;
-     
+
     Gtk::TreeModelColumn<bool> draggable_;
     Gtk::TreeModelColumn<bool> receivesdrags_;
   };
-  
+
   ModelColumns columns_;
-  
+
   static Glib::RefPtr<ProfileListStore> create();
 };
 

@@ -133,7 +133,7 @@ using ActionHandlerSettings = Glib::RefPtr<Gio::Settings>;
 using ActionHandler         = std::variant<ActionHandlerSlot, ActionHandlerSettings>;
 
 // map action names to action handler
-using ActionHandlerMap      = std::map<Glib::ustring, ActionHandler>;
+using ActionHandlerMap = std::map<Glib::ustring, ActionHandler>;
 
 void install_action(Gio::ActionMap& gmap,
                     const Glib::ustring action_name,
