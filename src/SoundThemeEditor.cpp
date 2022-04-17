@@ -53,6 +53,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("timbreAdjustment"));
   pitch_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("pitchAdjustment"));
+  damping_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("dampingAdjustment"));
   bell_volume_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("bellVolumeAdjustment"));
   balance_adjustment_ =
@@ -201,10 +203,11 @@ void SoundThemeEditor::bindProperties(Glib::RefPtr<Gio::Settings> settings,
 
   bindSoundParameter<0>(settings, key, timbre_adjustment_->property_value(), &sound_params_);
   bindSoundParameter<1>(settings, key, pitch_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<2>(settings, key, bell_switch_->property_state(), &sound_params_);
-  bindSoundParameter<3>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<4>(settings, key, balance_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<5>(settings, key, volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<2>(settings, key, damping_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<3>(settings, key, bell_switch_->property_state(), &sound_params_);
+  bindSoundParameter<4>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<5>(settings, key, balance_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<6>(settings, key, volume_adjustment_->property_value(), &sound_params_);
 }
 
 void SoundThemeEditor::unbindProperties()
@@ -213,6 +216,7 @@ void SoundThemeEditor::unbindProperties()
 
   unbindProperty(timbre_adjustment_->property_value());
   unbindProperty(pitch_adjustment_->property_value());
+  unbindProperty(damping_adjustment_->property_value());
   unbindProperty(bell_switch_->property_state());
   unbindProperty(bell_volume_adjustment_->property_value());
   unbindProperty(balance_adjustment_->property_value());

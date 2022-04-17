@@ -33,6 +33,7 @@ namespace audio {
   {
     float timbre       {1.0};    // [-1.0f, 1.0f]
     float pitch        {900};    // [20.0f, 20000.0f] (hertz)
+    float damping      {0.5};    // [0.0f, 1.0f]
     bool  bell         {false};
     float bell_volume  {1.0};    // [ 0.0f, 1.0f]
     float balance      {0.0};    // [-1.0f, 1.0f]
@@ -44,6 +45,7 @@ namespace audio {
         o << "["
           << params.timbre << ", "
           << params.pitch << ", "
+          << params.damping << ", "
           << params.bell << ", "
           << params.bell_volume << ", "
           << params.balance << ", "
@@ -58,6 +60,7 @@ namespace audio {
   {
     return lhs.timbre == rhs.timbre
       && lhs.pitch == rhs.pitch
+      && lhs.damping == rhs.damping
       && lhs.bell == rhs.bell
       && lhs.bell_volume == rhs.bell_volume
       && lhs.balance == rhs.balance
@@ -107,6 +110,7 @@ namespace audio {
   private:
     StreamSpec spec_;
     ByteBuffer osc_buffer_;
+    ByteBuffer att_buffer_;
     ByteBuffer noise_buffer_;
   };
 

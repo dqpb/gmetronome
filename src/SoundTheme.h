@@ -59,6 +59,7 @@ struct SettingsListDelegate<SoundTheme>
     {
       std::tie(target.timbre,
                target.pitch,
+               target.damping,
                target.bell,
                target.bell_volume,
                target.balance,
@@ -70,6 +71,7 @@ struct SettingsListDelegate<SoundTheme>
     {
       target = std::tie(source.timbre,
                         source.pitch,
+                        source.damping,
                         source.bell,
                         source.bell_volume,
                         source.balance,

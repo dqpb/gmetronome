@@ -53,6 +53,7 @@ private:
   Gtk::Scale* balance_scale_;
   Glib::RefPtr<Gtk::Adjustment> timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> pitch_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> damping_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> bell_volume_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> balance_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> volume_adjustment_;
