@@ -75,7 +75,23 @@ namespace audio {
   // convert sample formats
   std::vector<std::pair<SampleFormat,snd_pcm_format_t>> kFormatMapping =
   {
-    {SampleFormat::kS16LE , SND_PCM_FORMAT_S16_LE}
+    {SampleFormat::kU8        , SND_PCM_FORMAT_U8},
+    {SampleFormat::kS8        , SND_PCM_FORMAT_S8},
+    {SampleFormat::kS16LE     , SND_PCM_FORMAT_S16_LE},
+    {SampleFormat::kS16BE     , SND_PCM_FORMAT_S16_BE},
+    {SampleFormat::kU16LE     , SND_PCM_FORMAT_U16_LE},
+    {SampleFormat::kU16BE     , SND_PCM_FORMAT_U16_BE},
+    {SampleFormat::kS32LE     , SND_PCM_FORMAT_S32_LE},
+    {SampleFormat::kS32BE     , SND_PCM_FORMAT_S32_BE},
+    {SampleFormat::kFloat32LE , SND_PCM_FORMAT_FLOAT_LE},
+    {SampleFormat::kFloat32BE , SND_PCM_FORMAT_FLOAT_BE},
+    // kS24LE,
+    // kS24BE,
+    // kS24_32LE,
+    // kS24_32BE,
+    // kALAW,
+    // kULAW,
+    {SampleFormat::kUnknown , SND_PCM_FORMAT_UNKNOWN}
   };
 
   snd_pcm_format_t  sampleFormatToAlsa(const SampleFormat& fmt)
