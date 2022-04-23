@@ -35,10 +35,10 @@
 
 namespace audio {
 
-  SoundGenerator::SoundGenerator(const StreamSpec& spec)
+  Synthesizer::Synthesizer(const StreamSpec& spec)
   { prepare(spec); }
 
-  void SoundGenerator::prepare(const StreamSpec& spec)
+  void Synthesizer::prepare(const StreamSpec& spec)
   {
     assert(spec.rate > 0);
     assert(spec.channels == 2);
@@ -53,37 +53,112 @@ namespace audio {
     spec_ = spec;
   }
 
-  ByteBuffer SoundGenerator::generate(const SoundParameters& params)
+  ByteBuffer Synthesizer::create(const SoundParameters& params)
   {
     ByteBuffer buffer(spec_, kSoundDuration);
-    generate(buffer, params);
+    update(buffer, params);
     return buffer;
   }
 
-  void SoundGenerator::generate(ByteBuffer& buffer, const SoundParameters& params)
+  void Synthesizer::update(ByteBuffer& buffer, const SoundParameters& params)
   {
     assert(!std::isnan(params.timbre));
     assert(!std::isnan(params.pitch));
     assert(!std::isnan(params.volume));
     assert(!std::isnan(params.balance));
 
-    if (buffer.spec() != spec_)
+    if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
     {
 #ifndef NDEBUG
-      std::cerr << "SoundGenerator: incompatible buffer spec (reinterpreting buffer)"
-                << std::endl;
+      std::cerr << "Synthesizer: resizing sound buffer" << std::endl;
 #endif
-      buffer.reinterpret(spec_);
+      buffer.resize(spec_, kSoundDuration);
     }
 
-#ifndef NDEBUG
-    if (buffer.frames() < usecsToFrames(kSoundDuration, buffer.spec()))
-      std::cerr << "SoundGenerator: target buffer too small (sound will be truncated)"
-                << std::endl;
-#endif
-
-    float timbre      = std::clamp(params.timbre, -1.0f, 1.0f);
     float pitch       = std::clamp(params.pitch, 20.0f, 20000.0f);
+    float timbre      = std::clamp(params.timbre, 0.0f, 3.0f);
+    float detune      = std::clamp(params.detune, 0.0f, 500.0f);
+    float punch       = std::clamp(params.punch, 0.0f, 1.0f);
+    float decay       = std::clamp(params.decay, 0.0f, 1.0f);
+    bool  bell        = params.bell;
+    float bell_volume = std::clamp(params.bell_volume, 0.0f, 1.0f);
+    float balance     = std::clamp(params.balance, -1.0f, 1.0f);
+    float volume      = std::clamp(params.volume, 0.0f, 1.0f);
+
+    float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
+    float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
+
+    if (volume == 0)
+    {
+      filter::std::Zero{}(buffer);
+      return;
+    }
+
+    // const filter::Automation osc_envelope = {
+    //   {  0ms, 0.0f},
+    //   {  1ms + microseconds(int( (1.0f - punch) * 9000.0f)), 1.0f},
+    //   { 10ms + microseconds(int( (1.0f - punch) * 10000.0f + (1.0f - decay) * 40000.0f)), 0.0f},
+    // };
+
+    constexpr microseconds min_full_gain_time = 5ms;
+    constexpr microseconds max_full_gain_time = 20ms;
+    constexpr microseconds delta_full_gain_time = max_full_gain_time - min_full_gain_time;
+
+    const microseconds full_gain_time = min_full_gain_time
+      + microseconds { int ( (1.0f - punch) * delta_full_gain_time.count() ) };
+
+    const microseconds delta_attack = full_gain_time / 5;
+
+    const microseconds min_full_decay_time = full_gain_time + 10ms;
+    const microseconds max_full_decay_time = kSoundDuration;
+    const microseconds delta_full_decay_time = max_full_decay_time - min_full_decay_time;
+
+    const microseconds full_decay_time = min_full_decay_time
+      + microseconds { int ( (1.0f - decay) * delta_full_decay_time.count() ) };
+
+    const microseconds  delta_decay = (full_decay_time - full_gain_time) / 5;
+
+    // std::cout << "delta_attack : " << delta_attack.count() << std::endl
+    //           << "full_gain    : " << full_gain_time.count() << std::endl
+    //           << "delta_decay  : " << delta_decay.count() << std::endl
+    //           << "full_decay   : " << full_decay_time.count() << std::endl;
+
+    const filter::Automation osc_envelope = {
+      {  0ms, 0.0f},
+      {  1 * delta_attack, std::pow(0.2, (punch + 1.0f) * 5.0f)},
+      {  2 * delta_attack, std::pow(0.4, (punch + 1.0f) * 5.0f)},
+      {  3 * delta_attack, std::pow(0.6, (punch + 1.0f) * 5.0f)},
+      {  4 * delta_attack, std::pow(0.8, (punch + 1.0f) * 5.0f)},
+
+      {  full_gain_time, 1.0f },
+
+      {  full_gain_time + 1 * delta_decay, std::pow(0.8, (decay + punch + 1.0f) * 2.0f)},
+      {  full_gain_time + 2 * delta_decay, std::pow(0.6, (decay + punch + 1.0f) * 2.0f)},
+      {  full_gain_time + 3 * delta_decay, std::pow(0.4, (decay + punch + 1.0f) * 2.0f)},
+      {  full_gain_time + 4 * delta_decay, std::pow(0.2, (decay + punch + 1.0f) * 2.0f)},
+
+      {  full_decay_time, 0.0f },
+    };
+
+    auto osc_filter =
+      filter::std::Zero {}
+      | filter::std::Sine     {pitch, 1.0 - std::clamp( std::abs(0.0f - timbre), 0.0f, 1.0f), detune}
+      | filter::std::Triangle {pitch, 1.0 - std::clamp( std::abs(1.0f - timbre), 0.0f, 1.0f)}
+      | filter::std::Sawtooth {pitch, 1.0 - std::clamp( std::abs(2.0f - timbre), 0.0f, 1.0f)}
+      | filter::std::Square   {pitch, 1.0 - std::clamp( std::abs(3.0f - timbre), 0.0f, 1.0f)}
+//      | filter::std::Ring {pitch}
+//      | filter::std::Smooth {3}
+      | filter::std::Gain {osc_envelope}
+      | filter::std::Normalize {balance_l, balance_r};
+
+    // apply filter
+    osc_filter(osc_buffer_);
+
+    resample(osc_buffer_, buffer);
+
+    /*
+    float pitch       = std::clamp(params.pitch, 20.0f, 20000.0f);
+    float timbre      = std::clamp(params.timbre, -1.0f, 1.0f);
     float damping     = std::clamp(params.damping, 0.0f, 1.0f);
     bool  bell        = params.bell;
     float bell_volume = std::clamp(params.bell_volume, 0.0f, 1.0f);
@@ -191,6 +266,10 @@ namespace audio {
     noise_filter(noise_buffer_);
 
     resample(noise_buffer_, buffer);
+    */
+
+
+
 
     /*
     float osc_gain = (timbre + 1.0f) / 2.0f;

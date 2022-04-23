@@ -250,13 +250,16 @@ namespace filter {
       "this filter only supports floating point types at the moment");
 
   public:
-    Sine(double frequency, double amplitude)
-      : freq_{static_cast<float>(frequency)}, amp_{static_cast<float>(amplitude)}
+    Sine(double frequency, double amplitude, double detune = 0.0)
+      : freq_{static_cast<float>(frequency)},
+        amp_{static_cast<float>(amplitude)},
+        detune_{static_cast<float>(detune)}
       {}
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
+        assert(buffer.channels() == 2);
 
         if (amp_ == 0.0f)
           return;
@@ -265,26 +268,47 @@ namespace filter {
         constexpr float kTwoPi = 2.0f * kPi;
         constexpr float kPiHalf = kPi / 2.0f;
         constexpr float kThreePiHalf = 3.0f * kPi / 2.0f;
+        constexpr int kVoices = 4;
+
+        float amp = amp_ / 2; // two voices per channel
 
         auto frames = viewFrames<Format>(buffer);
-        float omega = kTwoPi * freq_ / buffer.spec().rate;
-        float arg = -kPiHalf;
+
+        float omega[kVoices] = {
+          kTwoPi * (freq_ - detune_ / 4) / buffer.spec().rate,
+          kTwoPi * (freq_ + detune_ / 4) / buffer.spec().rate,
+          kTwoPi * (freq_ + detune_ / 2) / buffer.spec().rate,
+          kTwoPi * (freq_ - detune_ / 2) / buffer.spec().rate
+        };
+
+        float arg[kVoices] = {
+          -kPiHalf,
+          -kPiHalf,
+          -kPiHalf,
+          -kPiHalf
+        };
 
         for (auto& frame : frames)
         {
-          if (arg > kPiHalf)
-            frame -= amp_ * bhaskaraCos(arg - kPi);
-          else
-            frame += amp_ * bhaskaraCos(arg);
+          for (int voice = 0; voice < kVoices; ++voice)
+          {
+            int channel = voice % 2;
 
-          arg += omega;
-          if (arg > kThreePiHalf)
-            arg = arg - kTwoPi;
+            if (arg[voice] > kPiHalf)
+              frame[channel] -= amp * bhaskaraCos(arg[voice] - kPi);
+            else
+              frame[channel] += amp * bhaskaraCos(arg[voice]);
+
+            arg[voice] += omega[voice];
+            if (arg[voice] > kThreePiHalf)
+              arg[voice] = arg[voice] - kTwoPi;
+          }
         }
       }
   private:
     float freq_;
     float amp_;
+    float detune_;
 
     // range: (-pi/2,pi/2)
     float bhaskaraCos(float x)
@@ -322,8 +346,11 @@ namespace filter {
         for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
         {
           // TODO: too slow
-          float triangle = 2.0 * std::asin(std::sin(omega * frame_index)) / M_PI;
-          frames[frame_index] += amp_ * triangle;
+          frames[frame_index] += (amp_ * 8.0 / (M_PI * M_PI)) * ( + (1.0 /  1.0) * std::sin(1.0 * omega * frame_index)
+                                                                  - (1.0 /  9.0) * std::sin(3.0 * omega * frame_index)
+                                                                  + (1.0 / 25.0) * std::sin(5.0 * omega * frame_index)
+                                                                  - (1.0 / 49.0) * std::sin(7.0 * omega * frame_index)
+                                                                  + (1.0 / 81.0) * std::sin(9.0 * omega * frame_index) );
         }
       }
   private:
@@ -357,9 +384,17 @@ namespace filter {
         float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
         for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
         {
-          float time = (omega * frame_index) / (2.0 * M_PI);
-          float sawtooth = 2.0 * (time - std::floor(time) - 0.5);
-          frames[frame_index] += amp_ * sawtooth;
+          // TODO: too slow
+          frames[frame_index] += - (amp_ * 2.0 / M_PI) * ( - std::sin(omega * frame_index)
+                                                           + (1.0 / 2.0) * std::sin(2.0 * omega * frame_index)
+                                                           - (1.0 / 3.0) * std::sin(3.0 * omega * frame_index)
+                                                           + (1.0 / 4.0) * std::sin(4.0 * omega * frame_index)
+                                                           - (1.0 / 5.0) * std::sin(5.0 * omega * frame_index)
+                                                           + (1.0 / 6.0) * std::sin(6.0 * omega * frame_index)
+                                                           - (1.0 / 7.0) * std::sin(7.0 * omega * frame_index)
+                                                           + (1.0 / 8.0) * std::sin(8.0 * omega * frame_index)
+                                                           - (1.0 / 9.0) * std::sin(9.0 * omega * frame_index) );
+
         }
       }
   private:
@@ -393,11 +428,12 @@ namespace filter {
         float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
         for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
         {
-          float sine = std::sin(omega * frame_index); // TODO: too slow
-          if (sine >= 0)
-            frames[frame_index] += amp_;
-          else
-            frames[frame_index] -= amp_;
+          // TODO: too slow
+          frames[frame_index] += amp_ * (4.0 / M_PI) * ( std::sin(omega * frame_index)
+                                                        + (1.0 / 3.0) * std::sin(3.0 * omega * frame_index)
+                                                        + (1.0 / 5.0) * std::sin(5.0 * omega * frame_index)
+                                                        + (1.0 / 7.0) * std::sin(7.0 * omega * frame_index)
+                                                        + (1.0 / 9.0) * std::sin(9.0 * omega * frame_index) );
         }
       }
   private:
@@ -445,6 +481,42 @@ namespace filter {
       }
   private:
     const std::vector<Oscillator> oscs_;
+  };
+
+    /**
+   * @class Ring
+   *
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class Ring {
+
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types at the moment");
+
+  public:
+    Ring(double freq)
+      : freq_{static_cast<float>(freq)}
+      {}
+    void operator()(ByteBuffer& buffer)
+      {
+        assert(buffer.spec().rate != 0);
+        assert(isFloatingPoint(buffer.spec().format));
+        assert(buffer.channels() == 2);
+
+        if (freq_ == 0.0f)
+          return;
+
+        auto frames = viewFrames<Format>(buffer);
+
+        float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
+        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+        {
+          float sine = std::sin(omega * frame_index); // TODO: too slow
+          frames[frame_index] *= sine;
+        }
+      }
+  private:
+    float freq_;
   };
 
   /**
@@ -626,6 +698,7 @@ namespace filter {
     using Sawtooth  = Filter<Sawtooth<kDefaultSampleFormat>>;
     using Square    = Filter<Square<kDefaultSampleFormat>>;
     using Osc       = Filter<Osc<kDefaultSampleFormat>>;
+    using Ring      = Filter<Ring<kDefaultSampleFormat>>;
     using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
     using Mix       = Filter<Mix<kDefaultSampleFormat>>;
     using Smooth    = Filter<Smooth<kDefaultSampleFormat>>;

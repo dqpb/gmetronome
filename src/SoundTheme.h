@@ -57,9 +57,11 @@ struct SettingsListDelegate<SoundTheme>
   static void copyParameters(const ParamsTuple& source,
                              audio::SoundParameters& target)
     {
-      std::tie(target.timbre,
-               target.pitch,
-               target.damping,
+      std::tie(target.pitch,
+               target.timbre,
+               target.detune,
+               target.punch,
+               target.decay,
                target.bell,
                target.bell_volume,
                target.balance,
@@ -69,9 +71,11 @@ struct SettingsListDelegate<SoundTheme>
   static void copyParameters(const audio::SoundParameters& source,
                              ParamsTuple& target)
     {
-      target = std::tie(source.timbre,
-                        source.pitch,
-                        source.damping,
+      target = std::tie(source.pitch,
+                        source.timbre,
+                        source.detune,
+                        source.punch,
+                        source.decay,
                         source.bell,
                         source.bell_volume,
                         source.balance,

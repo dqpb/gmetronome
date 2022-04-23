@@ -45,16 +45,21 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("midRadioButton", mid_radio_button_);
   builder_->get_widget("weakRadioButton", weak_radio_button_);
   builder_->get_widget("parametersGrid", parameters_grid_);
+  builder_->get_widget("timbreScale", timbre_scale_);
   builder_->get_widget("bellSwitch", bell_switch_);
   builder_->get_widget("balanceScale", balance_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
-  timbre_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("timbreAdjustment"));
   pitch_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("pitchAdjustment"));
-  damping_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("dampingAdjustment"));
+  timbre_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("timbreAdjustment"));
+  detune_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("detuneAdjustment"));
+  punch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("punchAdjustment"));
+  decay_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("decayAdjustment"));
   bell_volume_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("bellVolumeAdjustment"));
   balance_adjustment_ =
@@ -77,6 +82,11 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   strong_radio_button_->add(strong_accent_drawing_);
   mid_radio_button_->add(mid_accent_drawing_);
   weak_radio_button_->add(weak_accent_drawing_);
+
+  // timbre_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
+  // timbre_scale_->add_mark(1.0, Gtk::POS_BOTTOM, "");
+  // timbre_scale_->add_mark(2.0, Gtk::POS_BOTTOM, "");
+  // timbre_scale_->add_mark(3.0, Gtk::POS_BOTTOM, "");
 
   balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
@@ -201,22 +211,26 @@ void SoundThemeEditor::bindProperties(Glib::RefPtr<Gio::Settings> settings,
 {
   settings->bind(settings::kKeySoundThemeTitle, title_entry_->property_text());
 
-  bindSoundParameter<0>(settings, key, timbre_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<1>(settings, key, pitch_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<2>(settings, key, damping_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<3>(settings, key, bell_switch_->property_state(), &sound_params_);
-  bindSoundParameter<4>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<5>(settings, key, balance_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<6>(settings, key, volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<0>(settings, key, pitch_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<1>(settings, key, timbre_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<2>(settings, key, detune_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<3>(settings, key, punch_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<4>(settings, key, decay_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<5>(settings, key, bell_switch_->property_state(), &sound_params_);
+  bindSoundParameter<6>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<7>(settings, key, balance_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<8>(settings, key, volume_adjustment_->property_value(), &sound_params_);
 }
 
 void SoundThemeEditor::unbindProperties()
 {
   unbindProperty(title_entry_->property_text());
 
-  unbindProperty(timbre_adjustment_->property_value());
   unbindProperty(pitch_adjustment_->property_value());
-  unbindProperty(damping_adjustment_->property_value());
+  unbindProperty(timbre_adjustment_->property_value());
+  unbindProperty(detune_adjustment_->property_value());
+  unbindProperty(punch_adjustment_->property_value());
+  unbindProperty(decay_adjustment_->property_value());
   unbindProperty(bell_switch_->property_state());
   unbindProperty(bell_volume_adjustment_->property_value());
   unbindProperty(balance_adjustment_->property_value());

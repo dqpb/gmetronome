@@ -31,9 +31,11 @@ namespace audio {
 
   struct SoundParameters
   {
-    float timbre       {1.0};    // [-1.0f, 1.0f]
     float pitch        {900};    // [20.0f, 20000.0f] (hertz)
-    float damping      {0.5};    // [0.0f, 1.0f]
+    float timbre       {1.0};    // [-1.0f, 1.0f]
+    float detune       {0.5};    // [0.0f, 1.0f]
+    float punch        {0.5};    // [0.0f, 1.0f]
+    float decay        {0.5};    // [0.0f, 1.0f]
     bool  bell         {false};
     float bell_volume  {1.0};    // [ 0.0f, 1.0f]
     float balance      {0.0};    // [-1.0f, 1.0f]
@@ -43,9 +45,11 @@ namespace audio {
     friend std::ostream& operator<<(std::ostream& o, const SoundParameters& params)
       {
         o << "["
-          << params.timbre << ", "
           << params.pitch << ", "
-          << params.damping << ", "
+          << params.timbre << ", "
+          << params.detune << ", "
+          << params.punch << ", "
+          << params.decay << ", "
           << params.bell << ", "
           << params.bell_volume << ", "
           << params.balance << ", "
@@ -58,9 +62,11 @@ namespace audio {
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)
   {
-    return lhs.timbre == rhs.timbre
-      && lhs.pitch == rhs.pitch
-      && lhs.damping == rhs.damping
+    return lhs.pitch == rhs.pitch
+      && lhs.timbre == rhs.timbre
+      && lhs.detune == rhs.detune
+      && lhs.punch == rhs.punch
+      && lhs.decay == rhs.decay
       && lhs.bell == rhs.bell
       && lhs.bell_volume == rhs.bell_volume
       && lhs.balance == rhs.balance
@@ -77,9 +83,10 @@ namespace audio {
    */
   constexpr milliseconds kSoundDuration = 60ms;
 
-  class SoundGenerator {
+  /** Implements the requirements of a builder for ObjectLibrary. */
+  class Synthesizer {
   public:
-    SoundGenerator(const StreamSpec& spec = kDefaultSpec);
+    Synthesizer(const StreamSpec& spec = kDefaultSpec);
 
     /** Pre-allocate resources */
     void prepare(const StreamSpec& spec);
@@ -88,24 +95,15 @@ namespace audio {
      * Allocates a new sound buffer and generates a sound with the given
      * sound parameters.
      */
-    ByteBuffer generate(const SoundParameters& params);
+    ByteBuffer create(const SoundParameters& params);
 
     /**
      * Generates a sound with the given sound parameters. The buffer should be
      * able to hold 60ms (kSoundDuration) of audio data.
      * If the stream specification of the buffer does not fit the specification
-     * of the SoundGenerator, the buffer will be reinterpreted but no further
-     * heap allocations will take place to comply real-time demands.
+     * of the Synthesizer, the buffer will be resized.
      */
-    void generate(ByteBuffer& buffer, const SoundParameters& params);
-
-    /** See generate(const SoundParameter&) */
-    ByteBuffer operator()(const SoundParameters& params)
-      { return generate(params); }
-
-    /** See generate(ByteBuffer&, const SoundParameter&) */
-    void operator()(ByteBuffer& buffer, const SoundParameters& params)
-      { generate(buffer, params); }
+    void update(ByteBuffer& buffer, const SoundParameters& params);
 
   private:
     StreamSpec spec_;

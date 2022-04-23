@@ -16,18 +16,3 @@
  * You should have received a copy of the GNU General Public License
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef GMetronome_SoundLibrary_h
-#define GMetronome_SoundLibrary_h
-
-#include "ObjectLibrary.h"
-#include "AudioBuffer.h"
-#include "Synthesizer.h"
-#include "Meter.h"
-
-namespace audio {
-
-  using SoundLibrary = ObjectLibrary<Accent, ByteBuffer, Synthesizer>;
-
-}//namespace audio
-#endif//GMetronome_SoundLibrary_h

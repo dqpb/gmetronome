@@ -29,7 +29,9 @@ gmetronome_SOURCES = \
 	Shortcut.cpp \
 	SoundThemeEditor.cpp \
 	Synthesizer.cpp \
-	Ticker.cpp
+	Ticker.cpp \
+	Wavetable.cpp \
+	WavetableLibrary.cpp
 
 if HAVE_ALSA
 gmetronome_SOURCES += Alsa.cpp
@@ -59,6 +61,7 @@ noinst_HEADERS = \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
+	ObjectLibrary.h \
 	Oss.h \
 	Pendulum.h \
 	Profile.h \
@@ -76,7 +79,9 @@ noinst_HEADERS = \
 	SoundThemeEditor.h \
 	SpinLock.h \
 	Synthesizer.h \
-	Ticker.h
+	Ticker.h \
+	Wavetable.h \
+	WavetableLibrary.h
 
 resourcesdir = $(top_srcdir)/src/resources
 

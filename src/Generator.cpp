@@ -25,7 +25,10 @@
 #include "Filter.h"
 #include <cmath>
 #include <cassert>
-#include <iostream>
+
+#ifndef NDEBUG
+# include <iostream>
+#endif
 
 namespace audio {
 
@@ -53,7 +56,11 @@ namespace audio {
       frames_total_(0),
       frames_done_(0),
       stats_({0.0, 0.0, 0, 0, 0us})
-  {}
+  {
+    sounds_.insert(kAccentWeak, SoundParameters{});
+    sounds_.insert(kAccentMid, SoundParameters{});
+    sounds_.insert(kAccentStrong, SoundParameters{});
+  }
 
   Generator::~Generator()
   {}
@@ -131,7 +138,7 @@ namespace audio {
   }
 
   void Generator::updateSound(Accent accent, const SoundParameters& params)
-  { sounds_.adjust(accent, params); }
+  { sounds_.update(accent, params); }
 
   const Generator::Statistics& Generator::getStatistics() const
   { return stats_; }
@@ -256,7 +263,7 @@ namespace audio {
 
   void Generator::start(const void*& data, size_t& bytes)
   {
-    sounds_.update();
+    sounds_.apply();
 
     current_beat_ = -1;
     next_accent_  = 0;

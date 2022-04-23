@@ -77,7 +77,7 @@ namespace audio {
     double accel_saved_;
     Meter meter_;
     const ByteBuffer sound_zero_;
-    SoundLibrary<Accent> sounds_;
+    SoundLibrary sounds_;
     int current_beat_;
     unsigned next_accent_;
     int frames_total_;

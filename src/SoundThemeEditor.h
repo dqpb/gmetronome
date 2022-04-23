@@ -49,11 +49,14 @@ private:
   Gtk::RadioButton* mid_radio_button_;
   Gtk::RadioButton* weak_radio_button_;
   Gtk::Grid* parameters_grid_;
+  Gtk::Scale* timbre_scale_;
   Gtk::Switch* bell_switch_;
   Gtk::Scale* balance_scale_;
-  Glib::RefPtr<Gtk::Adjustment> timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> pitch_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> damping_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> timbre_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> detune_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> punch_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> decay_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> bell_volume_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> balance_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> volume_adjustment_;
