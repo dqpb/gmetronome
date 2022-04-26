@@ -135,7 +135,7 @@ namespace audio {
 //      | filter::std::Gain {osc_envelope}
       | filter::std::Wave {wavetables_[kSineTable],     pitch, sine_gain,     0.0f,  detune}
       | filter::std::Wave {wavetables_[kTriangleTable], pitch, triangle_gain, 0.0f,  detune}
-      | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, M_PIf, detune}
+      | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, float(M_PI), detune}
       | filter::std::Wave {wavetables_[kSquareTable],   pitch, square_gain,   0.0f,  detune}
 //      | filter::std::Ring {pitch}
 //      | filter::std::Smooth {5}
