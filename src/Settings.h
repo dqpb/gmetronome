@@ -136,7 +136,19 @@ namespace settings {
   /*
    * types
    */
-  using SoundParametersTuple = std::tuple<double, double, double, double, double, bool, double, double, double>;
+  using SoundParametersTuple = std::tuple<
+    double,  // pitch
+    double,  // timbre
+    double,  // detune
+    bool,    // clap
+    double,  // crush
+    double,  // punch
+    double,  // decay
+    bool,    // bell
+    double,  // bell volume
+    double,  // balance
+    double   // volume
+    >;
 
   /*
    * .SettingsList keys

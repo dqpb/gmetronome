@@ -23,32 +23,65 @@
 #include "Audio.h"
 #include "Wavetable.h"
 #include "ObjectLibrary.h"
-#include <functional>
+
+#include <algorithm>
+#include <memory>
 
 namespace audio {
 
+  /**
+   * Description of the dimensions and content of a wavetable which is used
+   * by the builder to cook a concrete wavetable object.
+   * Clients derive from this base class and implement the virtual functions
+   * according to the desired properties and content of the wavetable.
+   */
+  struct WavetableRecipe
+  {
+    WavetableRecipe()
+      { /* nothing */ }
+    virtual ~WavetableRecipe()
+      { /* nothing */ }
+    virtual size_t preferredPages(SampleRate rate) const
+      { return 16; };
+    virtual size_t preferredBasePageSize(SampleRate rate) const
+      { return 1024; }
+    virtual Wavetable::PageResize preferredPageResize(SampleRate rate) const
+      { return Wavetable::PageResize::kNoResize; }
+    virtual float preferredBase(SampleRate rate) const
+      { return 40.0f; }
+    virtual Wavetable::PageRange preferredRange(SampleRate rate) const
+      { return Wavetable::PageRange::kHalfOctave; }
+
+    virtual void fillPage(SampleRate rate,
+                          size_t page,
+                          float base,
+                          Wavetable::Page::iterator begin,
+                          Wavetable::Page::iterator end) const
+      {
+        std::fill(begin, end, 0.0f);
+      };
+  };
+
+  /**
+   * Builder class for an ObjectLibrary to create wavetables out of
+   * wavetable descriptions. (recipes)
+   */
   class WavetableBuilder {
   public:
-    class Repipe
-    {
-      size_t n_pages {0};
-      size_t base_page_size {1024};
-      Wavetable::PageResize page_resize {Wavetable::PageResize::kHalf};
-      float base_frequency {40};
-      Wavetable::PageRange range {Wavetable::PageRange::kOctave};
-
-      std::function<float(SampleRate,float,size_t,)> value_fu;
-    };
-
-  public:
-    WavetableBuilder(SampleRate rate);
+    WavetableBuilder(SampleRate rate = kDefaultRate);
 
     void prepare(SampleRate rate);
-    Wavetable create(const Recipe& recipe);
-    void update(Wavetable& table, const Recipe& recipe);
+    Wavetable create(std::shared_ptr<WavetableRecipe> recipe);
+    void update(Wavetable& tbl, std::shared_ptr<WavetableRecipe> recipe);
+
+    static Wavetable build(SampleRate rate, const WavetableRecipe& recipe);
 
   private:
     SampleRate rate_;
+
+    static bool needResize(const Wavetable& tbl, SampleRate rate, const WavetableRecipe& recipe);
+    static bool needRebase(const Wavetable& tbl, SampleRate rate, const WavetableRecipe& recipe);
+    static void fillTable(Wavetable& tbl, SampleRate rate, const WavetableRecipe& recipe);
   };
 
   using WavetableLibrary = ObjectLibrary<int, Wavetable, WavetableBuilder>;

@@ -36,14 +36,17 @@ namespace audio {
                        float base_frequency,
                        PageRange range)
   {
-    resize(n_pages, base_page_size, page_resize);
-    rebase(base_frequency, range);
+    resize(n_pages, base_page_size, page_resize, base_frequency, range);
   }
 
   void Wavetable::resize(size_t n_pages,
                          size_t base_page_size,
-                         PageResize page_resize)
+                         PageResize page_resize,
+                         float base,
+                         PageRange range)
   {
+    assert(base > 0.0f);
+
     if (n_pages == 0)
     {
       pages_.clear();
@@ -51,23 +54,46 @@ namespace audio {
       return;
     }
 
-    size_t data_size = 0;
+    float resize_factor = 1.0f;
 
     switch(page_resize) {
     case PageResize::kNoResize:
-      data_size = n_pages * base_page_size;
+      resize_factor = 1.0f;
+      break;
+    case PageResize::kAuto:
+      switch (range) {
+      case PageRange::kEqual:         resize_factor = 1.0f; break;
+      case PageRange::kFull:          resize_factor = 1.0f; break;
+      case PageRange::kQuarterOctave: resize_factor = 1.0f / std::pow(2.0f, 1.0f / 4.0f); break;
+      case PageRange::kThirdOctave:   resize_factor = 1.0f / std::pow(2.0f, 1.0f / 3.0f); break;
+      case PageRange::kHalfOctave:    resize_factor = 1.0f / std::pow(2.0f, 1.0f / 2.0f); break;
+      case PageRange::kOctave:        resize_factor = 1.0f / std::pow(2.0f, 1.0f); break;
+      case PageRange::kDoubleOctave:  resize_factor = 1.0f / std::pow(2.0f, 2.0f); break;
+      };
       break;
     case PageResize::kThreeQuarter:
-      // compute the first n_pages terms of the geometric series with r=3/4 and a=base_page_size
-      data_size = std::floor(base_page_size * (1.0f - std::pow(0.75f, n_pages)) / (1.0f - 0.75f));
+      resize_factor = 3.0f / 4.0f;
       break;
     case PageResize::kHalf:
-       data_size = std::floor(base_page_size * (1.0f - std::pow(0.5f, n_pages)) / (1.0f - 0.5f));
+      resize_factor = 1.0f / 2.0f;
       break;
     case PageResize::kQuarter:
-       data_size = std::floor(base_page_size * (1.0f - std::pow(0.25f, n_pages)) / (1.0f - 0.25f));
+      resize_factor = 1.0f / 4.0f;
       break;
     };
+
+    size_t data_size = 0;
+    if (resize_factor == 1.0f)
+    {
+      data_size = n_pages * base_page_size;
+    }
+    else
+    {
+      // compute the first n_pages terms of the geometric series with r=resize_factor
+      // and a=base_page_size
+      data_size = std::floor(
+        base_page_size * (1.0f - std::pow(resize_factor, n_pages)) / (1.0f - resize_factor));
+    }
 
     data_.resize(data_size);
 
@@ -81,19 +107,10 @@ namespace audio {
       page.begin_ = it;
       it += page_increment;
       page.end_ = it;
-
-      switch(page_resize) {
-      case PageResize::kNoResize: break;
-      case PageResize::kThreeQuarter: page_increment *= 3.0 / 4.0; break;
-      case PageResize::kHalf: page_increment /= 2; break;
-      case PageResize::kQuarter: page_increment /= 4; break;
-      };
+      page_increment *= resize_factor;
     }
-  }
 
-  void Wavetable::rebase(float base, PageRange range)
-  {
-    assert(base > 0.0f);
+    page_resize_ = page_resize;
     base_ = base;
     range_ = range;
   }
@@ -109,17 +126,23 @@ namespace audio {
     case PageRange::kEqual:
       page_base = base_ * (page_index + 1);
       break;
-    case PageRange::kHalfOctave:
-      page_base = base_ * std::pow(3.0 / 2.0, page_index);
-      break;
-    case PageRange::kOctave:
-      page_base = base_ * std::pow(2, page_index);
-      break;
-    case PageRange::kDoubleOctave:
-      page_base = base_ * std::pow(4, page_index);
-      break;
     case PageRange::kFull:
       page_base = base_;
+      break;
+    case PageRange::kQuarterOctave:
+      page_base = base_ * std::pow( std::pow(2.0, 1.0 / 4.0), page_index);
+      break;
+    case PageRange::kThirdOctave:
+      page_base = base_ * std::pow( std::pow(2.0, 1.0 / 3.0), page_index);
+      break;
+    case PageRange::kHalfOctave:
+      page_base = base_ * std::pow( std::pow(2.0, 1.0 / 2.0), page_index);
+      break;
+    case PageRange::kOctave:
+      page_base = base_ * std::pow( std::pow(2.0, 1.0), page_index);
+      break;
+    case PageRange::kDoubleOctave:
+      page_base = base_ * std::pow( std::pow(2.0, 2.0), page_index);
       break;
     };
 
@@ -142,19 +165,23 @@ namespace audio {
     case PageRange::kEqual:
       preferred_page_index = std::floor(frequency / base_);
       break;
-    case PageRange::kHalfOctave:
-      preferred_page_index
-        = std::floor( (std::log(frequency) - std::log(base_)) / std::log(3.0f / 2.0f));
-      break;
-    case PageRange::kOctave:
-      preferred_page_index = std::floor(std::log2(frequency) - std::log2(base_));
-      break;
-    case PageRange::kDoubleOctave:
-      preferred_page_index
-        = std::floor( (std::log(frequency) - std::log(base_)) / std::log(4.0f));
-      break;
     case PageRange::kFull:
       preferred_page_index = 0;
+      break;
+    case PageRange::kQuarterOctave:
+      preferred_page_index = std::floor( std::log2(frequency / base_) / (1.0 / 4.0) );
+      break;
+    case PageRange::kThirdOctave:
+      preferred_page_index = std::floor( std::log2(frequency / base_) / (1.0 / 3.0) );
+      break;
+    case PageRange::kHalfOctave:
+      preferred_page_index = std::floor( std::log2(frequency / base_) / (1.0 / 2.0) );
+      break;
+    case PageRange::kOctave:
+      preferred_page_index = std::floor( std::log2(frequency / base_) / 1.0 );
+      break;
+    case PageRange::kDoubleOctave:
+      preferred_page_index = std::floor( std::log2(frequency / base_) / 2.0 );
       break;
     };
 

@@ -21,7 +21,11 @@
 #define GMetronome_Synthesizer_h
 
 #include "Audio.h"
+#include "Filter.h"
 #include "AudioBuffer.h"
+#include "WavetableLibrary.h"
+
+#include <tuple>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -34,6 +38,8 @@ namespace audio {
     float pitch        {900};    // [20.0f, 20000.0f] (hertz)
     float timbre       {1.0};    // [-1.0f, 1.0f]
     float detune       {0.5};    // [0.0f, 1.0f]
+    bool  clap         {false};
+    float crush        {0.0};    // [0.0f, 1.0f]
     float punch        {0.5};    // [0.0f, 1.0f]
     float decay        {0.5};    // [0.0f, 1.0f]
     bool  bell         {false};
@@ -48,6 +54,8 @@ namespace audio {
           << params.pitch << ", "
           << params.timbre << ", "
           << params.detune << ", "
+          << params.clap << ", "
+          << params.crush << ", "
           << params.punch << ", "
           << params.decay << ", "
           << params.bell << ", "
@@ -65,6 +73,8 @@ namespace audio {
     return lhs.pitch == rhs.pitch
       && lhs.timbre == rhs.timbre
       && lhs.detune == rhs.detune
+      && lhs.clap == rhs.clap
+      && lhs.crush == rhs.crush
       && lhs.punch == rhs.punch
       && lhs.decay == rhs.decay
       && lhs.bell == rhs.bell
@@ -105,11 +115,98 @@ namespace audio {
      */
     void update(ByteBuffer& buffer, const SoundParameters& params);
 
+  public:
+    struct SineRecipe : public WavetableRecipe
+    {
+      SineRecipe()
+        { /* nothing */ }
+      ~SineRecipe() override
+        { /* nothing */ }
+      size_t preferredPages(SampleRate rate) const override
+        { return 1; };
+      size_t preferredBasePageSize(SampleRate rate) const override
+        { return 2048; }
+      Wavetable::PageResize preferredPageResize(SampleRate rate) const override
+        { return Wavetable::PageResize::kNoResize; }
+      float preferredBase(SampleRate rate) const override
+        { return 40.0f; }
+      Wavetable::PageRange preferredRange(SampleRate rate) const override
+        { return Wavetable::PageRange::kFull; }
+
+      void fillPage(SampleRate rate,
+                    size_t page,
+                    float base,
+                    Wavetable::Page::iterator begin,
+                    Wavetable::Page::iterator end) const override;
+    };
+
+    struct TriangleRecipe : public WavetableRecipe
+    {
+      void fillPage(SampleRate rate,
+                    size_t page,
+                    float base,
+                    Wavetable::Page::iterator begin,
+                    Wavetable::Page::iterator end) const override;
+    };
+
+    struct SawtoothRecipe : public WavetableRecipe
+    {
+      void fillPage(SampleRate rate,
+                    size_t page,
+                    float base,
+                    Wavetable::Page::iterator begin,
+                    Wavetable::Page::iterator end) const override;
+    };
+
+    struct SquareRecipe : public WavetableRecipe
+    {
+      void fillPage(SampleRate rate,
+                    size_t page,
+                    float base,
+                    Wavetable::Page::iterator begin,
+                    Wavetable::Page::iterator end) const override;
+    };
+
+    struct NoiseRecipe : public WavetableRecipe
+    {
+      NoiseRecipe()
+        { /* nothing */ }
+      ~NoiseRecipe() override
+        { /* nothing */ }
+      size_t preferredPages(SampleRate rate) const override
+        { return 1; };
+      size_t preferredBasePageSize(SampleRate rate) const override
+        { return 2048; }
+      Wavetable::PageResize preferredPageResize(SampleRate rate) const override
+        { return Wavetable::PageResize::kNoResize; }
+      float preferredBase(SampleRate rate) const override
+        { return 40.0f; }
+      Wavetable::PageRange preferredRange(SampleRate rate) const override
+        { return Wavetable::PageRange::kFull; }
+
+      void fillPage(SampleRate rate,
+                    size_t page,
+                    float base,
+                    Wavetable::Page::iterator begin,
+                    Wavetable::Page::iterator end) const override;
+    };
+
   private:
     StreamSpec spec_;
     ByteBuffer osc_buffer_;
     ByteBuffer att_buffer_;
     ByteBuffer noise_buffer_;
+
+    static constexpr int kSineTable     = 0;
+    static constexpr int kTriangleTable = 1;
+    static constexpr int kSawtoothTable = 2;
+    static constexpr int kSquareTable   = 3;
+    static constexpr int kNoiseTable    = 4;
+
+    WavetableLibrary wavetables_;
+
+    std::tuple<filter::Automation, microseconds, microseconds>
+    buildEnvelope(float attack, float decay, bool clap) const;
   };
 
 }//namespace audio

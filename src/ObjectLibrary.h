@@ -120,7 +120,7 @@ private:
 template<typename KeyType, typename ObjectType, typename BuilderType>
 template<typename ...Args>
 ObjectLibrary<KeyType, ObjectType, BuilderType>::ObjectLibrary(Args&&... args)
-  : builder_{std::forward<Args>(args)...}
+  : builder_(std::forward<Args>(args)...)
 { /* nothing */ }
 
 template<typename KeyType, typename ObjectType, typename BuilderType>
@@ -136,7 +136,7 @@ template<typename KeyType, typename ObjectType, typename BuilderType>
 template<typename ...Args>
 void ObjectLibrary<KeyType, ObjectType, BuilderType>::insert(const KeyType& key, Args&&... args)
 {
-  meta_map_.insert_or_assign(key, MetaMapEntry_{std::move(args)..., true});
+  meta_map_.insert_or_assign(key, MetaMapEntry_{{std::forward<Args>(args)...}, true});
 }
 
 template<typename KeyType, typename ObjectType, typename BuilderType>
@@ -198,7 +198,7 @@ void ObjectLibrary<KeyType, ObjectType, BuilderType>::apply()
 {
   // TODO: parallelize
   std::for_each(meta_map_.begin(), meta_map_.end(),
-                [this] (auto& map_pair) { apply(map_pair.first); });
+                [&] (auto& map_pair) { apply(map_pair.first); });
 }
 
 template<typename KeyType, typename ObjectType, typename BuilderType>

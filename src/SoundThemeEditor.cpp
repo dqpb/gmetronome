@@ -46,6 +46,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("weakRadioButton", weak_radio_button_);
   builder_->get_widget("parametersGrid", parameters_grid_);
   builder_->get_widget("timbreScale", timbre_scale_);
+  builder_->get_widget("clapSwitch", clap_switch_);
   builder_->get_widget("bellSwitch", bell_switch_);
   builder_->get_widget("balanceScale", balance_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
@@ -56,6 +57,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("timbreAdjustment"));
   detune_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("detuneAdjustment"));
+  crush_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("crushAdjustment"));
   punch_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("punchAdjustment"));
   decay_adjustment_ =
@@ -214,12 +217,14 @@ void SoundThemeEditor::bindProperties(Glib::RefPtr<Gio::Settings> settings,
   bindSoundParameter<0>(settings, key, pitch_adjustment_->property_value(), &sound_params_);
   bindSoundParameter<1>(settings, key, timbre_adjustment_->property_value(), &sound_params_);
   bindSoundParameter<2>(settings, key, detune_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<3>(settings, key, punch_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<4>(settings, key, decay_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<5>(settings, key, bell_switch_->property_state(), &sound_params_);
-  bindSoundParameter<6>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<7>(settings, key, balance_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<8>(settings, key, volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<3>(settings, key, clap_switch_->property_state(), &sound_params_);
+  bindSoundParameter<4>(settings, key, crush_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<5>(settings, key, punch_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<6>(settings, key, decay_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<7>(settings, key, bell_switch_->property_state(), &sound_params_);
+  bindSoundParameter<8>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<9>(settings, key, balance_adjustment_->property_value(), &sound_params_);
+  bindSoundParameter<10>(settings, key, volume_adjustment_->property_value(), &sound_params_);
 }
 
 void SoundThemeEditor::unbindProperties()
@@ -229,6 +234,8 @@ void SoundThemeEditor::unbindProperties()
   unbindProperty(pitch_adjustment_->property_value());
   unbindProperty(timbre_adjustment_->property_value());
   unbindProperty(detune_adjustment_->property_value());
+  unbindProperty(clap_switch_->property_state());
+  unbindProperty(crush_adjustment_->property_value());
   unbindProperty(punch_adjustment_->property_value());
   unbindProperty(decay_adjustment_->property_value());
   unbindProperty(bell_switch_->property_state());

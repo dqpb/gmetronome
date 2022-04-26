@@ -22,12 +22,14 @@
 
 #include "Audio.h"
 #include "AudioBuffer.h"
+#include "Wavetable.h"
 
 #include <vector>
 #include <chrono>
 #include <cassert>
 #include <algorithm>
 #include <functional>
+#include <initializer_list>
 #include <cmath>
 
 namespace audio {
@@ -36,33 +38,80 @@ namespace filter {
   constexpr SampleFormat kDefaultSampleFormat =
     (hostEndian() == Endian::kLittle) ? SampleFormat::kFloat32LE : SampleFormat::kFloat32BE;
 
-  struct AutomationPoint
-  {
-    microseconds time;
-    float value;
-  };
+  class Automation {
+  public:
+    struct Point { microseconds time; float value; };
 
-  // compare helpers
-  inline bool autoPointTimeLess(const AutomationPoint& lhs, const AutomationPoint& rhs)
-  { return lhs.time < rhs.time; };
-  inline bool autoPointValueLess(const AutomationPoint& lhs, const AutomationPoint& rhs)
-  { return lhs.value < rhs.value; };
+    Automation()
+      { /* nothing */ }
+    Automation(std::initializer_list<Point> list)
+      : points_{std::move(list)},
+        r_cache_{points_.begin()}
+      { /* nothing */ }
 
-  using Automation = std::vector<AutomationPoint>;
+    const std::vector<Point>& points() const
+      { return points_; }
 
-  enum class Waveform
-  {
-    kSine,
-    kTriangle,
-    kSawtooth,
-    kSquare
-  };
+    float lookup(const microseconds& time) const
+      {
+        if (points_.empty())
+          return 0.0f;
 
-  struct Oscillator
-  {
-    float frequency;
-    float amplitude;
-    Waveform shape;
+        // if (r_cache_ == points_.begin())
+        // {
+
+        // }
+        // else if (r_cache_ == points_.end())
+        // {
+        // }
+        // else
+        // {
+        // }
+
+        // if (r_cache_ != points_.end())
+        // {
+
+        // }
+
+        // if (r_cache_ == points_.begin())
+        // {
+        // }
+        // else if (r_cache_ != points_.end())
+        // {
+        //   if (r_cache_->time >= time)
+        //   {
+        //     if ()
+        //     {}
+        //   }
+
+        // }
+
+        auto r = std::lower_bound(points_.begin(), points_.end(), time,
+                                  [] (const auto& lhs, const auto& value)
+                                    { return lhs.time < value; });
+
+        if (r == points_.end())
+        {
+          return points_.back().value;
+        }
+        else if (r == points_.begin())
+        {
+          return points_.front().value;
+        }
+        else
+        {
+          auto l = std::prev(r);
+          float slope = (r->value - l->value) / (r->time - l->time).count();
+          return l->value + (slope * (time - l->time).count());
+        }
+      }
+
+    bool empty() const
+      { return points_.empty(); }
+
+  private:
+    std::vector<Point> points_;
+    std::vector<Point>::const_iterator r_cache_;
   };
 
   template<typename PipeHead, typename FilterType>
@@ -135,7 +184,7 @@ namespace filter {
   class Gain {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
     Gain(double gain_l, double gain_r)
@@ -143,10 +192,8 @@ namespace filter {
       { /* nothing */ }
     explicit Gain(double gain) : Gain(gain, gain)
       { /* nothing */ }
-    explicit Gain(const Automation& points) : gain_l_{1}, gain_r_{1}, points_(points)
-      {
-        assert(std::is_sorted(points_.begin(), points_.end(), autoPointTimeLess));
-      }
+    explicit Gain(const Automation& envelope) : gain_l_{1}, gain_r_{1}, envelope_(envelope)
+      { /* nothing */ }
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate > 0);
@@ -154,48 +201,26 @@ namespace filter {
         if (buffer.empty())
           return;
 
-        if (points_.empty())
+        auto frames = viewFrames<Format>(buffer);
+        if (envelope_.empty())
         {
-          auto frames = viewFrames<Format>(buffer);
           for (auto& frame : frames)
             frame *= {gain_l_, gain_r_};
         }
         else
-          applyAutomation(buffer);
-      }
-
-    void applyAutomation(ByteBuffer& buffer)
-      {
-        auto frames = viewFrames<Format>(buffer);
-        size_t n_frames = frames.size();
-
-        float cur_value = points_.front().value;
-        size_t cur_frame = 0;
-
-        for (const auto& pt : points_)
         {
-          size_t pt_frame = usecsToFrames(pt.time, buffer.spec());
-          float delta_value = pt.value - cur_value;
-          float delta_frames = pt_frame - cur_frame + 1;
-
-          if (delta_frames > 0)
+          double frame_duration = 1000000.0 / buffer.rate(); //usecs
+          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
           {
-            float slope = delta_value / delta_frames;
-            size_t end_frame = std::min(pt_frame + 1, n_frames);
-            for (; cur_frame < end_frame; ++cur_frame)
-            {
-              cur_value += slope;
-              frames[cur_frame] *= cur_value;
-            }
+            microseconds frame_time {static_cast<int>(frame_index * frame_duration)};
+            frames[frame_index] *= envelope_.lookup(frame_time);
           }
         }
-        for (; cur_frame < n_frames; ++cur_frame)
-          frames[cur_frame] *= cur_value;
       }
   private:
     float gain_l_;
     float gain_r_;
-    Automation points_;
+    Automation envelope_;
   };
 
   /**
@@ -240,20 +265,23 @@ namespace filter {
   };
 
   /**
-   * @class Sine
-   *
+   * @class Wave
+   * @brief A wavetable oscillator
    */
   template<SampleFormat Format = kDefaultSampleFormat>
-  class Sine {
+  class Wave {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
-    Sine(double frequency, double amplitude, double detune = 0.0)
-      : freq_{static_cast<float>(frequency)},
-        amp_{static_cast<float>(amplitude)},
-        detune_{static_cast<float>(detune)}
+    Wave(const Wavetable& tbl, float frequency, float amplitude = 1.0,
+         float phase = 0.0, float detune = 0.0)
+      : tbl_{tbl},
+        freq_{frequency},
+        amp_{amplitude},
+        phase_{phase},
+        detune_{frequency * std::pow(2.0f, detune / 1200.0f) - frequency}
       {}
     void operator()(ByteBuffer& buffer)
       {
@@ -261,229 +289,48 @@ namespace filter {
         assert(isFloatingPoint(buffer.spec().format));
         assert(buffer.channels() == 2);
 
-        if (amp_ == 0.0f)
+        if (amp_ == 0.0f || freq_ == 0.0f)
           return;
 
-        constexpr float kPi = M_PI;
-        constexpr float kTwoPi = 2.0f * kPi;
-        constexpr float kPiHalf = kPi / 2.0f;
-        constexpr float kThreePiHalf = 3.0f * kPi / 2.0f;
-        constexpr int kVoices = 4;
-
-        float amp = amp_ / 2; // two voices per channel
-
         auto frames = viewFrames<Format>(buffer);
+        float delta_t = 1.0 / buffer.spec().rate;
+        float phase_t = phase_ / (2.0 * M_PI) / freq_;
+        auto& tbl_page = tbl_.lookup(freq_);
 
-        float omega[kVoices] = {
-          kTwoPi * (freq_ - detune_ / 4) / buffer.spec().rate,
-          kTwoPi * (freq_ + detune_ / 4) / buffer.spec().rate,
-          kTwoPi * (freq_ + detune_ / 2) / buffer.spec().rate,
-          kTwoPi * (freq_ - detune_ / 2) / buffer.spec().rate
-        };
-
-        float arg[kVoices] = {
-          -kPiHalf,
-          -kPiHalf,
-          -kPiHalf,
-          -kPiHalf
-        };
-
-        for (auto& frame : frames)
+        if (detune_ != 0.0f)
         {
-          for (int voice = 0; voice < kVoices; ++voice)
+          float amp_half = amp_ / 2.0f;
+          float detune_half = detune_ / 2.0f;
+
+          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
           {
-            int channel = voice % 2;
-
-            if (arg[voice] > kPiHalf)
-              frame[channel] -= amp * bhaskaraCos(arg[voice] - kPi);
-            else
-              frame[channel] += amp * bhaskaraCos(arg[voice]);
-
-            arg[voice] += omega[voice];
-            if (arg[voice] > kThreePiHalf)
-              arg[voice] = arg[voice] - kTwoPi;
+            float time = delta_t * frame_index + phase_t;
+            frames[frame_index] += {
+              amp_half * (tbl_page.lookup(freq_ - detune_,     time) +
+                          tbl_page.lookup(freq_ + detune_half, time)),
+              amp_half * (tbl_page.lookup(freq_ + detune_,     time) +
+                          tbl_page.lookup(freq_ - detune_half, time))
+            };
+          }
+        }
+        else
+        {
+          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
+          {
+            float time = delta_t * frame_index + phase_t;
+            frames[frame_index] += amp_ * tbl_page.lookup(freq_, time);
           }
         }
       }
   private:
+    const Wavetable& tbl_;
     float freq_;
     float amp_;
+    float phase_;
     float detune_;
-
-    // range: (-pi/2,pi/2)
-    float bhaskaraCos(float x)
-      {
-        static constexpr float kPi2 = M_PI * M_PI;
-        float x2 = x * x;
-        return (kPi2 - 4*x2) / (kPi2 + x2);
-      }
   };
 
   /**
-   * @class Triangle
-   *
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Triangle {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
-
-  public:
-    Triangle(double frequency, double amplitude)
-      : freq_{static_cast<float>(frequency)}, amp_{static_cast<float>(amplitude)}
-      {}
-    void operator()(ByteBuffer& buffer)
-      {
-        assert(buffer.spec().rate != 0);
-        assert(isFloatingPoint(buffer.spec().format));
-
-        if (amp_ == 0.0f)
-          return;
-
-        auto frames = viewFrames<Format>(buffer);
-        float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
-        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-        {
-          // TODO: too slow
-          frames[frame_index] += (amp_ * 8.0 / (M_PI * M_PI)) * ( + (1.0 /  1.0) * std::sin(1.0 * omega * frame_index)
-                                                                  - (1.0 /  9.0) * std::sin(3.0 * omega * frame_index)
-                                                                  + (1.0 / 25.0) * std::sin(5.0 * omega * frame_index)
-                                                                  - (1.0 / 49.0) * std::sin(7.0 * omega * frame_index)
-                                                                  + (1.0 / 81.0) * std::sin(9.0 * omega * frame_index) );
-        }
-      }
-  private:
-    float freq_;
-    float amp_;
-  };
-
-  /**
-   * @class Sawtooth
-   *
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Sawtooth {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
-
-  public:
-    Sawtooth(double frequency, double amplitude)
-      : freq_{static_cast<float>(frequency)}, amp_{static_cast<float>(amplitude)}
-      {}
-    void operator()(ByteBuffer& buffer)
-      {
-        assert(buffer.spec().rate != 0);
-        assert(isFloatingPoint(buffer.spec().format));
-
-        if (amp_ == 0.0f)
-          return;
-
-        auto frames = viewFrames<Format>(buffer);
-        float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
-        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-        {
-          // TODO: too slow
-          frames[frame_index] += - (amp_ * 2.0 / M_PI) * ( - std::sin(omega * frame_index)
-                                                           + (1.0 / 2.0) * std::sin(2.0 * omega * frame_index)
-                                                           - (1.0 / 3.0) * std::sin(3.0 * omega * frame_index)
-                                                           + (1.0 / 4.0) * std::sin(4.0 * omega * frame_index)
-                                                           - (1.0 / 5.0) * std::sin(5.0 * omega * frame_index)
-                                                           + (1.0 / 6.0) * std::sin(6.0 * omega * frame_index)
-                                                           - (1.0 / 7.0) * std::sin(7.0 * omega * frame_index)
-                                                           + (1.0 / 8.0) * std::sin(8.0 * omega * frame_index)
-                                                           - (1.0 / 9.0) * std::sin(9.0 * omega * frame_index) );
-
-        }
-      }
-  private:
-    float freq_;
-    float amp_;
-  };
-
-  /**
-   * @class Square
-   *
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Square {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
-
-  public:
-    Square(double frequency, double amplitude)
-      : freq_{static_cast<float>(frequency)}, amp_{static_cast<float>(amplitude)}
-      {}
-    void operator()(ByteBuffer& buffer)
-      {
-        assert(buffer.spec().rate != 0);
-        assert(isFloatingPoint(buffer.spec().format));
-
-        if (amp_ == 0.0f)
-          return;
-
-        auto frames = viewFrames<Format>(buffer);
-        float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
-        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-        {
-          // TODO: too slow
-          frames[frame_index] += amp_ * (4.0 / M_PI) * ( std::sin(omega * frame_index)
-                                                        + (1.0 / 3.0) * std::sin(3.0 * omega * frame_index)
-                                                        + (1.0 / 5.0) * std::sin(5.0 * omega * frame_index)
-                                                        + (1.0 / 7.0) * std::sin(7.0 * omega * frame_index)
-                                                        + (1.0 / 9.0) * std::sin(9.0 * omega * frame_index) );
-        }
-      }
-  private:
-    float freq_;
-    float amp_;
-  };
-
-  /**
-   * @class Osc
-   *
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Osc {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
-
-  public:
-    explicit Osc(const std::vector<Oscillator>& oscs) : oscs_{oscs}
-      {/*nothing*/}
-
-    Osc(float frequency, float amplitude, Waveform form)
-      : oscs_{{frequency, amplitude, form}}
-      {/*nothing*/}
-
-    void operator()(ByteBuffer& buffer)
-      {
-        for (const auto& osc : oscs_)
-        {
-          switch (osc.shape) {
-          case Waveform::kSine:
-            Sine(osc.frequency, osc.amplitude)(buffer);
-            break;
-          case Waveform::kTriangle:
-            Triangle(osc.frequency, osc.amplitude)(buffer);
-            break;
-          case Waveform::kSawtooth:
-            Sawtooth(osc.frequency, osc.amplitude)(buffer);
-            break;
-          case Waveform::kSquare:
-            Square(osc.frequency, osc.amplitude)(buffer);
-            break;
-          }
-        }
-      }
-  private:
-    const std::vector<Oscillator> oscs_;
-  };
-
-    /**
    * @class Ring
    *
    */
@@ -538,12 +385,13 @@ namespace filter {
       {
         assert(buffer.spec().channels == 2);
         auto frames = viewFrames<Format>(buffer);
-        float max = 0.0;
+        float max = 0.0f;
         for (auto& frame : frames)
           max = std::max(max, std::max(std::abs(frame[0]), std::abs(frame[1])));
 
-        for (auto& frame : frames)
-          frame *= { gain_l_ / max, gain_r_ / max};
+        if (max != 0.0f)
+          for (auto& frame : frames)
+            frame *= { gain_l_ / max, gain_r_ / max};
       }
   private:
     float gain_l_;
@@ -588,56 +436,48 @@ namespace filter {
   class Smooth {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
     using Frame = FrameView<Format, ByteBuffer::pointer>;
     using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
 
   public:
-    explicit Smooth(const Automation& points) : points_{points}, cache_frames_{0}, channels_{0}
+    explicit Smooth(const Automation& kernel_width)
+      : kernel_width_{kernel_width},
+        cache_frames_{0},
+        channels_{0}
       {
-        assert(std::is_sorted(points_.begin(), points_.end(), autoPointTimeLess));
-
-        auto it = std::max_element(points_.begin(), points_.end(), autoPointValueLess);
-        cache_.reserve(std::max<size_t>(0, it->value) + 1);
+        if (auto it = std::max_element(kernel_width_.points().begin(),
+                                       kernel_width_.points().end(),
+                                       [] (const auto& lhs, const auto& rhs)
+                                         { return lhs.value < rhs.value;});
+            it != kernel_width_.points().end())
+        {
+          cache_.reserve(std::max<size_t>(0, it->value) + 1);
+        }
+        else
+          cache_.reserve(1);
       }
 
     explicit Smooth(size_t kernel_width)
-      : points_{{{0ms}, {(float)kernel_width}}}, cache_frames_{0}, channels_{0}
+      : kernel_width_{{{0ms}, (float) kernel_width}}, cache_frames_{0}, channels_{0}
       { /* nothing */ }
 
     void operator()(ByteBuffer& buffer)
       {
-        if (points_.empty() || buffer.empty())
+        if (kernel_width_.empty() || buffer.empty())
           return;
 
         channels_ = buffer.channels();
 
         auto frames = viewFrames<Format>(buffer);
 
-        float cur_value = points_.front().value;
-        size_t cur_frame = 0;
-        size_t n_frames = buffer.frames();
-
-        for (const auto& pt : points_)
+        double frame_duration = 1000000.0 / buffer.rate(); //usecs
+        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
         {
-          size_t pt_frame = usecsToFrames(pt.time, buffer.spec());
-          float delta_value = pt.value - cur_value;
-          float delta_frames = pt_frame - cur_frame + 1;
-
-          if (delta_frames > 0)
-          {
-            float slope = delta_value / delta_frames;
-            size_t end_frame = std::min(pt_frame + 1, n_frames);
-            for (; cur_frame < end_frame; ++cur_frame)
-            {
-              cur_value += slope;
-              processFrame(frames, cur_frame, cur_value);
-            }
-          }
+          microseconds frame_time {static_cast<int>(frame_index * frame_duration)};
+          processFrame(frames, frame_index, kernel_width_.lookup(frame_time));
         }
-        for (; cur_frame < n_frames; ++cur_frame)
-          processFrame(frames, cur_frame, cur_value);
       }
 
     void processFrame(Frames& frames, size_t frame_index, size_t kernel_size)
@@ -681,7 +521,7 @@ namespace filter {
       }
 
   private:
-    Automation points_;
+    Automation kernel_width_;
     std::vector<float> cache_;
     size_t cache_frames_;
     size_t channels_;
@@ -693,11 +533,7 @@ namespace filter {
     using Zero      = Filter<Zero<kDefaultSampleFormat>>;
     using Gain      = Filter<Gain<kDefaultSampleFormat>>;
     using Noise     = Filter<Noise<kDefaultSampleFormat>>;
-    using Sine      = Filter<Sine<kDefaultSampleFormat>>;
-    using Triangle  = Filter<Triangle<kDefaultSampleFormat>>;
-    using Sawtooth  = Filter<Sawtooth<kDefaultSampleFormat>>;
-    using Square    = Filter<Square<kDefaultSampleFormat>>;
-    using Osc       = Filter<Osc<kDefaultSampleFormat>>;
+    using Wave      = Filter<Wave<kDefaultSampleFormat>>;
     using Ring      = Filter<Ring<kDefaultSampleFormat>>;
     using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
     using Mix       = Filter<Mix<kDefaultSampleFormat>>;

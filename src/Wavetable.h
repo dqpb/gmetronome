@@ -37,18 +37,21 @@ namespace audio {
     enum class PageResize
     {
       kNoResize,
-      kThreeQuarter,
+      kAuto,
+      kQuarter,
       kHalf,
-      kQuarter
+      kThreeQuarter
     };
 
-    enum class PageRange
+    enum class PageRange : int // cents
     {
-      kEqual,
-      kHalfOctave,
-      kOctave,
-      kDoubleOctave,
-      kFull
+      kEqual         = -2,
+      kFull          = -1,   // Use page for the full range
+      kQuarterOctave = 300,  // Minor third
+      kThirdOctave   = 400,  // Major third
+      kHalfOctave    = 600,  // Tritone
+      kOctave        = 1200,
+      kDoubleOctave  = 2400,
     };
 
   public:
@@ -123,20 +126,26 @@ namespace audio {
 
     Wavetable(size_t n_pages = 0,
               size_t base_page_size = 1024,
-              PageResize page_resize = PageResize::kHalf,
+              PageResize page_resize = PageResize::kAuto,
               float base_frequency = 40,
               PageRange range = PageRange::kOctave);
 
     void resize(size_t n_pages = 0,
                 size_t base_page_size = 1024,
-                PageResize page_resize = PageResize::kHalf);
+                PageResize page_resize = PageResize::kAuto,
+                float base_frequency = 40,
+                PageRange range = PageRange::kOctave);
 
-    void rebase(float base = 40, PageRange range = PageRange::kOctave);
+    PageResize pageResize() const
+      { return page_resize_; }
+
+    size_t pageSize(size_t page_index = 0) const
+      { return (page_index < size()) ? pages_[page_index].size() : 0; }
+
+    float base(size_t page_index = 0) const;
 
     PageRange range() const
       { return range_; }
-
-    float base(size_t page_index = 0) const;
 
     iterator begin()
       { return pages_.begin(); }
@@ -171,6 +180,7 @@ namespace audio {
     void clear();
 
   private:
+    PageResize page_resize_ {PageResize::kHalf};
     float base_ {40.0f};
     PageRange range_ {PageRange::kOctave};
     Page::container_type data_ {};
@@ -198,7 +208,7 @@ namespace audio {
   // PageRange range_ {PageRange::kOctave};
   // std::vector<float> data_ {};
   // std::vector<Page> pages_ {};
-  
-    
+
+
 }//namespace audio
 #endif//GMetronome_Wavetable_h

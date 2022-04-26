@@ -72,18 +72,18 @@
       <summary>Title of the sound theme</summary>
       <description></description>
     </key>
-    <key name="strong-params" type="(dddddbddd)">
-      <default>(1.0, 900.0, 0.5, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
+    <key name="strong-params" type="(dddbdddbddd)">
+      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the strong accent level</summary>
       <description></description>
     </key>
-    <key name="mid-params" type="(dddddbddd)">
-      <default>(1.0, 900.0, 0.5, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
+    <key name="mid-params" type="(dddbdddbddd)">
+      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the middle accent level</summary>
       <description></description>
     </key>
-    <key name="weak-params" type="(dddddbddd)">
-      <default>(1.0, 900.0, 0.5, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
+    <key name="weak-params" type="(dddbdddbddd)">
+      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
       <summary>Sound parameters for the weak accent level</summary>
       <description></description>
     </key>
@@ -93,27 +93,27 @@
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/">
     <override name="title">'Wooden Metronome'</override>
-    <override name="strong-params">(-0.55, 450.0, 0.5, 0.5, 0.5, true, 0.8, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.48, 440.0, 0.5, 0.5, 0.5, false, 0.8, 0.0, 0.65)</override>
-    <override name="weak-params">(-0.30, 440.0, 0.5, 0.5, 0.5, false, 0.8, 0.0, 0.25)</override>
+    <override name="strong-params">(-0.55, 450.0, 0.5, false, 0.0, 0.5, 0.5, true, 0.8, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.48, 440.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.8, 0.0, 0.65)</override>
+    <override name="weak-params">(-0.30, 440.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.8, 0.0, 0.25)</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-02"
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-02/">
     <override name="title">'Plastic'</override>
-    <override name="strong-params">(-0.16, 790.0, 0.5, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.08, 590.0, 0.5, 0.5, 0.5, false, 0.80, 0.0, 0.92)</override>
-    <override name="weak-params">(0.17, 590.0, 0.5, 0.5, 0.5, false, 0.80, 0.0, 0.12)</override>
+    <override name="strong-params">(-0.16, 790.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.08, 590.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 0.92)</override>
+    <override name="weak-params">(0.17, 590.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 0.12)</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-03"
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-03/">
     <override name="title">'Bass &amp; Snare'</override>
-    <override name="strong-params">(-0.10, 80.0, 0.5, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.70, 350.0, 0.5, 0.5, 0.5, false, 0.80, 0.1, 1.0)</override>
-    <override name="weak-params">(-0.17, 10000.0, 0.5, 0.5, 0.5, true, 0.80, -0.2, 0.32)</override>
+    <override name="strong-params">(-0.10, 80.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
+    <override name="mid-params">(-0.70, 350.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.1, 1.0)</override>
+    <override name="weak-params">(-0.17, 10000.0, 0.5, false, 0.0, 0.5, 0.5, true, 0.80, -0.2, 0.32)</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
