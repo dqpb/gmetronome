@@ -42,7 +42,6 @@ namespace audio {
     wavetables_.insert(kTriangleTable, std::make_shared<TriangleRecipe>());
     wavetables_.insert(kSawtoothTable, std::make_shared<SawtoothRecipe>());
     wavetables_.insert(kSquareTable, std::make_shared<SquareRecipe>());
-    wavetables_.insert(kNoiseTable, std::make_shared<NoiseRecipe>());
 
     prepare(spec);
   }
@@ -130,17 +129,18 @@ namespace audio {
 
     auto osc_filter =
       filter::std::Zero {}
-      | filter::std::Wave {wavetables_[kNoiseTable], pitch, crush, 0.0f, 10.0f}
-      | filter::std::Smooth {noise_smooth_kw}
-//      | filter::std::Gain {osc_envelope}
-      | filter::std::Wave {wavetables_[kSineTable],     pitch, sine_gain,     0.0f,  detune}
-      | filter::std::Wave {wavetables_[kTriangleTable], pitch, triangle_gain, 0.0f,  detune}
-      | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, float(M_PI), detune}
-      | filter::std::Wave {wavetables_[kSquareTable],   pitch, square_gain,   0.0f,  detune}
-//      | filter::std::Ring {pitch}
-//      | filter::std::Smooth {5}
-      | filter::std::Gain {osc_envelope}
-      | filter::std::Normalize {balance_l, balance_r};
+//    | filter::std::Wave {wavetables_[kNoiseTable], pitch, crush, 0.0f, 10.0f}
+    | filter::std::Noise {crush}
+    | filter::std::Smooth {noise_smooth_kw}
+    | filter::std::Gain {osc_envelope}
+    | filter::std::Wave {wavetables_[kSineTable],     pitch, sine_gain,     0.0f,  detune}
+    | filter::std::Wave {wavetables_[kTriangleTable], pitch, triangle_gain, 0.0f,  detune}
+    | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, float(M_PI), detune}
+    | filter::std::Wave {wavetables_[kSquareTable],   pitch, square_gain,   0.0f,  detune}
+// //      | filter::std::Ring {pitch}
+// //      | filter::std::Smooth {5}
+    | filter::std::Gain {osc_envelope}
+    | filter::std::Normalize {balance_l, balance_r};
 
     // apply filter
     osc_filter(osc_buffer_);
@@ -458,10 +458,11 @@ resample(noise_buffer_, buffer);
 
     for (size_t index = 0; index < page_size; ++index, ++begin)
     {
+      double sum = 0;
       for (int harmonic = 1, sign = 1; harmonic <= max_harmonic; harmonic += 2, sign *= -1)
-        *begin += sign * 1.0 / (harmonic * harmonic) * std::sin(harmonic * index * step);
+        sum += sign * 1.0 / (harmonic * harmonic) * std::sin(harmonic * index * step);
 
-      *begin *= 8.0 / (M_PI * M_PI);
+      *begin = 8.0 / (M_PI * M_PI) * sum;
     }
   }
 
@@ -480,10 +481,11 @@ resample(noise_buffer_, buffer);
 
     for (size_t index = 0; index < page_size; ++index, ++begin)
     {
+      double sum = 0;
       for (int harmonic = 1, sign = -1; harmonic <= max_harmonic; ++harmonic, sign *= -1)
-        *begin += sign * 1.0 / harmonic * std::sin(harmonic * index * step);
+        sum += sign * 1.0 / harmonic * std::sin(harmonic * index * step);
 
-      *begin *= 2.0 / M_PI;
+      *begin = 2.0 / M_PI * sum;
     }
   }
 
@@ -502,24 +504,12 @@ resample(noise_buffer_, buffer);
 
     for (size_t index = 0; index < page_size; ++index, ++begin)
     {
+      double sum = 0;
       for (int harmonic = 1; harmonic <= max_harmonic; harmonic += 2)
-        *begin += 1.0 / harmonic * std::sin(harmonic * index * step);
+        sum += 1.0 / harmonic * std::sin(harmonic * index * step);
 
-      *begin *= 4.0 / M_PI;
+      *begin = 4.0 / M_PI * sum;
     }
-  }
-
-  void Synthesizer::NoiseRecipe::fillPage(SampleRate rate,
-                                          size_t page,
-                                          float base,
-                                          Wavetable::Page::iterator begin,
-                                          Wavetable::Page::iterator end) const
-  {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(-1.0, 1.0);
-
-    std::for_each(begin, end, [&] (auto& value) { value = dis(gen); });
   }
 
 }//namespace audio

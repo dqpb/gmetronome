@@ -167,30 +167,6 @@ namespace audio {
                     Wavetable::Page::iterator end) const override;
     };
 
-    struct NoiseRecipe : public WavetableRecipe
-    {
-      NoiseRecipe()
-        { /* nothing */ }
-      ~NoiseRecipe() override
-        { /* nothing */ }
-      size_t preferredPages(SampleRate rate) const override
-        { return 1; };
-      size_t preferredBasePageSize(SampleRate rate) const override
-        { return 2048; }
-      Wavetable::PageResize preferredPageResize(SampleRate rate) const override
-        { return Wavetable::PageResize::kNoResize; }
-      float preferredBase(SampleRate rate) const override
-        { return 40.0f; }
-      Wavetable::PageRange preferredRange(SampleRate rate) const override
-        { return Wavetable::PageRange::kFull; }
-
-      void fillPage(SampleRate rate,
-                    size_t page,
-                    float base,
-                    Wavetable::Page::iterator begin,
-                    Wavetable::Page::iterator end) const override;
-    };
-
   private:
     StreamSpec spec_;
     ByteBuffer osc_buffer_;
