@@ -38,71 +38,61 @@ namespace filter {
   constexpr SampleFormat kDefaultSampleFormat =
     (hostEndian() == Endian::kLittle) ? SampleFormat::kFloat32LE : SampleFormat::kFloat32BE;
 
+  using seconds_dbl = std::chrono::duration<double>;
+
   class Automation {
   public:
-    struct Point { microseconds time; float value; };
+    struct Point { seconds_dbl time; float value; };
 
     Automation()
       { /* nothing */ }
     Automation(std::initializer_list<Point> list)
-      : points_{std::move(list)},
-        r_cache_{points_.begin()}
+      : points_{std::move(list)}
       { /* nothing */ }
 
     const std::vector<Point>& points() const
       { return points_; }
 
-    float lookup(const microseconds& time) const
+    template<typename Iterator, typename Function>
+    void apply(Iterator begin,
+               Iterator end,
+               const seconds_dbl& start,
+               const seconds_dbl& step,
+               Function fu)
       {
         if (points_.empty())
-          return 0.0f;
+          return;
 
-        // if (r_cache_ == points_.begin())
-        // {
+        auto time = start;
+        auto r = points_.begin();
+        bool r_changed = false;
+        double value = points_.front().value;
+        double value_step = 0.0f;
 
-        // }
-        // else if (r_cache_ == points_.end())
-        // {
-        // }
-        // else
-        // {
-        // }
-
-        // if (r_cache_ != points_.end())
-        // {
-
-        // }
-
-        // if (r_cache_ == points_.begin())
-        // {
-        // }
-        // else if (r_cache_ != points_.end())
-        // {
-        //   if (r_cache_->time >= time)
-        //   {
-        //     if ()
-        //     {}
-        //   }
-
-        // }
-
-        auto r = std::lower_bound(points_.begin(), points_.end(), time,
-                                  [] (const auto& lhs, const auto& value)
-                                    { return lhs.time < value; });
-
-        if (r == points_.end())
+        for (auto it = begin; it != end; ++it, time+=step)
         {
-          return points_.back().value;
-        }
-        else if (r == points_.begin())
-        {
-          return points_.front().value;
-        }
-        else
-        {
-          auto l = std::prev(r);
-          float slope = (r->value - l->value) / (r->time - l->time).count();
-          return l->value + (slope * (time - l->time).count());
+          // search forward
+          for (;r != points_.end() && r->time < time; ++r, r_changed=true);
+
+          if (r_changed)
+          {
+            auto l = std::prev(r);
+            if (r == points_.end())
+            {
+              value = l->value;
+              value_step = 0.0;
+            }
+            else
+            {
+              double slope = (r->value - l->value) / (r->time - l->time).count();
+              value = l->value + slope * (time - l->time).count();
+              value_step = slope * step.count();
+            }
+            r_changed = false;
+          }
+
+          fu(*it, time, value);
+          value += value_step;
         }
       }
 
@@ -111,7 +101,6 @@ namespace filter {
 
   private:
     std::vector<Point> points_;
-    std::vector<Point>::const_iterator r_cache_;
   };
 
   template<typename PipeHead, typename FilterType>
@@ -165,7 +154,7 @@ namespace filter {
   class Zero {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
     Zero() { /* nothing */ }
@@ -209,12 +198,11 @@ namespace filter {
         }
         else
         {
-          double frame_duration = 1000000.0 / buffer.rate(); //usecs
-          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-          {
-            microseconds frame_time {static_cast<int>(frame_index * frame_duration)};
-            frames[frame_index] *= envelope_.lookup(frame_time);
-          }
+          seconds_dbl frame_duration {1.0 / buffer.rate()};
+
+          envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
+                          [](auto& frame, const auto& time, float value)
+                            { frame *= value; });
         }
       }
   private:
@@ -230,10 +218,13 @@ namespace filter {
   class Noise {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
-    explicit Noise(double amplitude) : amp_{static_cast<float>(amplitude)} {}
+    explicit Noise(float amplitude)
+      : amp_{amplitude},
+        value_{0}
+      { /* nothing */ }
 
     void operator()(ByteBuffer& buffer)
       {
@@ -251,16 +242,24 @@ namespace filter {
           };
         }
       }
+
+    void seed(std::uint32_t value = make_seed())
+      { value_ = value; }
+
+    static std::uint32_t make_seed()
+      {
+        return  static_cast<std::uint32_t>(
+          std::chrono::high_resolution_clock::now().time_since_epoch().count());
+      }
+
   private:
     float amp_;
+    std::uint32_t value_;
 
     float uniform_distribution()
       {
-        static std::uint32_t value = static_cast<std::uint32_t>(
-          std::chrono::high_resolution_clock::now().time_since_epoch().count());
-
-        value = value * 214013 + 2531011;
-        return 2.0f * (((value & 0x3FFFFFFF) >> 15) / 32767.0) - 1.0f;
+        value_ = value_ * 214013 + 2531011;
+        return 2.0f * (((value_ & 0x3FFFFFFF) >> 15) / 32767.0) - 1.0f;
       }
   };
 
@@ -331,42 +330,6 @@ namespace filter {
   };
 
   /**
-   * @class Ring
-   *
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Ring {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
-
-  public:
-    Ring(double freq)
-      : freq_{static_cast<float>(freq)}
-      {}
-    void operator()(ByteBuffer& buffer)
-      {
-        assert(buffer.spec().rate != 0);
-        assert(isFloatingPoint(buffer.spec().format));
-        assert(buffer.channels() == 2);
-
-        if (freq_ == 0.0f)
-          return;
-
-        auto frames = viewFrames<Format>(buffer);
-
-        float omega = 2.0 * M_PI * freq_ / buffer.spec().rate;
-        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-        {
-          float sine = std::sin(omega * frame_index); // TODO: too slow
-          frames[frame_index] *= sine;
-        }
-      }
-  private:
-    float freq_;
-  };
-
-  /**
    * @class Normalize
    *
    */
@@ -374,7 +337,7 @@ namespace filter {
   class Normalize {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
     Normalize(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
@@ -406,7 +369,7 @@ namespace filter {
   class Mix {
 
     static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types at the moment");
+      "this filter only supports floating point types");
 
   public:
     Mix(const ByteBuffer& buffer) : buffer_{buffer}
@@ -471,29 +434,22 @@ namespace filter {
         channels_ = buffer.channels();
 
         auto frames = viewFrames<Format>(buffer);
+        seconds_dbl frame_duration {1.0 / buffer.rate()};
 
-        double frame_duration = 1000000.0 / buffer.rate(); //usecs
-        for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-        {
-          microseconds frame_time {static_cast<int>(frame_index * frame_duration)};
-          processFrame(frames, frame_index, kernel_width_.lookup(frame_time));
-        }
-      }
+        kernel_width_.apply(frames.begin(), frames.end(), 0s, frame_duration,
+                            [&] (Frame& frame, auto&, size_t kernel_size)
+                              {
+                                pushFrame(frame);
 
-    void processFrame(Frames& frames, size_t frame_index, size_t kernel_size)
-      {
-        Frame& frame = frames[frame_index];
+                                if (cache_frames_ - 1 > kernel_size)
+                                  popFrames(2);
+                                else if (cache_frames_ > kernel_size)
+                                  popFrames(1);
 
-        pushFrame(frame);
-
-        if (cache_frames_ - 1 > kernel_size)
-          popFrames(2);
-        else if (cache_frames_ > kernel_size)
-          popFrames(1);
-
-        if (cache_frames_ > 1)
-          for (size_t channel = 0; channel < frame.size(); ++channel)
-            frame[channel] = average(channel);
+                                if (cache_frames_ > 1)
+                                  for (size_t channel = 0; channel < frame.size(); ++channel)
+                                    frame[channel] = average(channel);
+                              });
       }
 
     void pushFrame(const Frame& frame)
@@ -534,7 +490,6 @@ namespace filter {
     using Gain      = Filter<Gain<kDefaultSampleFormat>>;
     using Noise     = Filter<Noise<kDefaultSampleFormat>>;
     using Wave      = Filter<Wave<kDefaultSampleFormat>>;
-    using Ring      = Filter<Ring<kDefaultSampleFormat>>;
     using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
     using Mix       = Filter<Mix<kDefaultSampleFormat>>;
     using Smooth    = Filter<Smooth<kDefaultSampleFormat>>;
