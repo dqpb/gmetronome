@@ -170,7 +170,6 @@ namespace audio {
   private:
     StreamSpec spec_;
     ByteBuffer osc_buffer_;
-    ByteBuffer att_buffer_;
     ByteBuffer noise_buffer_;
 
     static constexpr int kSineTable     = 0;

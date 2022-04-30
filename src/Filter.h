@@ -99,6 +99,12 @@ namespace filter {
     bool empty() const
       { return points_.empty(); }
 
+    void stretch(double time_stretch)
+      {
+        for (auto& pt : points_)
+          pt.time *= time_stretch;
+      }
+
   private:
     std::vector<Point> points_;
   };
@@ -176,12 +182,11 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Gain(double gain_l, double gain_r)
-      : gain_l_{static_cast<float>(gain_l)}, gain_r_{static_cast<float>(gain_r)}
+    Gain(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
       { /* nothing */ }
-    explicit Gain(double gain) : Gain(gain, gain)
+    explicit Gain(float gain) : Gain(gain, gain)
       { /* nothing */ }
-    explicit Gain(const Automation& envelope) : gain_l_{1}, gain_r_{1}, envelope_(envelope)
+    explicit Gain(const Automation& envelope) : gain_l_{1.0f}, gain_r_{1.0f}, envelope_(envelope)
       { /* nothing */ }
     void operator()(ByteBuffer& buffer)
       {
@@ -201,7 +206,7 @@ namespace filter {
           seconds_dbl frame_duration {1.0 / buffer.rate()};
 
           envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
-                          [](auto& frame, const auto& time, float value)
+                          [] (auto& frame, const auto& time, float value)
                             { frame *= value; });
         }
       }
@@ -319,6 +324,11 @@ namespace filter {
             float time = delta_t * frame_index + phase_t;
             frames[frame_index] += amp_ * tbl_page.lookup(freq_, time);
           }
+          // std::array<float,4> start = {0.0};
+          // std::array<float,4> step = {0.1};
+          // tbl_page.lookup(frames.begin(), frames.end(), std::move(start), std::move(step),
+          //                 [&] (auto& frame, auto& values)
+          //                   { frame += amp_ * values[0]; });
         }
       }
   private:

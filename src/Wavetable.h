@@ -74,7 +74,7 @@ namespace audio {
 
       value_type lookup(float parameter) const
         {
-          if (size() == 0)
+          if (empty())
             return value_type(0);
 
           [[maybe_unused]] float integral;
@@ -83,9 +83,9 @@ namespace audio {
           if (fractional < 0.0f)
             fractional += 1.0f;
 
-          size_t index1 = fractional * size();
-          assert(index1 < size());
+          float index_flt = fractional * size();
 
+          size_t index1 = index_flt; // trunc
           size_t index2 = index1 + 1;
 
           if (index2 >= size())
@@ -94,8 +94,46 @@ namespace audio {
           value_type value1 = *(begin_ + index1);
           value_type value2 = *(begin_ + index2);
 
-          return value1 + fractional * (value2 - value1);
+          return value1 + (index_flt - index1) * (value2 - value1);
         }
+
+      // template<typename Iterator, typename Callable, size_t N>
+      // void lookup(Iterator begin, Iterator end, std::array<float,N> start, std::array<float,N> step, Callable fu) const
+      //   {
+      //     if (empty())
+      //       return;
+
+      //     std::array<value_type, N> value;
+
+      //     for (auto it = begin; it != end; ++it)
+      //     {
+      //       for (size_t wave = 0; wave < N; ++wave)
+      //       {
+      //         [[maybe_unused]] float integral;
+      //         float fractional = std::modf(start[wave], &integral);
+
+      //         if (fractional < 0.0f)
+      //           fractional += 1.0f;
+
+      //         size_t index_flt = fractional * size();
+
+      //         size_t index1 = index_flt; // trunc
+      //         size_t index2 = index1 + 1;
+
+      //         if (index2 >= size())
+      //           index2 = 0;
+
+      //         value_type value1 = *(begin_ + index1);
+      //         value_type value2 = *(begin_ + index2);
+
+      //         value[wave] = value1 + (index_flt - index1) * (value2 - value1);
+
+      //         start[wave] += step[wave];
+      //       }
+
+      //       fu(*it, value);
+      //     }
+      //   }
 
       iterator begin()
         { return begin_; }
@@ -112,6 +150,9 @@ namespace audio {
 
       size_t size() const
         { return end_ - begin_; }
+
+      bool empty() const
+        { return size() == 0; }
 
     private:
       friend Wavetable;
@@ -186,29 +227,6 @@ namespace audio {
     Page::container_type data_ {};
     container_type pages_ {};
   };
-
-  // class GeneratorBase {
-  //   public:
-  //     virtual ~GeneratorBase() {}
-  //     virtual void prepare(SampleRate rate, float base, PageRange range) {}
-  //     virtual value_type operator()(float param) = 0;
-  //   };
-
-  // Wavetable(std::shared_ptr<GeneratorBase> generator = nullptr)
-  //   : generator_ {generator}
-  //   {}
-
-  // void prepare(SampleRate rate  = 44100,
-  //              float      base  = 40.0f,
-  //              PageRange  range = PageRange::kOctave);
-
-  //   std::shared_ptr<GeneratorBase> generator_;
-  // SampleRate rate_ {44100};
-  // float base_ {40.0f};
-  // PageRange range_ {PageRange::kOctave};
-  // std::vector<float> data_ {};
-  // std::vector<Page> pages_ {};
-
 
 }//namespace audio
 #endif//GMetronome_Wavetable_h

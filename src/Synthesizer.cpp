@@ -55,7 +55,6 @@ namespace audio {
       { filter::kDefaultSampleFormat, spec.rate, 2 };
 
     osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
-    att_buffer_.resize(filter_buffer_spec, kSoundDuration);
     noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
 
     wavetables_.prepare(spec.rate);
@@ -101,38 +100,42 @@ namespace audio {
     float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
     float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
 
-    if (volume == 0)
-    {
-      filter::std::Zero{}(buffer);
-      return;
-    }
-
-    // const filter::Automation osc_envelope = {
-    //   {  0ms, 0.0f},
-    //   {  1ms + microseconds(int( (1.0f - punch) * 9000.0f)), 1.0f},
-    //   { 10ms + microseconds(int( (1.0f - punch) * 10000.0f + (1.0f - decay) * 40000.0f)), 0.0f},
-    // };
-
-    auto [osc_envelope, full_gain_time, full_decay_time] = buildEnvelope(punch, decay, clap);
-
     float tonal_gain    = 1.0f - crush;
     float sine_gain     = tonal_gain * (1.0f - std::clamp(std::abs(0.0f - timbre), 0.0f, 1.0f));
     float triangle_gain = tonal_gain * (1.0f - std::clamp(std::abs(1.0f - timbre), 0.0f, 1.0f));
     float sawtooth_gain = tonal_gain * (1.0f - std::clamp(std::abs(2.0f - timbre), 0.0f, 1.0f));
     float square_gain   = tonal_gain * (1.0f - std::clamp(std::abs(3.0f - timbre), 0.0f, 1.0f));
 
+    if (volume == 0)
+    {
+      filter::std::Zero{}(buffer);
+      return;
+    }
+
+    auto [osc_envelope, full_gain_time, full_decay_time] = buildEnvelope(punch, decay, clap);
+
+    float noise_stretch = 0.6 - (punch / 5.0);
+    //float noise_stretch = 0.5;
+
     const filter::Automation noise_smooth_kw = {
       { 0ms,             static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-      { full_gain_time,  static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-      { full_decay_time, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))}
+      { full_gain_time * noise_stretch,  static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
+      { full_decay_time * noise_stretch, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))}
     };
+
+    auto noise_envelope = osc_envelope;
+    noise_envelope.stretch(noise_stretch);
+
+    auto noise_filter =
+      filter::std::Zero {}
+    | filter::std::Noise {crush}
+    | filter::std::Smooth {noise_smooth_kw}
+    | filter::std::Gain {noise_envelope};
+
+    noise_filter(noise_buffer_);
 
     auto osc_filter =
       filter::std::Zero {}
-//    | filter::std::Wave {wavetables_[kNoiseTable], pitch, crush, 0.0f, 10.0f}
-    | filter::std::Noise {crush}
-    | filter::std::Smooth {noise_smooth_kw}
-    | filter::std::Gain {osc_envelope}
     | filter::std::Wave {wavetables_[kSineTable],     pitch, sine_gain,     0.0f,  detune}
     | filter::std::Wave {wavetables_[kTriangleTable], pitch, triangle_gain, 0.0f,  detune}
     | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, float(M_PI), detune}
@@ -140,6 +143,7 @@ namespace audio {
 // //      | filter::std::Ring {pitch}
 // //      | filter::std::Smooth {5}
     | filter::std::Gain {osc_envelope}
+    | filter::std::Mix {noise_buffer_}
     | filter::std::Normalize {balance_l, balance_r};
 
     // apply filter
