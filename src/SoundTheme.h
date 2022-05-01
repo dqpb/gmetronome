@@ -27,9 +27,7 @@
 
 #include <glibmm/variant.h>
 #include <glibmm/i18n.h>
-#include <tuple>
 #include <string>
-#include <array>
 
 struct SoundTheme
 {
@@ -52,38 +50,26 @@ struct SoundTheme
 template<>
 struct SettingsListDelegate<SoundTheme>
 {
-  using ParamsTuple = settings::SoundParametersTuple;
-
-  static void copyParameters(const ParamsTuple& source,
+  static void loadParameters(Glib::RefPtr<Gio::Settings> settings,
                              audio::SoundParameters& target)
     {
-      std::tie(target.pitch,
-               target.timbre,
-               target.detune,
-               target.clap,
-               target.crush,
-               target.punch,
-               target.decay,
-               target.bell,
-               target.bell_volume,
-               target.balance,
-               target.volume) = source;
+      target.pitch = settings->get_double(settings::kKeySoundThemeTonalPitch);
+      target.timbre = settings->get_double(settings::kKeySoundThemeTonalTimbre);
+      target.detune = settings->get_double(settings::kKeySoundThemeTonalDetune);
+      target.punch = settings->get_double(settings::kKeySoundThemeTonalPunch);
+      target.decay = settings->get_double(settings::kKeySoundThemeTonalDecay);
+      //...
     }
 
-  static void copyParameters(const audio::SoundParameters& source,
-                             ParamsTuple& target)
+  static void storeParameters(Glib::RefPtr<Gio::Settings> settings,
+                              const audio::SoundParameters& source)
     {
-      target = std::tie(source.pitch,
-                        source.timbre,
-                        source.detune,
-                        source.clap,
-                        source.crush,
-                        source.punch,
-                        source.decay,
-                        source.bell,
-                        source.bell_volume,
-                        source.balance,
-                        source.volume);
+      settings->set_double(settings::kKeySoundThemeTonalPitch, source.pitch);
+      settings->set_double(settings::kKeySoundThemeTonalTimbre, source.timbre);
+      settings->set_double(settings::kKeySoundThemeTonalDetune, source.detune);
+      settings->set_double(settings::kKeySoundThemeTonalPunch, source.punch);
+      settings->set_double(settings::kKeySoundThemeTonalDecay, source.decay);
+      //...
     }
 
   static SoundTheme load(Glib::RefPtr<Gio::Settings> settings)
@@ -91,16 +77,16 @@ struct SettingsListDelegate<SoundTheme>
       SoundTheme theme;
       theme.title = settings->get_string(settings::kKeySoundThemeTitle);
 
-      Glib::Variant<ParamsTuple> value;
+      Glib::RefPtr<Gio::Settings> params_settings;
 
-      settings->get_value(settings::kKeySoundThemeStrongParams, value);
-      copyParameters(value.get(), theme.strong_params);
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
+      loadParameters(params_settings, theme.strong_params);
 
-      settings->get_value(settings::kKeySoundThemeMidParams, value);
-      copyParameters(value.get(), theme.mid_params);
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
+      loadParameters(params_settings, theme.mid_params);
 
-      settings->get_value(settings::kKeySoundThemeWeakParams, value);
-      copyParameters(value.get(), theme.weak_params);
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
+      loadParameters(params_settings, theme.weak_params);
 
       return theme;
     }
@@ -109,19 +95,31 @@ struct SettingsListDelegate<SoundTheme>
     {
       settings->set_string(settings::kKeySoundThemeTitle, theme.title);
 
-      ParamsTuple tpl;
+      Glib::RefPtr<Gio::Settings> params_settings;
 
-      copyParameters(theme.strong_params, tpl);
-      settings->set_value(settings::kKeySoundThemeStrongParams,
-                          Glib::Variant<ParamsTuple>::create(tpl));
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
+      storeParameters(params_settings, theme.strong_params);
 
-      copyParameters(theme.mid_params, tpl);
-      settings->set_value(settings::kKeySoundThemeMidParams,
-                          Glib::Variant<ParamsTuple>::create(tpl));
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
+      storeParameters(params_settings, theme.mid_params);
 
-      copyParameters(theme.weak_params, tpl);
-      settings->set_value(settings::kKeySoundThemeWeakParams,
-                          Glib::Variant<ParamsTuple>::create(tpl));
+      params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
+      storeParameters(params_settings, theme.weak_params);
+    }
+
+  static bool paramsModified(Glib::RefPtr<Gio::Settings> params_settings)
+    {
+      bool m = false;
+      Glib::Variant<double> dbl_value;
+
+      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalPitch, dbl_value);
+      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalTimbre, dbl_value);
+      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalDetune, dbl_value);
+      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalPunch, dbl_value);
+      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalDecay, dbl_value);
+      //...
+
+      return m;
     }
 
   static bool modified(Glib::RefPtr<Gio::Settings> settings)
@@ -131,11 +129,20 @@ struct SettingsListDelegate<SoundTheme>
       Glib::Variant<Glib::ustring> title_value;
       m = m || settings->get_user_value(settings::kKeySoundThemeTitle, title_value);
 
-      Glib::Variant<ParamsTuple> params_value;
-      m = m || settings->get_user_value(settings::kKeySoundThemeStrongParams, params_value);
-      m = m || settings->get_user_value(settings::kKeySoundThemeMidParams, params_value);
-      m = m || settings->get_user_value(settings::kKeySoundThemeWeakParams, params_value);
+      Glib::RefPtr<Gio::Settings> params_settings;
 
+      if (!m) {
+        params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
+        m = paramsModified(params_settings);
+      }
+      if (!m) {
+        params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
+        m = paramsModified(params_settings);
+      }
+      if (!m) {
+        params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
+        m = paramsModified(params_settings);
+      }
       return m;
     }
 };

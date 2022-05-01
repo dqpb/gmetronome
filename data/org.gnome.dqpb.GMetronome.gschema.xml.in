@@ -66,64 +66,87 @@
   </schema>
   -->
 
+  <schema id="@PACKAGE_ID@.preferences.sound.theme.parameters" >
+    <key name="tonal-pitch" type="d">
+      <range min="40.0" max="10000.0"/>
+      <default>500.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tonal-timbre" type="d">
+      <range min="0.0" max="3.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tonal-detune" type="d">
+      <range min="0.0" max="100.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tonal-punch" type="d">
+      <range min="0.0" max="1.0"/>
+      <default>0.5</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tonal-decay" type="d">
+      <range min="0.0" max="1.0"/>
+      <default>0.5</default>
+      <summary></summary>
+      <description></description>
+     </key>
+  </schema>
+
   <schema id="@PACKAGE_ID@.preferences.sound.theme" >
     <key name="title" type="s">
       <default>'Untitled'</default>
       <summary>Title of the sound theme</summary>
       <description></description>
     </key>
-    <key name="strong-params" type="(dddbdddbddd)">
-      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
-      <summary>Sound parameters for the strong accent level</summary>
-      <description></description>
-    </key>
-    <key name="mid-params" type="(dddbdddbddd)">
-      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
-      <summary>Sound parameters for the middle accent level</summary>
-      <description></description>
-    </key>
-    <key name="weak-params" type="(dddbdddbddd)">
-      <default>(1.0, 900.0, 0.5, false, 0.0, 0.5, 0.5, false, 1.0, 0.0, 1.0)</default>
-      <summary>Sound parameters for the weak accent level</summary>
-      <description></description>
-    </key>
+    <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+    <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+    <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+  </schema>
+
+  <!--
+       Default sound themes
+  -->
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-01.strong-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/strong-params/">
+    <override name="tonal-pitch">500.0</override>
+    <override name="tonal-timbre">3.0</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-01.mid-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/mid-params/">
+    <override name="tonal-pitch">400.0</override>
+    <override name="tonal-timbre">2.0</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-01.weak-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/weak-params/">
+    <override name="tonal-pitch">300.0</override>
+    <override name="tonal-timbre">1.0</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-01"
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-01/">
     <override name="title">'Wooden Metronome'</override>
-    <override name="strong-params">(-0.55, 450.0, 0.5, false, 0.0, 0.5, 0.5, true, 0.8, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.48, 440.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.8, 0.0, 0.65)</override>
-    <override name="weak-params">(-0.30, 440.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.8, 0.0, 0.25)</override>
-  </schema>
-
-  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-02"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
-	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-02/">
-    <override name="title">'Plastic'</override>
-    <override name="strong-params">(-0.16, 790.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.08, 590.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 0.92)</override>
-    <override name="weak-params">(0.17, 590.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 0.12)</override>
-  </schema>
-
-  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.default-03"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
-	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/default-03/">
-    <override name="title">'Bass &amp; Snare'</override>
-    <override name="strong-params">(-0.10, 80.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.0, 1.0)</override>
-    <override name="mid-params">(-0.70, 350.0, 0.5, false, 0.0, 0.5, 0.5, false, 0.80, 0.1, 1.0)</override>
-    <override name="weak-params">(-0.17, 10000.0, 0.5, false, 0.0, 0.5, 0.5, true, 0.80, -0.2, 0.32)</override>
+    <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01.strong-params"/>
+    <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01.mid-params"/>
+    <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01.weak-params"/>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
 	  extends="@PACKAGE_ID@.settings-list"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/theme-list/">
-    <override name="entries">['default-01','default-02','default-03']</override>
+    <override name="entries">['default-01']</override>
     <override name="selected-entry">'default-01'</override>
     <child name="default-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-01"/>
-    <child name="default-02" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-02"/>
-    <child name="default-03" schema="@PACKAGE_ID@.preferences.sound.theme-list.default-03"/>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound"

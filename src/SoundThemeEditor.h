@@ -73,12 +73,12 @@ private:
   Glib::ustring title_duplicate_;
   Glib::ustring title_placeholder_;
 
-  settings::SoundParametersTuple sound_params_;
-
 private:
+  Glib::RefPtr<Gio::Settings> sound_settings_;
+
   bool onKeyPressEvent(GdkEventKey* event);
-  void bindProperties(Glib::RefPtr<Gio::Settings> settings, const Glib::ustring& key);
-  void unbindProperties();
+  void unbindSoundProperties();
+  void bindSoundProperties();
   void updateThemeBindings();
   void onSettingsListChanged(const Glib::ustring& key);
 };

@@ -143,119 +143,56 @@ bool SoundThemeEditor::onKeyPressEvent(GdkEventKey* event)
   };
 }
 
-template<int index>
-gboolean soundParamsGetMapping(GValue *gval, GVariant *gvar, gpointer user_data)
+void SoundThemeEditor::bindSoundProperties()
 {
-  using ParamValueType = std::tuple_element_t<index, settings::SoundParametersTuple>;
-
-  settings::SoundParametersTuple& current_params =
-    *static_cast<settings::SoundParametersTuple*>(user_data);
-
-  if (gvar)
+  if (sound_settings_)
   {
-    Glib::Variant<settings::SoundParametersTuple> gvar_wrap(gvar, true);
-
-    ParamValueType new_param_value = gvar_wrap.get_child<ParamValueType>(index);
-    std::get<index>(current_params) = new_param_value;
-
-    Glib::Value<ParamValueType> gval_tmp;
-    gval_tmp.init(G_VALUE_TYPE(gval));
-    gval_tmp.set(new_param_value);
-    g_value_copy(gval_tmp.gobj(), gval);
-
-    return true;
+    sound_settings_->bind(settings::kKeySoundThemeTonalPitch,
+                          pitch_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeTonalTimbre,
+                          timbre_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeTonalDetune,
+                          detune_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeTonalPunch,
+                          punch_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeTonalDecay,
+                          decay_adjustment_->property_value());
+    //...
   }
-  else return false;
 }
 
-template<int index>
-GVariant* soundParamsSetMapping(const GValue *gval,
-                                const GVariantType *expected_type,
-                                gpointer user_data)
-{
-  using ParamValueType = std::tuple_element_t<index, settings::SoundParametersTuple>;
-
-  settings::SoundParametersTuple& params =
-    *static_cast<settings::SoundParametersTuple*>(user_data);
-
-  Glib::Value<ParamValueType> gval_tmp;
-  gval_tmp.init(gval);
-
-  std::get<index>(params) = gval_tmp.get();
-
-  auto var_tmp = Glib::Variant<settings::SoundParametersTuple>::create(params);
-  return var_tmp.gobj_copy();
-}
-
+// helper
 void unbindProperty(const Glib::PropertyProxy_Base& p)
 {
   g_settings_unbind(p.get_object()->gobj(), p.get_name());
 }
 
-template<int index>
-void bindSoundParameter(Glib::RefPtr<Gio::Settings> settings, // theme settings
-                        const Glib::ustring& key,             // params settings key
-                        const Glib::PropertyProxy_Base& property_proxy,
-                        settings::SoundParametersTuple* params)
+void SoundThemeEditor::unbindSoundProperties()
 {
-  g_settings_bind_with_mapping (settings->gobj(),
-                                key.c_str(),
-                                property_proxy.get_object()->gobj(),
-                                property_proxy.get_name(),
-                                G_SETTINGS_BIND_DEFAULT,
-                                soundParamsGetMapping<index>,
-                                soundParamsSetMapping<index>,
-                                params,
-                                nullptr);
-}
-
-void SoundThemeEditor::bindProperties(Glib::RefPtr<Gio::Settings> settings,
-                                      const Glib::ustring& key)
-{
-  settings->bind(settings::kKeySoundThemeTitle, title_entry_->property_text());
-
-  bindSoundParameter<0>(settings, key, pitch_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<1>(settings, key, timbre_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<2>(settings, key, detune_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<3>(settings, key, clap_switch_->property_state(), &sound_params_);
-  bindSoundParameter<4>(settings, key, crush_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<5>(settings, key, punch_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<6>(settings, key, decay_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<7>(settings, key, bell_switch_->property_state(), &sound_params_);
-  bindSoundParameter<8>(settings, key, bell_volume_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<9>(settings, key, balance_adjustment_->property_value(), &sound_params_);
-  bindSoundParameter<10>(settings, key, volume_adjustment_->property_value(), &sound_params_);
-}
-
-void SoundThemeEditor::unbindProperties()
-{
-  unbindProperty(title_entry_->property_text());
-
   unbindProperty(pitch_adjustment_->property_value());
   unbindProperty(timbre_adjustment_->property_value());
   unbindProperty(detune_adjustment_->property_value());
-  unbindProperty(clap_switch_->property_state());
-  unbindProperty(crush_adjustment_->property_value());
   unbindProperty(punch_adjustment_->property_value());
   unbindProperty(decay_adjustment_->property_value());
-  unbindProperty(bell_switch_->property_state());
-  unbindProperty(bell_volume_adjustment_->property_value());
-  unbindProperty(balance_adjustment_->property_value());
-  unbindProperty(volume_adjustment_->property_value());
+  //...
 }
 
 void SoundThemeEditor::updateThemeBindings()
 {
-  unbindProperties(); // seems to be necessary before rebinding properties
+  unbindSoundProperties();
+  unbindProperty(title_entry_->property_text());
 
   if (auto settings = settings::soundThemeList()->settings(theme_id_); settings)
   {
-    auto& key =
-        strong_radio_button_->get_active() ? settings::kKeySoundThemeStrongParams
-      : mid_radio_button_->get_active() ? settings::kKeySoundThemeMidParams
-      : settings::kKeySoundThemeWeakParams;
+    if (strong_radio_button_->get_active())
+      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
+    else if (mid_radio_button_->get_active())
+      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
+    else
+      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
 
-    bindProperties(settings, key);
+    settings->bind(settings::kKeySoundThemeTitle, title_entry_->property_text());
+    bindSoundProperties();
   }
 }
 
@@ -265,16 +202,13 @@ void SoundThemeEditor::onSettingsListChanged(const Glib::ustring& key)
   {
     if (!settings::soundThemeList()->contains(theme_id_))
       {
-        unbindProperties();
-
         main_box_->set_sensitive(false);
         parameters_frame_->set_visible(false);
         unavailable_label_->set_visible(true);
       }
     else if (unavailable_label_->is_visible())
     {
-      // the sound theme is available again
-
+      // sound theme is available again
       unavailable_label_->set_visible(false);
       parameters_frame_->set_visible(true);
       main_box_->set_sensitive(true);

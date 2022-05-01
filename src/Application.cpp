@@ -1161,18 +1161,18 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
   {
     configureTickerSound(kAccentMaskAll);
   }
-  else if (key == settings::kKeySoundThemeStrongParams)
-  {
-    configureTickerSound(kAccentMaskStrong);
-  }
-  else if (key == settings::kKeySoundThemeMidParams)
-  {
-    configureTickerSound(kAccentMaskMid);
-  }
-  else if (key == settings::kKeySoundThemeWeakParams)
-  {
-    configureTickerSound(kAccentMaskWeak);
-  }
+  // else if (key == settings::kKeySoundThemeStrongParams)
+  // {
+  //   configureTickerSound(kAccentMaskStrong);
+  // }
+  // else if (key == settings::kKeySoundThemeMidParams)
+  // {
+  //   configureTickerSound(kAccentMaskMid);
+  // }
+  // else if (key == settings::kKeySoundThemeWeakParams)
+  // {
+  //   configureTickerSound(kAccentMaskWeak);
+  // }
 }
 
 void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
