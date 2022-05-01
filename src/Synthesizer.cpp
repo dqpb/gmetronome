@@ -448,6 +448,7 @@ resample(noise_buffer_, buffer);
     // We use the minimum of these bounds:
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
 
+#ifndef NDEBUG
     std::cout << "Page: " << page
               << "\tSize: " << page_size
               << "\tRate: " << rate
@@ -457,6 +458,7 @@ resample(noise_buffer_, buffer);
               << "\th2: " << max_harmonic_2
               << "\tmax: " << max_harmonic
               << std::endl;
+#endif
 
     double step = 2.0 * M_PI / page_size;
 
