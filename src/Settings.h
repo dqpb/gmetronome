@@ -36,7 +36,6 @@ namespace settings {
    * GSettings schema id's
    */
   inline const Glib::ustring kSchemaId                         {PACKAGE_ID};
-  inline const Glib::ustring kSchemaIdSettingsListBasename     {"settings-list"};
   inline const Glib::ustring kSchemaIdPrefsBasename            {"preferences"};
   inline const Glib::ustring kSchemaIdStateBasename            {"state"};
   inline const Glib::ustring kSchemaIdSoundBasename            {"sound"};
@@ -45,9 +44,6 @@ namespace settings {
   inline const Glib::ustring kSchemaIdSoundThemeParamsBasename {"parameters"};
   inline const Glib::ustring kSchemaIdShortcutsBasename        {"shortcuts"};
 
-  inline const Glib::ustring kSchemaIdSettingsList {
-    kSchemaId + "." + kSchemaIdSettingsListBasename
-  };
   inline const Glib::ustring kSchemaIdPrefs {
     kSchemaId + "." + kSchemaIdPrefsBasename
   };
@@ -71,20 +67,16 @@ namespace settings {
    * GSettings schema paths
    */
   inline const Glib::ustring kSchemaPath                        {PACKAGE_ID_PATH"/"};
-  inline const Glib::ustring kSchemaPathSettingsListBasename    {"settings-list"};
   inline const Glib::ustring kSchemaPathPrefsBasename           {"preferences"};
   inline const Glib::ustring kSchemaPathStateBasename           {"state"};
   inline const Glib::ustring kSchemaPathSoundBasename           {"sound"};
-  inline const Glib::ustring kSchemaPathSoundThemeListBasename  {"theme-list"};
+  inline const Glib::ustring kSchemaPathSoundThemesBasename     {"themes"};
   inline const Glib::ustring kSchemaPathShortcutsBasename       {"shortcuts"};
 
   inline const Glib::ustring kSchemaPathSoundThemeStrongParamsBasename {"strong-params"};
   inline const Glib::ustring kSchemaPathSoundThemeMidParamsBasename    {"mid-params"};
   inline const Glib::ustring kSchemaPathSoundThemeWeakParamsBasename   {"weak-params"};
 
-  inline const Glib::ustring kSchemaPathSettingsList {
-    kSchemaPath + kSchemaPathSettingsListBasename + "/"
-  };
   inline const Glib::ustring kSchemaPathPrefs {
     kSchemaPath + kSchemaPathPrefsBasename + "/"
   };
@@ -94,8 +86,8 @@ namespace settings {
   inline const Glib::ustring kSchemaPathSound {
     kSchemaPathPrefs + kSchemaPathSoundBasename + "/"
   };
-  inline const Glib::ustring kSchemaPathSoundThemeList {
-    kSchemaPathSound + kSchemaPathSoundThemeListBasename + "/"
+  inline const Glib::ustring kSchemaPathSoundThemes {
+    kSchemaPathSound + kSchemaPathSoundThemesBasename + "/"
   };
   inline const Glib::ustring kSchemaPathShortcuts {
     kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
@@ -189,9 +181,11 @@ namespace settings {
   inline const Glib::ustring  kKeySoundThemeTonalDetune          {"tonal-detune"};
   inline const Glib::ustring  kKeySoundThemeTonalPunch           {"tonal-punch"};
   inline const Glib::ustring  kKeySoundThemeTonalDecay           {"tonal-decay"};
-
+  inline const Glib::ustring  kKeySoundThemePercussiveTone       {"percussive-tone"};
+  inline const Glib::ustring  kKeySoundThemePercussivePunch      {"percussive-punch"};
+  inline const Glib::ustring  kKeySoundThemePercussiveDecay      {"percussive-decay"};
   inline const Glib::ustring  kKeySoundThemeMix                  {"mix"};
-  inline const Glib::ustring  kKeySoundThemePan                  {"pan"};
+  inline const Glib::ustring  kKeySoundThemeBalance              {"balance"};
   inline const Glib::ustring  kKeySoundThemeVolume               {"volume"};
 
   /*
@@ -245,8 +239,7 @@ namespace settings {
   Glib::RefPtr<Gio::Settings> settings();
   Glib::RefPtr<Gio::Settings> preferences();
   Glib::RefPtr<Gio::Settings> sound();
-  Glib::RefPtr<SettingsList<SoundTheme>> soundThemeList();
-  Glib::RefPtr<Gio::Settings> soundSelectedTheme();
+  Glib::RefPtr<SettingsList<SoundTheme>> soundThemes();
   Glib::RefPtr<Gio::Settings> shortcuts();
   Glib::RefPtr<Gio::Settings> state();
 

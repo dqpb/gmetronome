@@ -53,96 +53,125 @@ struct SettingsListDelegate<SoundTheme>
   static void loadParameters(Glib::RefPtr<Gio::Settings> settings,
                              audio::SoundParameters& target)
     {
-      target.pitch = settings->get_double(settings::kKeySoundThemeTonalPitch);
-      target.timbre = settings->get_double(settings::kKeySoundThemeTonalTimbre);
-      target.detune = settings->get_double(settings::kKeySoundThemeTonalDetune);
-      target.punch = settings->get_double(settings::kKeySoundThemeTonalPunch);
-      target.decay = settings->get_double(settings::kKeySoundThemeTonalDecay);
-      //...
+      if (settings)
+      {
+        target.tonal_pitch = settings->get_double(settings::kKeySoundThemeTonalPitch);
+        target.tonal_timbre = settings->get_double(settings::kKeySoundThemeTonalTimbre);
+        target.tonal_detune = settings->get_double(settings::kKeySoundThemeTonalDetune);
+        target.tonal_punch = settings->get_double(settings::kKeySoundThemeTonalPunch);
+        target.tonal_decay = settings->get_double(settings::kKeySoundThemeTonalDecay);
+        target.percussive_tone = settings->get_double(settings::kKeySoundThemePercussiveTone);
+        target.percussive_punch = settings->get_double(settings::kKeySoundThemePercussivePunch);
+        target.percussive_decay = settings->get_double(settings::kKeySoundThemePercussiveDecay);
+        target.mix = settings->get_double(settings::kKeySoundThemeMix);
+        target.balance = settings->get_double(settings::kKeySoundThemeBalance);
+        target.volume = settings->get_double(settings::kKeySoundThemeVolume);
+        //...
+      }
     }
 
   static void storeParameters(Glib::RefPtr<Gio::Settings> settings,
                               const audio::SoundParameters& source)
     {
-      settings->set_double(settings::kKeySoundThemeTonalPitch, source.pitch);
-      settings->set_double(settings::kKeySoundThemeTonalTimbre, source.timbre);
-      settings->set_double(settings::kKeySoundThemeTonalDetune, source.detune);
-      settings->set_double(settings::kKeySoundThemeTonalPunch, source.punch);
-      settings->set_double(settings::kKeySoundThemeTonalDecay, source.decay);
-      //...
+      if (settings)
+      {
+        settings->set_double(settings::kKeySoundThemeTonalPitch, source.tonal_pitch);
+        settings->set_double(settings::kKeySoundThemeTonalTimbre, source.tonal_timbre);
+        settings->set_double(settings::kKeySoundThemeTonalDetune, source.tonal_detune);
+        settings->set_double(settings::kKeySoundThemeTonalPunch, source.tonal_punch);
+        settings->set_double(settings::kKeySoundThemeTonalDecay, source.tonal_decay);
+        settings->set_double(settings::kKeySoundThemePercussiveTone, source.percussive_tone);
+        settings->set_double(settings::kKeySoundThemePercussivePunch, source.percussive_punch);
+        settings->set_double(settings::kKeySoundThemePercussiveDecay, source.percussive_decay);
+        settings->set_double(settings::kKeySoundThemeMix, source.mix);
+        settings->set_double(settings::kKeySoundThemeBalance, source.balance);
+        settings->set_double(settings::kKeySoundThemeVolume, source.volume);
+        //...
+      }
     }
 
-  static SoundTheme load(Glib::RefPtr<Gio::Settings> settings)
+  static SoundTheme load(const SettingsTreeNode& settings_tree)
     {
       SoundTheme theme;
-      theme.title = settings->get_string(settings::kKeySoundThemeTitle);
+      theme.title = settings_tree.settings->get_string(settings::kKeySoundThemeTitle);
 
-      Glib::RefPtr<Gio::Settings> params_settings;
+      auto& children = settings_tree.children;
 
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
-      loadParameters(params_settings, theme.strong_params);
+      auto strong_params_settings
+        = children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+      auto mid_params_settings
+        = children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+      auto weak_params_settings
+        = children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
 
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
-      loadParameters(params_settings, theme.mid_params);
-
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
-      loadParameters(params_settings, theme.weak_params);
+      loadParameters(strong_params_settings, theme.strong_params);
+      loadParameters(mid_params_settings, theme.mid_params);
+      loadParameters(weak_params_settings, theme.weak_params);
 
       return theme;
     }
 
-  static void store(const SoundTheme& theme, Glib::RefPtr<Gio::Settings> settings)
+  static void store(const SettingsTreeNode& settings_tree, const SoundTheme& theme)
     {
-      settings->set_string(settings::kKeySoundThemeTitle, theme.title);
+      settings_tree.settings->set_string(settings::kKeySoundThemeTitle, theme.title);
 
-      Glib::RefPtr<Gio::Settings> params_settings;
+      auto& children = settings_tree.children;
 
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
-      storeParameters(params_settings, theme.strong_params);
+      auto strong_params_settings
+        = children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+      auto mid_params_settings
+        = children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+      auto weak_params_settings
+        = children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
 
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
-      storeParameters(params_settings, theme.mid_params);
-
-      params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
-      storeParameters(params_settings, theme.weak_params);
+      storeParameters(strong_params_settings, theme.strong_params);
+      storeParameters(mid_params_settings, theme.mid_params);
+      storeParameters(weak_params_settings, theme.weak_params);
     }
 
-  static bool paramsModified(Glib::RefPtr<Gio::Settings> params_settings)
+  static bool paramsModified(Glib::RefPtr<Gio::Settings> settings)
     {
       bool m = false;
       Glib::Variant<double> dbl_value;
 
-      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalPitch, dbl_value);
-      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalTimbre, dbl_value);
-      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalDetune, dbl_value);
-      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalPunch, dbl_value);
-      m = m || params_settings->get_user_value(settings::kKeySoundThemeTonalDecay, dbl_value);
-      //...
-
+      if (settings)
+      {
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonalPitch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonalTimbre, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonalDetune, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonalPunch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonalDecay, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussiveTone, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussivePunch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussiveDecay, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeMix, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeBalance, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeVolume, dbl_value);
+        //...
+      }
       return m;
     }
 
-  static bool modified(Glib::RefPtr<Gio::Settings> settings)
+  static bool modified(const SettingsTreeNode& settings_tree)
     {
       bool m = false;
 
       Glib::Variant<Glib::ustring> title_value;
-      m = m || settings->get_user_value(settings::kKeySoundThemeTitle, title_value);
+      m = m || settings_tree.settings->get_user_value(settings::kKeySoundThemeTitle, title_value);
 
-      Glib::RefPtr<Gio::Settings> params_settings;
+      auto& children = settings_tree.children;
 
-      if (!m) {
-        params_settings = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
-        m = paramsModified(params_settings);
-      }
-      if (!m) {
-        params_settings = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
-        m = paramsModified(params_settings);
-      }
-      if (!m) {
-        params_settings = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
-        m = paramsModified(params_settings);
-      }
+      auto strong_params_settings
+        = children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+      auto mid_params_settings
+        = children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+      auto weak_params_settings
+        = children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
+
+      if (!m) m = paramsModified(strong_params_settings);
+      if (!m) m = paramsModified(mid_params_settings);
+      if (!m) m = paramsModified(weak_params_settings);
+
       return m;
     }
 };

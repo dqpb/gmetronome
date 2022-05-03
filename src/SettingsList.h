@@ -38,12 +38,19 @@
 # include <iostream>
 #endif
 
+struct SettingsTreeNode
+{
+  Glib::RefPtr<Gio::Settings> settings;
+  std::map<Glib::ustring, SettingsTreeNode> children;
+};
+
 // clients need to specialize this converter class template
 template<typename ValueType>
 struct SettingsListDelegate
 {
-  static ValueType load(Glib::RefPtr<Gio::Settings> settings);
-  static void store(const ValueType& value, Glib::RefPtr<Gio::Settings> settings);
+  static ValueType load(const SettingsTreeNode& settings_tree);
+  static void store(const SettingsTreeNode& settings_tree, const ValueType& value);
+  static bool modified(const SettingsTreeNode& settings_tree);
 };
 
 template<typename ValueType>
@@ -67,42 +74,28 @@ public:
       assert (base_settings_);
     }
 
-  ValueType get(const Identifier& id)
+  ~SettingsList()
     {
-      if (auto settings = getCachedEntrySettings(id); settings)
-        return Delegate::load(settings);
-      else
-        throw GMetronomeError {"could not get Gio::Settings to access list entry"};
+      if (base_settings_)
+        base_settings_->apply();
+
+      std::for_each(entries_settings_.begin(), entries_settings_.end(),
+                    [&] (auto& pair) { applyRecursively(pair.second); });
+
+      g_settings_sync();
     }
+
+  ValueType get(const Identifier& id)
+    { return Delegate::load(getCachedEntrySettings(id)); }
 
   void update(const Identifier& id, const ValueType& value)
-    {
-      if (auto settings = getCachedEntrySettings(id); settings)
-        Delegate::store(value, settings);
-      else
-        throw GMetronomeError {"could not get Gio::Settings to update list entry"};
-    }
+    { Delegate::store(getCachedEntrySettings(id), value); }
 
   void reset(const Identifier& id)
-    {
-      if (auto settings = getCachedEntrySettings(id); settings)
-        resetRecursively(settings);
-      else
-      {
-#ifndef NDEBUG
-        std::cerr << "SettingsList: could not get Gio::Settings to reset entry "
-                  << "'" << id << "'" << std::endl;
-#endif
-      }
-    }
+    { resetRecursively(getCachedEntrySettings(id)); }
 
   bool modified(const Identifier& id)
-    {
-      if (auto settings = getCachedEntrySettings(id); settings)
-        return Delegate::modified(settings);
-      else
-        throw GMetronomeError {"could not get Gio::Settings to check entry modification"};
-    }
+    { return Delegate::modified(getCachedEntrySettings(id)); }
 
   Identifier append(const ValueType& value)
     {
@@ -110,10 +103,8 @@ public:
       Identifier id {uuid};
       g_free(uuid);
 
-      if (auto settings = createEntrySettings(id); settings)
-        Delegate::store(value, settings);
-      else
-        throw GMetronomeError {"could not create Gio::Settings to append list entry"};
+      const auto& settings_tree = createEntrySettings(id);
+      Delegate::store(settings_tree, value);
 
       auto list = entries();
       list.push_back(id);
@@ -144,21 +135,8 @@ public:
         list.erase(it);
         base_settings_->set_string_array(settings::kKeySettingsListEntries, list);
       }
-
-      if (auto settings = getCachedEntrySettings(id); settings)
-      {
-        settings->delay();
-        resetRecursively(settings);
-        settings->apply();
-        removeEntrySettings(id);
-      }
-      else
-      {
-#ifndef NDEBUG
-        std::cerr << "SettingsList: failed to remove entry '" << id << "' from gsettings backend"
-                  << std::endl;
-#endif
-      }
+      reset(id);
+      removeEntrySettings(id);
     }
 
   void select(const Identifier& id)
@@ -242,7 +220,7 @@ public:
       return false;
     }
 
-  Glib::RefPtr<Gio::Settings> settings(const Identifier& id)
+  const SettingsTreeNode& settings(const Identifier& id)
     { return getCachedEntrySettings(id); }
 
   Glib::RefPtr<Gio::Settings> settings()
@@ -251,7 +229,7 @@ public:
 private:
   std::string entry_schema_id_;
   Glib::RefPtr<Gio::Settings> base_settings_;
-  std::map<Identifier, Glib::RefPtr<Gio::Settings>> entries_settings_;
+  std::map<Identifier, SettingsTreeNode> entries_settings_;
 
   bool hasEntrySettings(const Identifier& id)
     {
@@ -261,28 +239,37 @@ private:
         return false;
     }
 
-  Glib::RefPtr<Gio::Settings> getCachedEntrySettings(const Identifier& id)
+  SettingsTreeNode& getCachedEntrySettings(const Identifier& id)
     {
       if (auto it = entries_settings_.find(id); it != entries_settings_.end())
         return it->second;
       else if (const auto& l = list(); std::find(l.begin(), l.end(), id) != l.end())
         return createEntrySettings(id);
       else
-        return {};
+        throw GMetronomeError {"invalid settings list entry identifier"};
     }
 
-  Glib::RefPtr<Gio::Settings> createEntrySettings(const Identifier& id)
+  void buildSettingsTree(SettingsTreeNode& node)
+    {
+      if (node.settings)
+      {
+        auto children = node.settings->list_children();
+        for (auto& child_name : children)
+        {
+          auto child_settings = node.settings->get_child(child_name);
+          SettingsTreeNode child_node = {child_settings, {}};
+          auto result = node.children.insert_or_assign(child_name, std::move(child_node));
+          buildSettingsTree(result.first->second);
+        }
+      }
+    }
+
+  SettingsTreeNode& createEntrySettings(const Identifier& id)
     {
       Glib::RefPtr<Gio::Settings> settings;
 
       if (id.empty())
-      {
-#ifndef NDEBUG
-        std::cerr << "SettingsList: ignoring attempt to create settings with invalid id "
-                  << "'" << id << "'" << std::endl;
-#endif
-        return settings;
-      }
+        throw GMetronomeError {"invalid settings list entry identifier"};
 
       auto children = base_settings_->list_children();
       if (std::find(children.begin(), children.end(), id) != children.end())
@@ -297,26 +284,57 @@ private:
         std::string entry_path = makeEntryPath(id);
         settings = Gio::Settings::create(entry_schema_id_, entry_path);
       }
-      entries_settings_[id] = settings;
-      return settings;
+      // we use 'delay-apply' mode by default
+      if (settings)
+        settings->delay();
+#ifndef NDEBUG
+      else
+        std::cerr << "SettingsList: could not create Gio::Settings for entry "
+                  << "'" << id << "'" << std::endl;
+#endif
+      SettingsTreeNode root = {settings, {}};
+      buildSettingsTree(root);
+      auto result =  entries_settings_.insert_or_assign(id, std::move(root));
+      return result.first->second;
     }
 
   std::string makeEntryPath(const Identifier& id)
     { return base_settings_->property_path().get_value() + id + "/"; }
 
   void removeEntrySettings(const Identifier& id)
-    { entries_settings_.erase(id); }
-
-  static void resetRecursively(Glib::RefPtr<Gio::Settings> settings)
     {
-      if (!settings)
-        return;
+      if (auto it = entries_settings_.find(id); it != entries_settings_.end())
+      {
+        applyRecursively(it->second);
+        entries_settings_.erase(it);
+      }
+    }
 
-      for (auto& child : settings->list_children())
-        resetRecursively(settings->get_child(child));
+  static void resetRecursively(const SettingsTreeNode& settings_tree)
+    {
+      std::for_each(settings_tree.children.begin(),
+                    settings_tree.children.end(),
+                    [] (const auto& pair) { resetRecursively(pair.second); });
 
-      for (const auto& key: settings->list_keys())
-        settings->reset(key);
+      if (settings_tree.settings)
+      {
+        settings_tree.settings->delay();
+        for (const auto& key: settings_tree.settings->list_keys())
+        {
+          settings_tree.settings->reset(key);
+        }
+        settings_tree.settings->apply();
+      }
+    }
+
+  static void applyRecursively(const SettingsTreeNode& settings_tree)
+    {
+      std::for_each(settings_tree.children.begin(),
+                    settings_tree.children.end(),
+                    [] (const auto& pair) { applyRecursively(pair.second); });
+
+      if (settings_tree.settings)
+        settings_tree.settings->apply();
     }
 };
 

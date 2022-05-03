@@ -42,15 +42,15 @@ namespace audio {
     virtual ~WavetableRecipe()
       { /* nothing */ }
     virtual size_t preferredPages(SampleRate rate) const
-      { return 16; };
+      { return 8; };
     virtual size_t preferredBasePageSize(SampleRate rate) const
-      { return 1024; }
+      { return 8192; }
     virtual Wavetable::PageResize preferredPageResize(SampleRate rate) const
-      { return Wavetable::PageResize::kNoResize; }
+      { return Wavetable::PageResize::kHalf; }
     virtual float preferredBase(SampleRate rate) const
       { return 40.0f; }
     virtual Wavetable::PageRange preferredRange(SampleRate rate) const
-      { return Wavetable::PageRange::kHalfOctave; }
+      { return Wavetable::PageRange::kOctave; }
 
     virtual void fillPage(SampleRate rate,
                           size_t page,

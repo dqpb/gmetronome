@@ -97,8 +97,11 @@ Application::~Application()
   catch (...) {}
 
   try {
-    if (settings::preferences() && settings::preferences()->get_has_unapplied())
-      settings::preferences()->apply();
+    if (settings::sound() && settings::sound()->get_has_unapplied())
+    {
+      settings::sound()->apply();
+      g_settings_sync();
+    }
   }
   catch (...) {}
 }
@@ -135,8 +138,7 @@ void Application::on_activate()
 
 void Application::initSettings()
 {
-
-  settings::soundThemeList()->settings()->signal_changed()
+  settings::soundThemes()->settings()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsSoundChanged));
 
   settings::preferences()->signal_changed()
@@ -153,7 +155,7 @@ void Application::initSettings()
 
   // to prevent heavy i/o (e.g. during volume adjustment) we cache prefs
   // and propagate them to the backend in the destructor
-  settings::preferences()->delay();
+  settings::sound()->delay();
 }
 
 void Application::initActions()
@@ -266,59 +268,98 @@ void Application::initProfiles()
 
 void Application::initTicker()
 {
-  configureTickerSound(kAccentMaskAll);
+  loadSelectedSoundTheme();
   configureAudioBackend();
 }
 
-void Application::configureTickerSound(const AccentMask& accents)
+void Application::loadSelectedSoundTheme()
+{
+  std::for_each(settings_sound_theme_params_connections_.begin(),
+                settings_sound_theme_params_connections_.end(),
+                [] (auto& connection) { connection.disconnect(); });
+
+  std::for_each(settings_sound_theme_params_.begin(),
+                settings_sound_theme_params_.end(),
+                [] (auto& settings) { settings.reset(); });
+
+  if (auto theme_id = settings::soundThemes()->selected(); !theme_id.empty())
+  {
+    try {
+      auto& theme_settings = settings::soundThemes()->settings(theme_id);
+
+      settings_sound_theme_params_[0] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+
+      if (settings_sound_theme_params_[0])
+      {
+        settings_sound_theme_params_connections_[0] =
+          settings_sound_theme_params_[0]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskStrong); });
+      }
+
+      settings_sound_theme_params_[1] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+
+      if (settings_sound_theme_params_[1])
+      {
+        settings_sound_theme_params_connections_[1] =
+          settings_sound_theme_params_[1]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskMid); });
+      }
+
+      settings_sound_theme_params_[2] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
+
+      if (settings_sound_theme_params_[2])
+      {
+        settings_sound_theme_params_connections_[2] =
+          settings_sound_theme_params_[2]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskWeak); });
+      }
+    }
+    catch(...)
+    {
+#ifndef NDEBUG
+      std::cerr << "Application: failed to load sound theme '" << theme_id << "'" << std::endl;
+#endif
+    }
+  }
+  updateTickerSound(kAccentMaskAll);
+}
+
+void Application::updateTickerSound(const AccentMask& accents)
 {
   if (accents.none())
     return;
 
-  try {
-    auto theme_id = settings::soundThemeList()->selected();
-    auto theme_settings = settings::soundThemeList()->settings(theme_id);
+  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
-    if (theme_settings)
-    {
-      auto theme = settings::soundThemeList()->get(theme_id);
+  if (accents[0]) {
+    audio::SoundParameters params;
 
-      settings_sound_theme_connection_.disconnect();
+    if (settings_sound_theme_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[0], params);
 
-      settings_sound_theme_connection_ = theme_settings->signal_changed()
-        .connect(sigc::mem_fun(*this, &Application::onSettingsSoundChanged));
-
-      double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
-
-      if (accents[0]) {
-        theme.strong_params.volume *= global_volume;
-        ticker_.setSoundStrong(theme.strong_params);
-      }
-      if (accents[1]) {
-        theme.mid_params.volume *= global_volume;
-        ticker_.setSoundMid(theme.mid_params);
-      }
-      if (accents[2]) {
-        theme.weak_params.volume *= global_volume;
-        ticker_.setSoundWeak(theme.weak_params);
-      }
-    }
-    else
-    {
-#ifndef NDEBUG
-      std::cerr << "Application: no sound theme selected" << std::endl;
-#endif
-      settings_sound_theme_connection_.disconnect();
-      ticker_.setSoundStrong({});
-      ticker_.setSoundMid({});
-      ticker_.setSoundWeak({});
-    }
+    params.volume *= global_volume;
+    ticker_.setSoundStrong(params);
   }
-  catch(...)
-  {
-#ifndef NDEBUG
-    std::cerr << "Application: error loading sound theme" << std::endl;
-#endif
+  if (accents[1]) {
+    audio::SoundParameters params;
+
+    if (settings_sound_theme_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[1], params);
+
+    params.volume *= global_volume;
+    ticker_.setSoundMid(params);
+  }
+  if (accents[2]) {
+    audio::SoundParameters params;
+
+    if (settings_sound_theme_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[2], params);
+
+    params.volume *= global_volume;
+    ticker_.setSoundWeak(params);
   }
 }
 
@@ -1151,28 +1192,17 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
     activate_action(kActionProfileSelect, state);
   }
 }
+
 void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeySoundVolume)
   {
-    configureTickerSound(kAccentMaskAll);
+    updateTickerSound(kAccentMaskAll);
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
-    configureTickerSound(kAccentMaskAll);
+    loadSelectedSoundTheme();
   }
-  // else if (key == settings::kKeySoundThemeStrongParams)
-  // {
-  //   configureTickerSound(kAccentMaskStrong);
-  // }
-  // else if (key == settings::kKeySoundThemeMidParams)
-  // {
-  //   configureTickerSound(kAccentMaskMid);
-  // }
-  // else if (key == settings::kKeySoundThemeWeakParams)
-  // {
-  //   configureTickerSound(kAccentMaskWeak);
-  // }
 }
 
 void Application::onSettingsShortcutsChanged(const Glib::ustring& key)

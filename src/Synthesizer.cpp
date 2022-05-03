@@ -72,10 +72,11 @@ namespace audio {
 
   void Synthesizer::update(ByteBuffer& buffer, const SoundParameters& params)
   {
-    assert(!std::isnan(params.timbre));
-    assert(!std::isnan(params.pitch));
+    assert(!std::isnan(params.tonal_timbre));
+    assert(!std::isnan(params.tonal_pitch));
     assert(!std::isnan(params.volume));
     assert(!std::isnan(params.balance));
+    //...
 
     if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
     {
@@ -85,26 +86,30 @@ namespace audio {
       buffer.resize(spec_, kSoundDuration);
     }
 
-    float pitch       = std::clamp(params.pitch, 20.0f, 20000.0f);
-    float timbre      = std::clamp(params.timbre, 0.0f, 3.0f);
-    float detune      = std::clamp(params.detune, 0.0f, 500.0f);
-    bool  clap        = params.clap;
-    float crush       = std::clamp(params.crush, 0.0f, 1.0f);
-    float punch       = std::clamp(params.punch, 0.0f, 1.0f);
-    float decay       = std::clamp(params.decay, 0.0f, 1.0f);
-    bool  bell        = params.bell;
-    float bell_volume = std::clamp(params.bell_volume, 0.0f, 1.0f);
-    float balance     = std::clamp(params.balance, -1.0f, 1.0f);
-    float volume      = std::clamp(params.volume, 0.0f, 1.0f);
+    float tonal_pitch       = std::clamp(params.tonal_pitch, 40.0f, 10000.0f);
+    float tonal_timbre      = std::clamp(params.tonal_timbre, 0.0f, 3.0f);
+    float tonal_detune      = std::clamp(params.tonal_detune, 0.0f, 100.0f);
+    float tonal_punch       = std::clamp(params.tonal_punch, 0.0f, 1.0f);
+    float tonal_decay       = std::clamp(params.tonal_decay, 0.0f, 1.0f);
+    float percussive_tone   = std::clamp(params.percussive_tone, 0.0f, 1.0f);
+    float percussive_punch  = std::clamp(params.percussive_punch, 0.0f, 1.0f);
+    float percussive_decay  = std::clamp(params.percussive_decay, 0.0f, 1.0f);
+    bool  percussive_clap   = params.percussive_clap;
+    float mix               = std::clamp(params.mix, -1.0f, 1.0f);
+    bool  bell              = params.bell;
+    float bell_volume       = std::clamp(params.bell_volume, 0.0f, 1.0f);
+    float balance           = std::clamp(params.balance, -1.0f, 1.0f);
+    float volume            = std::clamp(params.volume, 0.0f, 1.0f);
 
     float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
     float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
 
-    float tonal_gain    = 1.0f - crush;
-    float sine_gain     = tonal_gain * (1.0f - std::clamp(std::abs(0.0f - timbre), 0.0f, 1.0f));
-    float triangle_gain = tonal_gain * (1.0f - std::clamp(std::abs(1.0f - timbre), 0.0f, 1.0f));
-    float sawtooth_gain = tonal_gain * (1.0f - std::clamp(std::abs(2.0f - timbre), 0.0f, 1.0f));
-    float square_gain   = tonal_gain * (1.0f - std::clamp(std::abs(3.0f - timbre), 0.0f, 1.0f));
+    float noise_gain    = (mix < 0) ? ( 1.0 * mix + 1.0) : 1.0f;
+    float tonal_gain    = (mix > 0) ? (-1.0 * mix + 1.0) : 1.0f;
+    float sine_gain     = tonal_gain * (1.0f - std::clamp(std::abs(0.0f - tonal_timbre), 0.0f, 1.0f));
+    float triangle_gain = tonal_gain * (1.0f - std::clamp(std::abs(1.0f - tonal_timbre), 0.0f, 1.0f));
+    float sawtooth_gain = tonal_gain * (1.0f - std::clamp(std::abs(2.0f - tonal_timbre), 0.0f, 1.0f));
+    float square_gain   = tonal_gain * (1.0f - std::clamp(std::abs(3.0f - tonal_timbre), 0.0f, 1.0f));
 
     if (volume == 0)
     {
@@ -112,23 +117,21 @@ namespace audio {
       return;
     }
 
-    auto [osc_envelope, full_gain_time, full_decay_time] = buildEnvelope(punch, decay, clap);
+    auto [osc_envelope, osc_full_gain_time, osc_full_decay_time]
+      = buildEnvelope(tonal_punch, tonal_decay, false);
 
-    float noise_stretch = 0.6 - (punch / 5.0);
-    //float noise_stretch = 0.5;
+    auto [noise_envelope, noise_full_gain_time, noise_full_decay_time]
+      = buildEnvelope(percussive_punch, percussive_decay, percussive_clap);
 
     const filter::Automation noise_smooth_kw = {
-      { 0ms,             static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-      { full_gain_time * noise_stretch,  static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-      { full_decay_time * noise_stretch, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))}
+      { 0ms,                   static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
+      { noise_full_gain_time,  static_cast<float>(usecsToFrames(microseconds{int(percussive_tone * 200.0f)}, noise_buffer_.spec()))},
+      { noise_full_decay_time, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))}
     };
-
-    auto noise_envelope = osc_envelope;
-    noise_envelope.stretch(noise_stretch);
 
     auto noise_filter =
       filter::std::Zero {}
-    | filter::std::Noise {crush}
+    | filter::std::Noise {noise_gain}
     | filter::std::Smooth {noise_smooth_kw}
     | filter::std::Gain {noise_envelope};
 
@@ -136,10 +139,10 @@ namespace audio {
 
     auto osc_filter =
       filter::std::Zero {}
-    | filter::std::Wave {wavetables_[kSineTable],     pitch, sine_gain,     0.0f,  detune}
-    | filter::std::Wave {wavetables_[kTriangleTable], pitch, triangle_gain, 0.0f,  detune}
-    | filter::std::Wave {wavetables_[kSawtoothTable], pitch, sawtooth_gain, float(M_PI), detune}
-    | filter::std::Wave {wavetables_[kSquareTable],   pitch, square_gain,   0.0f,  detune}
+    | filter::std::Wave {wavetables_[kSineTable],     tonal_pitch, sine_gain,     0.0f,  tonal_detune}
+    | filter::std::Wave {wavetables_[kTriangleTable], tonal_pitch, triangle_gain, 0.0f,  tonal_detune}
+    | filter::std::Wave {wavetables_[kSawtoothTable], tonal_pitch, sawtooth_gain, float(M_PI), tonal_detune}
+    | filter::std::Wave {wavetables_[kSquareTable],   tonal_pitch, square_gain,   0.0f,  tonal_detune}
 // //      | filter::std::Ring {pitch}
 // //      | filter::std::Smooth {5}
     | filter::std::Gain {osc_envelope}

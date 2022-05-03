@@ -45,24 +45,29 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("midRadioButton", mid_radio_button_);
   builder_->get_widget("weakRadioButton", weak_radio_button_);
   builder_->get_widget("parametersGrid", parameters_grid_);
-  builder_->get_widget("timbreScale", timbre_scale_);
-  builder_->get_widget("clapSwitch", clap_switch_);
+  builder_->get_widget("percussiveClapSwitch", percussive_clap_switch_);
   builder_->get_widget("bellSwitch", bell_switch_);
   builder_->get_widget("balanceScale", balance_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
-  pitch_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("pitchAdjustment"));
-  timbre_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("timbreAdjustment"));
-  detune_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("detuneAdjustment"));
-  crush_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("crushAdjustment"));
-  punch_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("punchAdjustment"));
-  decay_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("decayAdjustment"));
+  tonal_pitch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonalPitchAdjustment"));
+  tonal_timbre_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonalTimbreAdjustment"));
+  tonal_detune_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonalDetuneAdjustment"));
+  tonal_punch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonalPunchAdjustment"));
+  tonal_decay_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonalDecayAdjustment"));
+  percussive_tone_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussiveToneAdjustment"));
+  percussive_punch_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussivePunchAdjustment"));
+  percussive_decay_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussiveDecayAdjustment"));
+  mix_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("mixAdjustment"));
   bell_volume_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("bellVolumeAdjustment"));
   balance_adjustment_ =
@@ -86,11 +91,6 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   mid_radio_button_->add(mid_accent_drawing_);
   weak_radio_button_->add(weak_accent_drawing_);
 
-  // timbre_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
-  // timbre_scale_->add_mark(1.0, Gtk::POS_BOTTOM, "");
-  // timbre_scale_->add_mark(2.0, Gtk::POS_BOTTOM, "");
-  // timbre_scale_->add_mark(3.0, Gtk::POS_BOTTOM, "");
-
   balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
   signal_key_press_event()
@@ -103,16 +103,14 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   weak_radio_button_->signal_clicked().connect(
     [this] () { if (weak_radio_button_->get_active()) updateThemeBindings(); });
 
-  settings::soundThemeList()->settings()->signal_changed()
+  settings::soundThemes()->settings()->signal_changed()
     .connect(sigc::mem_fun(*this, &SoundThemeEditor::onSettingsListChanged));
 
   updateThemeBindings();
 }
 
 SoundThemeEditor::~SoundThemeEditor()
-{
-  // nothing to do
-}
+{ /* nothing */ }
 
 //static
 SoundThemeEditor* SoundThemeEditor::create(Gtk::Window& parent, Glib::ustring theme_id)
@@ -148,15 +146,27 @@ void SoundThemeEditor::bindSoundProperties()
   if (sound_settings_)
   {
     sound_settings_->bind(settings::kKeySoundThemeTonalPitch,
-                          pitch_adjustment_->property_value());
+                          tonal_pitch_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeTonalTimbre,
-                          timbre_adjustment_->property_value());
+                          tonal_timbre_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeTonalDetune,
-                          detune_adjustment_->property_value());
+                          tonal_detune_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeTonalPunch,
-                          punch_adjustment_->property_value());
+                          tonal_punch_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeTonalDecay,
-                          decay_adjustment_->property_value());
+                          tonal_decay_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussiveTone,
+                          percussive_tone_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussivePunch,
+                          percussive_punch_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussiveDecay,
+                          percussive_decay_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeMix,
+                          mix_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeBalance,
+                          balance_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeVolume,
+                          volume_adjustment_->property_value());
     //...
   }
 }
@@ -169,11 +179,17 @@ void unbindProperty(const Glib::PropertyProxy_Base& p)
 
 void SoundThemeEditor::unbindSoundProperties()
 {
-  unbindProperty(pitch_adjustment_->property_value());
-  unbindProperty(timbre_adjustment_->property_value());
-  unbindProperty(detune_adjustment_->property_value());
-  unbindProperty(punch_adjustment_->property_value());
-  unbindProperty(decay_adjustment_->property_value());
+  unbindProperty(tonal_pitch_adjustment_->property_value());
+  unbindProperty(tonal_timbre_adjustment_->property_value());
+  unbindProperty(tonal_detune_adjustment_->property_value());
+  unbindProperty(tonal_punch_adjustment_->property_value());
+  unbindProperty(tonal_decay_adjustment_->property_value());
+  unbindProperty(percussive_tone_adjustment_->property_value());
+  unbindProperty(percussive_punch_adjustment_->property_value());
+  unbindProperty(percussive_decay_adjustment_->property_value());
+  unbindProperty(mix_adjustment_->property_value());
+  unbindProperty(balance_adjustment_->property_value());
+  unbindProperty(volume_adjustment_->property_value());
   //...
 }
 
@@ -182,16 +198,19 @@ void SoundThemeEditor::updateThemeBindings()
   unbindSoundProperties();
   unbindProperty(title_entry_->property_text());
 
-  if (auto settings = settings::soundThemeList()->settings(theme_id_); settings)
+  if (auto& settings_tree = settings::soundThemes()->settings(theme_id_);
+      settings_tree.settings)
   {
-    if (strong_radio_button_->get_active())
-      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeStrongParamsBasename);
-    else if (mid_radio_button_->get_active())
-      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeMidParamsBasename);
-    else
-      sound_settings_ = settings->get_child(settings::kSchemaPathSoundThemeWeakParamsBasename);
+    auto& children = settings_tree.children;
 
-    settings->bind(settings::kKeySoundThemeTitle, title_entry_->property_text());
+    if (strong_radio_button_->get_active())
+      sound_settings_ = children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+    else if (mid_radio_button_->get_active())
+      sound_settings_ = children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+    else
+      sound_settings_ = children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
+
+    settings_tree.settings->bind(settings::kKeySoundThemeTitle, title_entry_->property_text());
     bindSoundProperties();
   }
 }
@@ -200,7 +219,7 @@ void SoundThemeEditor::onSettingsListChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeySettingsListEntries)
   {
-    if (!settings::soundThemeList()->contains(theme_id_))
+    if (!settings::soundThemes()->contains(theme_id_))
       {
         main_box_->set_sensitive(false);
         parameters_frame_->set_visible(false);
@@ -218,6 +237,6 @@ void SoundThemeEditor::onSettingsListChanged(const Glib::ustring& key)
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
-    // nothing to do
+    /* nothing */
   }
 }

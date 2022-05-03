@@ -27,6 +27,7 @@
 
 #include <gtkmm.h>
 #include <bitset>
+#include <array>
 
 class MainWindow;
 
@@ -55,8 +56,11 @@ private:
 
   // Connections
   sigc::connection settings_state_connection_;
-  sigc::connection settings_sound_theme_connection_;
+  std::array<sigc::connection,3> settings_sound_theme_params_connections_;
   sigc::connection timer_connection_;
+
+  // Settings
+  std::array<Glib::RefPtr<Gio::Settings>,3> settings_sound_theme_params_;
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;
@@ -73,7 +77,8 @@ private:
 
   using AccentMask = std::bitset<3>; // strong, mid, weak
 
-  void configureTickerSound(const AccentMask& accents);
+  void loadSelectedSoundTheme();
+  void updateTickerSound(const AccentMask& accents);
   void configureAudioBackend();
   void configureAudioDevice();
 

@@ -262,7 +262,7 @@ void SettingsDialog::initBindings()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsSoundChanged));
 
   sound_theme_settings_list_connection_ =
-    settings::soundThemeList()->settings()->signal_changed()
+    settings::soundThemes()->settings()->signal_changed()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onSettingsSoundChanged));
 
   sound_theme_selection_changed_connection_ =
@@ -374,7 +374,7 @@ void SettingsDialog::onSoundThemeSelect()
   if (row_it)
     id = row_it->get_value(sound_theme_model_columns_.id);
 
-  settings::soundThemeList()->select(id);
+  settings::soundThemes()->select(id);
 }
 
 void SettingsDialog::onSoundThemeTitleStartEditing(Gtk::CellEditable* editable,
@@ -419,11 +419,11 @@ void SettingsDialog::onSoundThemeAdd()
 {
   try {
     sound_theme_settings_list_connection_.block();
-    auto theme_id = settings::soundThemeList()->selected();
+    auto theme_id = settings::soundThemes()->selected();
     if (!theme_id.empty())
     {
       // duplicate the selected sound theme
-      auto theme = settings::soundThemeList()->get(theme_id);
+      auto theme = settings::soundThemes()->get(theme_id);
 
       if (!theme.title.empty())
       {
@@ -443,16 +443,16 @@ void SettingsDialog::onSoundThemeAdd()
         theme.title = Glib::ustring::compose(sound_theme_title_duplicate_,
                                              sound_theme_title_placeholder_);
 
-      theme_id = settings::soundThemeList()->append(theme);
+      theme_id = settings::soundThemes()->append(theme);
     }
     else
     {
       SoundTheme new_theme {sound_theme_title_new_};
-      theme_id = settings::soundThemeList()->append(new_theme);
+      theme_id = settings::soundThemes()->append(new_theme);
     }
 
     // select new theme
-    settings::soundThemeList()->select(theme_id);
+    settings::soundThemes()->select(theme_id);
 
     // update ui
     updateSoundThemeTreeStore();
@@ -506,15 +506,15 @@ void SettingsDialog::onSoundThemeRemove()
           else if (--prev && prev->get_value(col_type) == SoundThemeModelColumns::Type::kCustom)
             next_id = prev->get_value(col_id);
           else
-            next_id = settings::soundThemeList()->defaults().front();
+            next_id = settings::soundThemes()->defaults().front();
 
-          settings::soundThemeList()->remove(id);
+          settings::soundThemes()->remove(id);
           updateSoundThemeTreeStore();
 
           sound_theme_settings_list_connection_.unblock();
           sound_theme_selection_changed_connection_.unblock();
 
-          settings::soundThemeList()->select(next_id);
+          settings::soundThemes()->select(next_id);
         }
     }
   }
@@ -567,7 +567,7 @@ void SettingsDialog::updateSoundThemeModelRows(const Gtk::TreeModel::Children& r
     if (rowit == rows.end())
       rowit = sound_theme_tree_store_->insert(rowit);
 
-    auto theme_settings = settings::soundThemeList()->settings(id);
+    auto theme_settings = settings::soundThemes()->settings(id).settings;
 
     // disconnect the old theme before updating
     rowit->get_value(col_settings_connection).disconnect();
@@ -610,7 +610,7 @@ void SettingsDialog::updateSoundThemeTreeStore()
   auto top_rowit = top_rows.begin();
 
   // update presets
-  if (auto presets = settings::soundThemeList()->defaults(); !presets.empty())
+  if (auto presets = settings::soundThemes()->defaults(); !presets.empty())
   {
     if (top_rowit == top_rows.end())
       top_rowit = sound_theme_tree_store_->append();
@@ -625,7 +625,7 @@ void SettingsDialog::updateSoundThemeTreeStore()
   }
 
   // update custom themes
-  if (auto themes = settings::soundThemeList()->list(false); !themes.empty())
+  if (auto themes = settings::soundThemes()->list(false); !themes.empty())
   {
     if (top_rowit == top_rows.end())
       top_rowit = sound_theme_tree_store_->append();
@@ -653,7 +653,7 @@ void SettingsDialog::updateSoundThemeSelection()
 {
   const auto& col_type = sound_theme_model_columns_.type;
   const auto& col_id = sound_theme_model_columns_.id;
-  const auto theme_id = settings::soundThemeList()->selected();
+  const auto theme_id = settings::soundThemes()->selected();
 
   if (auto rowit = findRowRecursively(sound_theme_tree_store_, col_id, theme_id);
       !theme_id.empty() && rowit)

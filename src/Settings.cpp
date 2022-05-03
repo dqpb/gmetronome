@@ -55,39 +55,32 @@ namespace settings {
 
   Glib::RefPtr<Gio::Settings> preferences()
   {
-    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaIdPrefsBasename);
+    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaPathPrefsBasename);
     return s;
   }
 
   Glib::RefPtr<Gio::Settings> sound()
   {
-    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaIdSoundBasename);
+    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaPathSoundBasename);
     return s;
   }
 
-  Glib::RefPtr<SettingsList<SoundTheme>> soundThemeList()
+  Glib::RefPtr<SettingsList<SoundTheme>> soundThemes()
   {
     static Glib::RefPtr<SettingsList<SoundTheme>> sl = SettingsList<SoundTheme>::create(
-      sound()->get_child(kSchemaIdSoundThemeListBasename),
-      kSchemaIdSoundTheme);
+      sound()->get_child(kSchemaPathSoundThemesBasename), kSchemaIdSoundTheme);
     return sl;
-  }
-
-  Glib::RefPtr<Gio::Settings> soundSelectedTheme()
-  {
-    auto theme_id = settings::soundThemeList()->selected();
-    return settings::soundThemeList()->settings(theme_id);
   }
 
   Glib::RefPtr<Gio::Settings> shortcuts()
   {
-    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaIdShortcutsBasename);
+    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaPathShortcutsBasename);
     return s;
   }
 
   Glib::RefPtr<Gio::Settings> state()
   {
-    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaIdStateBasename);
+    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaPathStateBasename);
     return s;
   }
 
