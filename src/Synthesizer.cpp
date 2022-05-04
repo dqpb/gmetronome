@@ -72,8 +72,8 @@ namespace audio {
 
   void Synthesizer::update(ByteBuffer& buffer, const SoundParameters& params)
   {
-    assert(!std::isnan(params.tonal_timbre));
-    assert(!std::isnan(params.tonal_pitch));
+    assert(!std::isnan(params.tone_timbre));
+    assert(!std::isnan(params.tone_pitch));
     assert(!std::isnan(params.volume));
     assert(!std::isnan(params.balance));
     //...
@@ -86,30 +86,30 @@ namespace audio {
       buffer.resize(spec_, kSoundDuration);
     }
 
-    float tonal_pitch       = std::clamp(params.tonal_pitch, 40.0f, 10000.0f);
-    float tonal_timbre      = std::clamp(params.tonal_timbre, 0.0f, 3.0f);
-    float tonal_detune      = std::clamp(params.tonal_detune, 0.0f, 100.0f);
-    float tonal_punch       = std::clamp(params.tonal_punch, 0.0f, 1.0f);
-    float tonal_decay       = std::clamp(params.tonal_decay, 0.0f, 1.0f);
-    float percussive_tone   = std::clamp(params.percussive_tone, 0.0f, 1.0f);
-    float percussive_punch  = std::clamp(params.percussive_punch, 0.0f, 1.0f);
-    float percussive_decay  = std::clamp(params.percussive_decay, 0.0f, 1.0f);
-    bool  percussive_clap   = params.percussive_clap;
-    float mix               = std::clamp(params.mix, -1.0f, 1.0f);
-    bool  bell              = params.bell;
-    float bell_volume       = std::clamp(params.bell_volume, 0.0f, 1.0f);
-    float balance           = std::clamp(params.balance, -1.0f, 1.0f);
-    float volume            = std::clamp(params.volume, 0.0f, 1.0f);
+    float tone_pitch         = std::clamp(params.tone_pitch, 40.0f, 10000.0f);
+    float tone_timbre        = std::clamp(params.tone_timbre, 0.0f, 3.0f);
+    float tone_detune        = std::clamp(params.tone_detune, 0.0f, 100.0f);
+    float tone_punch         = std::clamp(params.tone_punch, 0.0f, 1.0f);
+    float tone_decay         = std::clamp(params.tone_decay, 0.0f, 1.0f);
+    float percussion_cutoff  = std::clamp(params.percussion_cutoff, 0.0f, 1.0f);
+    bool  percussion_clap    = params.percussion_clap;
+    float percussion_punch   = std::clamp(params.percussion_punch, 0.0f, 1.0f);
+    float percussion_decay   = std::clamp(params.percussion_decay, 0.0f, 1.0f);
+    float mix                = std::clamp(params.mix, -1.0f, 1.0f);
+    // bool  bell               = params.bell;
+    // float bell_volume        = std::clamp(params.bell_volume, 0.0f, 1.0f);
+    float balance            = std::clamp(params.balance, -1.0f, 1.0f);
+    float volume             = std::clamp(params.volume, 0.0f, 1.0f);
 
     float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
     float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
 
     float noise_gain    = (mix < 0) ? ( 1.0 * mix + 1.0) : 1.0f;
-    float tonal_gain    = (mix > 0) ? (-1.0 * mix + 1.0) : 1.0f;
-    float sine_gain     = tonal_gain * (1.0f - std::clamp(std::abs(0.0f - tonal_timbre), 0.0f, 1.0f));
-    float triangle_gain = tonal_gain * (1.0f - std::clamp(std::abs(1.0f - tonal_timbre), 0.0f, 1.0f));
-    float sawtooth_gain = tonal_gain * (1.0f - std::clamp(std::abs(2.0f - tonal_timbre), 0.0f, 1.0f));
-    float square_gain   = tonal_gain * (1.0f - std::clamp(std::abs(3.0f - tonal_timbre), 0.0f, 1.0f));
+    float osc_gain      = (mix > 0) ? (-1.0 * mix + 1.0) : 1.0f;
+    float sine_gain     = osc_gain * (1.0f - std::clamp(std::abs(0.0f - tone_timbre), 0.0f, 1.0f));
+    float triangle_gain = osc_gain * (1.0f - std::clamp(std::abs(1.0f - tone_timbre), 0.0f, 1.0f));
+    float sawtooth_gain = osc_gain * (1.0f - std::clamp(std::abs(2.0f - tone_timbre), 0.0f, 1.0f));
+    float square_gain   = osc_gain * (1.0f - std::clamp(std::abs(3.0f - tone_timbre), 0.0f, 1.0f));
 
     if (volume == 0)
     {
@@ -118,16 +118,38 @@ namespace audio {
     }
 
     auto [osc_envelope, osc_full_gain_time, osc_full_decay_time]
-      = buildEnvelope(tonal_punch, tonal_decay, false);
+      = buildEnvelope(tone_punch, tone_decay, false);
 
     auto [noise_envelope, noise_full_gain_time, noise_full_decay_time]
-      = buildEnvelope(percussive_punch, percussive_decay, percussive_clap);
+      = buildEnvelope(percussion_punch, percussion_decay, percussion_clap);
 
-    const filter::Automation noise_smooth_kw = {
-      { 0ms,                   static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-      { noise_full_gain_time,  static_cast<float>(usecsToFrames(microseconds{int(percussive_tone * 200.0f)}, noise_buffer_.spec()))},
-      { noise_full_decay_time, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))}
-    };
+    // dynamic smoothing kernel sizes
+    microseconds low_kw_duration {unsigned((1.0f - percussion_cutoff) * 200.0f)};
+    microseconds high_kw_duration {200};
+
+    float low_kw = static_cast<float>(usecsToFrames(low_kw_duration, noise_buffer_.spec()));
+    float high_kw = static_cast<float>(usecsToFrames(high_kw_duration, noise_buffer_.spec()));
+
+    filter::Automation noise_smooth_kw;
+
+    if (percussion_clap)
+    {
+      noise_smooth_kw.append({
+          { 0ms,                          high_kw},
+          { noise_full_gain_time / 2,     low_kw},
+          { noise_full_gain_time * 3 / 4, high_kw},
+          { noise_full_gain_time,         low_kw},
+          { noise_full_decay_time,        high_kw}
+        });
+    }
+    else
+    {
+      noise_smooth_kw.append({
+          { 0ms,                   high_kw},
+          { noise_full_gain_time,  low_kw},
+          { noise_full_decay_time, high_kw}
+        });
+    }
 
     auto noise_filter =
       filter::std::Zero {}
@@ -139,12 +161,10 @@ namespace audio {
 
     auto osc_filter =
       filter::std::Zero {}
-    | filter::std::Wave {wavetables_[kSineTable],     tonal_pitch, sine_gain,     0.0f,  tonal_detune}
-    | filter::std::Wave {wavetables_[kTriangleTable], tonal_pitch, triangle_gain, 0.0f,  tonal_detune}
-    | filter::std::Wave {wavetables_[kSawtoothTable], tonal_pitch, sawtooth_gain, float(M_PI), tonal_detune}
-    | filter::std::Wave {wavetables_[kSquareTable],   tonal_pitch, square_gain,   0.0f,  tonal_detune}
-// //      | filter::std::Ring {pitch}
-// //      | filter::std::Smooth {5}
+    | filter::std::Wave {wavetables_[kSineTable],     tone_pitch, sine_gain,     0.0f,  tone_detune}
+    | filter::std::Wave {wavetables_[kTriangleTable], tone_pitch, triangle_gain, 0.0f,  tone_detune}
+    | filter::std::Wave {wavetables_[kSawtoothTable], tone_pitch, sawtooth_gain, float(M_PI), tone_detune}
+    | filter::std::Wave {wavetables_[kSquareTable],   tone_pitch, square_gain,   0.0f,  tone_detune}
     | filter::std::Gain {osc_envelope}
     | filter::std::Mix {noise_buffer_}
     | filter::std::Normalize {balance_l, balance_r};
@@ -153,218 +173,6 @@ namespace audio {
     osc_filter(osc_buffer_);
 
     resample(osc_buffer_, buffer);
-
-    /*
-      float pitch       = std::clamp(params.pitch, 20.0f, 20000.0f);
-      float timbre      = std::clamp(params.timbre, -1.0f, 1.0f);
-      float damping     = std::clamp(params.damping, 0.0f, 1.0f);
-      bool  bell        = params.bell;
-      float bell_volume = std::clamp(params.bell_volume, 0.0f, 1.0f);
-      float balance     = std::clamp(params.balance, -1.0f, 1.0f);
-      float volume      = std::clamp(params.volume, 0.0f, 1.0f);
-
-      if (volume == 0)
-      {
-      filter::std::Zero{}(buffer);
-      return;
-      }
-
-      float att_gain = (timbre < 0.0f) ? 1.0f : 1.0f - timbre; // =>
-      float osc_gain = (timbre > 0.0f) ? 1.0f : timbre + 1.0f; // <=
-      float l_gain = 1.0f - osc_gain; // >-
-      float r_gain = 1.0f - att_gain; // -<
-      float rl_gain = std::abs((timbre - 1.0f) / 2.0f); // >
-      float lr_gain = timbre + 1.0f;                    // <
-
-      float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
-      float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
-
-      const filter::Automation osc_envelope = {
-      { 3ms + milliseconds(int(l_gain * 6.0f)),  0.0f},
-      { 4ms + milliseconds(int(l_gain * 6.0f)),  0.2f},
-      { 5ms + milliseconds(int(l_gain * 8.0f)),  1.0f},
-      // { 1ms + milliseconds(int(rl_gain *  5.0f)),  0.0f},
-      // { 2ms + milliseconds(int(rl_gain * 15.0f)),  1.0f},
-//      {10ms + milliseconds(int(rl_gain * 15.0f)),  0.4f},
-// {26ms, 0.1},
-// {60ms, 0.0}
-
-//      {milliseconds(int( 30.0 - damping * (30.0 - (10.0f + l_gain * 12.0)))), (1.0f - damping) / 2.0f},
-{milliseconds(int( 60.0 - damping * (60.0 - (10.0f + l_gain * 8.0)))), 0.0f}
-};
-
-auto osc_filter =
-filter::std::Zero {}
-//      | filter::std::Sine {pitch, osc_gain}
-| filter::std::Sine {pitch, 1.0}
-| filter::std::Triangle {pitch * 2.0f, rl_gain * 0.3}
-| filter::std::Gain {osc_envelope};
-
-// apply filter
-osc_filter(osc_buffer_);
-
-const filter::Automation att_envelope = {
-{  2ms + milliseconds(int(l_gain * 6.0f)),  0.0f},
-{  3ms + milliseconds(int(l_gain * 6.0f)),  0.1f},
-{  4ms + milliseconds(int(l_gain * 8.0f)),  1.0f},
-{  5ms + milliseconds(int(l_gain * 8.0f)),  1.0f - damping},
-{ 10ms + milliseconds(int(l_gain * 8.0f)),  0.0f},
-
-// {0ms + milliseconds(int(att_gain *  3.0f)),  0.15},
-// {1ms + milliseconds(int(att_gain *  5.0f)),  1.0},
-// {2ms + milliseconds(int(att_gain *  5.0f)),  0.1},
-// {20ms, 0.0},
-// {60ms, 0.0}
-//{milliseconds(int( 8.0 - damping * (8.0 - (2.0 + att_gain * 5.0)))), 0.0f}
-};
-
-auto att_filter =
-filter::std::Zero {}
-| filter::std::Sawtooth {pitch * 2.0, att_gain * 0.5}
-| filter::std::Square {pitch * 4.7, att_gain * 0.2}
-//      | filter::std::Sawtooth {pitch * 8.0, att_gain * 0.1}
-| filter::std::Gain {att_envelope};
-//      | filter::std::Smooth {3.0};
-//      | filter::std::Normalize {balance_l, balance_r};
-
-// apply filter
-att_filter(att_buffer_);
-
-const filter::Automation noise_envelope = {
-{ 0ms, 0.0},
-{ 3ms, 0.2},
-{ 4ms, 0.3},
-{ 5ms, 1.0},
-{ 8ms, 0.2},
-{ 9ms, 0.3},
-{10ms, 1.0},
-{13ms, 0.1},
-{50ms, 0.0}
-};
-
-const filter::Automation noise_smooth_kw = {
-{ 0ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-{ 5ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-{ 8ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
-{10ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-{13ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
-{60ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-};
-
-auto noise_filter =
-filter::std::Zero {}
-| filter::std::Noise {2.0f * l_gain}
-| filter::std::Gain {noise_envelope}
-| filter::std::Smooth {noise_smooth_kw}
-| filter::Mix {att_buffer_}
-| filter::Mix {osc_buffer_}
-| filter::std::Normalize {balance_l, balance_r};
-
-// apply filter
-noise_filter(noise_buffer_);
-
-resample(noise_buffer_, buffer);
-    */
-
-
-
-
-    /*
-      float osc_gain = (timbre + 1.0f) / 2.0f;
-      float osc_attack_gain = std::abs((timbre - 1.0f) / 2.0f);
-      float noise_gain = std::max(-timbre, 0.0f);
-
-      static const filter::Automation attack_envelope = {
-      {8ms,  0.0},
-      {13ms, 1.0},
-      {14ms, 0.3},
-      {20ms, 0.0}
-      };
-
-      const StreamSpec filter_buffer_spec =
-      { filter::kDefaultSampleFormat, spec_.rate, 2 };
-
-      ByteBuffer osc_attack_buffer {filter_buffer_spec, kSoundDuration};
-
-      auto osc_attack_filter =
-      filter::std::Square {pitch * 2.1f, osc_attack_gain * 0.4f}
-      | filter::std::Square {pitch * 7.6f, osc_attack_gain * 0.2f}
-      | filter::std::Gain {attack_envelope};
-
-      osc_attack_filter(osc_attack_buffer);
-
-      static const filter::Automation osc_envelope = {
-      {8ms,  0.0},
-      {13ms, 1.0},
-      {25ms, 0.1},
-      {60ms, 0.0}
-      };
-
-
-      auto osc_filter =
-      filter::std::Zero {}
-      | filter::std::Sine {pitch, osc_gain}
-      | filter::std::Mix {osc_attack_buffer}
-      | filter::std::Gain {osc_envelope};
-
-      // apply filter
-      osc_filter(osc_buffer_);
-
-
-      ByteBuffer bell_buffer {filter_buffer_spec, kSoundDuration};
-
-      if (bell)
-      {
-      static const filter::Automation bell_envelope = {
-        { 2ms, 0.0},
-        { 3ms, 1.0},
-        {60ms, 0.0}
-      };
-
-      auto bell_filter =
-        filter::std::Sine {7000, 0.3f}
-        | filter::std::Gain {bell_envelope};
-
-      bell_filter(bell_buffer);
-      }
-
-      // smoothing kernel width
-      const filter::Automation noise_smooth_kw = {
-        { 0ms, static_cast<float>(usecsToFrames(200us, noise_buffer_.spec()))},
-        { 5ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-        { 8ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
-        {10ms, static_cast<float>(usecsToFrames(  0us, noise_buffer_.spec()))},
-        {13ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
-        {60ms, static_cast<float>(usecsToFrames(100us, noise_buffer_.spec()))},
-      };
-
-      static const filter::Automation noise_envelope = {
-        { 0ms, 0.0},
-        { 3ms, 0.2},
-        { 4ms, 0.5},
-        { 5ms, 1.0},
-        { 7ms, 0.1},
-        {10ms, 1.0},
-        {12ms, 0.1},
-        {60ms, 0.0}
-      };
-
-      float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
-      float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
-
-      auto noise_filter =
-        filter::std::Zero {}
-        | filter::std::Noise {noise_gain}
-        | filter::std::Smooth {noise_smooth_kw}
-        | filter::std::Gain {noise_envelope}
-        | filter::std::Mix {osc_buffer_}
-        | filter::std::Mix {bell_buffer}
-        | filter::std::Normalize {balance_l, balance_r};
-
-      // apply filter
-      noise_filter(noise_buffer_);
-      resample(noise_buffer_, buffer);
-      */
   }
 
   std::tuple<filter::Automation, microseconds, microseconds>
@@ -377,7 +185,7 @@ resample(noise_buffer_, buffer);
     const microseconds full_gain_time = min_full_gain_time
       + microseconds { int ( (1.0f - punch) * delta_full_gain_time.count() ) };
 
-    const microseconds delta_attack = full_gain_time / 5;
+    microseconds delta_attack = full_gain_time / 5;
 
     const microseconds min_full_decay_time = full_gain_time + 10ms;
     const microseconds max_full_decay_time = kSoundDuration;
@@ -388,27 +196,57 @@ resample(noise_buffer_, buffer);
 
     const microseconds  delta_decay = (full_decay_time - full_gain_time) / 5;
 
-    // std::cout << "delta_attack : " << delta_attack.count() << std::endl
-    //           << "full_gain    : " << full_gain_time.count() << std::endl
-    //           << "delta_decay  : " << delta_decay.count() << std::endl
-    //           << "full_decay   : " << full_decay_time.count() << std::endl;
+    filter::Automation envelope;
 
-    const filter::Automation envelope = {
-      {  0ms, 0.0f},
-      {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
-      {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
-      {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
-      {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+    if (clap)
+    {
+      delta_attack /= 2;
 
-      {  full_gain_time, 1.0f },
+      envelope.append({
+          {  0 * delta_attack, 0.0f},
 
-      {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * 2.0f)},
-      {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * 2.0f)},
-      {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * 2.0f)},
-      {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * 2.0f)},
+          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
+          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
+          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
+          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
 
-      {  full_decay_time, 0.0f },
-    };
+          {  5 * delta_attack, 1.0f },
+
+          {  6 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
+          {  7 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
+          {  8 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
+          {  9 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+
+          { 10 * delta_attack, 1.0f },
+
+          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * 2.0f)},
+
+          {  full_gain_time + 5 * delta_decay, 0.0f }
+        });
+    }
+    else
+    {
+      envelope.append({
+          {  0 * delta_attack, 0.0f},
+
+          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
+          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
+          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
+          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+
+          {  5 * delta_attack, 1.0f },
+
+          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * 2.0f)},
+
+          {  full_gain_time + 5 * delta_decay, 0.0f }
+        });
+    }
 
     return {std::move(envelope), std::move(full_gain_time), std::move(full_decay_time)};
   }
@@ -438,7 +276,7 @@ resample(noise_buffer_, buffer);
     // highest fundamental in this page is 2^0.5 * base. We use this fundamental as
     // starting point to compute the highest possible harmonic that we can use to compute
     // the triangle waveform.
-    float fundamental = std::pow(2.0f, 1.0f / 2.0f) * base;
+    float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
 
     // By Nyquist we must not produce higher frequencies than half the audio backends rate.
     size_t max_harmonic_1 = (rate / 2.0) / fundamental;
@@ -482,7 +320,7 @@ resample(noise_buffer_, buffer);
                                              Wavetable::Page::iterator end) const
   {
     size_t page_size = end - begin;
-    float fundamental = std::pow(2.0f, 1.0f / 2.0f) * base;
+    float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
     size_t max_harmonic_1 = (rate / 2.0) / fundamental;
     size_t max_harmonic_2 = page_size / 2;
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
@@ -505,7 +343,7 @@ resample(noise_buffer_, buffer);
                                            Wavetable::Page::iterator end) const
   {
     size_t page_size = end - begin;
-    float fundamental = std::pow(2.0f, 1.0f / 2.0f) * base;
+    float fundamental = std::pow(2.0f, 1.0f /* 1.0f / 2.0f */) * base;
     size_t max_harmonic_1 = (rate / 2.0) / fundamental;
     size_t max_harmonic_2 = page_size / 2;
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);

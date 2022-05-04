@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -153,8 +153,8 @@ void Application::initSettings()
   settings::shortcuts()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
 
-  // to prevent heavy i/o (e.g. during volume adjustment) we cache prefs
-  // and propagate them to the backend in the destructor
+  // we cache sound prefs (e.g. volume adjustment) and propagate them
+  // to the backend in the destructor
   settings::sound()->delay();
 }
 
@@ -274,12 +274,12 @@ void Application::initTicker()
 
 void Application::loadSelectedSoundTheme()
 {
-  std::for_each(settings_sound_theme_params_connections_.begin(),
-                settings_sound_theme_params_connections_.end(),
+  std::for_each(settings_sound_params_connections_.begin(),
+                settings_sound_params_connections_.end(),
                 [] (auto& connection) { connection.disconnect(); });
 
-  std::for_each(settings_sound_theme_params_.begin(),
-                settings_sound_theme_params_.end(),
+  std::for_each(settings_sound_params_.begin(),
+                settings_sound_params_.end(),
                 [] (auto& settings) { settings.reset(); });
 
   if (auto theme_id = settings::soundThemes()->selected(); !theme_id.empty())
@@ -287,42 +287,50 @@ void Application::loadSelectedSoundTheme()
     try {
       auto& theme_settings = settings::soundThemes()->settings(theme_id);
 
-      settings_sound_theme_params_[0] =
+      settings_sound_params_[0] =
         theme_settings.children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
 
-      if (settings_sound_theme_params_[0])
+      if (settings_sound_params_[0])
       {
-        settings_sound_theme_params_connections_[0] =
-          settings_sound_theme_params_[0]->signal_changed().connect(
+        settings_sound_params_connections_[0] =
+          settings_sound_params_[0]->signal_changed().connect(
             [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskStrong); });
       }
 
-      settings_sound_theme_params_[1] =
+      settings_sound_params_[1] =
         theme_settings.children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
 
-      if (settings_sound_theme_params_[1])
+      if (settings_sound_params_[1])
       {
-        settings_sound_theme_params_connections_[1] =
-          settings_sound_theme_params_[1]->signal_changed().connect(
+        settings_sound_params_connections_[1] =
+          settings_sound_params_[1]->signal_changed().connect(
             [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskMid); });
       }
 
-      settings_sound_theme_params_[2] =
+      settings_sound_params_[2] =
         theme_settings.children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
 
-      if (settings_sound_theme_params_[2])
+      if (settings_sound_params_[2])
       {
-        settings_sound_theme_params_connections_[2] =
-          settings_sound_theme_params_[2]->signal_changed().connect(
+        settings_sound_params_connections_[2] =
+          settings_sound_params_[2]->signal_changed().connect(
             [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskWeak); });
       }
     }
-    catch(...)
-    {
+    catch(...) {
 #ifndef NDEBUG
       std::cerr << "Application: failed to load sound theme '" << theme_id << "'" << std::endl;
 #endif
+      // Message error_message;
+      // error_message = kSoundThemeLoadingErrorMessage;
+      // error_message.details = getErrorDetails(std::current_exception());
+      // signal_message_.emit(error_message);
     }
+  }
+  else {
+#ifndef NDEBUG
+      std::cerr << "Application: no sound theme selected" << std::endl;
+#endif
   }
   updateTickerSound(kAccentMaskAll);
 }
@@ -337,8 +345,8 @@ void Application::updateTickerSound(const AccentMask& accents)
   if (accents[0]) {
     audio::SoundParameters params;
 
-    if (settings_sound_theme_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[0], params);
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[0], params);
 
     params.volume *= global_volume;
     ticker_.setSoundStrong(params);
@@ -346,8 +354,8 @@ void Application::updateTickerSound(const AccentMask& accents)
   if (accents[1]) {
     audio::SoundParameters params;
 
-    if (settings_sound_theme_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[1], params);
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[1], params);
 
     params.volume *= global_volume;
     ticker_.setSoundMid(params);
@@ -355,8 +363,8 @@ void Application::updateTickerSound(const AccentMask& accents)
   if (accents[2]) {
     audio::SoundParameters params;
 
-    if (settings_sound_theme_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_theme_params_[2], params);
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[2], params);
 
     params.volume *= global_volume;
     ticker_.setSoundWeak(params);
@@ -901,6 +909,9 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionTrainerStart, content.trainer_start);
   get_action_state(kActionTrainerTarget, content.trainer_target);
   get_action_state(kActionTrainerAccel, content.trainer_accel);
+
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    content.sound_theme_id = settings::soundThemes()->selected();
 }
 
 void Application::convertProfileToAction(const Profile::Content& content)
@@ -933,6 +944,16 @@ void Application::convertProfileToAction(const Profile::Content& content)
                   Glib::Variant<double>::create(content.trainer_target) );
   activate_action(kActionTrainerAccel,
                   Glib::Variant<double>::create(content.trainer_accel) );
+
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+  {
+    if (content.sound_theme_id.empty()
+        || !settings::soundThemes()->select(content.sound_theme_id))
+    {
+      if (auto theme_list_settings = settings::soundThemes()->settings(); theme_list_settings)
+        theme_list_settings->reset(settings::kKeySettingsListSelectedEntry);
+    }
+  }
 }
 
 void Application::onProfileNew(const Glib::VariantBase& value)
@@ -966,7 +987,6 @@ void Application::loadSelectedProfile()
     Profile::Content content = profile_manager_.getProfileContent(id);
     convertProfileToAction(content);
   }
-
   lookupSimpleAction(kActionProfileDelete)->set_enabled(has_selected_id);
   lookupSimpleAction(kActionProfileTitle)->set_enabled(has_selected_id);
   lookupSimpleAction(kActionProfileDescription)->set_enabled(has_selected_id);
@@ -993,7 +1013,7 @@ void Application::saveSelectedProfile()
 
   if (!id.empty())
   {
-    Profile::Content content;
+    Profile::Content content = profile_manager_.getProfileContent(id);
     convertActionToProfile(content);
     profile_manager_.setProfileContent(id, content);
   }
@@ -1170,6 +1190,21 @@ Glib::ustring Application::currentAudioDevice()
 
 void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 {
+  if (key == settings::kKeyPrefsSaveSoundTheme)
+  {
+    // load sound theme from selected profile
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    {
+      Glib::ustring id;
+      get_action_state(kActionProfileSelect, id);
+      if (!id.empty())
+      {
+        if (Profile::Content content = profile_manager_.getProfileContent(id);
+            !content.sound_theme_id.empty())
+          settings::soundThemes()->select(content.sound_theme_id);
+      }
+    }
+  }
   if (key == settings::kKeyPrefsAudioBackend)
   {
     configureAudioBackend();
@@ -1201,7 +1236,23 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
+    // store sound theme to selected profile
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    {
+      Glib::ustring id;
+      get_action_state(kActionProfileSelect, id);
+      if (!id.empty())
+      {
+        Profile::Content content = profile_manager_.getProfileContent(id);
+        content.sound_theme_id = settings::soundThemes()->selected();
+        profile_manager_.setProfileContent(id, content);
+      }
+    }
     loadSelectedSoundTheme();
+  }
+  else if (key == settings::kKeySettingsListEntries)
+  {
+    /* nothing */
   }
 }
 

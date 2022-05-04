@@ -44,13 +44,16 @@ namespace filter {
   public:
     struct Point { seconds_dbl time; float value; };
 
+    using PointContainer = std::vector<Point>;
+    using Iterator = PointContainer::iterator;
+    using ConstIterator = PointContainer::const_iterator;
+
     Automation()
       { /* nothing */ }
-    Automation(std::initializer_list<Point> list)
-      : points_{std::move(list)}
-      { /* nothing */ }
+    Automation(std::initializer_list<Point> list) : points_{std::move(list)}
+      { sort(); }
 
-    const std::vector<Point>& points() const
+    const PointContainer& points() const
       { return points_; }
 
     template<typename Iterator, typename Function>
@@ -99,14 +102,33 @@ namespace filter {
     bool empty() const
       { return points_.empty(); }
 
-    void stretch(double time_stretch)
+    ConstIterator begin() const
+      { return points_.begin(); }
+
+    ConstIterator end() const
+      { return points_.end(); }
+
+    void insert(ConstIterator pos, std::initializer_list<Point> list)
       {
-        for (auto& pt : points_)
-          pt.time *= time_stretch;
+        points_.insert(pos, std::move(list));
+        sort();
       }
 
+    void append(std::initializer_list<Point> list)
+      { insert(end(), std::move(list)); }
+
+    void prepend(std::initializer_list<Point> list)
+      { insert(begin(), std::move(list)); }
+
   private:
-    std::vector<Point> points_;
+    PointContainer points_;
+
+    void sort() {
+      std::stable_sort(points_.begin(), points_.end(),
+                       [] (const auto&  lhs, const auto& rhs) {
+                         return lhs.time < rhs.time;
+                       });
+    }
   };
 
   template<typename PipeHead, typename FilterType>
@@ -303,17 +325,19 @@ namespace filter {
 
         if (detune_ != 0.0f)
         {
-          float amp_half = amp_ / 2.0f;
-          float detune_half = detune_ / 2.0f;
+          //float amp_half = amp_ / 2.0f;
+          //float detune_half = detune_ / 2.0f;
 
           for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
           {
             float time = delta_t * frame_index + phase_t;
             frames[frame_index] += {
-              amp_half * (tbl_page.lookup(freq_ - detune_,     time) +
-                          tbl_page.lookup(freq_ + detune_half, time)),
-              amp_half * (tbl_page.lookup(freq_ + detune_,     time) +
-                          tbl_page.lookup(freq_ - detune_half, time))
+              amp_ * tbl_page.lookup(freq_ - detune_, time),
+              amp_ * tbl_page.lookup(freq_ + detune_, time)
+              // amp_half * (tbl_page.lookup(freq_ - detune_,     time) +
+              //             tbl_page.lookup(freq_ + detune_half, time)),
+              // amp_half * (tbl_page.lookup(freq_ + detune_,     time) +
+              //             tbl_page.lookup(freq_ - detune_half, time))
             };
           }
         }

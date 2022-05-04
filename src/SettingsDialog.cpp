@@ -38,12 +38,12 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_(builder)
 {
   builder_->get_widget("mainNotebook", main_notebook_);
-  builder_->get_widget("mainStack", main_stack_);
   builder_->get_widget("pendulumActionComboBox", pendulum_action_combo_box_);
   builder_->get_widget("pendulumPhaseModeComboBox", pendulum_phase_mode_combo_box_);
   builder_->get_widget("accentAnimationSwitch", accent_animation_switch_);
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
+  builder_->get_widget("saveSoundThemeSwitch", save_sound_theme_switch_);
   builder_->get_widget("soundGrid", sound_grid_);
   builder_->get_widget("soundThemeTreeView", sound_theme_tree_view_);
   builder_->get_widget("soundThemeAddButton", sound_theme_add_button_);
@@ -91,24 +91,6 @@ void SettingsDialog::initActions() {}
 
 void SettingsDialog::initUI()
 {
-  // For whatever reason Gtk::Notebook seems to slow down the ui of the child pages,
-  // which is really noticeable when sliding a Gtk::Scale. So we just use the page
-  // switcher with some dummy pages and connect our page stack to signal_switch_page().
-
-  main_notebook_->signal_switch_page().connect(
-    [&] (Widget* widget, guint page) {
-      switch (page)
-      {
-      case 0: main_stack_->set_visible_child("general"); break;
-      case 1: main_stack_->set_visible_child("animation"); break;
-      case 2: main_stack_->set_visible_child("sound"); break;
-      case 3: main_stack_->set_visible_child("audio"); break;
-      case 4: main_stack_->set_visible_child("shortcuts"); break;
-      default:
-        break;
-      };
-    });
-
   //
   // Sound tab
   //
@@ -240,6 +222,8 @@ void SettingsDialog::initBindings()
   //
   settings::preferences()->bind(settings::kKeyPrefsRestoreProfile,
                                 restore_profile_switch_->property_state());
+  settings::preferences()->bind(settings::kKeyPrefsSaveSoundTheme,
+                                save_sound_theme_switch_->property_state());
   //
   // Animation tab
   //
@@ -658,7 +642,9 @@ void SettingsDialog::updateSoundThemeSelection()
   if (auto rowit = findRowRecursively(sound_theme_tree_store_, col_id, theme_id);
       !theme_id.empty() && rowit)
   {
-    sound_theme_tree_view_->expand_to_path(sound_theme_tree_store_->get_path(rowit));
+    auto path = sound_theme_tree_store_->get_path(rowit);
+    sound_theme_tree_view_->expand_to_path(path);
+    sound_theme_tree_view_->scroll_to_row(path);
 
     sound_theme_selection_changed_connection_.block();
     sound_theme_tree_view_->get_selection()->select(rowit);

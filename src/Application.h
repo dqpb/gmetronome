@@ -54,13 +54,13 @@ private:
   audio::Ticker ticker_;
   ProfileManager profile_manager_;
 
+  // Current sound theme parameter settings
+  std::array<Glib::RefPtr<Gio::Settings>,3> settings_sound_params_;
+
   // Connections
   sigc::connection settings_state_connection_;
-  std::array<sigc::connection,3> settings_sound_theme_params_connections_;
   sigc::connection timer_connection_;
-
-  // Settings
-  std::array<Glib::RefPtr<Gio::Settings>,3> settings_sound_theme_params_;
+  std::array<sigc::connection,3> settings_sound_params_connections_;
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;

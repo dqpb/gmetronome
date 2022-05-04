@@ -139,17 +139,29 @@ public:
       removeEntrySettings(id);
     }
 
-  void select(const Identifier& id)
+  bool select(const Identifier& id)
     {
+      bool success = false;
+
       if (id.empty())
+      {
         base_settings_->set_string(settings::kKeySettingsListSelectedEntry, "");
+        success = true;
+      }
       else if (auto l = list(); std::find(l.begin(), l.end(), id) != l.end())
+      {
         base_settings_->set_string(settings::kKeySettingsListSelectedEntry, id);
-#ifndef NDEBUG
+        success = true;
+      }
       else
+      {
+#ifndef NDEBUG
         std::cerr << "SettingsList: could not select entry '" << id << "' (not found)"
                   << std::endl;
 #endif
+        success = false;
+      }
+      return success;
     }
 
   Identifier selected()
@@ -284,11 +296,8 @@ private:
         std::string entry_path = makeEntryPath(id);
         settings = Gio::Settings::create(entry_schema_id_, entry_path);
       }
-      // we use 'delay-apply' mode by default
-      if (settings)
-        settings->delay();
 #ifndef NDEBUG
-      else
+      if (!settings)
         std::cerr << "SettingsList: could not create Gio::Settings for entry "
                   << "'" << id << "'" << std::endl;
 #endif

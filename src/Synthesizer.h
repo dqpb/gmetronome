@@ -35,36 +35,36 @@ namespace audio {
 
   struct SoundParameters
   {
-    float tonal_pitch        {900};    // [40.0f, 10000.0f] (hertz)
-    float tonal_timbre       {1.0};    // [0.0f, 3.0f]
-    float tonal_detune       {0.0};    // [0.0f, 100.0f] (cents)
-    float tonal_punch        {0.5};    // [0.0f, 1.0f]
-    float tonal_decay        {0.5};    // [0.0f, 1.0f]
-    float percussive_tone    {0.5};    // [0.0f, 1.0f]
-    float percussive_punch   {0.5};    // [0.0f, 1.0f]
-    float percussive_decay   {0.5};    // [0.0f, 1.0f]
-    bool  percussive_clap    {false};
-    float mix                {0.0};    // [-1.0f, 1.0f]
-    bool  bell               {false};
-    float bell_volume        {1.0};    // [ 0.0f, 1.0f]
-    float balance            {0.0};    // [-1.0f, 1.0f]
-    float volume             {1.0};    // [ 0.0f, 1.0f]
+    float tone_pitch        {1000};   // [40.0f, 10000.0f] (hertz)
+    float tone_timbre       {0.0};    // [0.0f, 3.0f]
+    float tone_detune       {0.0};    // [0.0f, 100.0f] (cents)
+    float tone_punch        {0.5};    // [0.0f, 1.0f]
+    float tone_decay        {0.5};    // [0.0f, 1.0f]
+    float percussion_cutoff {0.5};    // [0.0f, 1.0f]
+    bool  percussion_clap   {false};
+    float percussion_punch  {0.5};    // [0.0f, 1.0f]
+    float percussion_decay  {0.5};    // [0.0f, 1.0f]
+    float mix               {-1.0};   // [-1.0f, 1.0f]
+    // bool  bell              {false};
+    // float bell_volume       {1.0};    // [ 0.0f, 1.0f]
+    float balance           {0.0};    // [-1.0f, 1.0f]
+    float volume            {1.0};    // [ 0.0f, 1.0f]
   };
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)
   {
-    return lhs.tonal_pitch == rhs.tonal_pitch
-      && lhs.tonal_timbre == rhs.tonal_timbre
-      && lhs.tonal_detune == rhs.tonal_detune
-      && lhs.tonal_punch == rhs.tonal_punch
-      && lhs.tonal_decay == rhs.tonal_decay
-      && lhs.percussive_tone == rhs.percussive_tone
-      && lhs.percussive_punch == rhs.percussive_punch
-      && lhs.percussive_decay == rhs.percussive_decay
-      && lhs.percussive_clap == rhs.percussive_clap
+    return lhs.tone_pitch == rhs.tone_pitch
+      && lhs.tone_timbre == rhs.tone_timbre
+      && lhs.tone_detune == rhs.tone_detune
+      && lhs.tone_punch == rhs.tone_punch
+      && lhs.tone_decay == rhs.tone_decay
+      && lhs.percussion_cutoff == rhs.percussion_cutoff
+      && lhs.percussion_clap == rhs.percussion_clap
+      && lhs.percussion_punch == rhs.percussion_punch
+      && lhs.percussion_decay == rhs.percussion_decay
       && lhs.mix == rhs.mix
-      && lhs.bell == rhs.bell
-      && lhs.bell_volume == rhs.bell_volume
+      // && lhs.bell == rhs.bell
+      // && lhs.bell_volume == rhs.bell_volume
       && lhs.balance == rhs.balance
       && lhs.volume == rhs.volume;
   }

@@ -42,3 +42,13 @@ const Message kAudioBackendErrorMessage
   "check the audio configuration in the preferences dialog.",
   ""
 };
+
+const Message kSoundThemeLoadingErrorMessage
+{
+  MessageCategory::kWarning,
+  "Sound Theme",
+  "Some problems occured loading the selected sound theme. "
+  "The sound theme may have been removed or is otherwise inaccessible. "
+  "Please check the sound configuration in the preferences dialog.",
+  ""
+};

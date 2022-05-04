@@ -140,6 +140,7 @@ namespace settings {
    * .preferences keys
    */
   inline const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
+  inline const Glib::ustring  kKeyPrefsSaveSoundTheme            {"save-sound-theme"};
   inline const Glib::ustring  kKeyPrefsPendulumAction            {"pendulum-action"};
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode         {"pendulum-phase-mode"};
   inline const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
@@ -176,14 +177,15 @@ namespace settings {
   /*
    * .preferences.sound.theme.parameters keys
    */
-  inline const Glib::ustring  kKeySoundThemeTonalPitch           {"tonal-pitch"};
-  inline const Glib::ustring  kKeySoundThemeTonalTimbre          {"tonal-timbre"};
-  inline const Glib::ustring  kKeySoundThemeTonalDetune          {"tonal-detune"};
-  inline const Glib::ustring  kKeySoundThemeTonalPunch           {"tonal-punch"};
-  inline const Glib::ustring  kKeySoundThemeTonalDecay           {"tonal-decay"};
-  inline const Glib::ustring  kKeySoundThemePercussiveTone       {"percussive-tone"};
-  inline const Glib::ustring  kKeySoundThemePercussivePunch      {"percussive-punch"};
-  inline const Glib::ustring  kKeySoundThemePercussiveDecay      {"percussive-decay"};
+  inline const Glib::ustring  kKeySoundThemeTonePitch            {"tone-pitch"};
+  inline const Glib::ustring  kKeySoundThemeToneTimbre           {"tone-timbre"};
+  inline const Glib::ustring  kKeySoundThemeToneDetune           {"tone-detune"};
+  inline const Glib::ustring  kKeySoundThemeTonePunch            {"tone-punch"};
+  inline const Glib::ustring  kKeySoundThemeToneDecay            {"tone-decay"};
+  inline const Glib::ustring  kKeySoundThemePercussionCutoff     {"percussion-cutoff"};
+  inline const Glib::ustring  kKeySoundThemePercussionClap       {"percussion-clap"};
+  inline const Glib::ustring  kKeySoundThemePercussionPunch      {"percussion-punch"};
+  inline const Glib::ustring  kKeySoundThemePercussionDecay      {"percussion-decay"};
   inline const Glib::ustring  kKeySoundThemeMix                  {"mix"};
   inline const Glib::ustring  kKeySoundThemeBalance              {"balance"};
   inline const Glib::ustring  kKeySoundThemeVolume               {"volume"};

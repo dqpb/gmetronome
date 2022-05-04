@@ -8,30 +8,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="soundBalanceAdjustment">
-    <property name="lower">-1</property>
-    <property name="upper">1</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundBellVolumeAdjustment">
-    <property name="upper">1</property>
-    <property name="value">0.80</property>
-    <property name="step-increment">0.05</property>
-    <property name="page-increment">0.10</property>
-  </object>
-  <object class="GtkAdjustment" id="soundPitchAdjustment">
-    <property name="lower">20</property>
-    <property name="upper">20000</property>
-    <property name="value">1100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkImage" id="soundThemeEditImage">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">document-edit-symbolic</property>
-  </object>
   <object class="GtkWindow" id="settingsDialog">
     <property name="can-focus">False</property>
     <property name="icon-name">gtk-preferences</property>
@@ -44,138 +20,6 @@
           <object class="GtkNotebook" id="mainNotebook">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_General</property>
-                <property name="use-underline">True</property>
-              </object>
-              <packing>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Animation</property>
-                <property name="use-underline">True</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Sound</property>
-                <property name="use-underline">True</property>
-              </object>
-              <packing>
-                <property name="position">2</property>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Audio _Device</property>
-                <property name="use-underline">True</property>
-              </object>
-              <packing>
-                <property name="position">3</property>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Short_cuts</property>
-                <property name="use-underline">True</property>
-              </object>
-              <packing>
-                <property name="position">4</property>
-                <property name="tab-fill">False</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkStack" id="mainStack">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <child>
               <!-- n-columns=3 n-rows=8 -->
               <object class="GtkGrid" id="generalGrid">
@@ -231,13 +75,44 @@
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Profiles</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkSwitch" id="saveSoundThemeSwitch">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">3</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">10</property>
+                    <property name="label" translatable="yes">Save and restore sound theme:</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -294,8 +169,16 @@
                   <placeholder/>
                 </child>
               </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">_General</property>
+                <property name="use-underline">True</property>
+              </object>
               <packing>
-                <property name="name">general</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
@@ -521,8 +404,19 @@
                 </child>
               </object>
               <packing>
-                <property name="name">animation</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">_Animation</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
@@ -581,11 +475,6 @@
                                 <property name="headers-visible">False</property>
                                 <property name="headers-clickable">False</property>
                                 <property name="level-indentation">5</property>
-                                <child internal-child="selection">
-                                  <object class="GtkTreeSelection">
-                                    <property name="mode">browse</property>
-                                  </object>
-                                </child>
                               </object>
                             </child>
                           </object>
@@ -655,7 +544,6 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
-                                <property name="image">soundThemeEditImage</property>
                                 <property name="use-underline">True</property>
                               </object>
                               <packing>
@@ -680,8 +568,19 @@
                 </child>
               </object>
               <packing>
-                <property name="name">sound</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">_Sound</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
@@ -802,8 +701,19 @@
                 </child>
               </object>
               <packing>
-                <property name="name">audio</property>
                 <property name="position">3</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Audio _Device</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="position">3</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
             <child>
@@ -825,9 +735,6 @@
                       <object class="GtkTreeView" id="shortcutsTreeView">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection"/>
-                        </child>
                       </object>
                     </child>
                   </object>
@@ -866,16 +773,30 @@
                 </child>
               </object>
               <packing>
-                <property name="name">shortcuts</property>
                 <property name="position">4</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Short_cuts</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="position">4</property>
+                <property name="tab-fill">False</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -899,6 +820,25 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="soundBalanceAdjustment">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundBellVolumeAdjustment">
+    <property name="upper">1</property>
+    <property name="value">0.80</property>
+    <property name="step-increment">0.05</property>
+    <property name="page-increment">0.10</property>
+  </object>
+  <object class="GtkAdjustment" id="soundPitchAdjustment">
+    <property name="lower">20</property>
+    <property name="upper">20000</property>
+    <property name="value">1100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="soundTimbreAdjustment">
     <property name="lower">-1</property>

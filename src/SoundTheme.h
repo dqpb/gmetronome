@@ -55,14 +55,15 @@ struct SettingsListDelegate<SoundTheme>
     {
       if (settings)
       {
-        target.tonal_pitch = settings->get_double(settings::kKeySoundThemeTonalPitch);
-        target.tonal_timbre = settings->get_double(settings::kKeySoundThemeTonalTimbre);
-        target.tonal_detune = settings->get_double(settings::kKeySoundThemeTonalDetune);
-        target.tonal_punch = settings->get_double(settings::kKeySoundThemeTonalPunch);
-        target.tonal_decay = settings->get_double(settings::kKeySoundThemeTonalDecay);
-        target.percussive_tone = settings->get_double(settings::kKeySoundThemePercussiveTone);
-        target.percussive_punch = settings->get_double(settings::kKeySoundThemePercussivePunch);
-        target.percussive_decay = settings->get_double(settings::kKeySoundThemePercussiveDecay);
+        target.tone_pitch = settings->get_double(settings::kKeySoundThemeTonePitch);
+        target.tone_timbre = settings->get_double(settings::kKeySoundThemeToneTimbre);
+        target.tone_detune = settings->get_double(settings::kKeySoundThemeToneDetune);
+        target.tone_punch = settings->get_double(settings::kKeySoundThemeTonePunch);
+        target.tone_decay = settings->get_double(settings::kKeySoundThemeToneDecay);
+        target.percussion_cutoff = settings->get_double(settings::kKeySoundThemePercussionCutoff);
+        target.percussion_clap = settings->get_boolean(settings::kKeySoundThemePercussionClap);
+        target.percussion_punch = settings->get_double(settings::kKeySoundThemePercussionPunch);
+        target.percussion_decay = settings->get_double(settings::kKeySoundThemePercussionDecay);
         target.mix = settings->get_double(settings::kKeySoundThemeMix);
         target.balance = settings->get_double(settings::kKeySoundThemeBalance);
         target.volume = settings->get_double(settings::kKeySoundThemeVolume);
@@ -75,14 +76,15 @@ struct SettingsListDelegate<SoundTheme>
     {
       if (settings)
       {
-        settings->set_double(settings::kKeySoundThemeTonalPitch, source.tonal_pitch);
-        settings->set_double(settings::kKeySoundThemeTonalTimbre, source.tonal_timbre);
-        settings->set_double(settings::kKeySoundThemeTonalDetune, source.tonal_detune);
-        settings->set_double(settings::kKeySoundThemeTonalPunch, source.tonal_punch);
-        settings->set_double(settings::kKeySoundThemeTonalDecay, source.tonal_decay);
-        settings->set_double(settings::kKeySoundThemePercussiveTone, source.percussive_tone);
-        settings->set_double(settings::kKeySoundThemePercussivePunch, source.percussive_punch);
-        settings->set_double(settings::kKeySoundThemePercussiveDecay, source.percussive_decay);
+        settings->set_double(settings::kKeySoundThemeTonePitch, source.tone_pitch);
+        settings->set_double(settings::kKeySoundThemeToneTimbre, source.tone_timbre);
+        settings->set_double(settings::kKeySoundThemeToneDetune, source.tone_detune);
+        settings->set_double(settings::kKeySoundThemeTonePunch, source.tone_punch);
+        settings->set_double(settings::kKeySoundThemeToneDecay, source.tone_decay);
+        settings->set_double(settings::kKeySoundThemePercussionCutoff, source.percussion_cutoff);
+        settings->set_boolean(settings::kKeySoundThemePercussionClap, source.percussion_clap);
+        settings->set_double(settings::kKeySoundThemePercussionPunch, source.percussion_punch);
+        settings->set_double(settings::kKeySoundThemePercussionDecay, source.percussion_decay);
         settings->set_double(settings::kKeySoundThemeMix, source.mix);
         settings->set_double(settings::kKeySoundThemeBalance, source.balance);
         settings->set_double(settings::kKeySoundThemeVolume, source.volume);
@@ -133,17 +135,19 @@ struct SettingsListDelegate<SoundTheme>
     {
       bool m = false;
       Glib::Variant<double> dbl_value;
+      Glib::Variant<bool> bool_value;
 
       if (settings)
       {
-        m = m || settings->get_user_value(settings::kKeySoundThemeTonalPitch, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemeTonalTimbre, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemeTonalDetune, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemeTonalPunch, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemeTonalDecay, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemePercussiveTone, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemePercussivePunch, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemePercussiveDecay, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonePitch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeToneTimbre, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeToneDetune, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeTonePunch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeToneDecay, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionCutoff, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionClap, bool_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionPunch, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionDecay, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeMix, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeBalance, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeVolume, dbl_value);

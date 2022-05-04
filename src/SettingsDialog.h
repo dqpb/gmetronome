@@ -67,10 +67,10 @@ private:
   Glib::RefPtr<Gtk::Builder> builder_;
 
   Gtk::Notebook* main_notebook_;
-  Gtk::Stack* main_stack_;
 
   // General tab
   Gtk::Switch* restore_profile_switch_;
+  Gtk::Switch* save_sound_theme_switch_;
 
   // Animation tab
   Gtk::ComboBoxText* pendulum_action_combo_box_;
