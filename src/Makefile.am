@@ -99,6 +99,7 @@ resources = \
 	$(resourcesdir)/icons/sound-modern-symbolic.svg \
 	$(resourcesdir)/icons/sound-bell-symbolic.svg \
 	$(resourcesdir)/icons/sound-timbre-symbolic.svg \
+	$(resourcesdir)/icons/sound-crossfade-symbolic.svg \
 	$(resourcesdir)/icons/sound-volume-symbolic.svg \
 	$(resourcesdir)/icons/sound-volume-low-symbolic.svg \
 	$(resourcesdir)/icons/sound-volume-high-symbolic.svg \
