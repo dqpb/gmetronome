@@ -107,7 +107,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes">Save and restore sound theme:</property>
+                    <property name="label" translatable="yes">Save and restore selected sound theme:</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -475,6 +475,9 @@
                                 <property name="headers-visible">False</property>
                                 <property name="headers-clickable">False</property>
                                 <property name="level-indentation">5</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -735,6 +738,9 @@
                       <object class="GtkTreeView" id="shortcutsTreeView">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
                       </object>
                     </child>
                   </object>

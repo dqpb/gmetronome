@@ -57,7 +57,7 @@ private:
   Glib::RefPtr<Gtk::Adjustment> tone_detune_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_punch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_decay_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> percussion_tone_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> percussion_cutoff_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> percussion_punch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> percussion_decay_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> mix_adjustment_;
@@ -83,6 +83,15 @@ private:
   void bindSoundProperties();
   void updateThemeBindings();
   void onSettingsListChanged(const Glib::ustring& key);
+
+  // drag and drop handler
+  void onParamsDragBegin (const Glib::RefPtr<Gdk::DragContext>&);
+  void onParamsDragDataGet (Gtk::RadioButton*,
+                            const Glib::RefPtr<Gdk::DragContext>&,
+                            Gtk::SelectionData&);
+  void onParamsDragDataReceived (Gtk::RadioButton*,
+                                 const Glib::RefPtr<Gdk::DragContext>&,
+                                 const Gtk::SelectionData&, guint);
 };
 
 #endif//GMetronome_SoundThemeEditor_h

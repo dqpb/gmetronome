@@ -25,6 +25,8 @@
 #include "Settings.h"
 #include <glibmm/i18n.h>
 #include <cassert>
+#include <vector>
+#include <string>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -60,8 +62,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonePunchAdjustment"));
   tone_decay_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneDecayAdjustment"));
-  percussion_tone_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionToneAdjustment"));
+  percussion_cutoff_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionCutoffAdjustment"));
   percussion_punch_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionPunchAdjustment"));
   percussion_decay_adjustment_ =
@@ -107,6 +109,50 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     .connect(sigc::mem_fun(*this, &SoundThemeEditor::onSettingsListChanged));
 
   updateThemeBindings();
+
+  //sound parameters drag and drop
+  std::vector<Gtk::TargetEntry> targets = {Gtk::TargetEntry{"text/plain"}};
+
+  strong_radio_button_->drag_source_set(targets);
+  mid_radio_button_->drag_source_set(targets);
+  weak_radio_button_->drag_source_set(targets);
+
+  strong_radio_button_->drag_dest_set(targets);
+  mid_radio_button_->drag_dest_set(targets);
+  weak_radio_button_->drag_dest_set(targets);
+
+  // begin
+  strong_radio_button_->signal_drag_begin()
+    .connect(sigc::mem_fun(*this, &SoundThemeEditor::onParamsDragBegin));
+  mid_radio_button_->signal_drag_begin()
+    .connect(sigc::mem_fun(*this, &SoundThemeEditor::onParamsDragBegin));
+  weak_radio_button_->signal_drag_begin()
+    .connect(sigc::mem_fun(*this, &SoundThemeEditor::onParamsDragBegin));
+
+  // get
+  strong_radio_button_->signal_drag_data_get().connect(
+    [&] (auto& context, auto& data, guint, guint) {
+      onParamsDragDataGet(strong_radio_button_, context, data); });
+  mid_radio_button_->signal_drag_data_get().connect(
+    [&] (auto& context, auto& data, guint, guint) {
+      onParamsDragDataGet(mid_radio_button_, context, data); });
+  weak_radio_button_->signal_drag_data_get().connect(
+    [&] (auto& context, auto& data, guint, guint) {
+      onParamsDragDataGet(weak_radio_button_, context, data); });
+
+  // received
+  strong_radio_button_->signal_drag_data_received().connect(
+    [&] (auto& context, int, int, auto& data, guint, guint time) {
+      onParamsDragDataReceived(strong_radio_button_, context, data, time);
+    });
+  mid_radio_button_->signal_drag_data_received().connect(
+    [&] (auto& context, int, int, auto& data, guint, guint time) {
+      onParamsDragDataReceived(mid_radio_button_, context, data, time);
+    });
+  weak_radio_button_->signal_drag_data_received().connect(
+    [&] (auto& context, int, int, auto& data, guint, guint time) {
+      onParamsDragDataReceived(weak_radio_button_, context, data, time);
+    });
 }
 
 SoundThemeEditor::~SoundThemeEditor()
@@ -159,7 +205,7 @@ void SoundThemeEditor::bindSoundProperties()
     sound_settings_->bind(settings::kKeySoundThemeToneDecay,
                           tone_decay_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionCutoff,
-                          percussion_tone_adjustment_->property_value());
+                          percussion_cutoff_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionClap,
                           percussion_clap_switch_->property_state());
     sound_settings_->bind(settings::kKeySoundThemePercussionPunch,
@@ -189,7 +235,7 @@ void SoundThemeEditor::unbindSoundProperties()
   unbindProperty(tone_detune_adjustment_->property_value());
   unbindProperty(tone_punch_adjustment_->property_value());
   unbindProperty(tone_decay_adjustment_->property_value());
-  unbindProperty(percussion_tone_adjustment_->property_value());
+  unbindProperty(percussion_cutoff_adjustment_->property_value());
   unbindProperty(percussion_clap_switch_->property_state());
   unbindProperty(percussion_punch_adjustment_->property_value());
   unbindProperty(percussion_decay_adjustment_->property_value());
@@ -251,4 +297,116 @@ void SoundThemeEditor::onSettingsListChanged(const Glib::ustring& key)
   {
     /* nothing */
   }
+}
+
+namespace {
+  struct ParamType_
+  {
+    const Glib::ustring& key;
+    GType type;
+  };
+
+  const std::vector<ParamType_> params_type_map_  =
+  {
+    {settings::kKeySoundThemeTonePitch,  G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneTimbre, G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneDetune, G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeTonePunch,  G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneDecay,  G_TYPE_DOUBLE},
+
+    {settings::kKeySoundThemePercussionCutoff, G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionClap,   G_TYPE_BOOLEAN},
+    {settings::kKeySoundThemePercussionPunch,  G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionDecay,  G_TYPE_DOUBLE},
+
+    {settings::kKeySoundThemeMix,     G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeBalance, G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeVolume,  G_TYPE_DOUBLE}
+  };
+}//unnamed namespace
+
+void SoundThemeEditor::onParamsDragBegin(const Glib::RefPtr<Gdk::DragContext>& context)
+{ /* nothing */ }
+
+void SoundThemeEditor::onParamsDragDataGet(Gtk::RadioButton* source_button,
+                                           const Glib::RefPtr<Gdk::DragContext>& context,
+                                           Gtk::SelectionData& data)
+{
+  if (auto& settings_tree = settings::soundThemes()->settings(theme_id_);
+      settings_tree.settings)
+  {
+    Glib::ustring params_group;
+
+    if (source_button == strong_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeStrongParamsBasename;
+    else if (source_button == mid_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeMidParamsBasename;
+    else if (source_button == weak_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeWeakParamsBasename;
+
+    if (auto settings = settings_tree.children.at(params_group).settings; settings)
+    {
+      Glib::KeyFile keys;
+
+      for (auto& entry : params_type_map_)
+      {
+        if (entry.type == G_TYPE_DOUBLE)
+          keys.set_double(params_group, entry.key, settings->get_double(entry.key));
+        else if (entry.type == G_TYPE_BOOLEAN)
+          keys.set_boolean(params_group, entry.key, settings->get_boolean(entry.key));
+      }
+
+      data.set(data.get_target(), keys.to_data());
+    }
+  }
+}
+
+void SoundThemeEditor::onParamsDragDataReceived(Gtk::RadioButton* target_button,
+                                                const Glib::RefPtr<Gdk::DragContext>& context,
+                                                const Gtk::SelectionData& data,
+                                                guint time)
+{
+  if (auto& settings_tree = settings::soundThemes()->settings(theme_id_);
+      settings_tree.settings)
+  {
+    Glib::ustring params_group;
+
+    if (target_button == strong_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeStrongParamsBasename;
+    else if (target_button == mid_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeMidParamsBasename;
+    else if (target_button == weak_radio_button_)
+      params_group = settings::kSchemaPathSoundThemeWeakParamsBasename;
+
+    if (auto settings = settings_tree.children.at(params_group).settings; settings)
+    {
+      try {
+        Glib::KeyFile keys;
+        keys.load_from_data(data.get_data_as_string());
+
+        if (!keys.has_group(params_group))
+          params_group = keys.get_start_group();
+
+        for (auto& entry : params_type_map_)
+        {
+          if (keys.has_key(params_group, entry.key))
+          {
+            if (entry.type == G_TYPE_DOUBLE)
+              settings->set_double(entry.key, keys.get_double(params_group, entry.key));
+            else if (entry.type == G_TYPE_BOOLEAN)
+              settings->set_boolean(entry.key, keys.get_boolean(params_group, entry.key));
+          }
+        }
+      }
+      catch(const Glib::Exception& e)
+      {
+#ifndef NDEBUG
+        std::cerr << "SoundThemeEditor: invalid drop data (" <<  e.what() << ")" << std::endl;
+#endif
+        context->drag_finish(false, false, time);
+      }
+      context->drag_finish(true, false, time);
+    }
+  }
+  context->drag_finish(false, false, time);
 }
