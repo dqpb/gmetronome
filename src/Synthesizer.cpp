@@ -178,8 +178,8 @@ namespace audio {
   std::tuple<filter::Automation, microseconds, microseconds>
   Synthesizer::buildEnvelope(float punch, float decay, bool clap) const
   {
-    constexpr microseconds min_full_gain_time = 5ms;
-    constexpr microseconds max_full_gain_time = 20ms;
+    constexpr microseconds min_full_gain_time = 1ms;
+    constexpr microseconds max_full_gain_time = 30ms;
     constexpr microseconds delta_full_gain_time = max_full_gain_time - min_full_gain_time;
 
     const microseconds full_gain_time = min_full_gain_time
@@ -187,7 +187,7 @@ namespace audio {
 
     microseconds delta_attack = full_gain_time / 5;
 
-    const microseconds min_full_decay_time = full_gain_time + 10ms;
+    const microseconds min_full_decay_time = full_gain_time + 5ms;
     const microseconds max_full_decay_time = kSoundDuration;
     const microseconds delta_full_decay_time = max_full_decay_time - min_full_decay_time;
 
@@ -198,6 +198,8 @@ namespace audio {
 
     filter::Automation envelope;
 
+    float drop = 1.5f;
+
     if (clap)
     {
       delta_attack /= 2;
@@ -205,24 +207,24 @@ namespace audio {
       envelope.append({
           {  0 * delta_attack, 0.0f},
 
-          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
-          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
-          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
-          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * drop)},
+          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * drop)},
+          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * drop)},
+          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * drop)},
 
           {  5 * delta_attack, 1.0f },
 
-          {  6 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
-          {  7 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
-          {  8 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
-          {  9 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+          {  6 * delta_attack, std::pow(0.2f, (punch + 1.0f) * drop)},
+          {  7 * delta_attack, std::pow(0.4f, (punch + 1.0f) * drop)},
+          {  8 * delta_attack, std::pow(0.6f, (punch + 1.0f) * drop)},
+          {  9 * delta_attack, std::pow(0.8f, (punch + 1.0f) * drop)},
 
           { 10 * delta_attack, 1.0f },
 
-          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * drop)},
 
           {  full_gain_time + 5 * delta_decay, 0.0f }
         });
@@ -232,17 +234,17 @@ namespace audio {
       envelope.append({
           {  0 * delta_attack, 0.0f},
 
-          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * 2.0f)},
-          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * 2.0f)},
-          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * 2.0f)},
-          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * 2.0f)},
+          {  1 * delta_attack, std::pow(0.2f, (punch + 1.0f) * drop)},
+          {  2 * delta_attack, std::pow(0.4f, (punch + 1.0f) * drop)},
+          {  3 * delta_attack, std::pow(0.6f, (punch + 1.0f) * drop)},
+          {  4 * delta_attack, std::pow(0.8f, (punch + 1.0f) * drop)},
 
           {  5 * delta_attack, 1.0f },
 
-          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * 2.0f)},
-          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * 2.0f)},
+          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + punch + 1.0f) * drop)},
+          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + punch + 1.0f) * drop)},
 
           {  full_gain_time + 5 * delta_decay, 0.0f }
         });
@@ -272,9 +274,9 @@ namespace audio {
   {
     size_t page_size = end - begin;
 
-    // Since we requested a range of one half octave per page (see TriangleRecipe) the
-    // highest fundamental in this page is 2^0.5 * base. We use this fundamental as
-    // starting point to compute the highest possible harmonic that we can use to compute
+    // Since we requested a range of one (one half) octave per page (see TriangleRecipe)
+    // the highest fundamental in this page is 2^1 (2^0.5) * base. We use this fundamental
+    // as starting point to compute the highest possible harmonic that we can use to compute
     // the triangle waveform.
     float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
 
@@ -289,17 +291,17 @@ namespace audio {
     // We use the minimum of these bounds:
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
 
-#ifndef NDEBUG
-    std::cout << "Page: " << page
-              << "\tSize: " << page_size
-              << "\tRate: " << rate
-              << "\tBase: " << base
-              << "\tfund: " << fundamental
-              << "\th1: " << max_harmonic_1
-              << "\th2: " << max_harmonic_2
-              << "\tmax: " << max_harmonic
-              << std::endl;
-#endif
+// #ifndef NDEBUG
+//     std::cout << "TriangleRecipe: Page: " << page
+//               << "\tSize: " << page_size
+//               << "\tRate: " << rate
+//               << "\tBase: " << base
+//               << "\tfund: " << fundamental
+//               << "\th1: " << max_harmonic_1
+//               << "\th2: " << max_harmonic_2
+//               << "\tmax: " << max_harmonic
+//               << std::endl;
+// #endif
 
     double step = 2.0 * M_PI / page_size;
 
