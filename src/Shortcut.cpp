@@ -41,10 +41,10 @@ const std::vector<ShortcutEntry>& ShortcutList()
       { settings::kKeyShortcutsStart,                  C_("Shortcut title", "Start / Stop") },
 
       { {}, C_("Shortcut group title", "Volume") },
-      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1") },
-      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1") },
-      { settings::kKeyShortcutsVolumeIncrease10,        C_("Shortcut title", "Volume +10") },
-      { settings::kKeyShortcutsVolumeDecrease10,        C_("Shortcut title", "Volume -10") },
+      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1 dB") },
+      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1 dB") },
+      { settings::kKeyShortcutsVolumeIncrease3,         C_("Shortcut title", "Volume +3 dB") },
+      { settings::kKeyShortcutsVolumeDecrease3,         C_("Shortcut title", "Volume -3 dB") },
 
       { {}, C_("Shortcut group title", "Tempo") },
       { settings::kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1") },
@@ -103,16 +103,16 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
     { kActionStart, {} }
   },
   { settings::kKeyShortcutsVolumeIncrease1,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(0.01) }
+    { kActionVolumeIncrease, Glib::Variant<double>::create(1) }
   },
   { settings::kKeyShortcutsVolumeDecrease1,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(0.01) }
+    { kActionVolumeDecrease, Glib::Variant<double>::create(1) }
   },
-  { settings::kKeyShortcutsVolumeIncrease10,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(0.1) }
+  { settings::kKeyShortcutsVolumeIncrease3,
+    { kActionVolumeIncrease, Glib::Variant<double>::create(3) }
   },
-  { settings::kKeyShortcutsVolumeDecrease10,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(0.1) }
+  { settings::kKeyShortcutsVolumeDecrease3,
+    { kActionVolumeDecrease, Glib::Variant<double>::create(3) }
   },
   { settings::kKeyShortcutsTempoIncrease1,
     { kActionTempoIncrease, Glib::Variant<double>::create(1.) }

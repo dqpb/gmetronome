@@ -74,8 +74,9 @@ namespace audio {
   {
     assert(!std::isnan(params.tone_timbre));
     assert(!std::isnan(params.tone_pitch));
-    assert(!std::isnan(params.volume));
+    assert(!std::isnan(params.mix));
     assert(!std::isnan(params.balance));
+    assert(!std::isnan(params.volume));
     //...
 
     if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
@@ -95,27 +96,19 @@ namespace audio {
     bool  percussion_clap    = params.percussion_clap;
     float percussion_punch   = std::clamp(params.percussion_punch, 0.0f, 1.0f);
     float percussion_decay   = std::clamp(params.percussion_decay, 0.0f, 1.0f);
-    float mix                = std::clamp(params.mix, -1.0f, 1.0f);
-    // bool  bell               = params.bell;
-    // float bell_volume        = std::clamp(params.bell_volume, 0.0f, 1.0f);
-    float balance            = std::clamp(params.balance, -1.0f, 1.0f);
-    float volume             = std::clamp(params.volume, 0.0f, 1.0f);
+    float mix                = params.mix; //std::clamp(params.mix, -60.0f, 60.0f);
+    float balance            = params.balance; //std::clamp(params.balance, -60.0f, 60.0f);
+    float volume             = params.volume;
 
-    float balance_l = (balance > 0) ? volume * (-1.0 * balance + 1.0) : volume;
-    float balance_r = (balance < 0) ? volume * ( 1.0 * balance + 1.0) : volume;
+    float volume_l = (balance > 0) ? volume - balance : volume;
+    float volume_r = (balance < 0) ? volume + balance : volume;
 
-    float noise_gain    = (mix < 0) ? ( 1.0 * mix + 1.0) : 1.0f;
-    float osc_gain      = (mix > 0) ? (-1.0 * mix + 1.0) : 1.0f;
-    float sine_gain     = osc_gain * (1.0f - std::clamp(std::abs(0.0f - tone_timbre), 0.0f, 1.0f));
-    float triangle_gain = osc_gain * (1.0f - std::clamp(std::abs(1.0f - tone_timbre), 0.0f, 1.0f));
-    float sawtooth_gain = osc_gain * (1.0f - std::clamp(std::abs(2.0f - tone_timbre), 0.0f, 1.0f));
-    float square_gain   = osc_gain * (1.0f - std::clamp(std::abs(3.0f - tone_timbre), 0.0f, 1.0f));
-
-    if (volume == 0)
-    {
-      filter::std::Zero{}(buffer);
-      return;
-    }
+    float noise_gain    = (mix < 0.0f) ?  mix : 0.0f;
+    float osc_gain      = (mix > 0.0f) ? -mix : 0.0f;
+    float sine_gain     = osc_gain - 12.0f * std::abs(0.0f - tone_timbre);
+    float triangle_gain = osc_gain - 12.0f * std::abs(1.0f - tone_timbre);
+    float sawtooth_gain = osc_gain - 12.0f * std::abs(2.0f - tone_timbre);
+    float square_gain   = osc_gain - 12.0f * std::abs(3.0f - tone_timbre);
 
     auto [osc_envelope, osc_full_gain_time, osc_full_decay_time]
       = buildEnvelope(tone_punch, tone_decay, false);
@@ -167,7 +160,7 @@ namespace audio {
     | filter::std::Wave {wavetables_[kSquareTable],   tone_pitch, square_gain,   0.0f,  tone_detune}
     | filter::std::Gain {osc_envelope}
     | filter::std::Mix {noise_buffer_}
-    | filter::std::Normalize {balance_l, balance_r};
+    | filter::std::Normalize {volume_l, volume_r};
 
     // apply filter
     osc_filter(osc_buffer_);

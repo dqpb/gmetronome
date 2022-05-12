@@ -101,20 +101,20 @@
       <description></description>
      </key>
     <key name="mix" type="d">
-      <range min="-1.0" max="1.0"/>
+      <range min="-36.0" max="36.0"/>
       <default>0.0</default>
       <summary></summary>
       <description></description>
      </key>
     <key name="balance" type="d">
-      <range min="-1.0" max="1.0"/>
+      <range min="-36.0" max="36.0"/>
       <default>0.0</default>
       <summary></summary>
       <description></description>
      </key>
     <key name="volume" type="d">
-      <range min="0.0" max="1.0"/>
-      <default>0.75</default>
+      <range min="-36.0" max="0.0"/>
+      <default>-3.0</default>
       <summary></summary>
       <description></description>
      </key>
@@ -146,9 +146,9 @@
     <override name="percussion-clap">false</override>
     <override name="percussion-punch">0.96</override>
     <override name="percussion-decay">0.84</override>
-    <override name="mix">0.28</override>
+    <override name="mix">20.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -162,9 +162,9 @@
     <override name="percussion-clap">false</override>
     <override name="percussion-punch">0.96</override>
     <override name="percussion-decay">0.84</override>
-    <override name="mix">0.28</override>
+    <override name="mix">20.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">0.8</override>
+    <override name="volume">-3.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -178,9 +178,9 @@
     <override name="percussion-clap">false</override>
     <override name="percussion-punch">0.95</override>
     <override name="percussion-decay">0.94</override>
-    <override name="mix">0.23</override>
+    <override name="mix">20.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">0.48</override>
+    <override name="volume">-10.0</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"
@@ -206,7 +206,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -222,7 +222,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -238,7 +238,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02"
@@ -264,7 +264,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -280,7 +280,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
@@ -296,7 +296,7 @@
     <override name="percussion-decay">0.5</override>
     <override name="mix">0.0</override>
     <override name="balance">0.0</override>
-    <override name="volume">1.0</override>
+    <override name="volume">0.0</override>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03"
@@ -321,8 +321,8 @@
   <schema id="@PACKAGE_ID@.preferences.sound"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/">
     <key name="volume" type="d">
-      <range min="0.0" max="1.0"/>
-      <default>0.8</default>
+      <range min="-36.0" max="0.0"/>
+      <default>-3.0</default>
       <summary></summary>
       <description></description>
     </key>
@@ -373,19 +373,19 @@
     </key>
     <key name="volume-increase-1" type="s">
       <default>'disabled'</default>
-      <summary>Keyboard shortcut to increase the volume by 1 percent</summary>
+      <summary>Keyboard shortcut to increase the volume by 1 dB</summary>
     </key>
     <key name="volume-decrease-1" type="s">
       <default>'disabled'</default>
-      <summary>Keyboard shortcut to decrease the volume by 1 percent</summary>
+      <summary>Keyboard shortcut to decrease the volume by 1 dB</summary>
     </key>
-    <key name="volume-increase-10" type="s">
+    <key name="volume-increase-3" type="s">
       <default>'disabled'</default>
-      <summary>Keyboard shortcut to increase the volume by 10 percent</summary>
+      <summary>Keyboard shortcut to increase the volume by 3 dB</summary>
     </key>
-    <key name="volume-decrease-10" type="s">
+    <key name="volume-decrease-3" type="s">
       <default>'disabled'</default>
-      <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
+      <summary>Keyboard shortcut to decrease the volume by 3 dB</summary>
     </key>
     <key name="tempo-increase-1" type="s">
       <default>'&lt;Primary&gt;Up'</default>

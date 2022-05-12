@@ -126,9 +126,9 @@ namespace settings {
   /*
    * default values
    */
-  inline constexpr  double    kDefaultVolume  = 0.8;
-  inline constexpr  double    kMinVolume      = 0.0;
-  inline constexpr  double    kMaxVolume      = 1.0;
+  inline constexpr  double    kDefaultVolume  =  -3.0;
+  inline constexpr  double    kMinVolume      = -36.0;
+  inline constexpr  double    kMaxVolume      =   0.0;
 
   /*
    * .SettingsList keys
@@ -205,8 +205,8 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsStart                 {"start"};
   inline const Glib::ustring  kKeyShortcutsVolumeIncrease1       {"volume-increase-1"};
   inline const Glib::ustring  kKeyShortcutsVolumeDecrease1       {"volume-decrease-1"};
-  inline const Glib::ustring  kKeyShortcutsVolumeIncrease10      {"volume-increase-10"};
-  inline const Glib::ustring  kKeyShortcutsVolumeDecrease10      {"volume-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsVolumeIncrease3       {"volume-increase-3"};
+  inline const Glib::ustring  kKeyShortcutsVolumeDecrease3       {"volume-decrease-3"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease1        {"tempo-increase-1"};
   inline const Glib::ustring  kKeyShortcutsTempoDecrease1        {"tempo-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease10       {"tempo-increase-10"};

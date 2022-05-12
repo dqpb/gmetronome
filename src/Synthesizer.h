@@ -44,11 +44,11 @@ namespace audio {
     bool  percussion_clap   {false};
     float percussion_punch  {0.5};    // [0.0f, 1.0f]
     float percussion_decay  {0.5};    // [0.0f, 1.0f]
-    float mix               {-1.0};   // [-1.0f, 1.0f]
+    float mix               {-60.0};  // [-60.0f, 60.0f]
     // bool  bell              {false};
     // float bell_volume       {1.0};    // [ 0.0f, 1.0f]
-    float balance           {0.0};    // [-1.0f, 1.0f]
-    float volume            {1.0};    // [ 0.0f, 1.0f]
+    float balance           {0.0};    // [-60.0f, 60.0f]
+    float volume            {-6.0};   // [-60.0f, 0.0f]
   };
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)

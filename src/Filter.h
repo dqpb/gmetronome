@@ -248,8 +248,8 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Noise(float amplitude)
-      : amp_{amplitude},
+    explicit Noise(float amp)
+      : amp_ratio_{std::pow(10.0f, amp / 20.0f)},
         value_{0}
       { /* nothing */ }
 
@@ -257,15 +257,15 @@ namespace filter {
       {
         assert(buffer.format() == Format);
 
-        if (amp_ == 0.0f)
+        if (amp_ratio_ == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
         for (auto& frame : frames)
         {
           frame += {
-            amp_ * uniform_distribution(),
-            amp_ * uniform_distribution()
+            amp_ratio_ * uniform_distribution(),
+            amp_ratio_ * uniform_distribution()
           };
         }
       }
@@ -280,7 +280,7 @@ namespace filter {
       }
 
   private:
-    float amp_;
+    float amp_ratio_;
     std::uint32_t value_;
 
     float uniform_distribution()
@@ -301,11 +301,11 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Wave(const Wavetable& tbl, float frequency, float amplitude = 1.0,
+    Wave(const Wavetable& tbl, float frequency, float amp = 0.0 /* dB */,
          float phase = 0.0, float detune = 0.0)
       : tbl_{tbl},
         freq_{frequency},
-        amp_{amplitude},
+        amp_ratio_{std::pow(10.0f, amp / 20.0f)},
         phase_{phase},
         detune_{frequency * std::pow(2.0f, detune / 1200.0f) - frequency}
       {}
@@ -315,7 +315,7 @@ namespace filter {
         assert(isFloatingPoint(buffer.spec().format));
         assert(buffer.channels() == 2);
 
-        if (amp_ == 0.0f || freq_ == 0.0f)
+        if (amp_ratio_ == 0.0f || freq_ == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
@@ -325,19 +325,12 @@ namespace filter {
 
         if (detune_ != 0.0f)
         {
-          //float amp_half = amp_ / 2.0f;
-          //float detune_half = detune_ / 2.0f;
-
           for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
           {
             float time = delta_t * frame_index + phase_t;
             frames[frame_index] += {
-              amp_ * tbl_page.lookup(freq_ - detune_, time),
-              amp_ * tbl_page.lookup(freq_ + detune_, time)
-              // amp_half * (tbl_page.lookup(freq_ - detune_,     time) +
-              //             tbl_page.lookup(freq_ + detune_half, time)),
-              // amp_half * (tbl_page.lookup(freq_ + detune_,     time) +
-              //             tbl_page.lookup(freq_ - detune_half, time))
+              amp_ratio_ * tbl_page.lookup(freq_ - detune_, time),
+              amp_ratio_ * tbl_page.lookup(freq_ + detune_, time)
             };
           }
         }
@@ -346,19 +339,19 @@ namespace filter {
           for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
           {
             float time = delta_t * frame_index + phase_t;
-            frames[frame_index] += amp_ * tbl_page.lookup(freq_, time);
+            frames[frame_index] += amp_ratio_ * tbl_page.lookup(freq_, time);
           }
           // std::array<float,4> start = {0.0};
           // std::array<float,4> step = {0.1};
           // tbl_page.lookup(frames.begin(), frames.end(), std::move(start), std::move(step),
           //                 [&] (auto& frame, auto& values)
-          //                   { frame += amp_ * values[0]; });
+          //                   { frame += amp_ratio_ * values[0]; });
         }
       }
   private:
     const Wavetable& tbl_;
     float freq_;
-    float amp_;
+    float amp_ratio_;
     float phase_;
     float detune_;
   };
@@ -374,10 +367,14 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Normalize(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
+    Normalize(float gain_l /*dB */, float gain_r /*dB */)
+      : amp_ratio_l_{std::pow(10.0f, gain_l / 20.0f)},
+        amp_ratio_r_{std::pow(10.0f, gain_r / 20.0f)}
       {/*nothing*/}
+
     explicit Normalize(float gain) : Normalize(gain, gain)
       {/*nothing*/}
+
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().channels == 2);
@@ -388,11 +385,11 @@ namespace filter {
 
         if (max != 0.0f)
           for (auto& frame : frames)
-            frame *= { gain_l_ / max, gain_r_ / max};
+            frame *= { amp_ratio_l_ / max, amp_ratio_r_ / max};
       }
   private:
-    float gain_l_;
-    float gain_r_;
+    float amp_ratio_l_;
+    float amp_ratio_r_;
   };
 
   /**
@@ -424,6 +421,26 @@ namespace filter {
       }
   private:
     const ByteBuffer& buffer_;
+  };
+
+  /**
+   * @class LPF
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class LPF {
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types");
+
+    using Frame = FrameView<Format, ByteBuffer::pointer>;
+    using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
+
+  public:
+    explicit LPF(size_t kernel_width)
+      : kernel_width_{kernel_width}
+      {}
+
+  private:
+    size_t kernel_width_;
   };
 
   /**
