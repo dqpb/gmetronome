@@ -132,17 +132,18 @@ namespace filter {
   public:
     FilterPipe(PipeHead head, FilterType filter)
       : head_{std::move(head)}, filter_{std::move(filter)}
-      {}
+      { /* nothing */ }
     template<typename DataType> void operator()(DataType& data)
-      {
-        head_(data);
-        filter_(data);
-      }
+      { head_(data); filter_(data); }
+
     template<typename Other> auto operator | (Other filter) &
       { return FilterPipe<FilterPipe, Other>(*this, std::move(filter)); }
 
     template<typename Other> auto operator | (Other filter) &&
       { return FilterPipe<FilterPipe, Other>(std::move(*this), std::move(filter)); }
+
+    constexpr size_t size() const
+      { return head_.size() + 1; }
 
   private:
     PipeHead head_;
@@ -150,15 +151,13 @@ namespace filter {
   };
 
   template<typename Callable>
-  class Filter {
+  class Filter : public Callable {
   public:
-    Filter(Callable fu) : fu_{std::move(fu)}
-      {}
     template<typename...Args>
-    Filter(Args&&...args) : fu_{std::forward<Args>(args)...}
-      {}
+    Filter(Args&&...args) : Callable(std::forward<Args>(args)...)
+      { /* nothing */ }
     template<typename DataType> void operator()(DataType& data)
-      { std::invoke(fu_, data); }
+      { Callable::operator()(data); }
 
     template<typename Other> auto operator | (Other filter) &
       { return FilterPipe(*this, std::move(filter)); }
@@ -166,8 +165,8 @@ namespace filter {
     template<typename Other> auto operator | (Other filter) &&
       { return FilterPipe(std::move(*this), std::move(filter)); }
 
-  private:
-    Callable fu_;
+    constexpr size_t size() const
+      { return 1; }
   };
 
   /**
@@ -291,8 +290,8 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Wave(const Wavetable& tbl, float frequency, const Decibel& level = 0.0,
-         float phase = 0.0, float detune = 0.0)
+    Wave(const Wavetable& tbl, float frequency, const Decibel& level = 0_dB,
+         float phase = 0.0f, float detune = 0.0f)
       : tbl_{tbl},
         freq_{frequency},
         amp_ratio_{level.amplitude()},
@@ -425,8 +424,11 @@ namespace filter {
     using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
 
   public:
-    explicit LPF(size_t kernel_width)
+    explicit LPF(float cutoff, size_t kernel_width)
       : kernel_width_{kernel_width}
+      {}
+
+    void operator()(ByteBuffer& buffer)
       {}
 
   private:
