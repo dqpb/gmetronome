@@ -20,6 +20,7 @@
 #ifndef GMetronome_SoundTheme_h
 #define GMetronome_SoundTheme_h
 
+#include "Audio.h"
 #include "Settings.h"
 #include "SettingsList.h"
 #include "Synthesizer.h"
@@ -53,6 +54,8 @@ struct SettingsListDelegate<SoundTheme>
   static void loadParameters(Glib::RefPtr<Gio::Settings> settings,
                              audio::SoundParameters& target)
     {
+      using audio::Decibel;
+
       if (settings)
       {
         target.tone_pitch = settings->get_double(settings::kKeySoundThemeTonePitch);
@@ -64,9 +67,9 @@ struct SettingsListDelegate<SoundTheme>
         target.percussion_clap = settings->get_boolean(settings::kKeySoundThemePercussionClap);
         target.percussion_punch = settings->get_double(settings::kKeySoundThemePercussionPunch);
         target.percussion_decay = settings->get_double(settings::kKeySoundThemePercussionDecay);
-        target.mix = settings->get_double(settings::kKeySoundThemeMix);
-        target.balance = settings->get_double(settings::kKeySoundThemeBalance);
-        target.volume = settings->get_double(settings::kKeySoundThemeVolume);
+        target.mix = Decibel(settings->get_double(settings::kKeySoundThemeMix));
+        target.balance = Decibel(settings->get_double(settings::kKeySoundThemeBalance));
+        target.volume = Decibel(settings->get_double(settings::kKeySoundThemeVolume));
         //...
       }
     }
@@ -85,9 +88,9 @@ struct SettingsListDelegate<SoundTheme>
         settings->set_boolean(settings::kKeySoundThemePercussionClap, source.percussion_clap);
         settings->set_double(settings::kKeySoundThemePercussionPunch, source.percussion_punch);
         settings->set_double(settings::kKeySoundThemePercussionDecay, source.percussion_decay);
-        settings->set_double(settings::kKeySoundThemeMix, source.mix);
-        settings->set_double(settings::kKeySoundThemeBalance, source.balance);
-        settings->set_double(settings::kKeySoundThemeVolume, source.volume);
+        settings->set_double(settings::kKeySoundThemeMix, source.mix.value());
+        settings->set_double(settings::kKeySoundThemeBalance, source.balance.value());
+        settings->set_double(settings::kKeySoundThemeVolume, source.volume.value());
         //...
       }
     }

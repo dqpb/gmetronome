@@ -74,9 +74,6 @@ namespace audio {
   {
     assert(!std::isnan(params.tone_timbre));
     assert(!std::isnan(params.tone_pitch));
-    assert(!std::isnan(params.mix));
-    assert(!std::isnan(params.balance));
-    assert(!std::isnan(params.volume));
     //...
 
     if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
@@ -96,19 +93,16 @@ namespace audio {
     bool  percussion_clap    = params.percussion_clap;
     float percussion_punch   = std::clamp(params.percussion_punch, 0.0f, 1.0f);
     float percussion_decay   = std::clamp(params.percussion_decay, 0.0f, 1.0f);
-    float mix                = params.mix; //std::clamp(params.mix, -60.0f, 60.0f);
-    float balance            = params.balance; //std::clamp(params.balance, -60.0f, 60.0f);
-    float volume             = params.volume;
 
-    float volume_l = (balance > 0) ? volume - balance : volume;
-    float volume_r = (balance < 0) ? volume + balance : volume;
+    Decibel volume_l = (params.balance > 0_dB) ? params.volume - params.balance : params.volume;
+    Decibel volume_r = (params.balance < 0_dB) ? params.volume + params.balance : params.volume;
 
-    float noise_gain    = (mix < 0.0f) ?  mix : 0.0f;
-    float osc_gain      = (mix > 0.0f) ? -mix : 0.0f;
-    float sine_gain     = osc_gain - 12.0f * std::abs(0.0f - tone_timbre);
-    float triangle_gain = osc_gain - 12.0f * std::abs(1.0f - tone_timbre);
-    float sawtooth_gain = osc_gain - 12.0f * std::abs(2.0f - tone_timbre);
-    float square_gain   = osc_gain - 12.0f * std::abs(3.0f - tone_timbre);
+    Decibel noise_gain    = (params.mix < 0_dB) ?  params.mix : 0_dB;
+    Decibel osc_gain      = (params.mix > 0_dB) ? -params.mix : 0_dB;
+    Decibel sine_gain     = osc_gain - 12_dB * std::abs(0.0f - tone_timbre);
+    Decibel triangle_gain = osc_gain - 12_dB * std::abs(1.0f - tone_timbre);
+    Decibel sawtooth_gain = osc_gain - 12_dB * std::abs(2.0f - tone_timbre);
+    Decibel square_gain   = osc_gain - 12_dB * std::abs(3.0f - tone_timbre);
 
     auto [osc_envelope, osc_full_gain_time, osc_full_decay_time]
       = buildEnvelope(tone_punch, tone_decay, false);

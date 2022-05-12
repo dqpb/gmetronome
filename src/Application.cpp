@@ -340,7 +340,8 @@ void Application::updateTickerSound(const AccentMask& accents)
   if (accents.none())
     return;
 
-  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
+  audio::Decibel global_volume =
+    audio::Decibel(settings::sound()->get_double(settings::kKeySoundVolume));
 
   if (accents[0]) {
     audio::SoundParameters params;

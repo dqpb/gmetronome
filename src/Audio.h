@@ -25,6 +25,7 @@
 #endif
 
 #include <chrono>
+#include <cmath>
 
 namespace audio {
 
@@ -254,6 +255,67 @@ namespace audio {
 
   /** Returns the play time for a given number of bytes. */
   microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec);
+
+  class Decibel {
+  public:
+    constexpr explicit Decibel(float count = 0.0f) : cnt_{count}
+      { /* nothing */ }
+
+    constexpr float value() const
+      { return cnt_; }
+    constexpr float amplitude() const
+      { return std::pow(10.0f, cnt_ / 20.0f); }
+    constexpr float power() const
+      { return std::pow(10.0f, cnt_ / 10.0f); }
+
+    constexpr Decibel operator+() const
+      { return Decibel(*this); }
+    constexpr Decibel operator-() const
+      { return Decibel(-cnt_); }
+    constexpr Decibel& operator+=(const Decibel& other)
+      { cnt_ += other.value(); return *this; }
+    constexpr Decibel& operator-=(const Decibel& other)
+      { cnt_ -= other.value(); return *this; }
+    template<typename T>
+    constexpr Decibel& operator*=(const T& value)
+      { cnt_ *= value; return *this; }
+    template<typename T>
+    constexpr Decibel& operator/=(const T& value)
+      { cnt_ /= value; return *this; }
+
+  private:
+    float cnt_;
+  };
+
+  constexpr Decibel operator+(const Decibel& lhs, const Decibel& rhs)
+  { return Decibel(lhs.value() + rhs.value()); }
+  constexpr Decibel operator-(const Decibel& lhs, const Decibel& rhs)
+  { return Decibel(lhs.value() - rhs.value()); }
+
+  template<typename T>
+  constexpr Decibel operator*(const Decibel& lhs, const T& value)
+  { return Decibel(lhs.value() * value); }
+  template<typename T>
+  constexpr Decibel operator/(const Decibel& lhs, const T& value)
+  { return Decibel(lhs.value() / value); }
+
+  constexpr bool operator==(const Decibel& lhs, const Decibel& rhs)
+  { return lhs.value() == rhs.value(); }
+  constexpr bool operator!=(const Decibel& lhs, const Decibel& rhs)
+  { return !(lhs == rhs); }
+  constexpr bool operator<(const Decibel& lhs, const Decibel& rhs)
+  { return lhs.value() < rhs.value(); }
+  constexpr bool operator<=(const Decibel& lhs, const Decibel& rhs)
+  { return lhs < rhs || lhs == rhs; }
+  constexpr bool operator>(const Decibel& lhs, const Decibel& rhs)
+  { return !(lhs <=  rhs); }
+  constexpr bool operator>=(const Decibel& lhs, const Decibel& rhs)
+  { return lhs > rhs || lhs == rhs; }
+
+  constexpr Decibel operator "" _dB(unsigned long long value)
+  { return Decibel(value); }
+  constexpr Decibel operator "" _dB(long double value)
+  { return Decibel(value); }
 
 }//namespace audio
 #endif//GMetronome_Audio_h

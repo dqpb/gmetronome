@@ -101,10 +101,8 @@ namespace filter {
 
     bool empty() const
       { return points_.empty(); }
-
     ConstIterator begin() const
       { return points_.begin(); }
-
     ConstIterator end() const
       { return points_.end(); }
 
@@ -113,10 +111,8 @@ namespace filter {
         points_.insert(pos, std::move(list));
         sort();
       }
-
     void append(std::initializer_list<Point> list)
       { insert(end(), std::move(list)); }
-
     void prepend(std::initializer_list<Point> list)
       { insert(begin(), std::move(list)); }
 
@@ -180,17 +176,13 @@ namespace filter {
    */
   template<SampleFormat Format = kDefaultSampleFormat>
   class Zero {
-
     static_assert(isFloatingPoint(Format),
       "this filter only supports floating point types");
-
   public:
     Zero() { /* nothing */ }
 
     void operator()(ByteBuffer& buffer)
-      {
-        std::fill(buffer.begin(), buffer.end(), 0);
-      }
+      { std::fill(buffer.begin(), buffer.end(), 0); }
   };
 
   /**
@@ -199,7 +191,6 @@ namespace filter {
    */
   template<SampleFormat Format = kDefaultSampleFormat>
   class Gain {
-
     static_assert(isFloatingPoint(Format),
       "this filter only supports floating point types");
 
@@ -248,9 +239,8 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Noise(float amp)
-      : amp_ratio_{std::pow(10.0f, amp / 20.0f)},
-        value_{0}
+    explicit Noise(const Decibel& level)
+      : amp_ratio_{level.amplitude()}, value_{0}
       { /* nothing */ }
 
     void operator()(ByteBuffer& buffer)
@@ -301,11 +291,11 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Wave(const Wavetable& tbl, float frequency, float amp = 0.0 /* dB */,
+    Wave(const Wavetable& tbl, float frequency, const Decibel& level = 0.0,
          float phase = 0.0, float detune = 0.0)
       : tbl_{tbl},
         freq_{frequency},
-        amp_ratio_{std::pow(10.0f, amp / 20.0f)},
+        amp_ratio_{level.amplitude()},
         phase_{phase},
         detune_{frequency * std::pow(2.0f, detune / 1200.0f) - frequency}
       {}
@@ -367,9 +357,9 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Normalize(float gain_l /*dB */, float gain_r /*dB */)
-      : amp_ratio_l_{std::pow(10.0f, gain_l / 20.0f)},
-        amp_ratio_r_{std::pow(10.0f, gain_r / 20.0f)}
+    Normalize(const Decibel& level_l, const Decibel& level_r)
+      : amp_ratio_l_{level_l.amplitude()},
+        amp_ratio_r_{level_r.amplitude()}
       {/*nothing*/}
 
     explicit Normalize(float gain) : Normalize(gain, gain)
