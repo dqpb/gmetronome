@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <memory>
+#include <utility>
 
 #ifndef NDEBUG
 # include <iostream>
