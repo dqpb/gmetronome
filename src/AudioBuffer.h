@@ -528,7 +528,7 @@ namespace audio {
     void convert(const SampleView<OtherFormat, OtherStoreIter>& other,
                  /*from*/ floating_point, /*to*/ floating_point)
       {
-        (*this) = other;
+        (*this) = static_cast<double>(other);
       }
   };
 
