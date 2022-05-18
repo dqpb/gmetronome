@@ -31,9 +31,116 @@
 #include <functional>
 #include <initializer_list>
 #include <cmath>
+#include <type_traits>
 
 namespace audio {
 namespace filter {
+
+  template<typename PipeHead, typename FilterType>
+  class FilterPipe {
+  public:
+    FilterPipe(PipeHead head, FilterType filter)
+      : head_{std::move(head)}, filter_{std::move(filter)}
+      { /* nothing */ }
+    template<typename DataType> void operator()(DataType& data)
+      { head_(data); filter_(data); }
+
+    template<typename Other> auto operator | (Other filter) &
+      { return FilterPipe<FilterPipe, Other>(*this, std::move(filter)); }
+
+    template<typename Other> auto operator | (Other filter) &&
+      { return FilterPipe<FilterPipe, Other>(std::move(*this), std::move(filter)); }
+
+  private:
+    PipeHead head_;
+    FilterType filter_;
+
+    template<std::size_t I, typename H, typename F>
+    friend constexpr auto& get(FilterPipe<H,F>& pipe);
+  };
+
+  template<typename Callable>
+  class Filter : public Callable {
+  public:
+    template<typename...Args>
+    Filter(Args&&...args) : Callable(std::forward<Args>(args)...)
+      { /* nothing */ }
+    template<typename DataType> void operator()(DataType& data)
+      { Callable::operator()(data); }
+
+    template<typename Other> auto operator | (Other filter) &
+      { return FilterPipe(*this, std::move(filter)); }
+
+    template<typename Other> auto operator | (Other filter) &&
+      { return FilterPipe(std::move(*this), std::move(filter)); }
+  };
+
+  /**
+   * @struct FilterPipeSize
+   * @brief Compile-time access to the number of filters in the pipe
+   */
+  template<typename P> struct FilterPipeSize {};
+
+  template<typename PipeHead, typename FilterType>
+  struct FilterPipeSize<FilterPipe<PipeHead, FilterType>>
+  {
+    static constexpr std::size_t value = FilterPipeSize<PipeHead>::value + 1;
+  };
+
+  template<typename Callable>
+  struct FilterPipeSize<Filter<Callable>>
+  {
+    static constexpr std::size_t value = 1;
+  };
+
+  /**
+   * @struct FilterPipeElement
+   * @brief Compile-time indexed access to the types of the filters in the pipe
+   */
+  template<std::size_t I, typename P, typename Enable = void>
+  struct FilterPipeElement {};
+
+  template<typename Callable>
+  struct FilterPipeElement<0, Filter<Callable>>
+  {
+    using type = Filter<Callable>;
+  };
+
+  template<std::size_t I, typename PipeHead, typename FilterType>
+  struct FilterPipeElement<I, FilterPipe<PipeHead, FilterType>,
+                           std::enable_if_t<(I < FilterPipeSize<PipeHead>::value)>>
+  {
+    using type = typename FilterPipeElement<I,PipeHead>::type;
+  };
+
+  template<std::size_t I, typename PipeHead, typename FilterType>
+  struct FilterPipeElement<I, FilterPipe<PipeHead, FilterType>,
+                           std::enable_if_t<(I == FilterPipeSize<PipeHead>::value)>>
+  {
+    using type = FilterType;
+  };
+
+  /**
+   * @function get
+   * @brief extracts the Ith filter from the pipe
+   */
+  template<std::size_t I, typename PipeHead, typename FilterType>
+  constexpr auto& get(FilterPipe<PipeHead, FilterType>& pipe)
+  {
+    static_assert(I < FilterPipeSize<FilterPipe<PipeHead, FilterType>>::value);
+
+    if constexpr (I == FilterPipeSize<PipeHead>::value)
+      return pipe.filter_;
+    else
+      return get<I>(pipe.head_);
+  }
+
+  template<std::size_t I, typename Callable>
+  constexpr Filter<Callable>& get(Filter<Callable>& pipe)
+  {
+    static_assert(I == 0);
+    return pipe;
+  }
 
   constexpr SampleFormat kDefaultSampleFormat =
     (hostEndian() == Endian::kLittle) ? SampleFormat::kFloat32LE : SampleFormat::kFloat32BE;
@@ -125,48 +232,6 @@ namespace filter {
                          return lhs.time < rhs.time;
                        });
     }
-  };
-
-  template<typename PipeHead, typename FilterType>
-  class FilterPipe {
-  public:
-    FilterPipe(PipeHead head, FilterType filter)
-      : head_{std::move(head)}, filter_{std::move(filter)}
-      { /* nothing */ }
-    template<typename DataType> void operator()(DataType& data)
-      { head_(data); filter_(data); }
-
-    template<typename Other> auto operator | (Other filter) &
-      { return FilterPipe<FilterPipe, Other>(*this, std::move(filter)); }
-
-    template<typename Other> auto operator | (Other filter) &&
-      { return FilterPipe<FilterPipe, Other>(std::move(*this), std::move(filter)); }
-
-    constexpr size_t size() const
-      { return head_.size() + 1; }
-
-  private:
-    PipeHead head_;
-    FilterType filter_;
-  };
-
-  template<typename Callable>
-  class Filter : public Callable {
-  public:
-    template<typename...Args>
-    Filter(Args&&...args) : Callable(std::forward<Args>(args)...)
-      { /* nothing */ }
-    template<typename DataType> void operator()(DataType& data)
-      { Callable::operator()(data); }
-
-    template<typename Other> auto operator | (Other filter) &
-      { return FilterPipe(*this, std::move(filter)); }
-
-    template<typename Other> auto operator | (Other filter) &&
-      { return FilterPipe(std::move(*this), std::move(filter)); }
-
-    constexpr size_t size() const
-      { return 1; }
   };
 
   /**
@@ -361,7 +426,7 @@ namespace filter {
         amp_ratio_r_{level_r.amplitude()}
       {/*nothing*/}
 
-    explicit Normalize(float gain) : Normalize(gain, gain)
+    explicit Normalize(const Decibel& gain = 0_dB) : Normalize(gain, gain)
       {/*nothing*/}
 
     void operator()(ByteBuffer& buffer)
@@ -415,6 +480,7 @@ namespace filter {
   /**
    * @class LPF
    */
+  /*
   template<SampleFormat Format = kDefaultSampleFormat>
   class LPF {
     static_assert(isFloatingPoint(Format),
@@ -425,15 +491,67 @@ namespace filter {
 
   public:
     explicit LPF(float cutoff, size_t kernel_width)
-      : kernel_width_{kernel_width}
-      {}
+      : cutoff_{cutoff}, kernel_width_{kernel_width}
+      {
+        rebuildKernel();
+      }
 
     void operator()(ByteBuffer& buffer)
       {}
 
   private:
+    float cutoff_;
     size_t kernel_width_;
+    std::vector<float> kernel_;
+    std::vector<float> cache_;
+    size_t cache_frames_;
+    size_t channels_;
+
+    void rebuildKernel()
+      {}
+
+    void convolute()
+      {}
+
+    void processFrame(Frame& frame, auto&, size_t kernel_size)
+      {
+        pushFrame(frame);
+
+        if (cache_frames_ - 1 > kernel_size)
+          popFrames(2);
+        else if (cache_frames_ > kernel_size)
+          popFrames(1);
+
+        if (cache_frames_ > 1)
+          for (size_t channel = 0; channel < frame.size(); ++channel)
+            frame[channel] = average(channel);
+      }
+
+    void pushFrame(const Frame& frame)
+      {
+        cache_.insert(cache_.end(), frame.begin(), frame.end());
+        ++cache_frames_;
+      }
+
+    void popFrames(size_t n = 1)
+      {
+        cache_.erase(cache_.begin(), cache_.begin() + n * channels_);
+        cache_frames_ -= n;
+      }
+
+    float average(int channel)
+      {
+        if (cache_frames_ == 0)
+          return 0.0;
+
+        float sum = 0.0;
+        for (auto it = cache_.begin() + channel; it < cache_.end(); it += channels_)
+          sum += *it;
+
+        return sum / cache_frames_;
+      }
   };
+  */
 
   /**
    * @class Smooth
