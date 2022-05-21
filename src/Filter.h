@@ -235,6 +235,104 @@ namespace filter {
   };
 
   /**
+   * @class FIR
+   * @brief Compute the convolution of an audio buffer and a kernel
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class FIR {
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types");
+
+  public:
+    explicit FIR(std::vector<float> kernel = {}) : kernel_{std::move(kernel)}
+      {}
+
+    void swapKernel(std::vector<float>& kernel)
+      { kernel_.swap(kernel); }
+
+    void operator()(ByteBuffer& buffer)
+      {
+        auto channels = viewChannels<Format>(buffer);
+        for (auto& channel : channels)
+        {
+          for(auto it = channel.rbegin(); it != channel.rend(); ++it)
+          {
+            float sum = 0.0f;
+            auto s = it;
+            for (auto& k : kernel_)
+            {
+              sum += k * (*s);
+              if (++s == channel.rend())
+                break;
+            }
+            *it = sum;
+          }
+        }
+      }
+
+  private:
+    std::vector<float> kernel_;
+  };
+
+  /**
+   * @class Lowpass
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class Lowpass : private FIR<Format> {
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types");
+
+  public:
+    explicit Lowpass(float cutoff, size_t kernel_width = 31)
+      : cutoff_{cutoff}, kernel_width_{kernel_width}
+      {
+        rebuildKernel();
+      }
+
+    void operator()(ByteBuffer& buffer)
+      { FIR<Format>::operator()(buffer); }
+
+  private:
+    float cutoff_;
+    size_t kernel_width_;
+
+    void rebuildKernel()
+      {
+        std::vector<float> kernel;
+        FIR<Format>::swapKernel(kernel);
+
+        if (kernel.size() != kernel_width_)
+          kernel.resize(kernel_width_);
+
+        std::size_t N = kernel.size();
+        std::size_t M = N-1;
+        double fc = std::clamp(cutoff_ / 44100.0, 0.0, 0.5);
+
+        double sum = 0.0;
+        for (std::size_t i = 0; i < N; ++i)
+        {
+          std::size_t I = i - M / 2;
+          if (I == 0)
+            kernel[i] = 2.0 * M_PI * fc;
+          else
+            kernel[i] = std::sin(2.0 * M_PI * fc * I) / I;
+
+          // Blackman window
+          kernel[i] *= 0.42
+            - 0.50 * std::cos(2.0 * M_PI * i / M)
+            + 0.08 * std::cos(4.0 * M_PI * i / M);
+
+          sum += kernel[i];
+        }
+        // Normalize kernel
+        for (auto& k : kernel)
+          k /= sum;
+
+        FIR<Format>::swapKernel(kernel);
+      }
+  };
+
+  /**
    * @class Zero
    *
    */
@@ -303,23 +401,26 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
+    explicit Noise(float amp) : amp_{amp}, value_{0}
+      { /* nothing */ }
+
     explicit Noise(const Decibel& level)
-      : amp_ratio_{level.amplitude()}, value_{0}
+      : amp_{static_cast<float>(level.amplitude())}, value_{0}
       { /* nothing */ }
 
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.format() == Format);
 
-        if (amp_ratio_ == 0.0f)
+        if (amp_ == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
         for (auto& frame : frames)
         {
           frame += {
-            amp_ratio_ * uniform_distribution(),
-            amp_ratio_ * uniform_distribution()
+            amp_ * uniform_distribution(),
+            amp_ * uniform_distribution()
           };
         }
       }
@@ -334,7 +435,7 @@ namespace filter {
       }
 
   private:
-    float amp_ratio_;
+    float amp_;
     std::uint32_t value_;
 
     float uniform_distribution()
@@ -355,13 +456,21 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Wave(const Wavetable& tbl, float frequency, const Decibel& level = 0_dB,
+    Wave(const Wavetable& tbl, float freq, float amp = 0.0f,
          float phase = 0.0f, float detune = 0.0f)
       : tbl_{tbl},
-        freq_{frequency},
-        amp_ratio_{level.amplitude()},
+        freq_{freq},
+        amp_{amp},
         phase_{phase},
-        detune_{frequency * std::pow(2.0f, detune / 1200.0f) - frequency}
+        detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
+      {}
+    Wave(const Wavetable& tbl, float freq, const Decibel& level = 0_dB,
+         float phase = 0.0f, float detune = 0.0f)
+      : tbl_{tbl},
+        freq_{freq},
+        amp_{static_cast<float>(level.amplitude())},
+        phase_{phase},
+        detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
       {}
     void operator()(ByteBuffer& buffer)
       {
@@ -369,43 +478,35 @@ namespace filter {
         assert(isFloatingPoint(buffer.spec().format));
         assert(buffer.channels() == 2);
 
-        if (amp_ratio_ == 0.0f || freq_ == 0.0f)
+        if (amp_ == 0.0f || freq_ == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
-        float delta_t = 1.0 / buffer.spec().rate;
-        float phase_t = phase_ / (2.0 * M_PI) / freq_;
+        float frame_tm = 1.0 / buffer.spec().rate;
+        float phase_os = phase_ / (2.0 * M_PI);
         auto& tbl_page = tbl_.lookup(freq_);
 
-        if (detune_ != 0.0f)
-        {
-          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-          {
-            float time = delta_t * frame_index + phase_t;
-            frames[frame_index] += {
-              amp_ratio_ * tbl_page.lookup(freq_ - detune_, time),
-              amp_ratio_ * tbl_page.lookup(freq_ + detune_, time)
-            };
-          }
-        }
-        else
-        {
-          for (size_t frame_index = 0; frame_index < frames.size(); ++frame_index)
-          {
-            float time = delta_t * frame_index + phase_t;
-            frames[frame_index] += amp_ratio_ * tbl_page.lookup(freq_, time);
-          }
-          // std::array<float,4> start = {0.0};
-          // std::array<float,4> step = {0.1};
-          // tbl_page.lookup(frames.begin(), frames.end(), std::move(start), std::move(step),
-          //                 [&] (auto& frame, auto& values)
-          //                   { frame += amp_ratio_ * values[0]; });
-        }
+        std::array<float,2> start = {
+          phase_os,
+          phase_os
+        };
+        std::array<float,2> step = {
+          (freq_ - detune_) * frame_tm,
+          (freq_ + detune_) * frame_tm
+        };
+        tbl_page.lookup(frames.begin(), frames.end(), std::move(start), std::move(step),
+                        [&] (auto& frame, auto& values)
+                          {
+                            frame += {
+                              amp_ * values[0],
+                              amp_ * values[1]
+                            };
+                          });
       }
   private:
     const Wavetable& tbl_;
     float freq_;
-    float amp_ratio_;
+    float amp_;
     float phase_;
     float detune_;
   };
@@ -422,11 +523,14 @@ namespace filter {
 
   public:
     Normalize(const Decibel& level_l, const Decibel& level_r)
-      : amp_ratio_l_{level_l.amplitude()},
-        amp_ratio_r_{level_r.amplitude()}
+      : amp_l_{static_cast<float>(level_l.amplitude())},
+        amp_r_{static_cast<float>(level_r.amplitude())}
       {/*nothing*/}
 
-    explicit Normalize(const Decibel& gain = 0_dB) : Normalize(gain, gain)
+    Normalize(float amp_l, float amp_r) : amp_l_{amp_l}, amp_r_{amp_r}
+      {/*nothing*/}
+
+    explicit Normalize(const Decibel& level = 0_dB) : Normalize(level, level)
       {/*nothing*/}
 
     void operator()(ByteBuffer& buffer)
@@ -439,11 +543,11 @@ namespace filter {
 
         if (max != 0.0f)
           for (auto& frame : frames)
-            frame *= { amp_ratio_l_ / max, amp_ratio_r_ / max};
+            frame *= { amp_l_ / max, amp_r_ / max};
       }
   private:
-    float amp_ratio_l_;
-    float amp_ratio_r_;
+    float amp_l_;
+    float amp_r_;
   };
 
   /**
@@ -476,82 +580,6 @@ namespace filter {
   private:
     const ByteBuffer& buffer_;
   };
-
-  /**
-   * @class LPF
-   */
-  /*
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class LPF {
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types");
-
-    using Frame = FrameView<Format, ByteBuffer::pointer>;
-    using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
-
-  public:
-    explicit LPF(float cutoff, size_t kernel_width)
-      : cutoff_{cutoff}, kernel_width_{kernel_width}
-      {
-        rebuildKernel();
-      }
-
-    void operator()(ByteBuffer& buffer)
-      {}
-
-  private:
-    float cutoff_;
-    size_t kernel_width_;
-    std::vector<float> kernel_;
-    std::vector<float> cache_;
-    size_t cache_frames_;
-    size_t channels_;
-
-    void rebuildKernel()
-      {}
-
-    void convolute()
-      {}
-
-    void processFrame(Frame& frame, auto&, size_t kernel_size)
-      {
-        pushFrame(frame);
-
-        if (cache_frames_ - 1 > kernel_size)
-          popFrames(2);
-        else if (cache_frames_ > kernel_size)
-          popFrames(1);
-
-        if (cache_frames_ > 1)
-          for (size_t channel = 0; channel < frame.size(); ++channel)
-            frame[channel] = average(channel);
-      }
-
-    void pushFrame(const Frame& frame)
-      {
-        cache_.insert(cache_.end(), frame.begin(), frame.end());
-        ++cache_frames_;
-      }
-
-    void popFrames(size_t n = 1)
-      {
-        cache_.erase(cache_.begin(), cache_.begin() + n * channels_);
-        cache_frames_ -= n;
-      }
-
-    float average(int channel)
-      {
-        if (cache_frames_ == 0)
-          return 0.0;
-
-        float sum = 0.0;
-        for (auto it = cache_.begin() + channel; it < cache_.end(); it += channels_)
-          sum += *it;
-
-        return sum / cache_frames_;
-      }
-  };
-  */
 
   /**
    * @class Smooth
@@ -647,6 +675,8 @@ namespace filter {
   namespace std {
 
     // some shortcuts for default filters
+    using FIR       = Filter<FIR<kDefaultSampleFormat>>;
+    using Lowpass   = Filter<Lowpass<kDefaultSampleFormat>>;
     using Zero      = Filter<Zero<kDefaultSampleFormat>>;
     using Gain      = Filter<Gain<kDefaultSampleFormat>>;
     using Noise     = Filter<Noise<kDefaultSampleFormat>>;
