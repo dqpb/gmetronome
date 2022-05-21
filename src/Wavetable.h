@@ -78,8 +78,7 @@ namespace audio {
           if (empty())
             return value_type(0);
 
-          [[maybe_unused]] float integral;
-          float fractional = std::modf(parameter, &integral);
+          float fractional = parameter - (long) parameter;
 
           if (fractional < 0.0f)
             fractional += 1.0f;
@@ -98,43 +97,42 @@ namespace audio {
           return value1 + (index_flt - index1) * (value2 - value1);
         }
 
-      // template<typename Iterator, typename Callable, size_t N>
-      // void lookup(Iterator begin, Iterator end, std::array<float,N> start, std::array<float,N> step, Callable fu) const
-      //   {
-      //     if (empty())
-      //       return;
+      template<typename Iterator, typename Callable, size_t N>
+      void lookup(Iterator begin, Iterator end, std::array<float,N> start, std::array<float,N> step, Callable fu) const
+        {
+          if (empty())
+            return;
 
-      //     std::array<value_type, N> value;
+          std::array<value_type, N> value;
 
-      //     for (auto it = begin; it != end; ++it)
-      //     {
-      //       for (size_t wave = 0; wave < N; ++wave)
-      //       {
-      //         [[maybe_unused]] float integral;
-      //         float fractional = std::modf(start[wave], &integral);
+          for (auto it = begin; it != end; ++it)
+          {
+            for (size_t wave = 0; wave < N; ++wave)
+            {
+              float fractional = start[wave] - (long) start[wave];
 
-      //         if (fractional < 0.0f)
-      //           fractional += 1.0f;
+              if (fractional < 0.0f)
+                fractional += 1.0f;
 
-      //         size_t index_flt = fractional * size();
+              size_t index_flt = fractional * size();
 
-      //         size_t index1 = index_flt; // trunc
-      //         size_t index2 = index1 + 1;
+              size_t index1 = index_flt; // trunc
+              size_t index2 = index1 + 1;
 
-      //         if (index2 >= size())
-      //           index2 = 0;
+              if (index2 >= size())
+                index2 = 0;
 
-      //         value_type value1 = *(begin_ + index1);
-      //         value_type value2 = *(begin_ + index2);
+              value_type value1 = *(begin_ + index1);
+              value_type value2 = *(begin_ + index2);
 
-      //         value[wave] = value1 + (index_flt - index1) * (value2 - value1);
+              value[wave] = value1 + (index_flt - index1) * (value2 - value1);
 
-      //         start[wave] += step[wave];
-      //       }
+              start[wave] += step[wave];
+            }
 
-      //       fu(*it, value);
-      //     }
-      //   }
+            fu(*it, value);
+          }
+        }
 
       iterator begin()
         { return begin_; }
