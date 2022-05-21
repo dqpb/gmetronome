@@ -60,6 +60,8 @@ namespace audio {
     wavetables_.prepare(spec.rate);
     wavetables_.apply();
 
+    noise_pipe_.prepare(filter_buffer_spec);
+
     spec_ = spec;
   }
 
@@ -128,13 +130,17 @@ namespace audio {
     auto [noise_envelope, noise_full_gain_time, noise_full_decay_time]
       = buildEnvelope(percussion_punch, percussion_decay, percussion_clap);
 
-    auto noise_filter =
-      filter::std::Zero {}
-    | filter::std::Noise {noise_gain}
-    | filter::std::Lowpass {percussion_cutoff}
-    | filter::std::Gain {noise_envelope};
+    filter::get<1>(noise_pipe_).setLevel(noise_gain);
+    filter::get<2>(noise_pipe_).setCutoff(percussion_cutoff);
+    filter::get<3>(noise_pipe_).setEnvelope(std::move(noise_envelope));
 
-    noise_filter(noise_buffer_);
+    // auto noise_filter =
+    //   filter::std::Zero {}
+    // | filter::std::Noise {noise_gain}
+    // | filter::std::Lowpass {percussion_cutoff}
+    // | filter::std::Gain {noise_envelope};
+
+    noise_pipe_(noise_buffer_);
 
     auto osc_filter =
       filter::std::Zero {}

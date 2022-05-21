@@ -158,6 +158,15 @@ namespace audio {
 
     WavetableLibrary wavetables_;
 
+    using NoiseFilterPipe = decltype(
+        filter::std::Zero()
+      | filter::std::Noise()
+      | filter::std::Lowpass()
+      | filter::std::Gain()
+    );
+
+    NoiseFilterPipe noise_pipe_;
+
     std::tuple<filter::Automation, microseconds, microseconds>
     buildEnvelope(float attack, float decay, bool clap) const;
   };

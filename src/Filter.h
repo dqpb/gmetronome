@@ -39,9 +39,14 @@ namespace filter {
   template<typename PipeHead, typename FilterType>
   class FilterPipe {
   public:
+    FilterPipe()
+      { /* nothing */ }
     FilterPipe(PipeHead head, FilterType filter)
       : head_{std::move(head)}, filter_{std::move(filter)}
       { /* nothing */ }
+    void prepare(const StreamSpec& spec)
+      { head_.prepare(spec); filter_.prepare(spec); }
+
     template<typename DataType> void operator()(DataType& data)
       { head_(data); filter_(data); }
 
@@ -65,6 +70,9 @@ namespace filter {
     template<typename...Args>
     Filter(Args&&...args) : Callable(std::forward<Args>(args)...)
       { /* nothing */ }
+    void prepare(const StreamSpec& spec)
+      { Callable::prepare(spec); }
+
     template<typename DataType> void operator()(DataType& data)
       { Callable::operator()(data); }
 
@@ -250,6 +258,12 @@ namespace filter {
     void swapKernel(std::vector<float>& kernel)
       { kernel_.swap(kernel); }
 
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
+
     void operator()(ByteBuffer& buffer)
       {
         auto channels = viewChannels<Format>(buffer);
@@ -283,21 +297,47 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Lowpass(float cutoff, size_t kernel_width = 31)
+    explicit Lowpass(float cutoff = 100.0f, size_t kernel_width = 31)
       : cutoff_{cutoff}, kernel_width_{kernel_width}
+      { /* nothing */ }
+
+    void setCutoff(float cutoff)
       {
-        rebuildKernel();
+        if (cutoff != cutoff_)
+        {
+          cutoff_ = cutoff;
+          need_rebuild_kernel_ = true;
+        }
+      }
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+
+        if (spec.rate != rate_)
+        {
+          rate_ = spec.rate;
+          need_rebuild_kernel_ = true;
+        }
       }
 
     void operator()(ByteBuffer& buffer)
-      { FIR<Format>::operator()(buffer); }
+      {
+        if (need_rebuild_kernel_)
+          rebuildKernel();
+
+        FIR<Format>::operator()(buffer);
+      }
 
   private:
     float cutoff_;
     size_t kernel_width_;
+    float rate_{44100.0};
+    bool need_rebuild_kernel_{true};
 
     void rebuildKernel()
       {
+        std::cout << "rebuild kernel" << std::endl;
         std::vector<float> kernel;
         FIR<Format>::swapKernel(kernel);
 
@@ -306,7 +346,7 @@ namespace filter {
 
         std::size_t N = kernel.size();
         std::size_t M = N-1;
-        double fc = std::clamp(cutoff_ / 44100.0, 0.0, 0.5);
+        double fc = std::clamp(cutoff_ / rate_, 0.0f, 0.5f);
 
         double sum = 0.0;
         for (std::size_t i = 0; i < N; ++i)
@@ -329,6 +369,7 @@ namespace filter {
           k /= sum;
 
         FIR<Format>::swapKernel(kernel);
+        need_rebuild_kernel_ = false;
       }
   };
 
@@ -343,6 +384,11 @@ namespace filter {
   public:
     Zero() { /* nothing */ }
 
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
     void operator()(ByteBuffer& buffer)
       { std::fill(buffer.begin(), buffer.end(), 0); }
   };
@@ -357,12 +403,17 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Gain(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
+    explicit Gain(Automation envelope = {}) : envelope_(std::move(envelope))
       { /* nothing */ }
-    explicit Gain(float gain) : Gain(gain, gain)
-      { /* nothing */ }
-    explicit Gain(const Automation& envelope) : gain_l_{1.0f}, gain_r_{1.0f}, envelope_(envelope)
-      { /* nothing */ }
+
+    void setEnvelope(Automation envelope)
+      { envelope_ = std::move(envelope); }
+
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate > 0);
@@ -371,23 +422,13 @@ namespace filter {
           return;
 
         auto frames = viewFrames<Format>(buffer);
-        if (envelope_.empty())
-        {
-          for (auto& frame : frames)
-            frame *= {gain_l_, gain_r_};
-        }
-        else
-        {
-          seconds_dbl frame_duration {1.0 / buffer.rate()};
+        seconds_dbl frame_duration {1.0 / buffer.rate()};
 
-          envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
-                          [] (auto& frame, const auto& time, float value)
-                            { frame *= value; });
-        }
+        envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
+                        [] (auto& frame, const auto& time, float value)
+                          { frame *= value; });
       }
   private:
-    float gain_l_;
-    float gain_r_;
     Automation envelope_;
   };
 
@@ -401,12 +442,21 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Noise(float amp) : amp_{amp}, value_{0}
+    explicit Noise(float amp = 1.0f) : amp_{amp}, value_{0}
       { /* nothing */ }
 
     explicit Noise(const Decibel& level)
       : amp_{static_cast<float>(level.amplitude())}, value_{0}
       { /* nothing */ }
+
+    void setLevel(const Decibel& level)
+      { amp_ = static_cast<float>(level.amplitude()); }
+
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
 
     void operator()(ByteBuffer& buffer)
       {
@@ -464,6 +514,7 @@ namespace filter {
         phase_{phase},
         detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
       {}
+
     Wave(const Wavetable& tbl, float freq, const Decibel& level = 0_dB,
          float phase = 0.0f, float detune = 0.0f)
       : tbl_{tbl},
@@ -472,6 +523,13 @@ namespace filter {
         phase_{phase},
         detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
       {}
+
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
+
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate != 0);
@@ -533,6 +591,12 @@ namespace filter {
     explicit Normalize(const Decibel& level = 0_dB) : Normalize(level, level)
       {/*nothing*/}
 
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
+
     void operator()(ByteBuffer& buffer)
       {
         assert(buffer.spec().channels == 2);
@@ -563,6 +627,12 @@ namespace filter {
   public:
     Mix(const ByteBuffer& buffer) : buffer_{buffer}
       {/*nothing*/}
+
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
 
     void operator()(ByteBuffer& buffer)
       {
@@ -614,6 +684,12 @@ namespace filter {
     explicit Smooth(size_t kernel_width)
       : kernel_width_{{{0ms}, (float) kernel_width}}, cache_frames_{0}, channels_{0}
       { /* nothing */ }
+
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
 
     void operator()(ByteBuffer& buffer)
       {
