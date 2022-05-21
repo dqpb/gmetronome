@@ -185,7 +185,7 @@ namespace audio {
     using value_type        = ProxyViewType;
     using pointer           = value_type*;
     using reference         = value_type&;
-    using iterator_category = std::forward_iterator_tag;
+    using iterator_category = std::bidirectional_iterator_tag;
 
     explicit StrideIterator(ProxyViewType view) : view_(std::move(view))
       {}
@@ -193,9 +193,54 @@ namespace audio {
       {view_.align(view_.alignment() + view_.extent()); return *this;}
     StrideIterator operator++(int)
       {StrideIterator retval = *this; ++(*this); return retval;}
-    bool operator==(StrideIterator other) const
+    StrideIterator& operator--()
+      {view_.align(view_.alignment() - view_.extent()); return *this;}
+    StrideIterator operator--(int)
+      {StrideIterator retval = *this; --(*this); return retval;}
+    template<template<typename> typename OtherIterator>
+    bool operator==(const OtherIterator<ProxyView>& other) const
       {return view_.alignment() == other.view_.alignment();}
-    bool operator!=(StrideIterator other) const
+    template<template<typename> typename OtherIterator>
+    bool operator!=(const OtherIterator<ProxyView>& other) const
+      {return !(*this == other);}
+    ProxyView& operator*()
+      { return view_; }
+    ProxyView* operator->()
+      { return &view_; }
+
+  private:
+    ProxyView view_;
+  };
+
+  /**
+   * @class ReverseStrideIterator
+   */
+  template<typename ProxyView>
+  class ReverseStrideIterator {
+  public:
+    // traits
+    using ProxyViewType     = ProxyView;
+    using difference_type   = std::size_t;
+    using value_type        = ProxyViewType;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+    using iterator_category = std::bidirectional_iterator_tag;
+
+    explicit ReverseStrideIterator(ProxyViewType view) : view_(std::move(view))
+      {}
+    ReverseStrideIterator& operator++()
+      {view_.align(view_.alignment() - view_.extent()); return *this;}
+    ReverseStrideIterator operator++(int)
+      {ReverseStrideIterator retval = *this; --(*this); return retval;}
+    ReverseStrideIterator& operator--()
+      {view_.align(view_.alignment() + view_.extent()); return *this;}
+    ReverseStrideIterator operator--(int)
+      {ReverseStrideIterator retval = *this; ++(*this); return retval;}
+    template<template<typename> typename OtherIterator>
+    bool operator==(const OtherIterator<ProxyView>& other) const
+      {return view_.alignment() == other.view_.alignment();}
+    template<template<typename> typename OtherIterator>
+    bool operator!=(const OtherIterator<ProxyView>& other) const
       {return !(*this == other);}
     ProxyView& operator*()
       { return view_; }
@@ -214,6 +259,7 @@ namespace audio {
   {
     using ProxyViewType        = ProxyView;
     using Iterator             = StrideIterator<ProxyView>;
+    using ReverseIterator      = ReverseStrideIterator<ProxyView>;
 
     static_assert(std::is_base_of_v<View<StoreIter>, ProxyView>);
 
@@ -237,35 +283,37 @@ namespace audio {
         std::copy_n(other.begin(), std::min(size(), other.size()), begin());
         return *this;
       }
-
     ProxyView& operator[](std::size_t index)
       {
         proxy_view_.align(alignment() + index * proxy_view_.extent());
         return proxy_view_;
       }
-    Iterator begin()
-      {
-        ProxyViewType tmp = proxy_view_;
-        tmp.align(alignment());
-        return Iterator(tmp);
-      }
-    Iterator end()
-      {
-        ProxyViewType tmp = proxy_view_;
-        tmp.align(alignment() + extent());
-        return Iterator(tmp);
-      }
+    ProxyView& get(std::size_t index)
+      { return (*this)[index]; }
+
     Iterator begin() const
       {
         ProxyView tmp = proxy_view_;
         tmp.align(alignment());
-        return Iterator(tmp);
+        return Iterator(std::move(tmp));
       }
     Iterator end() const
       {
         ProxyView tmp = proxy_view_;
         tmp.align(alignment() + extent());
-        return Iterator(tmp);
+        return Iterator(std::move(tmp));
+      }
+    ReverseIterator rbegin() const
+      {
+        ProxyView tmp = proxy_view_;
+        tmp.align(alignment() + extent() - tmp.extent());
+        return ReverseIterator(std::move(tmp));
+      }
+    ReverseIterator rend() const
+      {
+        ProxyView tmp = proxy_view_;
+        tmp.align(alignment() - tmp.extent());
+        return ReverseIterator(std::move(tmp));
       }
 
   private:
@@ -528,7 +576,7 @@ namespace audio {
     void convert(const SampleView<OtherFormat, OtherStoreIter>& other,
                  /*from*/ floating_point, /*to*/ floating_point)
       {
-        (*this) = static_cast<double>(other);
+        (*this) = static_cast<ValueType>(other);
       }
   };
 
