@@ -651,103 +651,6 @@ namespace filter {
     const ByteBuffer& buffer_;
   };
 
-  /**
-   * @class Smooth
-   */
-  template<SampleFormat Format = kDefaultSampleFormat>
-  class Smooth {
-
-    static_assert(isFloatingPoint(Format),
-      "this filter only supports floating point types");
-
-    using Frame = FrameView<Format, ByteBuffer::pointer>;
-    using Frames = FrameContainerView<Format, ByteBuffer::pointer>;
-
-  public:
-    explicit Smooth(const Automation& kernel_width)
-      : kernel_width_{kernel_width},
-        cache_frames_{0},
-        channels_{0}
-      {
-        if (auto it = std::max_element(kernel_width_.points().begin(),
-                                       kernel_width_.points().end(),
-                                       [] (const auto& lhs, const auto& rhs)
-                                         { return lhs.value < rhs.value;});
-            it != kernel_width_.points().end())
-        {
-          cache_.reserve(std::max<size_t>(0, it->value) + 1);
-        }
-        else
-          cache_.reserve(1);
-      }
-
-    explicit Smooth(size_t kernel_width)
-      : kernel_width_{{{0ms}, (float) kernel_width}}, cache_frames_{0}, channels_{0}
-      { /* nothing */ }
-
-    void prepare(const StreamSpec& spec)
-      {
-        assert( isFloatingPoint(spec.format) );
-        assert( spec.channels == 2 );
-      }
-
-    void operator()(ByteBuffer& buffer)
-      {
-        if (kernel_width_.empty() || buffer.empty())
-          return;
-
-        channels_ = buffer.channels();
-
-        auto frames = viewFrames<Format>(buffer);
-        seconds_dbl frame_duration {1.0 / buffer.rate()};
-
-        kernel_width_.apply(frames.begin(), frames.end(), 0s, frame_duration,
-                            [&] (Frame& frame, auto&, size_t kernel_size)
-                              {
-                                pushFrame(frame);
-
-                                if (cache_frames_ - 1 > kernel_size)
-                                  popFrames(2);
-                                else if (cache_frames_ > kernel_size)
-                                  popFrames(1);
-
-                                if (cache_frames_ > 1)
-                                  for (size_t channel = 0; channel < frame.size(); ++channel)
-                                    frame[channel] = average(channel);
-                              });
-      }
-
-    void pushFrame(const Frame& frame)
-      {
-        cache_.insert(cache_.end(), frame.begin(), frame.end());
-        ++cache_frames_;
-      }
-
-    void popFrames(size_t n = 1)
-      {
-        cache_.erase(cache_.begin(), cache_.begin() + n * channels_);
-        cache_frames_ -= n;
-      }
-
-    float average(int channel)
-      {
-        if (cache_frames_ == 0)
-          return 0.0;
-
-        float sum = 0.0;
-        for (auto it = cache_.begin() + channel; it < cache_.end(); it += channels_)
-          sum += *it;
-
-        return sum / cache_frames_;
-      }
-
-  private:
-    Automation kernel_width_;
-    std::vector<float> cache_;
-    size_t cache_frames_;
-    size_t channels_;
-  };
-
   namespace std {
 
     // some shortcuts for default filters
@@ -759,7 +662,6 @@ namespace filter {
     using Wave      = Filter<Wave<kDefaultSampleFormat>>;
     using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
     using Mix       = Filter<Mix<kDefaultSampleFormat>>;
-    using Smooth    = Filter<Smooth<kDefaultSampleFormat>>;
 
   }//namespace std
 
