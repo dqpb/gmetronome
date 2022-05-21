@@ -51,16 +51,17 @@ namespace audio {
     assert(spec.rate > 0);
     assert(spec.channels == 2);
 
-    const StreamSpec filter_buffer_spec =
-      { filter::kDefaultSampleFormat, spec.rate, 2 };
-
-    osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
-    noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
-
     wavetables_.prepare(spec.rate);
     wavetables_.apply();
 
+    const StreamSpec filter_buffer_spec =
+      { filter::kDefaultSampleFormat, spec.rate, 2 };
+
+    noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
+    osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
+
     noise_pipe_.prepare(filter_buffer_spec);
+    osc_pipe_.prepare(filter_buffer_spec);
 
     spec_ = spec;
   }
@@ -108,14 +109,6 @@ namespace audio {
     float volume_l = volumeToAmplitude(volume) * balance_l;
     float volume_r = volumeToAmplitude(volume) * balance_r;
 
-    // float noise_gain    = volumeToAmplitude( (mix + 100.0) / 2.0, VolumeMapping::kQuadratic );
-    // float osc_gain      = volumeToAmplitude( (100.0 - mix) / 2.0, VolumeMapping::kQuadratic );
-
-    // float sine_gain      = osc_gain * std::clamp(1.0f - std::abs(0.0f - tone_timbre), 0.0f, 1.0f);
-    // float triangle_gain  = osc_gain * std::clamp(1.0f - std::abs(1.0f - tone_timbre), 0.0f, 1.0f);
-    // float sawtooth_gain  = osc_gain * std::clamp(1.0f - std::abs(2.0f - tone_timbre), 0.0f, 1.0f);
-    // float square_gain    = osc_gain * std::clamp(1.0f - std::abs(3.0f - tone_timbre), 0.0f, 1.0f);
-
     Decibel noise_gain    = volumeToDecibel( (mix + 100.0) / 2.0, VolumeMapping::kQuadratic );
     Decibel osc_gain      = volumeToDecibel( (100.0 - mix) / 2.0, VolumeMapping::kQuadratic );
 
@@ -130,17 +123,13 @@ namespace audio {
     auto [noise_envelope, noise_full_gain_time, noise_full_decay_time]
       = buildEnvelope(percussion_punch, percussion_decay, percussion_clap);
 
-    filter::get<1>(noise_pipe_).setLevel(noise_gain);
-    filter::get<2>(noise_pipe_).setCutoff(percussion_cutoff);
-    filter::get<3>(noise_pipe_).setEnvelope(std::move(noise_envelope));
+    // configure noise pipe
+    filter::get<filter::std::Noise>   (noise_pipe_).setLevel (noise_gain);
+    filter::get<filter::std::Lowpass> (noise_pipe_).setCutoff (percussion_cutoff);
+    filter::get<filter::std::Gain>    (noise_pipe_).setEnvelope (std::move(noise_envelope));
 
-    // auto noise_filter =
-    //   filter::std::Zero {}
-    // | filter::std::Noise {noise_gain}
-    // | filter::std::Lowpass {percussion_cutoff}
-    // | filter::std::Gain {noise_envelope};
-
-    noise_pipe_(noise_buffer_);
+    // apply noise pipe
+    noise_pipe_.process(noise_buffer_);
 
     auto osc_filter =
       filter::std::Zero {}
@@ -149,11 +138,11 @@ namespace audio {
     | filter::std::Wave {wavetables_[kSawtoothTable], tone_pitch, sawtooth_gain, float(M_PI), tone_detune}
     | filter::std::Wave {wavetables_[kSquareTable],   tone_pitch, square_gain,   0.0f,  tone_detune}
     | filter::std::Gain {osc_envelope}
-    | filter::std::Mix {noise_buffer_}
+    | filter::std::Mix {&noise_buffer_}
     | filter::std::Normalize {volume_l, volume_r};
 
     // apply filter
-    osc_filter(osc_buffer_);
+    osc_filter.process(osc_buffer_);
 
     resample(osc_buffer_, buffer);
   }

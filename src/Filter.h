@@ -47,8 +47,11 @@ namespace filter {
     void prepare(const StreamSpec& spec)
       { head_.prepare(spec); filter_.prepare(spec); }
 
+    template<typename DataType> void process(DataType& data)
+      { head_.process(data); filter_.process(data); }
+
     template<typename DataType> void operator()(DataType& data)
-      { head_(data); filter_(data); }
+      { process(data); }
 
     template<typename Other> auto operator | (Other filter) &
       { return FilterPipe<FilterPipe, Other>(*this, std::move(filter)); }
@@ -61,7 +64,10 @@ namespace filter {
     FilterType filter_;
 
     template<std::size_t I, typename H, typename F>
-    friend constexpr auto& get(FilterPipe<H,F>& pipe);
+    friend constexpr auto& get(FilterPipe<H,F>& pipe) noexcept;
+
+    template<typename T, typename H, typename F>
+    friend constexpr T& get(FilterPipe<H,F>& pipe) noexcept;
   };
 
   template<typename Callable>
@@ -73,8 +79,11 @@ namespace filter {
     void prepare(const StreamSpec& spec)
       { Callable::prepare(spec); }
 
+    template<typename DataType> void process(DataType& data)
+      { Callable::process(data); }
+
     template<typename DataType> void operator()(DataType& data)
-      { Callable::operator()(data); }
+      { process(data); }
 
     template<typename Other> auto operator | (Other filter) &
       { return FilterPipe(*this, std::move(filter)); }
@@ -133,7 +142,7 @@ namespace filter {
    * @brief extracts the Ith filter from the pipe
    */
   template<std::size_t I, typename PipeHead, typename FilterType>
-  constexpr auto& get(FilterPipe<PipeHead, FilterType>& pipe)
+  constexpr auto& get(FilterPipe<PipeHead, FilterType>& pipe) noexcept
   {
     static_assert(I < FilterPipeSize<FilterPipe<PipeHead, FilterType>>::value);
 
@@ -144,11 +153,28 @@ namespace filter {
   }
 
   template<std::size_t I, typename Callable>
-  constexpr Filter<Callable>& get(Filter<Callable>& pipe)
+  constexpr Filter<Callable>& get(Filter<Callable>& pipe) noexcept
   {
     static_assert(I == 0);
     return pipe;
   }
+
+  template<typename T, typename PipeHead, typename FilterType>
+  constexpr T& get(FilterPipe<PipeHead, FilterType>& pipe) noexcept
+  {
+    if constexpr (std::is_same<T, FilterType>::value)
+      return pipe.filter_;
+    else
+      return get<T>(pipe.head_);
+  }
+
+  template<typename T, typename Callable>
+  constexpr T& get(Filter<Callable>& pipe) noexcept
+  {
+    static_assert( std::is_same<T,Filter<Callable>>::value );
+    return pipe;
+  }
+
 
   constexpr SampleFormat kDefaultSampleFormat =
     (hostEndian() == Endian::kLittle) ? SampleFormat::kFloat32LE : SampleFormat::kFloat32BE;
@@ -264,7 +290,7 @@ namespace filter {
         assert( spec.channels == 2 );
       }
 
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         auto channels = viewChannels<Format>(buffer);
         for (auto& channel : channels)
@@ -283,7 +309,6 @@ namespace filter {
           }
         }
       }
-
   private:
     std::vector<float> kernel_;
   };
@@ -303,7 +328,7 @@ namespace filter {
 
     void setCutoff(float cutoff)
       {
-        if (cutoff != cutoff_)
+        if (cutoff_ != cutoff )
         {
           cutoff_ = cutoff;
           need_rebuild_kernel_ = true;
@@ -314,19 +339,18 @@ namespace filter {
         assert( isFloatingPoint(spec.format) );
         assert( spec.channels == 2 );
 
-        if (spec.rate != rate_)
+        if (rate_ != spec.rate)
         {
           rate_ = spec.rate;
           need_rebuild_kernel_ = true;
         }
       }
-
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         if (need_rebuild_kernel_)
           rebuildKernel();
 
-        FIR<Format>::operator()(buffer);
+        FIR<Format>::process(buffer);
       }
 
   private:
@@ -389,7 +413,7 @@ namespace filter {
         assert( isFloatingPoint(spec.format) );
         assert( spec.channels == 2 );
       }
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       { std::fill(buffer.begin(), buffer.end(), 0); }
   };
 
@@ -414,7 +438,7 @@ namespace filter {
         assert( isFloatingPoint(spec.format) );
         assert( spec.channels == 2 );
       }
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate > 0);
 
@@ -442,11 +466,18 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Noise(float amp = 1.0f) : amp_{amp}, value_{0}
+    enum class Mode
+    {
+      kBlock,
+      kContiguous
+    };
+
+  public:
+    explicit Noise(float amp = 1.0f) : amp_{amp}
       { /* nothing */ }
 
     explicit Noise(const Decibel& level)
-      : amp_{static_cast<float>(level.amplitude())}, value_{0}
+      : amp_{static_cast<float>(level.amplitude())}
       { /* nothing */ }
 
     void setLevel(const Decibel& level)
@@ -458,12 +489,15 @@ namespace filter {
         assert( spec.channels == 2 );
       }
 
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         assert(buffer.format() == Format);
 
         if (amp_ == 0.0f)
           return;
+
+        if (mode_ == Mode::kBlock)
+          value_ = seed_;
 
         auto frames = viewFrames<Format>(buffer);
         for (auto& frame : frames)
@@ -475,18 +509,25 @@ namespace filter {
         }
       }
 
+    Mode mode() const
+      { return mode_; }
+
+    void setMode(Mode mode)
+      { mode_ = mode; }
+
     void seed(std::uint32_t value = make_seed())
-      { value_ = value; }
+      { seed_ = value_ = value; }
 
     static std::uint32_t make_seed()
       {
         return  static_cast<std::uint32_t>(
           std::chrono::high_resolution_clock::now().time_since_epoch().count());
       }
-
   private:
     float amp_;
-    std::uint32_t value_;
+    std::uint32_t seed_{0};
+    std::uint32_t value_{0};
+    Mode mode_{Mode::kBlock};
 
     float uniform_distribution()
       {
@@ -530,7 +571,7 @@ namespace filter {
         assert( spec.channels == 2 );
       }
 
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         assert(buffer.spec().rate != 0);
         assert(isFloatingPoint(buffer.spec().format));
@@ -597,7 +638,7 @@ namespace filter {
         assert( spec.channels == 2 );
       }
 
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
         assert(buffer.spec().channels == 2);
         auto frames = viewFrames<Format>(buffer);
@@ -625,8 +666,11 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Mix(const ByteBuffer& buffer) : buffer_{buffer}
+    Mix(const ByteBuffer* buffer = nullptr) : buffer_{buffer}
       {/*nothing*/}
+
+    void setBuffer(const ByteBuffer* buffer)
+      { buffer_ = buffer; }
 
     void prepare(const StreamSpec& spec)
       {
@@ -634,10 +678,13 @@ namespace filter {
         assert( spec.channels == 2 );
       }
 
-    void operator()(ByteBuffer& buffer)
+    void process(ByteBuffer& buffer)
       {
+        if (buffer_ == nullptr)
+          return;
+
         auto frames1 = viewFrames<Format>(buffer);
-        auto frames2 = viewFrames<Format>(buffer_);
+        auto frames2 = viewFrames<Format>(*buffer_);
 
         auto it2 = frames2.begin();
         for (auto it1 = frames1.begin();
@@ -648,7 +695,7 @@ namespace filter {
         }
       }
   private:
-    const ByteBuffer& buffer_;
+    const ByteBuffer* buffer_;
   };
 
   namespace std {

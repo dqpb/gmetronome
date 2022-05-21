@@ -167,6 +167,15 @@ namespace audio {
 
     NoiseFilterPipe noise_pipe_;
 
+    using OscFilterPipe = decltype(
+        filter::std::Zero()
+      | filter::std::Gain()
+      | filter::std::Mix()
+      | filter::std::Normalize()
+    );
+
+    OscFilterPipe osc_pipe_;
+
     std::tuple<filter::Automation, microseconds, microseconds>
     buildEnvelope(float attack, float decay, bool clap) const;
   };
