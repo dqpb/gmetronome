@@ -159,6 +159,10 @@ namespace filter {
     return pipe;
   }
 
+  /**
+   * @function get
+   * @brief extracts the element from the pipe whose type is T
+   */
   template<typename T, typename PipeHead, typename FilterType>
   constexpr T& get(FilterPipe<PipeHead, FilterType>& pipe) noexcept
   {
@@ -361,7 +365,6 @@ namespace filter {
 
     void rebuildKernel()
       {
-        std::cout << "rebuild kernel" << std::endl;
         std::vector<float> kernel;
         FIR<Format>::swapKernel(kernel);
 
