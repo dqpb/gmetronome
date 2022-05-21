@@ -114,7 +114,7 @@ namespace audio {
               if (fractional < 0.0f)
                 fractional += 1.0f;
 
-              size_t index_flt = fractional * size();
+              float index_flt = fractional * size();
 
               size_t index1 = index_flt; // trunc
               size_t index2 = index1 + 1;
