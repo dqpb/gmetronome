@@ -41,16 +41,16 @@ const std::vector<ShortcutEntry>& ShortcutList()
       { settings::kKeyShortcutsStart,                  C_("Shortcut title", "Start / Stop") },
 
       { {}, C_("Shortcut group title", "Volume") },
-      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1 dB") },
-      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1 dB") },
-      { settings::kKeyShortcutsVolumeIncrease3,         C_("Shortcut title", "Volume +3 dB") },
-      { settings::kKeyShortcutsVolumeDecrease3,         C_("Shortcut title", "Volume -3 dB") },
+      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1 Percent") },
+      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1 Percent") },
+      { settings::kKeyShortcutsVolumeIncrease10,        C_("Shortcut title", "Volume +10 Percent") },
+      { settings::kKeyShortcutsVolumeDecrease10,        C_("Shortcut title", "Volume -10 Percent") },
 
       { {}, C_("Shortcut group title", "Tempo") },
-      { settings::kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1") },
-      { settings::kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1") },
-      { settings::kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10") },
-      { settings::kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10") },
+      { settings::kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1 Bpm") },
+      { settings::kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1 Bpm") },
+      { settings::kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10 Bpm") },
+      { settings::kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10 Bpm") },
       { settings::kKeyShortcutsTempoTap,               C_("Shortcut title", "Tempo Tap") },
 
       { {}, C_("Shortcut group title", "Accents") },
@@ -108,11 +108,11 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsVolumeDecrease1,
     { kActionVolumeDecrease, Glib::Variant<double>::create(1) }
   },
-  { settings::kKeyShortcutsVolumeIncrease3,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(3) }
+  { settings::kKeyShortcutsVolumeIncrease10,
+    { kActionVolumeIncrease, Glib::Variant<double>::create(10) }
   },
-  { settings::kKeyShortcutsVolumeDecrease3,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(3) }
+  { settings::kKeyShortcutsVolumeDecrease10,
+    { kActionVolumeDecrease, Glib::Variant<double>::create(10) }
   },
   { settings::kKeyShortcutsTempoIncrease1,
     { kActionTempoIncrease, Glib::Variant<double>::create(1.) }

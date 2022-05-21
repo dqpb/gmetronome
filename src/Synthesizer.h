@@ -36,13 +36,13 @@ namespace audio {
     float tone_detune       {0.0};    // [0.0f, 100.0f] (cents)
     float tone_punch        {0.5};    // [0.0f, 1.0f]
     float tone_decay        {0.5};    // [0.0f, 1.0f]
-    float percussion_cutoff {0.5};    // [0.0f, 1.0f]
+    float percussion_cutoff {0.5};    // [40.0f, 10000.0f] (hertz)
     bool  percussion_clap   {false};
     float percussion_punch  {0.5};    // [0.0f, 1.0f]
     float percussion_decay  {0.5};    // [0.0f, 1.0f]
-    Decibel mix             {-60.0_dB};  // [-60.0f, 60.0f]
-    Decibel balance         {0.0_dB};    // [-60.0f, 60.0f]
-    Decibel volume          {-6.0_dB};   // [-60.0f, 0.0f]
+    float mix               {0.0};    // [-100.0f, 100.0f] (percent)
+    float balance           {0.0};    // [-100.0f, 100.0f] (percent)
+    float volume            {75.0};   // [0.0f, 100.0f] (percent)
   };
 
   inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)

@@ -89,20 +89,38 @@ namespace audio {
     float tone_detune        = std::clamp(params.tone_detune, 0.0f, 100.0f);
     float tone_punch         = std::clamp(params.tone_punch, 0.0f, 1.0f);
     float tone_decay         = std::clamp(params.tone_decay, 0.0f, 1.0f);
-    float percussion_cutoff  = std::clamp(params.percussion_cutoff, 0.0f, 1.0f);
+    float percussion_cutoff  = std::clamp(params.percussion_cutoff, 40.0f, 10000.0f);
     bool  percussion_clap    = params.percussion_clap;
     float percussion_punch   = std::clamp(params.percussion_punch, 0.0f, 1.0f);
     float percussion_decay   = std::clamp(params.percussion_decay, 0.0f, 1.0f);
+    float mix                = std::clamp(params.mix, -100.0f, 100.0f);
+    float balance            = std::clamp(params.balance, -100.0f, 100.0f);
+    float volume             = std::clamp(params.volume, 0.0f, 100.0f);
 
-    Decibel volume_l = (params.balance > 0_dB) ? params.volume - params.balance : params.volume;
-    Decibel volume_r = (params.balance < 0_dB) ? params.volume + params.balance : params.volume;
+    float balance_vol_l = (balance > 0.0) ? 100.0 - balance : 100.0;
+    float balance_vol_r = (balance < 0.0) ? 100.0 + balance : 100.0;
 
-    Decibel noise_gain    = (params.mix < 0_dB) ?  params.mix : 0_dB;
-    Decibel osc_gain      = (params.mix > 0_dB) ? -params.mix : 0_dB;
-    Decibel sine_gain     = osc_gain - 12_dB * std::abs(0.0f - tone_timbre);
-    Decibel triangle_gain = osc_gain - 12_dB * std::abs(1.0f - tone_timbre);
-    Decibel sawtooth_gain = osc_gain - 12_dB * std::abs(2.0f - tone_timbre);
-    Decibel square_gain   = osc_gain - 12_dB * std::abs(3.0f - tone_timbre);
+    float balance_l = volumeToAmplitude( balance_vol_l, VolumeMapping::kLinear );
+    float balance_r = volumeToAmplitude( balance_vol_r, VolumeMapping::kLinear );
+
+    float volume_l = volumeToAmplitude(volume) * balance_l;
+    float volume_r = volumeToAmplitude(volume) * balance_r;
+
+    // float noise_gain    = volumeToAmplitude( (mix + 100.0) / 2.0, VolumeMapping::kQuadratic );
+    // float osc_gain      = volumeToAmplitude( (100.0 - mix) / 2.0, VolumeMapping::kQuadratic );
+
+    // float sine_gain      = osc_gain * std::clamp(1.0f - std::abs(0.0f - tone_timbre), 0.0f, 1.0f);
+    // float triangle_gain  = osc_gain * std::clamp(1.0f - std::abs(1.0f - tone_timbre), 0.0f, 1.0f);
+    // float sawtooth_gain  = osc_gain * std::clamp(1.0f - std::abs(2.0f - tone_timbre), 0.0f, 1.0f);
+    // float square_gain    = osc_gain * std::clamp(1.0f - std::abs(3.0f - tone_timbre), 0.0f, 1.0f);
+
+    Decibel noise_gain    = volumeToDecibel( (mix + 100.0) / 2.0, VolumeMapping::kQuadratic );
+    Decibel osc_gain      = volumeToDecibel( (100.0 - mix) / 2.0, VolumeMapping::kQuadratic );
+
+    Decibel sine_gain      = osc_gain - 18_dB * std::abs(0.0f - tone_timbre);
+    Decibel triangle_gain  = osc_gain - 18_dB * std::abs(1.0f - tone_timbre);
+    Decibel sawtooth_gain  = osc_gain - 18_dB * std::abs(2.0f - tone_timbre);
+    Decibel square_gain    = osc_gain - 18_dB * std::abs(3.0f - tone_timbre);
 
     auto [osc_envelope, osc_full_gain_time, osc_full_decay_time]
       = buildEnvelope(tone_punch, tone_decay, false);
@@ -110,38 +128,10 @@ namespace audio {
     auto [noise_envelope, noise_full_gain_time, noise_full_decay_time]
       = buildEnvelope(percussion_punch, percussion_decay, percussion_clap);
 
-    // dynamic smoothing kernel sizes
-    microseconds low_kw_duration {unsigned((1.0f - percussion_cutoff) * 200.0f)};
-    microseconds high_kw_duration {200};
-
-    float low_kw = static_cast<float>(usecsToFrames(low_kw_duration, noise_buffer_.spec()));
-    float high_kw = static_cast<float>(usecsToFrames(high_kw_duration, noise_buffer_.spec()));
-
-    filter::Automation noise_smooth_kw;
-
-    if (percussion_clap)
-    {
-      noise_smooth_kw.append({
-          { 0ms,                          high_kw},
-          { noise_full_gain_time / 2,     low_kw},
-          { noise_full_gain_time * 3 / 4, high_kw},
-          { noise_full_gain_time,         low_kw},
-          { noise_full_decay_time,        high_kw}
-        });
-    }
-    else
-    {
-      noise_smooth_kw.append({
-          { 0ms,                   high_kw},
-          { noise_full_gain_time,  low_kw},
-          { noise_full_decay_time, high_kw}
-        });
-    }
-
     auto noise_filter =
       filter::std::Zero {}
     | filter::std::Noise {noise_gain}
-    | filter::std::Smooth {noise_smooth_kw}
+    | filter::std::Lowpass {percussion_cutoff}
     | filter::std::Gain {noise_envelope};
 
     noise_filter(noise_buffer_);
@@ -267,7 +257,7 @@ namespace audio {
     // the triangle waveform.
     float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
 
-    // By Nyquist we must not produce higher frequencies than half the audio backends rate.
+    // By Nyquist we must not produce higher frequencies than half the sample rate.
     size_t max_harmonic_1 = (rate / 2.0) / fundamental;
 
     // We are also limited by the actual page size as we need twice the number of wavetable
@@ -277,18 +267,6 @@ namespace audio {
 
     // We use the minimum of these bounds:
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
-
-// #ifndef NDEBUG
-//     std::cout << "TriangleRecipe: Page: " << page
-//               << "\tSize: " << page_size
-//               << "\tRate: " << rate
-//               << "\tBase: " << base
-//               << "\tfund: " << fundamental
-//               << "\th1: " << max_harmonic_1
-//               << "\th2: " << max_harmonic_2
-//               << "\tmax: " << max_harmonic
-//               << std::endl;
-// #endif
 
     double step = 2.0 * M_PI / page_size;
 

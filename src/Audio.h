@@ -25,6 +25,7 @@
 #endif
 
 #include <chrono>
+#include <algorithm>
 #include <cmath>
 
 namespace audio {
@@ -258,16 +259,15 @@ namespace audio {
 
   class Decibel {
   public:
-    constexpr explicit Decibel(float count = 0.0f) : cnt_{count}
+    constexpr explicit Decibel(double count = 0.0f) : cnt_{count}
       { /* nothing */ }
 
-    constexpr float value() const
+    constexpr double value() const
       { return cnt_; }
-    constexpr float amplitude() const
+    constexpr double amplitude() const
       { return std::pow(10.0f, cnt_ / 20.0f); }
-    constexpr float power() const
+    constexpr double power() const
       { return std::pow(10.0f, cnt_ / 10.0f); }
-
     constexpr Decibel operator+() const
       { return Decibel(*this); }
     constexpr Decibel operator-() const
@@ -284,7 +284,7 @@ namespace audio {
       { cnt_ /= value; return *this; }
 
   private:
-    float cnt_;
+    double cnt_;
   };
 
   constexpr Decibel operator+(const Decibel& lhs, const Decibel& rhs)
@@ -316,6 +316,73 @@ namespace audio {
   { return Decibel(value); }
   constexpr Decibel operator "" _dB(long double value)
   { return Decibel(value); }
+
+  constexpr double kMinVolume = 0.0;  // percent
+  constexpr double kMaxVolume = 100.0;
+
+  /*
+   * Type of mapping from volume (in percent) to amplitude ratio [0,1]
+   * https://lists.linuxaudio.org/archives/linux-audio-dev/2009-May/022198.html
+   * https://www.dr-lex.be/info-stuff/volumecontrols.html
+   */
+  enum class VolumeMapping {
+    kLinear     = 1,
+    kQuadratic  = 2,
+    kCubic      = 3
+  };
+
+  constexpr
+  double amplitudeToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
+  {
+    switch (map) {
+    case VolumeMapping::kQuadratic:
+      amp = std::sqrt(amp);
+      break;
+    case VolumeMapping::kCubic:
+      amp = std::cbrt(amp);
+      break;
+    case VolumeMapping::kLinear:
+      [[fallthrough]];
+    default:
+      /* linear mapping */
+      break;
+    };
+    return std::clamp(amp * kMaxVolume, kMinVolume, kMaxVolume);
+  }
+  constexpr
+  double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kCubic)
+  {
+    vol = std::clamp(vol, kMinVolume, kMaxVolume) / kMaxVolume;
+
+    switch (map) {
+    case VolumeMapping::kQuadratic:
+      vol = vol * vol;
+      break;
+    case VolumeMapping::kCubic:
+      vol = vol * vol * vol;
+      break;
+    case VolumeMapping::kLinear:
+      [[fallthrough]];
+    default:
+      /* linear mapping */
+      break;
+    };
+
+    return vol;
+  }
+  constexpr Decibel amplitudeToDecibel(double amp)
+  { return Decibel { 20.0 * std::log10(amp) }; }
+
+  constexpr double decibelToAmplitude(const Decibel& dec)
+  { return dec.amplitude(); }
+
+  constexpr
+  Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
+  { return amplitudeToDecibel(volumeToAmplitude(vol, map)); }
+
+  constexpr
+  double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kCubic)
+  { return amplitudeToVolume(decibelToAmplitude(dec), map); }
 
 }//namespace audio
 #endif//GMetronome_Audio_h

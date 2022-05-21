@@ -340,8 +340,7 @@ void Application::updateTickerSound(const AccentMask& accents)
   if (accents.none())
     return;
 
-  audio::Decibel global_volume =
-    audio::Decibel(settings::sound()->get_double(settings::kKeySoundVolume));
+  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
   if (accents[0]) {
     audio::SoundParameters params;
@@ -349,7 +348,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[0], params);
 
-    params.volume += global_volume;
+    params.volume *= global_volume / 100.0;
     ticker_.setSoundStrong(params);
   }
   if (accents[1]) {
@@ -358,7 +357,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[1], params);
 
-    params.volume += global_volume;
+    params.volume *= global_volume / 100.0;
     ticker_.setSoundMid(params);
   }
   if (accents[2]) {
@@ -367,7 +366,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[2], params);
 
-    params.volume += global_volume;
+    params.volume *= global_volume / 100.0;
     ticker_.setSoundWeak(params);
   }
 }
