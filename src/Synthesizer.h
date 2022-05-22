@@ -103,7 +103,6 @@ namespace audio {
     static constexpr int kTriangleTable = 1;
     static constexpr int kSawtoothTable = 2;
     static constexpr int kSquareTable   = 3;
-    static constexpr int kNoiseTable    = 4;
 
     WavetableLibrary wavetables_;
 
