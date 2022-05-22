@@ -370,13 +370,15 @@ namespace audio {
 
     return vol;
   }
-  constexpr Decibel amplitudeToDecibel(double amp)
+  //constexpr (std::log10 is not constexpr in clang-7)
+  inline Decibel amplitudeToDecibel(double amp)
   { return Decibel { 20.0 * std::log10(amp) }; }
 
   constexpr double decibelToAmplitude(const Decibel& dec)
   { return dec.amplitude(); }
 
-  constexpr
+  //constexpr (amplitudeToDecibel is not constexpr)
+  inline
   Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
   { return amplitudeToDecibel(volumeToAmplitude(vol, map)); }
 
