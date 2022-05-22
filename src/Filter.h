@@ -139,7 +139,7 @@ namespace filter {
 
   /**
    * @function get
-   * @brief extracts the Ith filter from the pipe
+   * @brief Extracts the Ith filter from the pipe.
    */
   template<std::size_t I, typename PipeHead, typename FilterType>
   constexpr auto& get(FilterPipe<PipeHead, FilterType>& pipe) noexcept
@@ -161,7 +161,10 @@ namespace filter {
 
   /**
    * @function get
-   * @brief extracts the element from the pipe whose type is T
+   * @brief Extracts the element from the pipe whose type is T.
+   *
+   * If the pipe contains more than one element of type T, the last
+   * element is returned.
    */
   template<typename T, typename PipeHead, typename FilterType>
   constexpr T& get(FilterPipe<PipeHead, FilterType>& pipe) noexcept
@@ -274,7 +277,7 @@ namespace filter {
 
   /**
    * @class FIR
-   * @brief Compute the convolution of an audio buffer and a kernel
+   * @brief Compute the convolution of an audio buffer and a filter kernel
    */
   template<SampleFormat Format = kDefaultSampleFormat>
   class FIR {
