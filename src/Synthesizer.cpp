@@ -21,14 +21,11 @@
 #  include <config.h>
 #endif
 
-#include "Filter.h"
 #include "Synthesizer.h"
 
-#include <vector>
 #include <algorithm>
 #include <cmath>
 #include <cassert>
-#include <random>
 
 #ifndef NDEBUG
 #  include <iostream>
@@ -223,102 +220,6 @@ namespace audio {
     }
 
     return {std::move(envelope), std::move(full_gain_time), std::move(full_decay_time)};
-  }
-
-
-  void Synthesizer::SineRecipe::fillPage(SampleRate rate,
-                                         size_t page,
-                                         float base,
-                                         Wavetable::Page::iterator begin,
-                                         Wavetable::Page::iterator end) const
-  {
-    size_t page_size = end - begin;
-    double step = 2.0 * M_PI / page_size;
-    for (size_t index = 0; index < page_size; ++index, ++begin)
-      *begin = std::sin(index * step);
-  }
-
-  void Synthesizer::TriangleRecipe::fillPage(SampleRate rate,
-                                             size_t page,
-                                             float base,
-                                             Wavetable::Page::iterator begin,
-                                             Wavetable::Page::iterator end) const
-  {
-    size_t page_size = end - begin;
-
-    // Since we requested a range of one (one half) octave per page (see TriangleRecipe)
-    // the highest fundamental in this page is 2^1 (2^0.5) * base. We use this fundamental
-    // as starting point to compute the highest possible harmonic that we can use to compute
-    // the triangle waveform.
-    float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
-
-    // By Nyquist we must not produce higher frequencies than half the sample rate.
-    size_t max_harmonic_1 = (rate / 2.0) / fundamental;
-
-    // We are also limited by the actual page size as we need twice the number of wavetable
-    // samples for a maximum harmonic. (A given fundamental for the wavetable also gives a
-    // sample rate for the table which again limits the representable frequencies by Nyquist).
-    size_t max_harmonic_2 = page_size / 2;
-
-    // We use the minimum of these bounds:
-    int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
-
-    double step = 2.0 * M_PI / page_size;
-
-    for (size_t index = 0; index < page_size; ++index, ++begin)
-    {
-      double sum = 0;
-      for (int harmonic = 1, sign = 1; harmonic <= max_harmonic; harmonic += 2, sign *= -1)
-        sum += sign * 1.0 / (harmonic * harmonic) * std::sin(harmonic * index * step);
-
-      *begin = 8.0 / (M_PI * M_PI) * sum;
-    }
-  }
-
-  void Synthesizer::SawtoothRecipe::fillPage(SampleRate rate,
-                                             size_t page,
-                                             float base,
-                                             Wavetable::Page::iterator begin,
-                                             Wavetable::Page::iterator end) const
-  {
-    size_t page_size = end - begin;
-    float fundamental = std::pow(2.0f, 1.0f /*1.0f / 2.0f*/) * base;
-    size_t max_harmonic_1 = (rate / 2.0) / fundamental;
-    size_t max_harmonic_2 = page_size / 2;
-    int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
-    double step = 2.0 * M_PI / page_size;
-
-    for (size_t index = 0; index < page_size; ++index, ++begin)
-    {
-      double sum = 0;
-      for (int harmonic = 1, sign = -1; harmonic <= max_harmonic; ++harmonic, sign *= -1)
-        sum += sign * 1.0 / harmonic * std::sin(harmonic * index * step);
-
-      *begin = 2.0 / M_PI * sum;
-    }
-  }
-
-  void Synthesizer::SquareRecipe::fillPage(SampleRate rate,
-                                           size_t page,
-                                           float base,
-                                           Wavetable::Page::iterator begin,
-                                           Wavetable::Page::iterator end) const
-  {
-    size_t page_size = end - begin;
-    float fundamental = std::pow(2.0f, 1.0f /* 1.0f / 2.0f */) * base;
-    size_t max_harmonic_1 = (rate / 2.0) / fundamental;
-    size_t max_harmonic_2 = page_size / 2;
-    int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
-    double step = 2.0 * M_PI / page_size;
-
-    for (size_t index = 0; index < page_size; ++index, ++begin)
-    {
-      double sum = 0;
-      for (int harmonic = 1; harmonic <= max_harmonic; harmonic += 2)
-        sum += 1.0 / harmonic * std::sin(harmonic * index * step);
-
-      *begin = 4.0 / M_PI * sum;
-    }
   }
 
 }//namespace audio
