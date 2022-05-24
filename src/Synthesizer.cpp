@@ -130,7 +130,7 @@ namespace audio {
 
     auto osc_filter =
       filter::std::Zero {}
-    | filter::std::Wave {wavetables_[kSineTable],     tone_pitch, sine_gain,     0.0f,  tone_detune}
+    | filter::std::Wave {wavetables_[kSineTable],     tone_pitch, sine_gain,     float(M_PI/2.0),  tone_detune}
     | filter::std::Wave {wavetables_[kTriangleTable], tone_pitch, triangle_gain, 0.0f,  tone_detune}
     | filter::std::Wave {wavetables_[kSawtoothTable], tone_pitch, sawtooth_gain, float(M_PI), tone_detune}
     | filter::std::Wave {wavetables_[kSquareTable],   tone_pitch, square_gain,   0.0f,  tone_detune}
