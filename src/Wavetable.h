@@ -27,10 +27,6 @@
 #include <memory>
 #include <utility>
 
-#ifndef NDEBUG
-# include <iostream>
-#endif
-
 namespace audio {
 
   class Wavetable {
@@ -70,35 +66,12 @@ namespace audio {
         { return *(begin_+index); }
 
       // get linear interpolated values
-      value_type lookup(float frequency, float time) const
-        { return lookup(frequency * time); }
-
-      value_type lookup(float parameter) const
-        {
-          if (empty())
-            return value_type(0);
-
-          float fractional = parameter - (long) parameter;
-
-          if (fractional < 0.0f)
-            fractional += 1.0f;
-
-          float index_flt = fractional * size();
-
-          size_t index1 = index_flt; // trunc
-          size_t index2 = index1 + 1;
-
-          if (index2 >= size())
-            index2 = 0;
-
-          value_type value1 = *(begin_ + index1);
-          value_type value2 = *(begin_ + index2);
-
-          return value1 + (index_flt - index1) * (value2 - value1);
-        }
-
       template<typename Iterator, typename Callable, size_t N>
-      void lookup(Iterator begin, Iterator end, std::array<float,N> start, std::array<float,N> step, Callable fu) const
+      void lookup(Iterator begin,
+                  Iterator end,
+                  std::array<float,N>& start,
+                  const std::array<float,N>& step,
+                  Callable fu) const
         {
           if (empty())
             return;
@@ -213,9 +186,6 @@ namespace audio {
 
     Page& lookup(float frequency)
       { return const_cast<Page&>(std::as_const(*this).lookup(frequency)); }
-
-    Page::value_type lookup(float frequency, float time) const
-      { return lookup(frequency).lookup(frequency,time); }
 
     void clear();
 

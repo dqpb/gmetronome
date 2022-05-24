@@ -599,7 +599,7 @@ namespace filter {
           (freq_ - detune_) * frame_tm,
           (freq_ + detune_) * frame_tm
         };
-        tbl_page.lookup(frames.begin(), frames.end(), std::move(start), std::move(step),
+        tbl_page.lookup(frames.begin(), frames.end(), start, step,
                         [&] (auto& frame, auto& values)
                           {
                             frame += {
