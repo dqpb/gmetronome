@@ -564,11 +564,7 @@ namespace filter {
 
     Wave(const Wavetable& tbl, float freq, const Decibel& level = 0_dB,
          float phase = 0.0f, float detune = 0.0f)
-      : tbl_{tbl},
-        freq_{freq},
-        amp_{static_cast<float>(level.amplitude())},
-        phase_{phase},
-        detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
+      : Wave(tbl, freq, static_cast<float>(level.amplitude()), phase)
       {}
 
     void prepare(const StreamSpec& spec)
