@@ -45,21 +45,7 @@ namespace audio {
     float volume            {75.0};   // [0.0f, 100.0f] (percent)
   };
 
-  inline bool operator==(const SoundParameters& lhs, const SoundParameters& rhs)
-  {
-    return lhs.tone_pitch == rhs.tone_pitch
-      && lhs.tone_timbre == rhs.tone_timbre
-      && lhs.tone_detune == rhs.tone_detune
-      && lhs.tone_punch == rhs.tone_punch
-      && lhs.tone_decay == rhs.tone_decay
-      && lhs.percussion_cutoff == rhs.percussion_cutoff
-      && lhs.percussion_clap == rhs.percussion_clap
-      && lhs.percussion_punch == rhs.percussion_punch
-      && lhs.percussion_decay == rhs.percussion_decay
-      && lhs.mix == rhs.mix
-      && lhs.balance == rhs.balance
-      && lhs.volume == rhs.volume;
-  }
+  bool operator==(const SoundParameters& lhs, const SoundParameters& rhs);
 
   inline bool operator!=(const SoundParameters& lhs, const SoundParameters& rhs)
   { return !(lhs==rhs); }
@@ -71,7 +57,10 @@ namespace audio {
    */
   constexpr milliseconds kSoundDuration = 60ms;
 
-  /** Implements the requirements of a builder for ObjectLibrary. */
+  /**
+   * @class Synthesizer
+   * @brief Implements the requirements of a builder for ObjectLibrary.
+   */
   class Synthesizer {
   public:
     Synthesizer(const StreamSpec& spec = kDefaultSpec);
