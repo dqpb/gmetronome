@@ -67,7 +67,7 @@ struct SettingsListDelegate<SoundTheme>
           settings->get_enum(settings::kKeySoundThemeToneDecayShape));
 
         target.percussion_cutoff = settings->get_double(settings::kKeySoundThemePercussionCutoff);
-        target.percussion_clap = settings->get_boolean(settings::kKeySoundThemePercussionClap);
+        target.percussion_clap = settings->get_double(settings::kKeySoundThemePercussionClap);
         target.percussion_attack = settings->get_double(settings::kKeySoundThemePercussionAttack);
         target.percussion_attack_shape = static_cast<audio::EnvelopeShape>(
           settings->get_enum(settings::kKeySoundThemePercussionAttackShape));
@@ -97,7 +97,7 @@ struct SettingsListDelegate<SoundTheme>
                            static_cast<int>(source.tone_decay_shape));
 
         settings->set_double(settings::kKeySoundThemePercussionCutoff, source.percussion_cutoff);
-        settings->set_boolean(settings::kKeySoundThemePercussionClap, source.percussion_clap);
+        settings->set_double(settings::kKeySoundThemePercussionClap, source.percussion_clap);
         settings->set_double(settings::kKeySoundThemePercussionAttack, source.percussion_attack);
         settings->set_enum(settings::kKeySoundThemePercussionAttackShape,
                            static_cast<int>(source.percussion_attack_shape));
@@ -154,7 +154,6 @@ struct SettingsListDelegate<SoundTheme>
     {
       bool m = false;
       Glib::Variant<double> dbl_value;
-      Glib::Variant<bool> bool_value;
       Glib::Variant<int> int_value;
 
       if (settings)
@@ -168,7 +167,7 @@ struct SettingsListDelegate<SoundTheme>
         m = m || settings->get_user_value(settings::kKeySoundThemeToneDecayShape, int_value);
 
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionCutoff, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemePercussionClap, bool_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionClap, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionAttack, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionAttackShape, int_value);
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionDecay, dbl_value);

@@ -176,7 +176,6 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("toneDecayBox", tone_decay_box_);
   builder_->get_widget("percussionAttackBox", percussion_attack_box_);
   builder_->get_widget("percussionDecayBox", percussion_decay_box_);
-  builder_->get_widget("percussionClapSwitch", percussion_clap_switch_);
   builder_->get_widget("balanceScale", balance_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
@@ -192,6 +191,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneDecayAdjustment"));
   percussion_cutoff_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionCutoffAdjustment"));
+  percussion_clap_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionClapAdjustment"));
   percussion_attack_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionAttackAdjustment"));
   percussion_decay_adjustment_ =
@@ -347,7 +348,7 @@ void SoundThemeEditor::bindSoundProperties()
     sound_settings_->bind(settings::kKeySoundThemePercussionCutoff,
                           percussion_cutoff_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionClap,
-                          percussion_clap_switch_->property_state());
+                          percussion_clap_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionAttack,
                           percussion_attack_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionAttackShape,
@@ -381,7 +382,7 @@ void SoundThemeEditor::unbindSoundProperties()
   unbindProperty(tone_decay_adjustment_->property_value());
   unbindProperty(tone_decay_shape_button_.property_shape());
   unbindProperty(percussion_cutoff_adjustment_->property_value());
-  unbindProperty(percussion_clap_switch_->property_state());
+  unbindProperty(percussion_clap_adjustment_->property_value());
   unbindProperty(percussion_attack_adjustment_->property_value());
   unbindProperty(percussion_attack_shape_button_.property_shape());
   unbindProperty(percussion_decay_adjustment_->property_value());
@@ -463,7 +464,7 @@ namespace {
     {settings::kKeySoundThemeToneDecayShape,  G_TYPE_ENUM},
 
     {settings::kKeySoundThemePercussionCutoff,      G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionClap,        G_TYPE_BOOLEAN},
+    {settings::kKeySoundThemePercussionClap,        G_TYPE_DOUBLE},
     {settings::kKeySoundThemePercussionAttack,      G_TYPE_DOUBLE},
     {settings::kKeySoundThemePercussionAttackShape, G_TYPE_ENUM},
     {settings::kKeySoundThemePercussionDecay,       G_TYPE_DOUBLE},

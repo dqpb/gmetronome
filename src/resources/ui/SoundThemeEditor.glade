@@ -8,11 +8,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="clapDelayAdjustment">
-    <property name="upper">100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
   <object class="GtkAdjustment" id="mixAdjustment">
     <property name="lower">-100</property>
     <property name="upper">100</property>
@@ -20,6 +15,11 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="percussionAttackAdjustment">
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
+  </object>
+  <object class="GtkAdjustment" id="percussionClapAdjustment">
     <property name="upper">1</property>
     <property name="step-increment">0.01</property>
     <property name="page-increment">0.10</property>
@@ -502,41 +502,16 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox">
+                          <object class="GtkScale">
                             <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkSwitch" id="percussionClapSwitch">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="halign">start</property>
-                                <property name="valign">center</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkScale">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="hexpand">True</property>
-                                <property name="adjustment">clapDelayAdjustment</property>
-                                <property name="restrict-to-fill-level">False</property>
-                                <property name="fill-level">0</property>
-                                <property name="round-digits">1</property>
-                                <property name="draw-value">False</property>
-                                <property name="has-origin">False</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="can-focus">True</property>
+                            <property name="hexpand">True</property>
+                            <property name="adjustment">percussionClapAdjustment</property>
+                            <property name="restrict-to-fill-level">False</property>
+                            <property name="fill-level">0</property>
+                            <property name="round-digits">1</property>
+                            <property name="draw-value">False</property>
+                            <property name="has-origin">False</property>
                           </object>
                           <packing>
                             <property name="left-attach">1</property>

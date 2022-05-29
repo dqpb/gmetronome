@@ -103,7 +103,7 @@ namespace audio {
     auto  osc_decay_shape    = params.tone_decay_shape;
 
     float noise_cutoff       = std::clamp(params.percussion_cutoff, 40.0f, 10000.0f);
-    bool  noise_clap         = params.percussion_clap;
+    float noise_clap         = std::clamp(params.percussion_clap, 0.0f, 1.0f);
     float noise_attack       = std::clamp(params.percussion_attack, 0.0f, 1.0f);
     auto  noise_attack_shape = params.percussion_attack_shape;
     float noise_decay        = std::clamp(params.percussion_decay, 0.0f, 1.0f);
@@ -131,7 +131,7 @@ namespace audio {
     Decibel square_gain    = osc_gain - 18_dB * std::abs(3.0f - osc_timbre);
 
     auto osc_envelope
-      = buildEnvelope(osc_attack, osc_attack_shape, osc_decay, osc_decay_shape,  false);
+      = buildEnvelope(osc_attack, osc_attack_shape, osc_decay, osc_decay_shape, 0.0);
 
     auto noise_envelope
       = buildEnvelope(noise_attack, noise_attack_shape,
@@ -214,127 +214,68 @@ namespace audio {
 
   filter::Automation
   Synthesizer::buildEnvelope(float attack, EnvelopeShape attack_shape,
-                             float decay, EnvelopeShape decay_shape, bool clap) const
+                             float decay, EnvelopeShape decay_shape, float clap) const
   {
     using filter::seconds_dbl;
 
     filter::Automation envelope;
 
     constexpr seconds_dbl min_attack_tm   = 1ms;
-    constexpr seconds_dbl max_attack_tm   = 30ms;
+    constexpr seconds_dbl max_attack_tm   = 25ms;
     constexpr seconds_dbl delta_attack_tm = max_attack_tm - min_attack_tm;
     const     seconds_dbl attack_tm       = min_attack_tm + delta_attack_tm * attack;
 
-    const     seconds_dbl min_decay_tm    = attack_tm + 1ms;
+    const     seconds_dbl min_clap_tm     = attack_tm;
+    const     seconds_dbl max_clap_tm     = min_clap_tm + 20ms;
+    const     seconds_dbl delta_clap_tm   = max_clap_tm - min_clap_tm;
+    const     seconds_dbl clap_tm         = min_clap_tm + delta_clap_tm * clap;
+
+    const     seconds_dbl min_decay_tm    = clap_tm + 1ms;
     constexpr seconds_dbl max_decay_tm    = kSoundDuration;
     const     seconds_dbl delta_decay_tm  = max_decay_tm - min_decay_tm;
     const     seconds_dbl decay_tm        = min_decay_tm + delta_decay_tm * decay;
 
     const seconds_dbl attack_step_tm = attack_tm / 5.0;
-    const seconds_dbl decay_step_tm = (decay_tm - attack_tm) / 5.0;
+    const seconds_dbl clap_step_tm = (clap_tm - attack_tm) / 5.0;
+    const seconds_dbl decay_step_tm = (decay_tm - clap_tm) / 5.0;
 
     std::function<float(float)> attack_proj = shapeProjection(attack_shape);
+    std::function<float(float)> clap_proj = [] (float arg) { return std::pow(arg, 1.0f / 6.0f); };
+    // std::function<float(float)> clap_proj = shapeProjection(EnvelopeShape::kCubicRoot);
     std::function<float(float)> decay_proj = shapeProjection(decay_shape);
 
     envelope.append({
-        {  0.0 * attack_step_tm, 0.0f },
+        { 0.0 * attack_step_tm, 0.0f },
 
-        {  1.0 * attack_step_tm, attack_proj(0.2f) },
-        {  2.0 * attack_step_tm, attack_proj(0.4f) },
-        {  3.0 * attack_step_tm, attack_proj(0.6f) },
-        {  4.0 * attack_step_tm, attack_proj(0.8f) },
+        { 1.0 * attack_step_tm, attack_proj(0.2f) },
+        { 2.0 * attack_step_tm, attack_proj(0.4f) },
+        { 3.0 * attack_step_tm, attack_proj(0.6f) },
+        { 4.0 * attack_step_tm, attack_proj(0.8f) }
+      });
 
-        {  attack_tm, 1.0f },
+    if (clap_tm > attack_tm)
+    {
+      envelope.append({
+          { attack_tm, 1.0f },
 
-        {  attack_tm + 1.0 * decay_step_tm, 1.0f - decay_proj(0.2f) },
-        {  attack_tm + 2.0 * decay_step_tm, 1.0f - decay_proj(0.4f) },
-        {  attack_tm + 3.0 * decay_step_tm, 1.0f - decay_proj(0.6f) },
-        {  attack_tm + 4.0 * decay_step_tm, 1.0f - decay_proj(0.8f) },
+          { attack_tm + 1.0 * clap_step_tm, 1.0f - clap_proj(0.2f) },
+          { attack_tm + 2.0 * clap_step_tm, 1.0f - clap_proj(0.4f) },
+          { attack_tm + 3.0 * clap_step_tm, 1.0f - clap_proj(0.6f) },
+          { attack_tm + 4.0 * clap_step_tm, 1.0f - clap_proj(0.8f) },
+        });
+    }
+    envelope.append({
+        { clap_tm, 1.0f },
 
-        {  decay_tm, 0.0f }
+        { clap_tm + 1.0 * decay_step_tm, 1.0f - decay_proj(0.2f) },
+        { clap_tm + 2.0 * decay_step_tm, 1.0f - decay_proj(0.4f) },
+        { clap_tm + 3.0 * decay_step_tm, 1.0f - decay_proj(0.6f) },
+        { clap_tm + 4.0 * decay_step_tm, 1.0f - decay_proj(0.8f) },
+
+        { decay_tm, 0.0f }
       });
 
     return envelope;
   }
 
-  /*
-  filter::Automation
-  Synthesizer::buildEnvelope(float attack, EnvelopeShape attack_shape,
-                             float decay, EnvelopeShape decay_shape, bool clap) const
-  {
-    constexpr microseconds min_full_gain_time = 1ms;
-    constexpr microseconds max_full_gain_time = 30ms;
-    constexpr microseconds delta_full_gain_time = max_full_gain_time - min_full_gain_time;
-
-    const microseconds full_gain_time = min_full_gain_time
-      + microseconds { int ( (1.0f - attack) * delta_full_gain_time.count() ) };
-
-    microseconds delta_attack = full_gain_time / 5;
-
-    const microseconds min_full_decay_time = full_gain_time + 5ms;
-    const microseconds max_full_decay_time = kSoundDuration;
-    const microseconds delta_full_decay_time = max_full_decay_time - min_full_decay_time;
-
-    const microseconds full_decay_time = min_full_decay_time
-      + microseconds { int ( (1.0f - decay) * delta_full_decay_time.count() ) };
-
-    const microseconds  delta_decay = (full_decay_time - full_gain_time) / 5;
-
-    filter::Automation envelope;
-
-    float drop = 1.5f;
-
-    if (clap)
-    {
-      delta_attack /= 2;
-
-      envelope.append({
-          {  0 * delta_attack, 0.0f},
-
-          {  1 * delta_attack, std::pow(0.2f, (attack + 1.0f) * drop)},
-          {  2 * delta_attack, std::pow(0.4f, (attack + 1.0f) * drop)},
-          {  3 * delta_attack, std::pow(0.6f, (attack + 1.0f) * drop)},
-          {  4 * delta_attack, std::pow(0.8f, (attack + 1.0f) * drop)},
-
-          {  5 * delta_attack, 1.0f },
-
-          {  6 * delta_attack, std::pow(0.2f, (attack + 1.0f) * drop)},
-          {  7 * delta_attack, std::pow(0.4f, (attack + 1.0f) * drop)},
-          {  8 * delta_attack, std::pow(0.6f, (attack + 1.0f) * drop)},
-          {  9 * delta_attack, std::pow(0.8f, (attack + 1.0f) * drop)},
-
-          { 10 * delta_attack, 1.0f },
-
-          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + attack + 1.0f) * drop)},
-
-          {  full_gain_time + 5 * delta_decay, 0.0f }
-        });
-    }
-    else
-    {
-      envelope.append({
-          {  0 * delta_attack, 0.0f},
-
-          {  1 * delta_attack, std::pow(0.2f, (attack + 1.0f) * drop)},
-          {  2 * delta_attack, std::pow(0.4f, (attack + 1.0f) * drop)},
-          {  3 * delta_attack, std::pow(0.6f, (attack + 1.0f) * drop)},
-          {  4 * delta_attack, std::pow(0.8f, (attack + 1.0f) * drop)},
-
-          {  5 * delta_attack, 1.0f },
-
-          {  full_gain_time + 1 * delta_decay, std::pow(0.8f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 2 * delta_decay, std::pow(0.6f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 3 * delta_decay, std::pow(0.4f, (decay + attack + 1.0f) * drop)},
-          {  full_gain_time + 4 * delta_decay, std::pow(0.2f, (decay + attack + 1.0f) * drop)},
-
-          {  full_gain_time + 5 * delta_decay, 0.0f }
-        });
-    }
-
-    return envelope;
-  }
-  */
 }//namespace audio

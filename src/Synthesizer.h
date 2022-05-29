@@ -47,8 +47,7 @@ namespace audio {
     EnvelopeShape tone_decay_shape  {EnvelopeShape::kLinear};
 
     float         percussion_cutoff       {1000.0f};                // [40.0f, 10000.0f] (hertz)
-    bool          percussion_clap         {false};
-    float         percussion_clap_delay   {1.0f};
+    float         percussion_clap         {0.0};                    // [0.0f, 1.0f]
     float         percussion_attack       {0.5f};                   // [0.0f, 1.0f]
     EnvelopeShape percussion_attack_shape {EnvelopeShape::kLinear};
     float         percussion_decay        {0.5f};                   // [0.0f, 1.0f]
@@ -128,7 +127,7 @@ namespace audio {
 
     filter::Automation buildEnvelope(float attack, EnvelopeShape attack_shape,
                                      float decay, EnvelopeShape decay_shape,
-                                     bool clap) const;
+                                     float clap) const;
   };
 
 }//namespace audio
