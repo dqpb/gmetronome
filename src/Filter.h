@@ -553,19 +553,25 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Wave(const Wavetable& tbl, float freq, float amp = 0.0f,
-         float phase = 0.0f, float detune = 0.0f)
-      : tbl_{tbl},
-        freq_{freq},
-        amp_{amp},
-        phase_{phase},
-        detune_{freq * std::pow(2.0f, detune / 1200.0f) - freq}
-      {}
+    struct Parameters
+    {
+      float freq   {1000.0f};   //!< frequency in hertz
+      float amp    {1.0f};      //!< amplitude
+      float phase  {0.0f};      //!< phase [0.0f, 2.0f * PI]
+      float detune {0.0f};      //!< cents [0.0f, 100.0f]
+    };
 
-    Wave(const Wavetable& tbl, float freq, const Decibel& level = 0_dB,
-         float phase = 0.0f, float detune = 0.0f)
-      : Wave(tbl, freq, static_cast<float>(level.amplitude()), phase)
-      {}
+  public:
+    Wave(const Wavetable* tbl = nullptr, const Parameters& params = {})
+      : tbl_{tbl},
+        params_{params}
+      { /* nothing */ }
+
+    void setWavetable(const Wavetable* tbl)
+      { tbl_ = tbl; }
+
+    void setParameters(const Parameters& params)
+      { params_ = params; }
 
     void prepare(const StreamSpec& spec)
       {
@@ -579,37 +585,38 @@ namespace filter {
         assert(isFloatingPoint(buffer.spec().format));
         assert(buffer.channels() == 2);
 
-        if (amp_ == 0.0f || freq_ == 0.0f)
+        if (tbl_ == nullptr || params_.amp == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
+
         float frame_tm = 1.0 / buffer.spec().rate;
-        float phase_os = phase_ / (2.0 * M_PI);
-        auto& tbl_page = tbl_.lookup(freq_);
+        float freq = params_.freq;
+        float amp = params_.amp;
+        float phase_os = params_.phase / (2.0 * M_PI);
+        float detune = freq * std::pow(2.0f, params_.detune / 1200.0f) - freq;
+        auto& tbl_page = tbl_->lookup(freq);
 
         std::array<float,2> start = {
           phase_os,
           phase_os
         };
         std::array<float,2> step = {
-          (freq_ - detune_) * frame_tm,
-          (freq_ + detune_) * frame_tm
+          (freq - detune) * frame_tm,
+          (freq + detune) * frame_tm
         };
         tbl_page.lookup(frames.begin(), frames.end(), start, step,
                         [&] (auto& frame, auto& values)
                           {
                             frame += {
-                              amp_ * values[0],
-                              amp_ * values[1]
+                              amp * values[0],
+                              amp * values[1]
                             };
                           });
       }
   private:
-    const Wavetable& tbl_;
-    float freq_;
-    float amp_;
-    float phase_;
-    float detune_;
+    const Wavetable* tbl_ {nullptr};
+    Parameters params_;
   };
 
   /**
@@ -634,6 +641,18 @@ namespace filter {
     explicit Normalize(const Decibel& level = 0_dB) : Normalize(level, level)
       {/*nothing*/}
 
+    void setLevel(const Decibel& level_l, const Decibel& level_r)
+      {
+        amp_l_ = static_cast<float>(level_l.amplitude());
+        amp_r_ = static_cast<float>(level_r.amplitude());
+      }
+
+    void setAmplitude(float amp_l, float amp_r)
+      {
+        amp_l_ = amp_l;
+        amp_r_ = amp_r;
+      }
+
     void prepare(const StreamSpec& spec)
       {
         assert( isFloatingPoint(spec.format) );
@@ -643,6 +662,7 @@ namespace filter {
     void process(ByteBuffer& buffer)
       {
         assert(buffer.spec().channels == 2);
+
         auto frames = viewFrames<Format>(buffer);
         float max = 0.0f;
         for (auto& frame : frames)

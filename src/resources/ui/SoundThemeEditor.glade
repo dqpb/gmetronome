@@ -8,27 +8,38 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="clapDelayAdjustment">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="mixAdjustment">
     <property name="lower">-100</property>
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="percussionAttackAdjustment">
+    <property name="upper">1</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
+  </object>
   <object class="GtkAdjustment" id="percussionCutoffAdjustment">
     <property name="lower">40</property>
     <property name="upper">10000</property>
     <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
+    <property name="page-increment">100</property>
   </object>
   <object class="GtkAdjustment" id="percussionDecayAdjustment">
     <property name="upper">1</property>
     <property name="step-increment">0.05</property>
     <property name="page-increment">0.10</property>
   </object>
-  <object class="GtkAdjustment" id="percussionPunchAdjustment">
+  <object class="GtkAdjustment" id="toneAttackAdjustment">
     <property name="upper">1</property>
+    <property name="value">0.5</property>
     <property name="step-increment">0.01</property>
-    <property name="page-increment">1</property>
+    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="toneDecayAdjustment">
     <property name="upper">1</property>
@@ -47,12 +58,6 @@
     <property name="value">1100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="tonePunchAdjustment">
-    <property name="upper">1</property>
-    <property name="value">0.5</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="toneTimbreAdjustment">
     <property name="upper">3</property>
@@ -136,23 +141,12 @@
                     <property name="spacing">10</property>
                     <property name="homogeneous">True</property>
                     <child>
-                      <!-- n-columns=4 n-rows=6 -->
+                      <!-- n-columns=3 n-rows=6 -->
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="row-spacing">10</property>
                         <property name="column-spacing">10</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="icon-name">note-quarter-symbolic</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">1</property>
-                          </packing>
-                        </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
@@ -162,7 +156,7 @@
                             <property name="use-underline">True</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
+                            <property name="left-attach">0</property>
                             <property name="top-attach">1</property>
                           </packing>
                         </child>
@@ -177,19 +171,8 @@
                             <property name="value">1100</property>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
+                            <property name="left-attach">1</property>
                             <property name="top-attach">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="icon-name">sound-timbre-symbolic</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -201,7 +184,7 @@
                             <property name="use-underline">True</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
+                            <property name="left-attach">0</property>
                             <property name="top-attach">2</property>
                           </packing>
                         </child>
@@ -213,7 +196,7 @@
                             <property name="label" translatable="yes">Detune:</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
+                            <property name="left-attach">0</property>
                             <property name="top-attach">3</property>
                           </packing>
                         </child>
@@ -229,7 +212,7 @@
                             <property name="has-origin">False</property>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
+                            <property name="left-attach">1</property>
                             <property name="top-attach">3</property>
                           </packing>
                         </child>
@@ -238,26 +221,10 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Punch:</property>
+                            <property name="label" translatable="yes">Attack:</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScale">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="adjustment">tonePunchAdjustment</property>
-                            <property name="restrict-to-fill-level">False</property>
-                            <property name="fill-level">0</property>
-                            <property name="round-digits">1</property>
-                            <property name="draw-value">False</property>
-                            <property name="has-origin">False</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">2</property>
+                            <property name="left-attach">0</property>
                             <property name="top-attach">4</property>
                           </packing>
                         </child>
@@ -269,37 +236,8 @@
                             <property name="label" translatable="yes">Decay:</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">5</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScale">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="adjustment">toneDecayAdjustment</property>
-                            <property name="restrict-to-fill-level">False</property>
-                            <property name="draw-value">False</property>
-                            <property name="has-origin">False</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">5</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Tone</property>
-                            <attributes>
-                              <attribute name="weight" value="bold"/>
-                            </attributes>
-                          </object>
-                          <packing>
                             <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
-                            <property name="width">3</property>
+                            <property name="top-attach">5</property>
                           </packing>
                         </child>
                         <child>
@@ -310,7 +248,7 @@
                             <property name="orientation">vertical</property>
                           </object>
                           <packing>
-                            <property name="left-attach">3</property>
+                            <property name="left-attach">2</property>
                             <property name="top-attach">0</property>
                             <property name="height">6</property>
                           </packing>
@@ -328,18 +266,84 @@
                             <property name="value-pos">bottom</property>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
+                            <property name="left-attach">1</property>
                             <property name="top-attach">2</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkBox" id="toneAttackBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">toneAttackAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">0</property>
+                                <property name="round-digits">1</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">4</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkBox" id="toneDecayBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">toneDecayAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">5</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Tone</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                            <property name="width">2</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -349,7 +353,7 @@
                       </packing>
                     </child>
                     <child>
-                      <!-- n-columns=3 n-rows=6 -->
+                      <!-- n-columns=2 n-rows=5 -->
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -359,43 +363,12 @@
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Percussion</property>
-                            <attributes>
-                              <attribute name="weight" value="bold"/>
-                            </attributes>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Attack:</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
-                            <property name="width">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="label" translatable="yes">Punch:</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScale">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="adjustment">percussionPunchAdjustment</property>
-                            <property name="restrict-to-fill-level">False</property>
-                            <property name="fill-level">1</property>
-                            <property name="round-digits">1</property>
-                            <property name="draw-value">False</property>
-                            <property name="has-origin">False</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">4</property>
+                            <property name="top-attach">3</property>
                           </packing>
                         </child>
                         <child>
@@ -406,24 +379,8 @@
                             <property name="label" translatable="yes">Decay:</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">5</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScale">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="adjustment">percussionDecayAdjustment</property>
-                            <property name="restrict-to-fill-level">False</property>
-                            <property name="fill-level">1</property>
-                            <property name="round-digits">1</property>
-                            <property name="draw-value">False</property>
-                            <property name="has-origin">False</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">5</property>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">4</property>
                           </packing>
                         </child>
                         <child>
@@ -434,8 +391,8 @@
                             <property name="label" translatable="yes">Cutoff:</property>
                           </object>
                           <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">2</property>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">1</property>
                           </packing>
                         </child>
                         <child>
@@ -451,8 +408,8 @@
                             <property name="has-origin">False</property>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">2</property>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">1</property>
                           </packing>
                         </child>
                         <child>
@@ -463,42 +420,128 @@
                             <property name="label" translatable="yes">Clap:</property>
                           </object>
                           <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="percussionAttackBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">percussionAttackAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">1</property>
+                                <property name="round-digits">1</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
                             <property name="left-attach">1</property>
                             <property name="top-attach">3</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkSwitch" id="percussionClapSwitch">
+                          <object class="GtkBox" id="percussionDecayBox">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="halign">start</property>
-                            <property name="valign">center</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">percussionDecayAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">1</property>
+                                <property name="round-digits">1</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">3</property>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">4</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Percussion</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                            <property name="width">2</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkSwitch" id="percussionClapSwitch">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="halign">start</property>
+                                <property name="valign">center</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">clapDelayAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">0</property>
+                                <property name="round-digits">1</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">2</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>

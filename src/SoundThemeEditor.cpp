@@ -32,13 +32,138 @@
 # include <iostream>
 #endif
 
+ShapeButton::ShapeButton(Mode mode)
+  : Glib::ObjectBase("ShapeButton"),
+    property_shape_(*this, "shape", "linear"),
+    mode_{mode}
+{
+  property_shape_.get_proxy().signal_changed()
+    .connect(sigc::mem_fun(*this, &ShapeButton::onShapeChanged));
+
+  if (mode_ == Mode::kDecay)
+    set_image_from_icon_name("curve-linear-down-symbolic");
+  else
+    set_image_from_icon_name("curve-linear-up-symbolic");
+
+  add_events(Gdk::SCROLL_MASK);
+}
+
+ShapeButton::~ShapeButton()
+{ /* nothing */ }
+
+void ShapeButton::next(bool cycle)
+{
+  auto current_shape = property_shape_.get_value();
+  Glib::ustring next_shape = current_shape;
+
+  if (mode_ == Mode::kAttack) {
+    if (current_shape == "cubic")
+      next_shape = "linear";
+    else if (current_shape == "linear")
+      next_shape = "cubic-root";
+    else if (current_shape == "cubic-root" && cycle)
+      next_shape = "cubic";
+  }
+  else {
+    if (current_shape == "cubic-root")
+      next_shape = "linear";
+    else if (current_shape == "linear")
+      next_shape = "cubic";
+    else if (current_shape == "cubic" && cycle)
+      next_shape = "cubic-root";
+  }
+
+  property_shape_.set_value( next_shape );
+}
+
+void ShapeButton::prev(bool cycle)
+{
+  auto current_shape = property_shape_.get_value();
+  Glib::ustring prev_shape = current_shape;
+
+  if (mode_ == Mode::kAttack) {
+    if (current_shape == "cubic-root")
+      prev_shape = "linear";
+    else if (current_shape == "linear")
+      prev_shape = "cubic";
+    else if (current_shape == "cubic" && cycle)
+      prev_shape = "cubic-root";
+  }
+  else {
+    if (current_shape == "cubic")
+      prev_shape = "linear";
+    else if (current_shape == "linear")
+      prev_shape = "cubic-root";
+    else if (current_shape == "cubic-root" && cycle)
+      prev_shape = "cubic";
+  }
+
+  property_shape_.set_value( prev_shape );
+}
+
+void ShapeButton::on_clicked()
+{
+  next(true);
+  Button::on_clicked();
+}
+
+bool ShapeButton::on_scroll_event(GdkEventScroll *scroll_event)
+{
+  switch (scroll_event->direction) {
+  case GDK_SCROLL_UP:
+  case GDK_SCROLL_RIGHT:
+    next(false);
+    break;
+
+  case GDK_SCROLL_DOWN:
+  case GDK_SCROLL_LEFT:
+    prev(false);
+    break;
+
+  default:
+    break;
+  };
+
+  return Gtk::Button::on_scroll_event(scroll_event);
+}
+
+void ShapeButton::onShapeChanged()
+{
+  auto current_shape = property_shape_.get_value();
+
+  if (mode_ == Mode::kDecay) {
+    if (current_shape == "linear")
+      set_image_from_icon_name("curve-linear-down-symbolic");
+    else if (current_shape == "cubic")
+      set_image_from_icon_name("curve-cubic-down-symbolic");
+    else if (current_shape == "cubic-root")
+      set_image_from_icon_name("curve-cubic-root-down-symbolic");
+    else
+      set_image_from_icon_name("");
+  }
+  else {
+    if (current_shape == "linear")
+      set_image_from_icon_name("curve-linear-up-symbolic");
+    else if (current_shape == "cubic")
+      set_image_from_icon_name("curve-cubic-up-symbolic");
+    else if (current_shape == "cubic-root")
+      set_image_from_icon_name("curve-cubic-root-up-symbolic");
+    else
+      set_image_from_icon_name("");
+  }
+}
+
 SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
                                    const Glib::RefPtr<Gtk::Builder>& builder,
                                    Glib::ustring theme_id)
   : Glib::ObjectBase("SoundThemeEditor"),
     Gtk::Window(obj),
     builder_(builder),
-    theme_id_{std::move(theme_id)}
+    theme_id_{std::move(theme_id)},
+    tone_attack_shape_button_{ShapeButton::Mode::kAttack},
+    tone_decay_shape_button_{ShapeButton::Mode::kDecay},
+    percussion_attack_shape_button_{ShapeButton::Mode::kAttack},
+    percussion_decay_shape_button_{ShapeButton::Mode::kDecay}
 {
   builder_->get_widget("mainBox", main_box_);
   builder_->get_widget("parametersFrame", parameters_frame_);
@@ -47,8 +172,11 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("midRadioButton", mid_radio_button_);
   builder_->get_widget("weakRadioButton", weak_radio_button_);
   builder_->get_widget("parametersGrid", parameters_grid_);
+  builder_->get_widget("toneAttackBox", tone_attack_box_);
+  builder_->get_widget("toneDecayBox", tone_decay_box_);
+  builder_->get_widget("percussionAttackBox", percussion_attack_box_);
+  builder_->get_widget("percussionDecayBox", percussion_decay_box_);
   builder_->get_widget("percussionClapSwitch", percussion_clap_switch_);
-  //builder_->get_widget("bellSwitch", bell_switch_);
   builder_->get_widget("balanceScale", balance_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
@@ -58,24 +186,32 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneTimbreAdjustment"));
   tone_detune_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneDetuneAdjustment"));
-  tone_punch_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("tonePunchAdjustment"));
+  tone_attack_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneAttackAdjustment"));
   tone_decay_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneDecayAdjustment"));
   percussion_cutoff_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionCutoffAdjustment"));
-  percussion_punch_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionPunchAdjustment"));
+  percussion_attack_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionAttackAdjustment"));
   percussion_decay_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionDecayAdjustment"));
   mix_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("mixAdjustment"));
-  // bell_volume_adjustment_ =
-  //   Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("bellVolumeAdjustment"));
   balance_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("balanceAdjustment"));
   volume_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("volumeAdjustment"));
+
+  tone_attack_box_->pack_start(tone_attack_shape_button_, Gtk::PACK_SHRINK);
+  tone_decay_box_->pack_start(tone_decay_shape_button_, Gtk::PACK_SHRINK);
+  percussion_attack_box_->pack_start(percussion_attack_shape_button_, Gtk::PACK_SHRINK);
+  percussion_decay_box_->pack_start(percussion_decay_shape_button_, Gtk::PACK_SHRINK);
+
+  tone_attack_shape_button_.show();
+  tone_decay_shape_button_.show();
+  percussion_attack_shape_button_.show();
+  percussion_decay_shape_button_.show();
 
   strong_accent_drawing_.setAccentState(kAccentStrong);
   mid_accent_drawing_.setAccentState(kAccentMid);
@@ -200,25 +336,32 @@ void SoundThemeEditor::bindSoundProperties()
                           tone_timbre_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeToneDetune,
                           tone_detune_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemeTonePunch,
-                          tone_punch_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeToneAttack,
+                          tone_attack_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeToneAttackShape,
+                          tone_attack_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemeToneDecay,
                           tone_decay_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeToneDecayShape,
+                          tone_decay_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemePercussionCutoff,
                           percussion_cutoff_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePercussionClap,
                           percussion_clap_switch_->property_state());
-    sound_settings_->bind(settings::kKeySoundThemePercussionPunch,
-                          percussion_punch_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussionAttack,
+                          percussion_attack_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussionAttackShape,
+                          percussion_attack_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemePercussionDecay,
                           percussion_decay_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePercussionDecayShape,
+                          percussion_decay_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemeMix,
                           mix_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeBalance,
                           balance_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeVolume,
                           volume_adjustment_->property_value());
-    //...
   }
 }
 
@@ -233,16 +376,19 @@ void SoundThemeEditor::unbindSoundProperties()
   unbindProperty(tone_pitch_adjustment_->property_value());
   unbindProperty(tone_timbre_adjustment_->property_value());
   unbindProperty(tone_detune_adjustment_->property_value());
-  unbindProperty(tone_punch_adjustment_->property_value());
+  unbindProperty(tone_attack_adjustment_->property_value());
+  unbindProperty(tone_attack_shape_button_.property_shape());
   unbindProperty(tone_decay_adjustment_->property_value());
+  unbindProperty(tone_decay_shape_button_.property_shape());
   unbindProperty(percussion_cutoff_adjustment_->property_value());
   unbindProperty(percussion_clap_switch_->property_state());
-  unbindProperty(percussion_punch_adjustment_->property_value());
+  unbindProperty(percussion_attack_adjustment_->property_value());
+  unbindProperty(percussion_attack_shape_button_.property_shape());
   unbindProperty(percussion_decay_adjustment_->property_value());
+  unbindProperty(percussion_decay_shape_button_.property_shape());
   unbindProperty(mix_adjustment_->property_value());
   unbindProperty(balance_adjustment_->property_value());
   unbindProperty(volume_adjustment_->property_value());
-  //...
 }
 
 void SoundThemeEditor::updateThemeBindings()
@@ -308,16 +454,20 @@ namespace {
 
   const std::vector<ParamType_> params_type_map_  =
   {
-    {settings::kKeySoundThemeTonePitch,  G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeToneTimbre, G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeToneDetune, G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeTonePunch,  G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeToneDecay,  G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeTonePitch,       G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneTimbre,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneDetune,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneAttack,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneAttackShape, G_TYPE_ENUM},
+    {settings::kKeySoundThemeToneDecay,       G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeToneDecayShape,  G_TYPE_ENUM},
 
-    {settings::kKeySoundThemePercussionCutoff, G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionClap,   G_TYPE_BOOLEAN},
-    {settings::kKeySoundThemePercussionPunch,  G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionDecay,  G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionCutoff,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionClap,        G_TYPE_BOOLEAN},
+    {settings::kKeySoundThemePercussionAttack,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionAttackShape, G_TYPE_ENUM},
+    {settings::kKeySoundThemePercussionDecay,       G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePercussionDecayShape,  G_TYPE_ENUM},
 
     {settings::kKeySoundThemeMix,     G_TYPE_DOUBLE},
     {settings::kKeySoundThemeBalance, G_TYPE_DOUBLE},
@@ -354,6 +504,8 @@ void SoundThemeEditor::onParamsDragDataGet(Gtk::RadioButton* source_button,
           keys.set_double(params_group, entry.key, settings->get_double(entry.key));
         else if (entry.type == G_TYPE_BOOLEAN)
           keys.set_boolean(params_group, entry.key, settings->get_boolean(entry.key));
+        else if (entry.type == G_TYPE_ENUM)
+          keys.set_string(params_group, entry.key, settings->get_string(entry.key));
       }
 
       data.set(data.get_target(), keys.to_data());
@@ -395,6 +547,8 @@ void SoundThemeEditor::onParamsDragDataReceived(Gtk::RadioButton* target_button,
               settings->set_double(entry.key, keys.get_double(params_group, entry.key));
             else if (entry.type == G_TYPE_BOOLEAN)
               settings->set_boolean(entry.key, keys.get_boolean(params_group, entry.key));
+            else if (entry.type == G_TYPE_ENUM)
+              settings->set_string(entry.key, keys.get_string(params_group, entry.key));
           }
         }
       }

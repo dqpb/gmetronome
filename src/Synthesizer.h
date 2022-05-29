@@ -29,26 +29,35 @@
 
 namespace audio {
 
-  struct SoundParameters
+  enum class EnvelopeShape
   {
-    float tone_pitch        {1000};   // [40.0f, 10000.0f] (hertz)
-    float tone_timbre       {0.0};    // [0.0f, 3.0f]
-    float tone_detune       {0.0};    // [0.0f, 100.0f] (cents)
-    float tone_punch        {0.5};    // [0.0f, 1.0f]
-    float tone_decay        {0.5};    // [0.0f, 1.0f]
-    float percussion_cutoff {0.5};    // [40.0f, 10000.0f] (hertz)
-    bool  percussion_clap   {false};
-    float percussion_punch  {0.5};    // [0.0f, 1.0f]
-    float percussion_decay  {0.5};    // [0.0f, 1.0f]
-    float mix               {0.0};    // [-100.0f, 100.0f] (percent)
-    float balance           {0.0};    // [-100.0f, 100.0f] (percent)
-    float volume            {75.0};   // [0.0f, 100.0f] (percent)
+    kLinear = 0,
+    kCubic = 1,
+    kCubicRoot = 2
   };
 
-  bool operator==(const SoundParameters& lhs, const SoundParameters& rhs);
+  struct SoundParameters
+  {
+    float         tone_pitch        {1000.0f};                  // [40.0f, 10000.0f] (hertz)
+    float         tone_timbre       {0.0f};                     // [0.0f, 3.0f]
+    float         tone_detune       {0.0f};                     // [0.0f, 100.0f] (cents)
+    float         tone_attack       {0.5f};                     // [0.0f, 1.0f]
+    EnvelopeShape tone_attack_shape {EnvelopeShape::kLinear};
+    float         tone_decay        {0.5f};                     // [0.0f, 1.0f]
+    EnvelopeShape tone_decay_shape  {EnvelopeShape::kLinear};
 
-  inline bool operator!=(const SoundParameters& lhs, const SoundParameters& rhs)
-  { return !(lhs==rhs); }
+    float         percussion_cutoff       {1000.0f};                // [40.0f, 10000.0f] (hertz)
+    bool          percussion_clap         {false};
+    float         percussion_clap_delay   {1.0f};
+    float         percussion_attack       {0.5f};                   // [0.0f, 1.0f]
+    EnvelopeShape percussion_attack_shape {EnvelopeShape::kLinear};
+    float         percussion_decay        {0.5f};                   // [0.0f, 1.0f]
+    EnvelopeShape percussion_decay_shape  {EnvelopeShape::kLinear};
+
+    float mix      {0.0f};    // [-100.0f, 100.0f] (percent)
+    float balance  {0.0f};    // [-100.0f, 100.0f] (percent)
+    float volume   {75.0f};   // [   0.0f, 100.0f] (percent)
+  };
 
   /**
    * Without mixing capabilities the time gap between two consecutive clicks
@@ -106,6 +115,10 @@ namespace audio {
 
     using OscFilterPipe = decltype(
         filter::std::Zero()
+      | filter::std::Wave() // Sine
+      | filter::std::Wave() // Triangle
+      | filter::std::Wave() // Sawtooth
+      | filter::std::Wave() // Square
       | filter::std::Gain()
       | filter::std::Mix()
       | filter::std::Normalize()
@@ -113,8 +126,9 @@ namespace audio {
 
     OscFilterPipe osc_pipe_;
 
-    std::tuple<filter::Automation, microseconds, microseconds>
-    buildEnvelope(float attack, float decay, bool clap) const;
+    filter::Automation buildEnvelope(float attack, EnvelopeShape attack_shape,
+                                     float decay, EnvelopeShape decay_shape,
+                                     bool clap) const;
   };
 
 }//namespace audio
