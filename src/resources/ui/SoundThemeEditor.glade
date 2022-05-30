@@ -15,14 +15,10 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="percussionAttackAdjustment">
-    <property name="upper">1</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
-  </object>
-  <object class="GtkAdjustment" id="percussionClapAdjustment">
-    <property name="upper">1</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkAdjustment" id="percussionCutoffAdjustment">
     <property name="lower">40</property>
@@ -31,26 +27,39 @@
     <property name="page-increment">100</property>
   </object>
   <object class="GtkAdjustment" id="percussionDecayAdjustment">
-    <property name="upper">1</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="percussionHoldAdjustment">
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkAdjustment" id="toneAttackAdjustment">
-    <property name="upper">1</property>
-    <property name="value">0.5</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkAdjustment" id="toneDecayAdjustment">
-    <property name="upper">1</property>
-    <property name="value">0.5</property>
-    <property name="step-increment">0.01</property>
-    <property name="page-increment">0.10</property>
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkAdjustment" id="toneDetuneAdjustment">
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="toneHoldAdjustment">
+    <property name="upper">20</property>
+    <property name="value">5</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkAdjustment" id="tonePitchAdjustment">
     <property name="lower">40</property>
@@ -141,12 +150,12 @@
                     <property name="spacing">10</property>
                     <property name="homogeneous">True</property>
                     <child>
-                      <!-- n-columns=3 n-rows=6 -->
+                      <!-- n-columns=3 n-rows=7 -->
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="row-spacing">10</property>
-                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">8</property>
+                        <property name="column-spacing">8</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
@@ -237,7 +246,7 @@
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
-                            <property name="top-attach">5</property>
+                            <property name="top-attach">6</property>
                           </packing>
                         </child>
                         <child>
@@ -250,7 +259,7 @@
                           <packing>
                             <property name="left-attach">2</property>
                             <property name="top-attach">0</property>
-                            <property name="height">6</property>
+                            <property name="height">7</property>
                           </packing>
                         </child>
                         <child>
@@ -327,7 +336,7 @@
                           </object>
                           <packing>
                             <property name="left-attach">1</property>
-                            <property name="top-attach">5</property>
+                            <property name="top-attach">6</property>
                           </packing>
                         </child>
                         <child>
@@ -345,6 +354,48 @@
                             <property name="width">2</property>
                           </packing>
                         </child>
+                        <child>
+                          <object class="GtkBox" id="toneHoldBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">toneHoldAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">0</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Hold:</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">5</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -357,8 +408,8 @@
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="row-spacing">10</property>
-                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">8</property>
+                        <property name="column-spacing">8</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
@@ -368,7 +419,7 @@
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
-                            <property name="top-attach">3</property>
+                            <property name="top-attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -413,18 +464,6 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="label" translatable="yes">Clap:</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkBox" id="percussionAttackBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
@@ -452,7 +491,7 @@
                           </object>
                           <packing>
                             <property name="left-attach">1</property>
-                            <property name="top-attach">3</property>
+                            <property name="top-attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -502,20 +541,46 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkScale">
+                          <object class="GtkBox" id="percussionHoldBox">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="hexpand">True</property>
-                            <property name="adjustment">percussionClapAdjustment</property>
-                            <property name="restrict-to-fill-level">False</property>
-                            <property name="fill-level">0</property>
-                            <property name="round-digits">1</property>
-                            <property name="draw-value">False</property>
-                            <property name="has-origin">False</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkScale">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="adjustment">percussionHoldAdjustment</property>
+                                <property name="restrict-to-fill-level">False</property>
+                                <property name="fill-level">0</property>
+                                <property name="round-digits">1</property>
+                                <property name="draw-value">False</property>
+                                <property name="has-origin">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
                             <property name="left-attach">1</property>
-                            <property name="top-attach">2</property>
+                            <property name="top-attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Hold:</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">3</property>
                           </packing>
                         </child>
                       </object>
@@ -538,8 +603,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
-                    <property name="row-spacing">10</property>
-                    <property name="column-spacing">10</property>
+                    <property name="row-spacing">8</property>
+                    <property name="column-spacing">8</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>

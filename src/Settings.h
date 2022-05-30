@@ -182,12 +182,15 @@ namespace settings {
   inline const Glib::ustring  kKeySoundThemeToneDetune            {"tone-detune"};
   inline const Glib::ustring  kKeySoundThemeToneAttack            {"tone-attack"};
   inline const Glib::ustring  kKeySoundThemeToneAttackShape       {"tone-attack-shape"};
+  inline const Glib::ustring  kKeySoundThemeToneHold              {"tone-hold"};
+  inline const Glib::ustring  kKeySoundThemeToneHoldShape         {"tone-hold-shape"};
   inline const Glib::ustring  kKeySoundThemeToneDecay             {"tone-decay"};
   inline const Glib::ustring  kKeySoundThemeToneDecayShape        {"tone-decay-shape"};
   inline const Glib::ustring  kKeySoundThemePercussionCutoff      {"percussion-cutoff"};
-  inline const Glib::ustring  kKeySoundThemePercussionClap        {"percussion-clap"};
   inline const Glib::ustring  kKeySoundThemePercussionAttack      {"percussion-attack"};
   inline const Glib::ustring  kKeySoundThemePercussionAttackShape {"percussion-attack-shape"};
+  inline const Glib::ustring  kKeySoundThemePercussionHold        {"percussion-hold"};
+  inline const Glib::ustring  kKeySoundThemePercussionHoldShape   {"percussion-hold-shape"};
   inline const Glib::ustring  kKeySoundThemePercussionDecay       {"percussion-decay"};
   inline const Glib::ustring  kKeySoundThemePercussionDecayShape  {"percussion-decay-shape"};
   inline const Glib::ustring  kKeySoundThemeMix                   {"mix"};

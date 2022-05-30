@@ -97,16 +97,19 @@ namespace audio {
     float osc_pitch          = std::clamp(params.tone_pitch, 40.0f, 10000.0f);
     float osc_timbre         = std::clamp(params.tone_timbre, 0.0f, 3.0f);
     float osc_detune         = std::clamp(params.tone_detune, 0.0f, 100.0f);
-    float osc_attack         = std::clamp(params.tone_attack, 0.0f, 1.0f);
+    float osc_attack         = std::clamp(params.tone_attack, 0.0f, 20.0f);
     auto  osc_attack_shape   = params.tone_attack_shape;
-    float osc_decay          = std::clamp(params.tone_decay, 0.0f, 1.0f);
+    float osc_hold           = std::clamp(params.tone_hold, 0.0f, 20.0f);
+    auto  osc_hold_shape     = params.tone_hold_shape;
+    float osc_decay          = std::clamp(params.tone_decay, 0.0f, 20.0f);
     auto  osc_decay_shape    = params.tone_decay_shape;
 
     float noise_cutoff       = std::clamp(params.percussion_cutoff, 40.0f, 10000.0f);
-    float noise_clap         = std::clamp(params.percussion_clap, 0.0f, 1.0f);
-    float noise_attack       = std::clamp(params.percussion_attack, 0.0f, 1.0f);
+    float noise_attack       = std::clamp(params.percussion_attack, 0.0f, 20.0f);
     auto  noise_attack_shape = params.percussion_attack_shape;
-    float noise_decay        = std::clamp(params.percussion_decay, 0.0f, 1.0f);
+    float noise_hold         = std::clamp(params.percussion_hold, 0.0f, 20.0f);
+    auto  noise_hold_shape   = params.percussion_hold_shape;
+    float noise_decay        = std::clamp(params.percussion_decay, 0.0f, 20.0f);
     auto  noise_decay_shape  = params.percussion_decay_shape;
 
     float mix      = std::clamp(params.mix, -100.0f, 100.0f);
@@ -131,11 +134,12 @@ namespace audio {
     Decibel square_gain    = osc_gain - 18_dB * std::abs(3.0f - osc_timbre);
 
     auto osc_envelope
-      = buildEnvelope(osc_attack, osc_attack_shape, osc_decay, osc_decay_shape, 0.0);
+      = buildEnvelope(osc_attack, osc_attack_shape, osc_hold, osc_hold_shape,
+                      osc_decay, osc_decay_shape);
 
     auto noise_envelope
-      = buildEnvelope(noise_attack, noise_attack_shape,
-                      noise_decay, noise_decay_shape, noise_clap);
+      = buildEnvelope(noise_attack, noise_attack_shape, noise_hold, noise_hold_shape,
+                      noise_decay, noise_decay_shape);
 
     filter::std::Wave::Parameters sine_params =
       {
@@ -190,58 +194,75 @@ namespace audio {
     resample(osc_buffer_, buffer);
   }
 
-  std::function<float(float)> shapeProjection(EnvelopeShape shape)
-  {
-    std::function<float(float)> proj;
+  namespace {
 
-    switch (shape) {
-    case EnvelopeShape::kCubic:
-      proj = [] (float arg) { return arg * arg * arg; };
-      break;
-    case EnvelopeShape::kCubicRoot:
-      proj = std::cbrtf;
-      break;
-    case EnvelopeShape::kLinear:
-      [[fallthrough]];
-    default:
-      // when switching to C++20 use std::identity
-      proj = [] (float arg) { return arg; };
-      break;
-    };
+    constexpr float cube(float arg)
+    { return arg * arg * arg; }
 
-    return proj;
-  }
+    constexpr float flip(float arg)
+    { return -arg + 1.0f; }
+
+    std::function<float(float)> shapeProjection(EnvelopeRampShape shape)
+    {
+      std::function<float(float)> proj;
+
+      switch (shape) {
+      case EnvelopeRampShape::kCubic:
+        proj = cube;
+        break;
+      case EnvelopeRampShape::kCubicFlipped:
+        proj = [] (float arg) { return flip(cube(flip(arg))); };
+        break;
+      case EnvelopeRampShape::kLinear:
+        [[fallthrough]];
+      default:
+        // when switching to C++20 use std::identity
+        proj = [] (float arg) { return arg; };
+        break;
+      };
+
+      return proj;
+    }
+
+    std::function<float(float)> shapeProjection(EnvelopeHoldShape shape)
+    {
+      std::function<float(float)> proj;
+
+      switch (shape) {
+      case EnvelopeHoldShape::kQuartic:
+        proj = [] (float arg) { return std::pow(2.0f * arg - 1.0f, 4.0f); };
+        break;
+      case EnvelopeHoldShape::kLinear:
+        [[fallthrough]];
+      default:
+        proj = [] (float arg) { return 1.0f; };
+        break;
+      };
+
+      return proj;
+    }
+
+  }//unnnamed namespace
 
   filter::Automation
-  Synthesizer::buildEnvelope(float attack, EnvelopeShape attack_shape,
-                             float decay, EnvelopeShape decay_shape, float clap) const
+  Synthesizer::buildEnvelope(float attack, EnvelopeRampShape attack_shape,
+                             float hold, EnvelopeHoldShape hold_shape,
+                             float decay, EnvelopeRampShape decay_shape) const
   {
-    using filter::seconds_dbl;
+    using milliseconds_dbl = std::chrono::duration<double, std::milli>;
 
     filter::Automation envelope;
 
-    constexpr seconds_dbl min_attack_tm   = 1ms;
-    constexpr seconds_dbl max_attack_tm   = 25ms;
-    constexpr seconds_dbl delta_attack_tm = max_attack_tm - min_attack_tm;
-    const     seconds_dbl attack_tm       = min_attack_tm + delta_attack_tm * attack;
+    const auto attack_tm = milliseconds_dbl(attack);
+    const auto hold_tm = attack_tm + milliseconds_dbl(hold);
+    const auto decay_tm = hold_tm + milliseconds_dbl(decay);
 
-    const     seconds_dbl min_clap_tm     = attack_tm;
-    const     seconds_dbl max_clap_tm     = min_clap_tm + 20ms;
-    const     seconds_dbl delta_clap_tm   = max_clap_tm - min_clap_tm;
-    const     seconds_dbl clap_tm         = min_clap_tm + delta_clap_tm * clap;
-
-    const     seconds_dbl min_decay_tm    = clap_tm + 1ms;
-    constexpr seconds_dbl max_decay_tm    = kSoundDuration;
-    const     seconds_dbl delta_decay_tm  = max_decay_tm - min_decay_tm;
-    const     seconds_dbl decay_tm        = min_decay_tm + delta_decay_tm * decay;
-
-    const seconds_dbl attack_step_tm = attack_tm / 5.0;
-    const seconds_dbl clap_step_tm = (clap_tm - attack_tm) / 5.0;
-    const seconds_dbl decay_step_tm = (decay_tm - clap_tm) / 5.0;
+    const auto attack_step_tm = attack_tm / 5.0;
+    const auto hold_step_tm = (hold_tm - attack_tm) / 5.0;
+    const auto decay_step_tm = (decay_tm - hold_tm) / 5.0;
 
     std::function<float(float)> attack_proj = shapeProjection(attack_shape);
-    std::function<float(float)> clap_proj = [] (float arg) { return std::pow(arg, 1.0f / 6.0f); };
-    // std::function<float(float)> clap_proj = shapeProjection(EnvelopeShape::kCubicRoot);
+    std::function<float(float)> hold_proj = shapeProjection(hold_shape);
     std::function<float(float)> decay_proj = shapeProjection(decay_shape);
 
     envelope.append({
@@ -253,24 +274,24 @@ namespace audio {
         { 4.0 * attack_step_tm, attack_proj(0.8f) }
       });
 
-    if (clap_tm > attack_tm)
+    if (hold_tm > attack_tm)
     {
       envelope.append({
           { attack_tm, 1.0f },
 
-          { attack_tm + 1.0 * clap_step_tm, 1.0f - clap_proj(0.2f) },
-          { attack_tm + 2.0 * clap_step_tm, 1.0f - clap_proj(0.4f) },
-          { attack_tm + 3.0 * clap_step_tm, 1.0f - clap_proj(0.6f) },
-          { attack_tm + 4.0 * clap_step_tm, 1.0f - clap_proj(0.8f) },
+          { attack_tm + 1.0 * hold_step_tm, hold_proj(0.2f) },
+          { attack_tm + 2.0 * hold_step_tm, hold_proj(0.4f) },
+          { attack_tm + 3.0 * hold_step_tm, hold_proj(0.6f) },
+          { attack_tm + 4.0 * hold_step_tm, hold_proj(0.8f) },
         });
     }
     envelope.append({
-        { clap_tm, 1.0f },
+        { hold_tm, 1.0f },
 
-        { clap_tm + 1.0 * decay_step_tm, 1.0f - decay_proj(0.2f) },
-        { clap_tm + 2.0 * decay_step_tm, 1.0f - decay_proj(0.4f) },
-        { clap_tm + 3.0 * decay_step_tm, 1.0f - decay_proj(0.6f) },
-        { clap_tm + 4.0 * decay_step_tm, 1.0f - decay_proj(0.8f) },
+        { hold_tm + 1.0 * decay_step_tm, decay_proj( flip(0.2f) ) },
+        { hold_tm + 2.0 * decay_step_tm, decay_proj( flip(0.4f) ) },
+        { hold_tm + 3.0 * decay_step_tm, decay_proj( flip(0.6f) ) },
+        { hold_tm + 4.0 * decay_step_tm, decay_proj( flip(0.8f) ) },
 
         { decay_tm, 0.0f }
       });

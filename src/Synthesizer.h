@@ -29,29 +29,38 @@
 
 namespace audio {
 
-  enum class EnvelopeShape
+  enum class EnvelopeRampShape
   {
     kLinear = 0,
     kCubic = 1,
-    kCubicRoot = 2
+    kCubicFlipped = 2
+  };
+
+  enum class EnvelopeHoldShape
+  {
+    kLinear = 0,
+    kQuartic = 1
   };
 
   struct SoundParameters
   {
-    float         tone_pitch        {1000.0f};                  // [40.0f, 10000.0f] (hertz)
-    float         tone_timbre       {0.0f};                     // [0.0f, 3.0f]
-    float         tone_detune       {0.0f};                     // [0.0f, 100.0f] (cents)
-    float         tone_attack       {0.5f};                     // [0.0f, 1.0f]
-    EnvelopeShape tone_attack_shape {EnvelopeShape::kLinear};
-    float         tone_decay        {0.5f};                     // [0.0f, 1.0f]
-    EnvelopeShape tone_decay_shape  {EnvelopeShape::kLinear};
+    float             tone_pitch        {1000.0f};                    // [40.0f, 10000.0f] (hertz)
+    float             tone_timbre       {0.0f};                       // [0.0f, 3.0f]
+    float             tone_detune       {0.0f};                       // [0.0f, 100.0f] (cents)
+    float             tone_attack       {0.5f};                       // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape tone_attack_shape {EnvelopeRampShape::kLinear};
+    float             tone_hold         {0.5f};                       // [0.0f, 20.0f] (ms)
+    EnvelopeHoldShape tone_hold_shape   {EnvelopeHoldShape::kLinear};
+    float             tone_decay        {0.5f};                       // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape tone_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float         percussion_cutoff       {1000.0f};                // [40.0f, 10000.0f] (hertz)
-    float         percussion_clap         {0.0};                    // [0.0f, 1.0f]
-    float         percussion_attack       {0.5f};                   // [0.0f, 1.0f]
-    EnvelopeShape percussion_attack_shape {EnvelopeShape::kLinear};
-    float         percussion_decay        {0.5f};                   // [0.0f, 1.0f]
-    EnvelopeShape percussion_decay_shape  {EnvelopeShape::kLinear};
+    float             percussion_cutoff       {1000.0f};              // [40.0f, 10000.0f] (hertz)
+    float             percussion_attack       {0.5f};                 // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape percussion_attack_shape {EnvelopeRampShape::kLinear};
+    float             percussion_hold         {0.0};                  // [0.0f, 20.0f] (ms)
+    EnvelopeHoldShape percussion_hold_shape   {EnvelopeHoldShape::kLinear};
+    float             percussion_decay        {0.5f};                 // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape percussion_decay_shape  {EnvelopeRampShape::kLinear};
 
     float mix      {0.0f};    // [-100.0f, 100.0f] (percent)
     float balance  {0.0f};    // [-100.0f, 100.0f] (percent)
@@ -125,9 +134,9 @@ namespace audio {
 
     OscFilterPipe osc_pipe_;
 
-    filter::Automation buildEnvelope(float attack, EnvelopeShape attack_shape,
-                                     float decay, EnvelopeShape decay_shape,
-                                     float clap) const;
+    filter::Automation buildEnvelope(float attack, EnvelopeRampShape attack_shape,
+                                     float hold, EnvelopeHoldShape hold_shape,
+                                     float decay, EnvelopeRampShape decay_shape) const;
   };
 
 }//namespace audio

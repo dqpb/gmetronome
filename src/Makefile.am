@@ -106,12 +106,14 @@ resources = \
 	$(resourcesdir)/icons/sound-balance-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
+	$(resourcesdir)/icons/curve-linear-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-up-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-up-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-root-up-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-down-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-up-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-up-flipped-symbolic.svg \
 	$(resourcesdir)/icons/curve-cubic-down-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-root-down-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-down-flipped-symbolic.svg \
+	$(resourcesdir)/icons/curve-quartic-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml

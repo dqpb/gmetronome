@@ -27,7 +27,7 @@
 class ShapeButton : public Gtk::Button
 {
 public:
-  enum class Mode { kAttack, kDecay };
+  enum class Mode { kAttack, kHold, kDecay };
 
 public:
   ShapeButton(Mode mode = Mode::kAttack);
@@ -78,22 +78,27 @@ private:
   Gtk::RadioButton* weak_radio_button_;
   Gtk::Grid* parameters_grid_;
   Gtk::Box* tone_attack_box_;
+  Gtk::Box* tone_hold_box_;
   Gtk::Box* tone_decay_box_;
   Gtk::Box* percussion_attack_box_;
+  Gtk::Box* percussion_hold_box_;
   Gtk::Box* percussion_decay_box_;
   ShapeButton tone_attack_shape_button_;
+  ShapeButton tone_hold_shape_button_;
   ShapeButton tone_decay_shape_button_;
   ShapeButton percussion_attack_shape_button_;
+  ShapeButton percussion_hold_shape_button_;
   ShapeButton percussion_decay_shape_button_;
   Gtk::Scale* balance_scale_;
   Glib::RefPtr<Gtk::Adjustment> tone_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_detune_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_attack_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> tone_hold_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_decay_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> percussion_cutoff_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> percussion_clap_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> percussion_attack_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> percussion_hold_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> percussion_decay_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> mix_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> balance_adjustment_;

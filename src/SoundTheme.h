@@ -59,20 +59,31 @@ struct SettingsListDelegate<SoundTheme>
         target.tone_pitch  = settings->get_double(settings::kKeySoundThemeTonePitch);
         target.tone_timbre = settings->get_double(settings::kKeySoundThemeToneTimbre);
         target.tone_detune = settings->get_double(settings::kKeySoundThemeToneDetune);
+
         target.tone_attack = settings->get_double(settings::kKeySoundThemeToneAttack);
-        target.tone_attack_shape = static_cast<audio::EnvelopeShape>(
+        target.tone_attack_shape = static_cast<audio::EnvelopeRampShape>(
           settings->get_enum(settings::kKeySoundThemeToneAttackShape));
+
+        target.tone_hold = settings->get_double(settings::kKeySoundThemeToneHold);
+        target.tone_hold_shape = static_cast<audio::EnvelopeHoldShape>(
+          settings->get_enum(settings::kKeySoundThemeToneHoldShape));
+
         target.tone_decay = settings->get_double(settings::kKeySoundThemeToneDecay);
-        target.tone_decay_shape = static_cast<audio::EnvelopeShape>(
+        target.tone_decay_shape = static_cast<audio::EnvelopeRampShape>(
           settings->get_enum(settings::kKeySoundThemeToneDecayShape));
 
         target.percussion_cutoff = settings->get_double(settings::kKeySoundThemePercussionCutoff);
-        target.percussion_clap = settings->get_double(settings::kKeySoundThemePercussionClap);
+
         target.percussion_attack = settings->get_double(settings::kKeySoundThemePercussionAttack);
-        target.percussion_attack_shape = static_cast<audio::EnvelopeShape>(
+        target.percussion_attack_shape = static_cast<audio::EnvelopeRampShape>(
           settings->get_enum(settings::kKeySoundThemePercussionAttackShape));
+
+        target.percussion_hold = settings->get_double(settings::kKeySoundThemePercussionHold);
+        target.percussion_hold_shape = static_cast<audio::EnvelopeHoldShape>(
+          settings->get_enum(settings::kKeySoundThemePercussionHoldShape));
+
         target.percussion_decay = settings->get_double(settings::kKeySoundThemePercussionDecay);
-        target.percussion_decay_shape = static_cast<audio::EnvelopeShape>(
+        target.percussion_decay_shape = static_cast<audio::EnvelopeRampShape>(
           settings->get_enum(settings::kKeySoundThemePercussionDecayShape));
 
         target.mix = settings->get_double(settings::kKeySoundThemeMix);
@@ -89,18 +100,29 @@ struct SettingsListDelegate<SoundTheme>
         settings->set_double(settings::kKeySoundThemeTonePitch, source.tone_pitch);
         settings->set_double(settings::kKeySoundThemeToneTimbre, source.tone_timbre);
         settings->set_double(settings::kKeySoundThemeToneDetune, source.tone_detune);
+
         settings->set_double(settings::kKeySoundThemeToneAttack, source.tone_attack);
         settings->set_enum(settings::kKeySoundThemeToneAttackShape,
                            static_cast<int>(source.tone_attack_shape));
+
+        settings->set_double(settings::kKeySoundThemeToneHold, source.tone_hold);
+        settings->set_enum(settings::kKeySoundThemeToneHoldShape,
+                           static_cast<int>(source.tone_hold_shape));
+
         settings->set_double(settings::kKeySoundThemeToneDecay, source.tone_decay);
         settings->set_enum(settings::kKeySoundThemeToneDecayShape,
                            static_cast<int>(source.tone_decay_shape));
 
         settings->set_double(settings::kKeySoundThemePercussionCutoff, source.percussion_cutoff);
-        settings->set_double(settings::kKeySoundThemePercussionClap, source.percussion_clap);
+
         settings->set_double(settings::kKeySoundThemePercussionAttack, source.percussion_attack);
         settings->set_enum(settings::kKeySoundThemePercussionAttackShape,
                            static_cast<int>(source.percussion_attack_shape));
+
+        settings->set_double(settings::kKeySoundThemePercussionHold, source.percussion_hold);
+        settings->set_enum(settings::kKeySoundThemePercussionHoldShape,
+                           static_cast<int>(source.percussion_hold_shape));
+
         settings->set_double(settings::kKeySoundThemePercussionDecay, source.percussion_decay);
         settings->set_enum(settings::kKeySoundThemePercussionDecayShape,
                            static_cast<int>(source.percussion_decay_shape));
@@ -161,15 +183,24 @@ struct SettingsListDelegate<SoundTheme>
         m = m || settings->get_user_value(settings::kKeySoundThemeTonePitch, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeToneTimbre, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeToneDetune, dbl_value);
+
         m = m || settings->get_user_value(settings::kKeySoundThemeToneAttack, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeToneAttackShape, int_value);
+
+        m = m || settings->get_user_value(settings::kKeySoundThemeToneHold, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemeToneHoldShape, int_value);
+
         m = m || settings->get_user_value(settings::kKeySoundThemeToneDecay, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeToneDecayShape, int_value);
 
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionCutoff, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemePercussionClap, dbl_value);
+
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionAttack, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionAttackShape, int_value);
+
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionHold, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePercussionHoldShape, int_value);
+
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionDecay, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionDecayShape, int_value);
 

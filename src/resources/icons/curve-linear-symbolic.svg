@@ -7,7 +7,7 @@
    viewBox="0 0 16.0 16.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="curve-cubic-root-down-symbolic.svg"
+   sodipodi:docname="curve-linear-symbolic.svg"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="14.493388"
-     inkscape:cx="-4.8987856"
-     inkscape:cy="9.3145923"
+     inkscape:zoom="28.986776"
+     inkscape:cx="5.002281"
+     inkscape:cy="8.728118"
      inkscape:window-width="1280"
      inkscape:window-height="971"
      inkscape:window-x="0"
@@ -128,11 +128,11 @@
        style="stroke-width:1.88976">
       <path
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 15,14 C 11.333333,13.666667 7.665765,13.333251 5.3329748,11.333631 3.0001846,9.3340102 2,5.6666667 1,2 1,2 3,2 3,2 3.6666667,5 4.333498,8.0007411 6.3329701,9.6669927 8.3324422,11.333244 11.666667,11.666667 15,12 c 0,0 0,2 0,2 z"
+         d="m 1,5 c 0,0 0,4 0,4 0,0 2,0 2,0 0,0 0,-1 0,-1 0,0 10,0 10,0 0,0 0,1 0,1 0,0 2,0 2,0 0,0 0,-4 0,-4 0,0 -2,0 -2,0 0,0 0,1 0,1 C 13,6 3,6 3,6 3,6 3,5 3,5 3,5 1,5 1,5 Z"
          id="path697"
          inkscape:path-effect="#path-effect699"
-         inkscape:original-d="M 15,14 C 15,14 7.6656667,13.334333 4,13 2.999,9.3343333 1,2 1,2 h 2 c 0,0 1.332333,6.001 2,9 3.3323333,0.334333 10,1 10,1 z"
-         sodipodi:nodetypes="csccscc" />
+         inkscape:original-d="M 1,5 V 9 H 3 V 8 h 10 v 1 h 2 V 5 H 13 V 6 H 3 V 5 Z"
+         sodipodi:nodetypes="ccccccccccccc" />
     </g>
   </g>
 </svg>
