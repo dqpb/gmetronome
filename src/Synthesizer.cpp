@@ -251,8 +251,6 @@ namespace audio {
   {
     using milliseconds_dbl = std::chrono::duration<double, std::milli>;
 
-    filter::Automation envelope;
-
     const auto attack_tm = milliseconds_dbl(attack);
     const auto hold_tm = attack_tm + milliseconds_dbl(hold);
     const auto decay_tm = hold_tm + milliseconds_dbl(decay);
@@ -265,36 +263,48 @@ namespace audio {
     std::function<float(float)> hold_proj = shapeProjection(hold_shape);
     std::function<float(float)> decay_proj = shapeProjection(decay_shape);
 
-    envelope.append({
-        { 0.0 * attack_step_tm, 0.0f },
+    filter::Automation envelope {{0ms, 0.0f}};
 
-        { 1.0 * attack_step_tm, attack_proj(0.2f) },
-        { 2.0 * attack_step_tm, attack_proj(0.4f) },
-        { 3.0 * attack_step_tm, attack_proj(0.6f) },
-        { 4.0 * attack_step_tm, attack_proj(0.8f) }
-      });
+    if (attack_tm == 0ms && hold_tm == 0ms && decay_tm == 0ms )
+      return envelope;
+
+    if (attack_tm > 0ms)
+    {
+      envelope.append({
+          { 1.0 * attack_step_tm, attack_proj(0.2f) },
+          { 2.0 * attack_step_tm, attack_proj(0.4f) },
+          { 3.0 * attack_step_tm, attack_proj(0.6f) },
+          { 4.0 * attack_step_tm, attack_proj(0.8f) },
+
+          { attack_tm, 1.0f }
+        });
+    }
+    else envelope.append({{attack_tm, 1.0f}});
 
     if (hold_tm > attack_tm)
     {
       envelope.append({
-          { attack_tm, 1.0f },
-
           { attack_tm + 1.0 * hold_step_tm, hold_proj(0.2f) },
           { attack_tm + 2.0 * hold_step_tm, hold_proj(0.4f) },
           { attack_tm + 3.0 * hold_step_tm, hold_proj(0.6f) },
           { attack_tm + 4.0 * hold_step_tm, hold_proj(0.8f) },
+
+          { hold_tm, 1.0f }
         });
     }
-    envelope.append({
-        { hold_tm, 1.0f },
 
-        { hold_tm + 1.0 * decay_step_tm, decay_proj( flip(0.2f) ) },
-        { hold_tm + 2.0 * decay_step_tm, decay_proj( flip(0.4f) ) },
-        { hold_tm + 3.0 * decay_step_tm, decay_proj( flip(0.6f) ) },
-        { hold_tm + 4.0 * decay_step_tm, decay_proj( flip(0.8f) ) },
+    if (decay_tm > hold_tm)
+    {
+      envelope.append({
+          { hold_tm + 1.0 * decay_step_tm, decay_proj( flip(0.2f) ) },
+          { hold_tm + 2.0 * decay_step_tm, decay_proj( flip(0.4f) ) },
+          { hold_tm + 3.0 * decay_step_tm, decay_proj( flip(0.6f) ) },
+          { hold_tm + 4.0 * decay_step_tm, decay_proj( flip(0.8f) ) },
 
-        { decay_tm, 0.0f }
-      });
+          { decay_tm, 0.0f }
+        });
+    }
+    else envelope.append({{decay_tm, 0.0f}});
 
     return envelope;
   }
