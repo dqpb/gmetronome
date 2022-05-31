@@ -49,25 +49,25 @@ namespace audio {
 
   struct SoundParameters
   {
-    float             tone_pitch        {1000.0f};                    // [40.0f, 10000.0f] (hertz)
-    float             tone_timbre       {0.0f};                       // [0.0f, 3.0f]
-    float             tone_detune       {0.0f};                       // [0.0f, 100.0f] (cents)
-    float             tone_attack       {0.5f};                       // [0.0f, 20.0f] (ms)
+    float             tone_pitch        {1000.0f};                     // [40.0f, 10000.0f] (hertz)
+    float             tone_timbre       {0.0f};                        // [0.0f, 3.0f]
+    float             tone_detune       {0.0f};                        // [0.0f, 100.0f] (cents)
+    float             tone_attack       {10.0f};                       // [0.0f, 20.0f] (ms)
     EnvelopeRampShape tone_attack_shape {EnvelopeRampShape::kLinear};
-    float             tone_hold         {0.5f};                       // [0.0f, 20.0f] (ms)
+    float             tone_hold         {10.0f};                       // [0.0f, 20.0f] (ms)
     EnvelopeHoldShape tone_hold_shape   {EnvelopeHoldShape::kKeep};
-    float             tone_decay        {0.5f};                       // [0.0f, 20.0f] (ms)
+    float             tone_decay        {10.0f};                       // [0.0f, 20.0f] (ms)
     EnvelopeRampShape tone_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float             percussion_cutoff       {1000.0f};              // [40.0f, 10000.0f] (hertz)
-    float             percussion_attack       {0.5f};                 // [0.0f, 20.0f] (ms)
+    float             percussion_cutoff       {1000.0f};               // [40.0f, 10000.0f] (hertz)
+    float             percussion_attack       {10.0f};                 // [0.0f, 20.0f] (ms)
     EnvelopeRampShape percussion_attack_shape {EnvelopeRampShape::kLinear};
-    float             percussion_hold         {0.0};                  // [0.0f, 20.0f] (ms)
+    float             percussion_hold         {10.0};                  // [0.0f, 20.0f] (ms)
     EnvelopeHoldShape percussion_hold_shape   {EnvelopeHoldShape::kKeep};
-    float             percussion_decay        {0.5f};                 // [0.0f, 20.0f] (ms)
+    float             percussion_decay        {10.0f};                 // [0.0f, 20.0f] (ms)
     EnvelopeRampShape percussion_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float mix      {0.0f};    // [-100.0f, 100.0f] (percent)
+    float mix      {-100.0f}; // [-100.0f, 100.0f] (percent)
     float balance  {0.0f};    // [-100.0f, 100.0f] (percent)
     float volume   {75.0f};   // [   0.0f, 100.0f] (percent)
   };
