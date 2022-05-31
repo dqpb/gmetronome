@@ -200,7 +200,7 @@ namespace audio {
     { return arg * arg * arg; }
 
     constexpr float flip(float arg)
-    { return -arg + 1.0f; }
+    { return 1.0f - arg; }
 
     std::function<float(float)> shapeProjection(EnvelopeRampShape shape)
     {
@@ -232,7 +232,7 @@ namespace audio {
       case EnvelopeHoldShape::kQuartic:
         proj = [] (float arg) { return std::pow(2.0f * arg - 1.0f, 4.0f); };
         break;
-      case EnvelopeHoldShape::kLinear:
+      case EnvelopeHoldShape::kKeep:
         [[fallthrough]];
       default:
         proj = [] (float arg) { return 1.0f; };

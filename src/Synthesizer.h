@@ -31,15 +31,20 @@ namespace audio {
 
   enum class EnvelopeRampShape
   {
-    kLinear = 0,
-    kCubic = 1,
-    kCubicFlipped = 2
+    kLinear = 1,
+    // kQuadratic = 2,
+    // kQuadraticFlipped = 3,
+    kCubic = 4,
+    kCubicFlipped = 5
   };
 
   enum class EnvelopeHoldShape
   {
-    kLinear = 0,
-    kQuartic = 1
+    kKeep = 0,
+    // kLinear = 1,
+    // kQuadratic = 2,
+    // kCubic = 3,
+    kQuartic = 4
   };
 
   struct SoundParameters
@@ -50,7 +55,7 @@ namespace audio {
     float             tone_attack       {0.5f};                       // [0.0f, 20.0f] (ms)
     EnvelopeRampShape tone_attack_shape {EnvelopeRampShape::kLinear};
     float             tone_hold         {0.5f};                       // [0.0f, 20.0f] (ms)
-    EnvelopeHoldShape tone_hold_shape   {EnvelopeHoldShape::kLinear};
+    EnvelopeHoldShape tone_hold_shape   {EnvelopeHoldShape::kKeep};
     float             tone_decay        {0.5f};                       // [0.0f, 20.0f] (ms)
     EnvelopeRampShape tone_decay_shape  {EnvelopeRampShape::kLinear};
 
@@ -58,7 +63,7 @@ namespace audio {
     float             percussion_attack       {0.5f};                 // [0.0f, 20.0f] (ms)
     EnvelopeRampShape percussion_attack_shape {EnvelopeRampShape::kLinear};
     float             percussion_hold         {0.0};                  // [0.0f, 20.0f] (ms)
-    EnvelopeHoldShape percussion_hold_shape   {EnvelopeHoldShape::kLinear};
+    EnvelopeHoldShape percussion_hold_shape   {EnvelopeHoldShape::kKeep};
     float             percussion_decay        {0.5f};                 // [0.0f, 20.0f] (ms)
     EnvelopeRampShape percussion_decay_shape  {EnvelopeRampShape::kLinear};
 

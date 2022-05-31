@@ -34,25 +34,28 @@
 
 ShapeButton::ShapeButton(Mode mode)
   : Glib::ObjectBase("ShapeButton"),
-    property_shape_(*this, "shape", "linear"),
+    property_shape_(*this, "shape"),
     mode_{mode}
 {
-  property_shape_.get_proxy().signal_changed()
-    .connect(sigc::mem_fun(*this, &ShapeButton::onShapeChanged));
-
   switch (mode_) {
   case Mode::kAttack:
+    property_shape_ == "linear";
     set_image_from_icon_name("curve-linear-up-symbolic");
     break;
   case Mode::kHold:
-    set_image_from_icon_name("curve-linear-symbolic");
+    property_shape_ == "keep";
+    set_image_from_icon_name("curve-keep-symbolic");
     break;
   case Mode::kDecay:
+    property_shape_ == "linear";
     set_image_from_icon_name("curve-linear-down-symbolic");
     break;
   default:
     break;
   };
+
+  property_shape_.get_proxy().signal_changed()
+    .connect(sigc::mem_fun(*this, &ShapeButton::onShapeChanged));
 
   add_events(Gdk::SCROLL_MASK);
 }
@@ -67,8 +70,8 @@ void ShapeButton::next(bool cycle)
 
   if (mode_ == Mode::kHold) {
     if (current_shape == "quartic")
-      next_shape = "linear";
-    else if (current_shape == "linear" && cycle)
+      next_shape = "keep";
+    else if (current_shape == "keep" && cycle)
       next_shape = "quartic";
   }
   else {
@@ -88,10 +91,10 @@ void ShapeButton::prev(bool cycle)
   Glib::ustring prev_shape = current_shape;
 
   if (mode_ == Mode::kHold) {
-    if (current_shape == "linear")
+    if (current_shape == "keep")
       prev_shape = "quartic";
     else if (current_shape == "quartic" && cycle)
-      prev_shape = "linear";
+      prev_shape = "keep";
   }
   else {
     if (current_shape == "cubic-flipped")
@@ -144,6 +147,15 @@ void ShapeButton::onShapeChanged()
     else
       set_image_from_icon_name("");
   }
+  else if (mode_ == Mode::kHold)
+  {
+    if (current_shape == "keep")
+      set_image_from_icon_name("curve-keep-symbolic");
+    else if (current_shape == "quartic")
+      set_image_from_icon_name("curve-quartic-symbolic");
+    else
+      set_image_from_icon_name("");
+  }
   else if (mode_ == Mode::kDecay) {
     if (current_shape == "linear")
       set_image_from_icon_name("curve-linear-down-symbolic");
@@ -151,15 +163,6 @@ void ShapeButton::onShapeChanged()
       set_image_from_icon_name("curve-cubic-down-symbolic");
     else if (current_shape == "cubic-flipped")
       set_image_from_icon_name("curve-cubic-down-flipped-symbolic");
-    else
-      set_image_from_icon_name("");
-  }
-  else if (mode_ == Mode::kHold)
-  {
-    if (current_shape == "linear")
-      set_image_from_icon_name("curve-linear-symbolic");
-    else if (current_shape == "quartic")
-      set_image_from_icon_name("curve-quartic-symbolic");
     else
       set_image_from_icon_name("");
   }

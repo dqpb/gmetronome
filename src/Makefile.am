@@ -106,7 +106,7 @@ resources = \
 	$(resourcesdir)/icons/sound-balance-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
-	$(resourcesdir)/icons/curve-linear-symbolic.svg \
+	$(resourcesdir)/icons/curve-keep-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-up-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-down-symbolic.svg \
 	$(resourcesdir)/icons/curve-cubic-up-symbolic.svg \
