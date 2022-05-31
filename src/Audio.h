@@ -264,9 +264,9 @@ namespace audio {
 
     constexpr double value() const
       { return cnt_; }
-    constexpr double amplitude() const
+    double amplitude() const
       { return std::pow(10.0f, cnt_ / 20.0f); }
-    constexpr double power() const
+    double power() const
       { return std::pow(10.0f, cnt_ / 10.0f); }
     constexpr Decibel operator+() const
       { return Decibel(*this); }
@@ -331,7 +331,7 @@ namespace audio {
     kCubic      = 3
   };
 
-  constexpr
+  inline
   double amplitudeToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
   {
     switch (map) {
@@ -349,7 +349,8 @@ namespace audio {
     };
     return std::clamp(amp * kMaxVolume, kMinVolume, kMaxVolume);
   }
-  constexpr
+
+  inline
   double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kCubic)
   {
     vol = std::clamp(vol, kMinVolume, kMaxVolume) / kMaxVolume;
@@ -370,19 +371,18 @@ namespace audio {
 
     return vol;
   }
-  //constexpr (std::log10 is not constexpr in clang-7)
+
   inline Decibel amplitudeToDecibel(double amp)
   { return Decibel { 20.0 * std::log10(amp) }; }
 
-  constexpr double decibelToAmplitude(const Decibel& dec)
+  inline double decibelToAmplitude(const Decibel& dec)
   { return dec.amplitude(); }
 
-  //constexpr (amplitudeToDecibel is not constexpr)
   inline
   Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
   { return amplitudeToDecibel(volumeToAmplitude(vol, map)); }
 
-  constexpr
+  inline
   double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kCubic)
   { return amplitudeToVolume(decibelToAmplitude(dec), map); }
 
