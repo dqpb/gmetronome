@@ -45,34 +45,25 @@ public:
 
   static MainWindow* create();
 
-protected:
+private:
   Glib::RefPtr<Gtk::Builder> builder_;
 
-  // GSettings
-  Glib::RefPtr<Gio::Settings> settings_;
-  Glib::RefPtr<Gio::Settings> settings_prefs_;
-  Glib::RefPtr<Gio::Settings> settings_state_;
-  Glib::RefPtr<Gio::Settings> settings_shortcuts_;
-
-  //Bindings and Connections
+  //Bindings
   std::list<Glib::RefPtr<Glib::Binding>> bindings_;
   std::list<Glib::RefPtr<ActionBinding>> action_bindings_;
+
+  // Connections
   std::vector<sigc::connection> meter_connections_;
   sigc::connection profile_selection_changed_connection_;
-  sigc::connection profile_title_start_editing_connection_;
-  sigc::connection profile_title_changed_connection_;
   sigc::connection profile_popover_show_connection_;
+  sigc::connection pendulum_restore_connection_;
 
-  // Settings
+  // Dialogs
   SettingsDialog* preferences_dialog_;
-
-  // About
   GMetronomeAboutDialog about_dialog_;
-
-  // Shortcuts window
   Gtk::ShortcutsWindow* shortcuts_window_;
 
-  // MainWindow UI elements
+  // UI elements
   class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
   Gtk::Label* tempo_integral_label_;
@@ -101,7 +92,7 @@ protected:
   Gtk::Label* info_details_label_;
   Gtk::Expander* info_details_expander_;
   Gtk::Box* content_box_;
-  Gtk::VolumeButton* volume_button_;
+  Gtk::ScaleButton* volume_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::ToggleButton* trainer_toggle_button_;
   Gtk::ToggleButton* accent_toggle_button_;
@@ -123,7 +114,6 @@ protected:
   Gtk::RadioButton* subdiv_3_radio_button_;
   Gtk::RadioButton* subdiv_4_radio_button_;
   Gtk::Label* subdiv_label_;
-
   AccentButtonGrid accent_button_grid_;
   Pendulum pendulum_;
 
@@ -144,8 +134,8 @@ protected:
 
   bool bottom_resizable_;
   gint64 last_meter_action_;
-  sigc::connection pendulum_restore_connection_;
 
+private:
   // Initialization
   void initActions();
   void initUI();

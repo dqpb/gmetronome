@@ -16,6 +16,11 @@ AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([foreign -Wall])
 
 #
+# Endianess
+#
+AC_C_BIGENDIAN
+
+#
 # Programs
 #
 AC_PROG_SED

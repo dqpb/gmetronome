@@ -40,5 +40,6 @@ struct Message
 
 extern const Message kGenericErrorMessage;
 extern const Message kAudioBackendErrorMessage;
+extern const Message kSoundThemeLoadingErrorMessage;
 
 #endif//GMetronome_Message_h

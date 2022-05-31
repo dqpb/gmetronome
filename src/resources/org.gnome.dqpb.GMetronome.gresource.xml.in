@@ -4,11 +4,31 @@
     <file preprocess="xml-stripblanks">ui/MainWindow.glade</file>
     <file preprocess="xml-stripblanks">ui/SettingsDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
+    <file preprocess="xml-stripblanks">ui/SoundThemeEditor.glade</file>
     <file>icons/note-quarter-symbolic.svg</file>
     <file>icons/note-eighth-symbolic.svg</file>
     <file>icons/note-triplet-symbolic.svg</file>
     <file>icons/note-sixteenth-symbolic.svg</file>
     <file>icons/profile-access-symbolic.svg</file>
+    <file>icons/sound-classic-symbolic.svg</file>
+    <file>icons/sound-modern-symbolic.svg</file>
+    <file>icons/sound-bell-symbolic.svg</file>
+    <file>icons/sound-timbre-symbolic.svg</file>
+    <file>icons/sound-crossfade-symbolic.svg</file>
+    <file>icons/sound-volume-symbolic.svg</file>
+    <file>icons/sound-volume-low-symbolic.svg</file>
+    <file>icons/sound-volume-high-symbolic.svg</file>
+    <file>icons/sound-balance-symbolic.svg</file>
+    <file>icons/sound-balance-left-symbolic.svg</file>
+    <file>icons/sound-balance-right-symbolic.svg</file>
+    <file>icons/curve-keep-symbolic.svg</file>
+    <file>icons/curve-linear-up-symbolic.svg</file>
+    <file>icons/curve-linear-down-symbolic.svg</file>
+    <file>icons/curve-cubic-up-symbolic.svg</file>
+    <file>icons/curve-cubic-up-flipped-symbolic.svg</file>
+    <file>icons/curve-cubic-down-symbolic.svg</file>
+    <file>icons/curve-cubic-down-flipped-symbolic.svg</file>
+    <file>icons/curve-quartic-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>
 </gresources>

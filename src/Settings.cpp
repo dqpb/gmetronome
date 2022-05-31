@@ -18,7 +18,6 @@
  */
 
 #include "Settings.h"
-#include "Application.h"
 
 namespace settings {
 
@@ -50,23 +49,39 @@ namespace settings {
 
   Glib::RefPtr<Gio::Settings> settings()
   {
-    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
-    return (app) ? app->getSettings() : Glib::RefPtr<Gio::Settings>();
+    static Glib::RefPtr<Gio::Settings> s = Gio::Settings::create(kSchemaId);;
+    return s;
   }
+
   Glib::RefPtr<Gio::Settings> preferences()
   {
-    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
-    return (app) ? app->getSettingsPrefs() : Glib::RefPtr<Gio::Settings>();
+    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaPathPrefsBasename);
+    return s;
   }
-  Glib::RefPtr<Gio::Settings> state()
+
+  Glib::RefPtr<Gio::Settings> sound()
   {
-    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
-    return (app) ? app->getSettingsState() : Glib::RefPtr<Gio::Settings>();
+    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaPathSoundBasename);
+    return s;
   }
+
+  Glib::RefPtr<SettingsList<SoundTheme>> soundThemes()
+  {
+    static Glib::RefPtr<SettingsList<SoundTheme>> sl = SettingsList<SoundTheme>::create(
+      sound()->get_child(kSchemaPathSoundThemesBasename), kSchemaIdSoundTheme);
+    return sl;
+  }
+
   Glib::RefPtr<Gio::Settings> shortcuts()
   {
-    auto app = Glib::RefPtr<Application>::cast_static(Gtk::Application::get_default());
-    return (app) ? app->getSettingsShortcuts() : Glib::RefPtr<Gio::Settings>();
+    static Glib::RefPtr<Gio::Settings> s = preferences()->get_child(kSchemaPathShortcutsBasename);
+    return s;
+  }
+
+  Glib::RefPtr<Gio::Settings> state()
+  {
+    static Glib::RefPtr<Gio::Settings> s = settings()->get_child(kSchemaPathStateBasename);
+    return s;
   }
 
 }//namespace settings

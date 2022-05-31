@@ -31,8 +31,6 @@
 
 namespace audio {
 
-  const microseconds kRequiredLatency    = 80ms;
-
   class AlsaDeviceError : public GMetronomeError {
   public:
     AlsaDeviceError(const std::string& msg = "", int error = 0)
@@ -57,6 +55,8 @@ namespace audio {
     AlsaBackendError(BackendState state, int error, const std::string& what = "")
       : AlsaBackendError(state, what, error)
       {}
+    int alsaErrorCode()
+      { return error_; }
   private:
     int error_;
   };
@@ -75,7 +75,23 @@ namespace audio {
   // convert sample formats
   std::vector<std::pair<SampleFormat,snd_pcm_format_t>> kFormatMapping =
   {
-    {SampleFormat::S16LE , SND_PCM_FORMAT_S16_LE}
+    {SampleFormat::kU8        , SND_PCM_FORMAT_U8},
+    {SampleFormat::kS8        , SND_PCM_FORMAT_S8},
+    {SampleFormat::kS16LE     , SND_PCM_FORMAT_S16_LE},
+    {SampleFormat::kS16BE     , SND_PCM_FORMAT_S16_BE},
+    {SampleFormat::kU16LE     , SND_PCM_FORMAT_U16_LE},
+    {SampleFormat::kU16BE     , SND_PCM_FORMAT_U16_BE},
+    {SampleFormat::kS32LE     , SND_PCM_FORMAT_S32_LE},
+    {SampleFormat::kS32BE     , SND_PCM_FORMAT_S32_BE},
+    {SampleFormat::kFloat32LE , SND_PCM_FORMAT_FLOAT_LE},
+    {SampleFormat::kFloat32BE , SND_PCM_FORMAT_FLOAT_BE},
+    // kS24LE,
+    // kS24BE,
+    // kS24_32LE,
+    // kS24_32BE,
+    // kALAW,
+    // kULAW,
+    {SampleFormat::kUnknown , SND_PCM_FORMAT_UNKNOWN}
   };
 
   snd_pcm_format_t  sampleFormatToAlsa(const SampleFormat& fmt)
@@ -303,7 +319,7 @@ namespace audio {
     snd_pcm_sframes_t frames_left = snd_pcm_bytes_to_frames(pcm_, bytes);
 
 // #ifndef NDEBUG
-//     std::cout << "AlsaBackend: write " << frames_left << " frames" << std::endl;
+//     std::cerr << "AlsaBackend: write " << frames_left << " frames" << std::endl;
 // #endif
 
     while (frames_left > 0)
@@ -344,7 +360,7 @@ namespace audio {
       data = static_cast<const char*>(data) + snd_pcm_frames_to_bytes(pcm_, frames_written);
 
 // #ifndef NDEBUG
-//       std::cout << "AlsaBackend: written: " << frames_written << " "
+//       std::cerr << "AlsaBackend: written: " << frames_written << " "
 //                 << "left: " << frames_left << std::endl;
 // #endif
 
@@ -591,7 +607,8 @@ namespace audio {
   {
     assert(state_ == BackendState::kConfig);
     try {
-      alsa_device_ = std::make_unique<AlsaDevice>(cfg_.name);
+      std::string dev_name = cfg_.name.empty() ? "default" : cfg_.name;
+      alsa_device_ = std::make_unique<AlsaDevice>(dev_name);
       alsa_device_->open();
     }
     catch(const AlsaDeviceError& e) {
@@ -610,7 +627,7 @@ namespace audio {
     alsa_in_cfg.buffer_size = 4096;
 
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
+    std::cerr << "AlsaBackend: pre config: " << alsa_in_cfg << std::endl;
 #endif
 
     AlsaDeviceConfig alsa_out_cfg = alsa_in_cfg;
@@ -622,7 +639,7 @@ namespace audio {
     }
 
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: act config: " << alsa_out_cfg << std::endl;
+    std::cerr << "AlsaBackend: act config: " << alsa_out_cfg << std::endl;
 #endif
 
     DeviceConfig actual_cfg;
@@ -749,7 +766,7 @@ namespace audio {
     if (!grope_succeeded)
     {
 #ifndef NDEBUG
-      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+      std::cerr << "AlsaBackend: ignoring device '" << name << "' ("
                 << "could not determine device capabilities" << ")" << std::endl;
 #endif
       return false;
@@ -759,7 +776,7 @@ namespace audio {
     if (caps.formats.empty())
     {
 #ifndef NDEBUG
-      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+      std::cerr << "AlsaBackend: ignoring device '" << name << "' ("
                 << "could not find suitable sample format" << ")" << std::endl;
 #endif
       return false;
@@ -768,7 +785,7 @@ namespace audio {
     if (caps.max_channels == 0 || caps.max_channels < caps.min_channels)
     {
 #ifndef NDEBUG
-      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+      std::cerr << "AlsaBackend: ignoring device '" << name << "' ("
                 << "invalid channel configuration ["
                 << caps.min_channels << ", " << caps.max_channels << "])" << std::endl;
 #endif
@@ -778,7 +795,7 @@ namespace audio {
     if (caps.max_rate == 0 || caps.max_rate < caps.min_rate)
     {
 #ifndef NDEBUG
-      std::cout << "AlsaBackend: ignoring device '" << name << "' ("
+      std::cerr << "AlsaBackend: ignoring device '" << name << "' ("
                 << "invalid rate configuration ["
                 << caps.min_channels << ", " << caps.max_channels << "])" << std::endl;
 #endif
@@ -794,7 +811,7 @@ namespace audio {
   void AlsaBackend::scanAlsaDevices()
   {
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: scan devices" << std::endl;
+    std::cerr << "AlsaBackend: scan devices" << std::endl;
 #endif
     std::vector<AlsaDeviceDescription> device_descriptions;
     try {
@@ -854,7 +871,7 @@ namespace audio {
     std::swap(device_infos_,device_infos);
 
 #ifndef NDEBUG
-    std::cout << "AlsaBackend: " << device_descriptions.size() << " devices found ("
+    std::cerr << "AlsaBackend: " << device_descriptions.size() << " devices found ("
               << device_infos_.size() << " usable)" << std::endl;
 #endif
   }

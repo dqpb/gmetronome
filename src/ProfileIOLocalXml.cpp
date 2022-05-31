@@ -289,6 +289,7 @@ namespace {
           auto element_name_lowercase = element_name.lowercase();
           if (element_name_lowercase == "header"
               || element_name_lowercase == "content"
+              || element_name_lowercase == "sound-theme"
               || element_name_lowercase == "trainer-section"
               || element_name_lowercase == "meter-section")
           {
@@ -376,6 +377,7 @@ namespace {
         auto element_name_lowercase = element_name.lowercase();
         if (element_name_lowercase == "header"
             || element_name_lowercase == "content"
+            || element_name_lowercase == "sound-theme"
             || element_name_lowercase == "trainer-section"
             || element_name_lowercase == "meter-section")
         {
@@ -420,6 +422,11 @@ namespace {
             {
               if (element_name_lowercase == "tempo")
                 current_profile_->content.tempo = stringToDouble(text);
+            }
+            else if (current_block_.top() == "sound-theme")
+            {
+              if (element_name_lowercase == "ref-id")
+                current_profile_->content.sound_theme_id = text;
             }
             else if (current_block_.top() == "meter-section")
             {
@@ -602,6 +609,11 @@ namespace {
     auto& content = profile.content;
 
     ostream->write("    <content>\n");
+    ostream->write("      <sound-theme>\n");
+    ostream->write("        <ref-id>");
+    ostream->write(Glib::Markup::escape_text(content.sound_theme_id));
+    ostream->write("</ref-id>\n");
+    ostream->write("      </sound-theme>\n");
     ostream->write("      <tempo>");
     ostream->write(doubleToString(content.tempo));
     ostream->write("</tempo>\n");

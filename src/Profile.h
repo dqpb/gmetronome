@@ -84,6 +84,8 @@ struct Profile
     double        trainer_start     = kDefaultTrainerStart;
     double        trainer_target    = kDefaultTrainerTarget;
     double        trainer_accel     = kDefaultTrainerAccel;
+
+    std::string   sound_theme_id    = "";
   };
 
   Header  header;

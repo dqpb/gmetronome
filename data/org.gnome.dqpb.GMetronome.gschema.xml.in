@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (C) 2020 The GMetronome Team
+ Copyright (C) 2020-2022 The GMetronome Team
 
  This file is part of GMetronome.
 
@@ -37,29 +37,251 @@
     <value nick='right' value='1'/>
   </enum>
 
-  <!--
-  <schema id="@PACKAGE_ID@.preferences.custom-shortcut" >
-    <key name="action-name" type="s">
-      <default>''</default>
-      <summary></summary>
-      <description></description>
+  <enum id="@PACKAGE_ID@.EnvelopeRampShape">
+    <value nick='linear' value='1'/>
+    <value nick='cubic' value='4'/>
+    <value nick='cubic-flipped' value='5'/>
+  </enum>
+
+  <enum id="@PACKAGE_ID@.EnvelopeHoldShape">
+    <value nick='keep' value='0'/>
+    <value nick='quartic' value='4'/>
+  </enum>
+
+  <schema id="@PACKAGE_ID@.settings-list">
+    <key name="entries" type="as">
+      <default>[]</default>
     </key>
-    <key name="action-target" type="s">
+    <key name="selected-entry" type="s">
       <default>''</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="accelerator" type="s">
-      <default>''</default>
-      <summary></summary>
-      <description></description>
     </key>
   </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme.parameters" >
+    <key name="tone-pitch" type="d">
+      <range min="40.0" max="10000.0"/>
+      <default>500.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-timbre" type="d">
+      <range min="0.0" max="3.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-detune" type="d">
+      <range min="0.0" max="100.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-attack" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-attack-shape" enum="@PACKAGE_ID@.EnvelopeRampShape">
+      <default>'linear'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="tone-hold" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-hold-shape" enum="@PACKAGE_ID@.EnvelopeHoldShape">
+      <default>'keep'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="tone-decay" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="tone-decay-shape" enum="@PACKAGE_ID@.EnvelopeRampShape">
+      <default>'linear'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="percussion-cutoff" type="d">
+      <range min="40.0" max="10000.0"/>
+      <default>5000.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="percussion-attack" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="percussion-attack-shape" enum="@PACKAGE_ID@.EnvelopeRampShape">
+      <default>'linear'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="percussion-hold" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="percussion-hold-shape" enum="@PACKAGE_ID@.EnvelopeHoldShape">
+      <default>'keep'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="percussion-decay" type="d">
+      <range min="0.0" max="20.0"/>
+      <default>5.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="percussion-decay-shape" enum="@PACKAGE_ID@.EnvelopeRampShape">
+      <default>'linear'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="mix" type="d">
+      <range min="-100.0" max="100.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="balance" type="d">
+      <range min="-100.0" max="100.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+    <key name="volume" type="d">
+      <range min="0.0" max="100.0"/>
+      <default>75.0</default>
+      <summary></summary>
+      <description></description>
+     </key>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme" >
+    <key name="title" type="s">
+      <default>'Untitled'</default>
+      <summary>Title of the sound theme</summary>
+      <description></description>
+    </key>
+    <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+    <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+    <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
+  </schema>
+
+  <!--
+       Sound theme presets
   -->
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.strong-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-01/strong-params/">
+    <override name="tone-pitch">690.0</override>
+    <override name="tone-timbre">1.14</override>
+    <override name="tone-detune">29.0</override>
+    <override name="tone-attack">0.79</override>
+    <override name="tone-attack-shape">'linear'</override>
+    <override name="tone-hold">0.0</override>
+    <override name="tone-hold-shape">'keep'</override>
+    <override name="tone-decay">0.64</override>
+    <override name="tone-decay-shape">'linear'</override>
+    <override name="percussion-cutoff">5000.0</override>
+    <override name="percussion-attack">0.96</override>
+    <override name="percussion-attack-shape">'linear'</override>
+    <override name="percussion-hold">0.0</override>
+    <override name="percussion-hold-shape">'keep'</override>
+    <override name="percussion-decay">0.84</override>
+    <override name="percussion-decay-shape">'linear'</override>
+    <override name="mix">20.0</override>
+    <override name="balance">0.0</override>
+    <override name="volume">100.0</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.mid-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-01/mid-params/">
+    <override name="tone-pitch">550.0</override>
+    <override name="tone-timbre">1.14</override>
+    <override name="tone-detune">29.0</override>
+    <override name="tone-attack">0.79</override>
+    <override name="tone-attack-shape">'linear'</override>
+    <override name="tone-hold">0.0</override>
+    <override name="tone-hold-shape">'keep'</override>
+    <override name="tone-decay">0.64</override>
+    <override name="tone-decay-shape">'linear'</override>
+    <override name="percussion-cutoff">5000.0</override>
+    <override name="percussion-attack">0.96</override>
+    <override name="percussion-attack-shape">'linear'</override>
+    <override name="percussion-hold">0.0</override>
+    <override name="percussion-hold-shape">'keep'</override>
+    <override name="percussion-decay">0.84</override>
+    <override name="percussion-decay-shape">'linear'</override>
+    <override name="mix">20.0</override>
+    <override name="balance">0.0</override>
+    <override name="volume">80.0</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.weak-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-01/weak-params/">
+    <override name="tone-pitch">550.0</override>
+    <override name="tone-timbre">1.59</override>
+    <override name="tone-detune">22.0</override>
+    <override name="tone-attack">0.88</override>
+    <override name="tone-attack-shape">'linear'</override>
+    <override name="tone-hold">0.0</override>
+    <override name="tone-hold-shape">'keep'</override>
+    <override name="tone-decay">0.74</override>
+    <override name="tone-decay-shape">'linear'</override>
+    <override name="percussion-cutoff">5000.0</override>
+    <override name="percussion-attack">0.95</override>
+    <override name="percussion-attack-shape">'linear'</override>
+    <override name="percussion-hold">0.0</override>
+    <override name="percussion-hold-shape">'keep'</override>
+    <override name="percussion-decay">0.94</override>
+    <override name="percussion-decay-shape">'linear'</override>
+    <override name="mix">20.0</override>
+    <override name="balance">0.0</override>
+    <override name="volume">50.0</override>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"
+	  extends="@PACKAGE_ID@.preferences.sound.theme"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-01/">
+    <override name="title">'Default'</override>
+    <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.strong-params"/>
+    <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.mid-params"/>
+    <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.weak-params"/>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
+	  extends="@PACKAGE_ID@.settings-list"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/">
+    <override name="entries">['preset-01']</override>
+    <override name="selected-entry">'preset-01'</override>
+    <child name="preset-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"/>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/">
+    <key name="volume" type="d">
+      <range min="0.0" max="100.0"/>
+      <default>75.0</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <child name="themes" schema="@PACKAGE_ID@.preferences.sound.theme-list"/>
+  </schema>
 
   <schema id="@PACKAGE_ID@.preferences.shortcuts"
 	  path="@PACKAGE_ID_PATH@/preferences/shortcuts/">
-
     <key name="quit" type="s">
       <default>'&lt;Primary&gt;q'</default>
       <summary>Keyboard shortcut to quit the application</summary>
@@ -172,24 +394,17 @@
       <default>'&lt;Primary&gt;t'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
-    <key name="custom-shortcuts" type="as">
-      <default>[]</default>
-      <summary></summary>
-      <description></description>
-    </key>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences"
 	  path="@PACKAGE_ID_PATH@/preferences/">
-
-    <key name="volume" type="d">
-      <range min="0." max="100."/>
-      <default>80.</default>
+    <key name="restore-profile" type="b">
+      <default>true</default>
       <summary></summary>
       <description></description>
     </key>
-    <key name="restore-profile" type="b">
-      <default>true</default>
+    <key name="save-sound-theme" type="b">
+      <default>false</default>
       <summary></summary>
       <description></description>
     </key>
@@ -210,60 +425,6 @@
     </key>
     <key name="animation-sync" type="d">
       <range min="-10000." max="10000."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-frequency" type="d">
-      <range min="20." max="20000."/>
-      <default>1479.978</default> <!-- F#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-volume" type="d">
-      <range min="0." max="100."/>
-      <default>100.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-strong-balance" type="d">
-      <range min="-1." max="1."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-frequency" type="d">
-      <range min="20." max="20000."/>
-      <default>1108.731</default> <!-- C#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-volume" type="d">
-      <range min="0." max="100."/>
-      <default>100.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-mid-balance" type="d">
-      <range min="-1." max="1."/>
-      <default>0.0</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-frequency" type="d">
-      <range min="20." max="20000."/>
-      <default>1108.731</default> <!-- C#6 -->
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-volume" type="d">
-      <range min="0." max="100."/>
-      <default>40</default>
-      <summary></summary>
-      <description></description>
-    </key>
-    <key name="sound-weak-balance" type="d">
-      <range min="-1." max="1."/>
       <default>0.0</default>
       <summary></summary>
       <description></description>
@@ -296,6 +457,7 @@
       <description></description>
     </key>
     @GSCHEMAXML_PULSEAUDIO_END@
+    <child name="sound" schema="@PACKAGE_ID@.preferences.sound"/>
     <child name="shortcuts" schema="@PACKAGE_ID@.preferences.shortcuts"/>
   </schema>
 

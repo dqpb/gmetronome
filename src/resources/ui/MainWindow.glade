@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.38.2 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk+" version="3.20"/>
   <object class="GtkAdjustment" id="beatsAdjustment">
     <property name="lower">1</property>
     <property name="upper">12</property>
@@ -92,7 +92,6 @@
                     <property name="label">Text</property>
                     <property name="use-markup">True</property>
                     <property name="wrap">True</property>
-                    <property name="selectable">True</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -615,11 +614,13 @@
   </object>
   <object class="GtkAdjustment" id="volumeAdjustment">
     <property name="upper">100</property>
+    <property name="value">75</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
   <object class="GtkApplicationWindow" id="mainWindow">
     <property name="can-focus">False</property>
+    <property name="window-position">center</property>
     <property name="icon-name">org.gnome.dqpb.GMetronome</property>
     <property name="show-menubar">False</property>
     <child>
@@ -1249,17 +1250,15 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVolumeButton" id="volumeButton">
+                      <object class="GtkScaleButton" id="volumeButton">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="focus-on-click">False</property>
                         <property name="receives-default">True</property>
-                        <property name="halign">end</property>
-                        <property name="valign">center</property>
                         <property name="relief">none</property>
                         <property name="orientation">vertical</property>
                         <property name="adjustment">volumeAdjustment</property>
-                        <property name="icons">audio-volume-muted-symbolic
+                        <property name="icons">audio-volume-low-symbolic
 audio-volume-high-symbolic
 audio-volume-low-symbolic
 audio-volume-medium-symbolic</property>
@@ -1280,7 +1279,7 @@ audio-volume-medium-symbolic</property>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="pack-type">end</property>
-                        <property name="position">1</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                   </object>

@@ -244,10 +244,10 @@ void MainWindow::initBindings()
   settings::preferences()->signal_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 
-  settings::preferences()->bind(settings::kKeyPrefsVolume,
-                                volume_button_,
-                                "value",
-                                Gio::SETTINGS_BIND_DEFAULT);
+  settings::sound()->bind(settings::kKeySoundVolume,
+                          volume_button_,
+                          "value",
+                          Gio::SETTINGS_BIND_DEFAULT);
 
   settings::state()->bind(settings::kKeyStateShowPendulum,
                           pendulum_revealer_,
@@ -336,11 +336,9 @@ void MainWindow::initBindings()
 
   cell_renderer->property_placeholder_text() = profile_title_placeholder_;
 
-  profile_title_changed_connection_ =
     cell_renderer->signal_editing_started()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleStartEditing));
 
-  profile_title_changed_connection_ =
     cell_renderer->signal_edited()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleChanged));
 
@@ -356,13 +354,13 @@ void MainWindow::initBindings()
   profile_popover_->signal_hide()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileHide));
 
-  app->signal_message()
+  app->signalMessage()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessage));
 
   info_bar_->signal_response()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessageResponse));
 
-  app->signal_ticker_statistics()
+  app->signalTickerStatistics()
     .connect(sigc::mem_fun(*this, &MainWindow::onTickerStatistics));
 
   tempo_integral_label_->signal_size_allocate()
@@ -1051,9 +1049,9 @@ void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  static const Glib::ustring kAccelUpSymbol     = (u8"▴");
-  static const Glib::ustring kAccelDownSymbol   = (u8"▾");
-  static const Glib::ustring kAccelStableSymbol = (u8"•");
+  static const Glib::ustring kAccelUpSymbol     = "\xe2\x96\xb4"; // "▴"
+  static const Glib::ustring kAccelDownSymbol   = "\xe2\x96\xbe"; // "▾"
+  static const Glib::ustring kAccelStableSymbol = "\xe2\x80\xa2"; // "•"
 
   static const int precision = 2;
 

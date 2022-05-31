@@ -190,29 +190,29 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundStrong(double frequency, double volume, double balance)
+  void Ticker::setSoundStrong(const SoundParameters& params)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_strong_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_strong_ = params;
     }
     sound_strong_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundMid(double frequency, double volume, double balance)
+  void Ticker::setSoundMid(const SoundParameters& params)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_mid_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_mid_ = params;
     }
     sound_mid_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setSoundWeak(double frequency, double volume, double balance)
+  void Ticker::setSoundWeak(const SoundParameters& params)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_weak_ = generateSound( frequency, volume, balance, kDefaultSpec, kSineDuration );
+      in_sound_weak_ = params;
     }
     sound_weak_imported_flag_.clear(std::memory_order_release);
   }
@@ -345,7 +345,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapSoundStrong(in_sound_strong_);
+      generator_.updateSound(Accent::kAccentStrong, in_sound_strong_);
     }
     else sound_strong_imported_flag_.clear();
   }
@@ -355,7 +355,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapSoundMid(in_sound_mid_);
+      generator_.updateSound(Accent::kAccentMid, in_sound_mid_);
     }
     else sound_mid_imported_flag_.clear();
   }
@@ -365,7 +365,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapSoundWeak(in_sound_weak_);
+      generator_.updateSound(Accent::kAccentWeak, in_sound_weak_);
     }
     else sound_weak_imported_flag_.clear();
   }

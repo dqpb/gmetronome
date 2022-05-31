@@ -6,4 +6,6 @@ src/resources/ui/MainWindow.glade
 src/MainWindow.cpp
 src/resources/ui/SettingsDialog.glade
 src/SettingsDialog.cpp
+src/SoundTheme.h
+src/resources/ui/SoundThemeEditor.glade
 src/Shortcut.cpp

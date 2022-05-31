@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16.0px"
+   height="16.0px"
+   viewBox="0 0 16.0 16.0"
+   version="1.1"
+   id="SVGRoot"
+   sodipodi:docname="sound-modern-symbolic.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview829"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="14.493388"
+     inkscape:cx="8.1416436"
+     inkscape:cy="9.2455953"
+     inkscape:window-width="1293"
+     inkscape:window-height="971"
+     inkscape:window-x="-2"
+     inkscape:window-y="27"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"
+     inkscape:snap-smooth-nodes="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid892" />
+  </sodipodi:namedview>
+  <defs
+     id="defs824">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect952"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="path950">
+      <path
+         id="path2199"
+         style="color:#000000;fill:#000000;stroke-linecap:round;-inkscape-stroke:none"
+         d="M 4.4199219,3.6933594 C 3.2913187,3.7257299 2.5182067,4.7023993 1.9115412,5.5413333 1.4167457,6.2489097 0.99516891,7.003581 0.56640625,7.7519531 0.2339784,8.6407786 1.4144739,8.6269795 1.6127175,8 3.543895,8 5.4750725,8 7.40625,8 c 0.881971,1.3317495 1.6209797,2.814754 2.880061,3.84148 0.698065,0.588599 1.773292,0.617034 2.488663,0.04323 1.2107,-0.933624 1.894453,-2.3502173 2.65862,-3.6366601 C 15.746375,7.3310874 14.59874,7.4821454 14.318098,8 12.409982,8 10.501866,8 8.59375,8 7.7135575,6.6681783 6.9736528,5.1868883 5.7156622,4.1605086 5.3465283,3.87614 4.8900733,3.6905174 4.4199219,3.6933594 Z" />
+    </g>
+  </g>
+</svg>

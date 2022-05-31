@@ -28,22 +28,36 @@
 #include <glibmm/refptr.h>
 #include <giomm/settings.h>
 #include <map>
+#include <tuple>
 
 namespace settings {
 
   /*
    * GSettings schema id's
    */
-  inline const Glib::ustring kSchemaId                   {PACKAGE_ID};
-  inline const Glib::ustring kSchemaIdPrefsBasename      {"preferences"};
-  inline const Glib::ustring kSchemaIdStateBasename      {"state"};
-  inline const Glib::ustring kSchemaIdShortcutsBasename  {"shortcuts"};
+  inline const Glib::ustring kSchemaId                         {PACKAGE_ID};
+  inline const Glib::ustring kSchemaIdPrefsBasename            {"preferences"};
+  inline const Glib::ustring kSchemaIdStateBasename            {"state"};
+  inline const Glib::ustring kSchemaIdSoundBasename            {"sound"};
+  inline const Glib::ustring kSchemaIdSoundThemeBasename       {"theme"};
+  inline const Glib::ustring kSchemaIdSoundThemeListBasename   {"theme-list"};
+  inline const Glib::ustring kSchemaIdSoundThemeParamsBasename {"parameters"};
+  inline const Glib::ustring kSchemaIdShortcutsBasename        {"shortcuts"};
 
   inline const Glib::ustring kSchemaIdPrefs {
     kSchemaId + "." + kSchemaIdPrefsBasename
   };
   inline const Glib::ustring kSchemaIdState {
     kSchemaId + "." + kSchemaIdStateBasename
+  };
+  inline const Glib::ustring kSchemaIdSound {
+    kSchemaIdPrefs + "." + kSchemaIdSoundBasename
+  };
+  inline const Glib::ustring kSchemaIdSoundTheme {
+    kSchemaIdSound + "." + kSchemaIdSoundThemeBasename
+  };
+  inline const Glib::ustring kSchemaIdSoundThemeList {
+    kSchemaIdSound + "." + kSchemaIdSoundThemeListBasename
   };
   inline const Glib::ustring kSchemaIdShortcuts {
     kSchemaIdPrefs + "." + kSchemaIdShortcutsBasename
@@ -52,16 +66,28 @@ namespace settings {
   /*
    * GSettings schema paths
    */
-  inline const Glib::ustring kSchemaPath                   {PACKAGE_ID_PATH"/"};
-  inline const Glib::ustring kSchemaPathPrefsBasename      {"preferences"};
-  inline const Glib::ustring kSchemaPathStateBasename      {"state"};
-  inline const Glib::ustring kSchemaPathShortcutsBasename  {"shortcuts"};
+  inline const Glib::ustring kSchemaPath                        {PACKAGE_ID_PATH"/"};
+  inline const Glib::ustring kSchemaPathPrefsBasename           {"preferences"};
+  inline const Glib::ustring kSchemaPathStateBasename           {"state"};
+  inline const Glib::ustring kSchemaPathSoundBasename           {"sound"};
+  inline const Glib::ustring kSchemaPathSoundThemesBasename     {"themes"};
+  inline const Glib::ustring kSchemaPathShortcutsBasename       {"shortcuts"};
+
+  inline const Glib::ustring kSchemaPathSoundThemeStrongParamsBasename {"strong-params"};
+  inline const Glib::ustring kSchemaPathSoundThemeMidParamsBasename    {"mid-params"};
+  inline const Glib::ustring kSchemaPathSoundThemeWeakParamsBasename   {"weak-params"};
 
   inline const Glib::ustring kSchemaPathPrefs {
     kSchemaPath + kSchemaPathPrefsBasename + "/"
   };
   inline const Glib::ustring kSchemaPathState {
     kSchemaPath + kSchemaPathStateBasename + "/"
+  };
+  inline const Glib::ustring kSchemaPathSound {
+    kSchemaPathPrefs + kSchemaPathSoundBasename + "/"
+  };
+  inline const Glib::ustring kSchemaPathSoundThemes {
+    kSchemaPathSound + kSchemaPathSoundThemesBasename + "/"
   };
   inline const Glib::ustring kSchemaPathShortcuts {
     kSchemaPathPrefs + kSchemaPathShortcutsBasename + "/"
@@ -97,38 +123,38 @@ namespace settings {
     kPendulumPhaseModeRight = 1
   };
 
-  inline constexpr  double    kDefaultVolume  = 80;
-  inline constexpr  double    kMinVolume      = 0;
-  inline constexpr  double    kMaxVolume      = 100;
+  /*
+   * default values
+   */
+  inline constexpr  double    kDefaultVolume  =  75.0;
+  inline constexpr  double    kMinVolume      =   0.0;
+  inline constexpr  double    kMaxVolume      = 100.0;
+
+  /*
+   * .SettingsList keys
+   */
+  inline const Glib::ustring  kKeySettingsListEntries             {"entries"};
+  inline const Glib::ustring  kKeySettingsListSelectedEntry       {"selected-entry"};
 
   /*
    * .preferences keys
    */
-  inline const Glib::ustring  kKeyPrefsVolume                    {"volume"};
-  inline const Glib::ustring  kKeyPrefsRestoreProfile            {"restore-profile"};
-  inline const Glib::ustring  kKeyPrefsPendulumAction            {"pendulum-action"};
-  inline const Glib::ustring  kKeyPrefsPendulumPhaseMode         {"pendulum-phase-mode"};
-  inline const Glib::ustring  kKeyPrefsMeterAnimation            {"meter-animation"};
-  inline const Glib::ustring  kKeyPrefsAnimationSync             {"animation-sync"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongFrequency      {"sound-strong-frequency"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongVolume         {"sound-strong-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundStrongBalance        {"sound-strong-balance"};
-  inline const Glib::ustring  kKeyPrefsSoundMidFrequency         {"sound-mid-frequency"};
-  inline const Glib::ustring  kKeyPrefsSoundMidVolume            {"sound-mid-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundMidBalance           {"sound-mid-balance"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakFrequency        {"sound-weak-frequency"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakVolume           {"sound-weak-volume"};
-  inline const Glib::ustring  kKeyPrefsSoundWeakBalance          {"sound-weak-balance"};
-  inline const Glib::ustring  kKeyPrefsAudioBackend              {"audio-backend"};
+  inline const Glib::ustring  kKeyPrefsRestoreProfile             {"restore-profile"};
+  inline const Glib::ustring  kKeyPrefsSaveSoundTheme             {"save-sound-theme"};
+  inline const Glib::ustring  kKeyPrefsPendulumAction             {"pendulum-action"};
+  inline const Glib::ustring  kKeyPrefsPendulumPhaseMode          {"pendulum-phase-mode"};
+  inline const Glib::ustring  kKeyPrefsMeterAnimation             {"meter-animation"};
+  inline const Glib::ustring  kKeyPrefsAnimationSync              {"animation-sync"};
+  inline const Glib::ustring  kKeyPrefsAudioBackend               {"audio-backend"};
 
 #if HAVE_ALSA
-  inline const Glib::ustring  kKeyPrefsAudioDeviceAlsa           {"audio-device-alsa"};
+  inline const Glib::ustring  kKeyPrefsAudioDeviceAlsa            {"audio-device-alsa"};
 #endif
 #if HAVE_OSS
-  inline const Glib::ustring  kKeyPrefsAudioDeviceOss            {"audio-device-oss"};
+  inline const Glib::ustring  kKeyPrefsAudioDeviceOss             {"audio-device-oss"};
 #endif
 #if HAVE_PULSEAUDIO
-  inline const Glib::ustring  kKeyPrefsAudioDevicePulseaudio     {"audio-device-pulseaudio"};
+  inline const Glib::ustring  kKeyPrefsAudioDevicePulseaudio      {"audio-device-pulseaudio"};
 #endif
 
   // map audio backend identifier (w/o kAudioBackendNone) to the corresponding
@@ -138,51 +164,93 @@ namespace settings {
   extern const std::map<Glib::ustring, settings::AudioBackend> kDeviceToBackendMap;
 
   /*
+   * .preferences.sound keys
+   */
+  inline const Glib::ustring  kKeySoundVolume                     {"volume"};
+  inline const Glib::ustring  kKeySoundThemeList                  {"theme-list"};
+
+  /*
+   * .preferences.sound.theme keys
+   */
+  inline const Glib::ustring  kKeySoundThemeTitle                 {"title"};
+
+  /*
+   * .preferences.sound.theme.parameters keys
+   */
+  inline const Glib::ustring  kKeySoundThemeTonePitch             {"tone-pitch"};
+  inline const Glib::ustring  kKeySoundThemeToneTimbre            {"tone-timbre"};
+  inline const Glib::ustring  kKeySoundThemeToneDetune            {"tone-detune"};
+  inline const Glib::ustring  kKeySoundThemeToneAttack            {"tone-attack"};
+  inline const Glib::ustring  kKeySoundThemeToneAttackShape       {"tone-attack-shape"};
+  inline const Glib::ustring  kKeySoundThemeToneHold              {"tone-hold"};
+  inline const Glib::ustring  kKeySoundThemeToneHoldShape         {"tone-hold-shape"};
+  inline const Glib::ustring  kKeySoundThemeToneDecay             {"tone-decay"};
+  inline const Glib::ustring  kKeySoundThemeToneDecayShape        {"tone-decay-shape"};
+  inline const Glib::ustring  kKeySoundThemePercussionCutoff      {"percussion-cutoff"};
+  inline const Glib::ustring  kKeySoundThemePercussionAttack      {"percussion-attack"};
+  inline const Glib::ustring  kKeySoundThemePercussionAttackShape {"percussion-attack-shape"};
+  inline const Glib::ustring  kKeySoundThemePercussionHold        {"percussion-hold"};
+  inline const Glib::ustring  kKeySoundThemePercussionHoldShape   {"percussion-hold-shape"};
+  inline const Glib::ustring  kKeySoundThemePercussionDecay       {"percussion-decay"};
+  inline const Glib::ustring  kKeySoundThemePercussionDecayShape  {"percussion-decay-shape"};
+  inline const Glib::ustring  kKeySoundThemeMix                   {"mix"};
+  inline const Glib::ustring  kKeySoundThemeBalance               {"balance"};
+  inline const Glib::ustring  kKeySoundThemeVolume                {"volume"};
+
+  /*
    * .preferences.shortcuts keys
    */
-  inline const Glib::ustring  kKeyShortcutsQuit                  {"quit"};
-  inline const Glib::ustring  kKeyShortcutsShowPrimaryMenu       {"show-primary-menu"};
-  inline const Glib::ustring  kKeyShortcutsShowProfiles          {"show-profiles"};
-  inline const Glib::ustring  kKeyShortcutsShowPreferences       {"show-preferences"};
-  inline const Glib::ustring  kKeyShortcutsShowShortcuts         {"show-shortcuts"};
-  inline const Glib::ustring  kKeyShortcutsShowAbout             {"show-about"};
-  inline const Glib::ustring  kKeyShortcutsShowHelp              {"show-help"};
-  inline const Glib::ustring  kKeyShortcutsShowPendulum          {"show-pendulum"};
-  inline const Glib::ustring  kKeyShortcutsFullScreen            {"full-screen"};
-  inline const Glib::ustring  kKeyShortcutsStart                 {"start"};
-  inline const Glib::ustring  kKeyShortcutsVolumeIncrease1       {"volume-increase-1"};
-  inline const Glib::ustring  kKeyShortcutsVolumeDecrease1       {"volume-decrease-1"};
-  inline const Glib::ustring  kKeyShortcutsVolumeIncrease10      {"volume-increase-10"};
-  inline const Glib::ustring  kKeyShortcutsVolumeDecrease10      {"volume-decrease-10"};
-  inline const Glib::ustring  kKeyShortcutsTempoIncrease1        {"tempo-increase-1"};
-  inline const Glib::ustring  kKeyShortcutsTempoDecrease1        {"tempo-decrease-1"};
-  inline const Glib::ustring  kKeyShortcutsTempoIncrease10       {"tempo-increase-10"};
-  inline const Glib::ustring  kKeyShortcutsTempoDecrease10       {"tempo-decrease-10"};
-  inline const Glib::ustring  kKeyShortcutsTempoTap              {"tempo-tap"};
-  inline const Glib::ustring  kKeyShortcutsMeterEnabled          {"meter-enabled"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple2    {"meter-select-simple-2"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple3    {"meter-select-simple-3"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple4    {"meter-select-simple-4"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound2  {"meter-select-compound-2"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound3  {"meter-select-compound-3"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound4  {"meter-select-compound-4"};
-  inline const Glib::ustring  kKeyShortcutsMeterSelectCustom     {"meter-select-custom"};
-  inline const Glib::ustring  kKeyShortcutsTrainerEnabled        {"trainer-enabled"};
+  inline const Glib::ustring  kKeyShortcutsQuit                   {"quit"};
+  inline const Glib::ustring  kKeyShortcutsShowPrimaryMenu        {"show-primary-menu"};
+  inline const Glib::ustring  kKeyShortcutsShowProfiles           {"show-profiles"};
+  inline const Glib::ustring  kKeyShortcutsShowPreferences        {"show-preferences"};
+  inline const Glib::ustring  kKeyShortcutsShowShortcuts          {"show-shortcuts"};
+  inline const Glib::ustring  kKeyShortcutsShowAbout              {"show-about"};
+  inline const Glib::ustring  kKeyShortcutsShowHelp               {"show-help"};
+  inline const Glib::ustring  kKeyShortcutsShowPendulum           {"show-pendulum"};
+  inline const Glib::ustring  kKeyShortcutsFullScreen             {"full-screen"};
+  inline const Glib::ustring  kKeyShortcutsStart                  {"start"};
+  inline const Glib::ustring  kKeyShortcutsVolumeIncrease1        {"volume-increase-1"};
+  inline const Glib::ustring  kKeyShortcutsVolumeDecrease1        {"volume-decrease-1"};
+  inline const Glib::ustring  kKeyShortcutsVolumeIncrease10       {"volume-increase-10"};
+  inline const Glib::ustring  kKeyShortcutsVolumeDecrease10       {"volume-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoIncrease1         {"tempo-increase-1"};
+  inline const Glib::ustring  kKeyShortcutsTempoDecrease1         {"tempo-decrease-1"};
+  inline const Glib::ustring  kKeyShortcutsTempoIncrease10        {"tempo-increase-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoDecrease10        {"tempo-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoTap               {"tempo-tap"};
+  inline const Glib::ustring  kKeyShortcutsMeterEnabled           {"meter-enabled"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple2     {"meter-select-simple-2"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple3     {"meter-select-simple-3"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectSimple4     {"meter-select-simple-4"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound2   {"meter-select-compound-2"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound3   {"meter-select-compound-3"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCompound4   {"meter-select-compound-4"};
+  inline const Glib::ustring  kKeyShortcutsMeterSelectCustom      {"meter-select-custom"};
+  inline const Glib::ustring  kKeyShortcutsTrainerEnabled         {"trainer-enabled"};
 
   /*
    * .state keys
    */
-  inline const Glib::ustring  kKeyStateFirstLaunch               {"first-launch"};
-  inline const Glib::ustring  kKeyStateProfileSelect             {"profile-select"};
-  inline const Glib::ustring  kKeyStateShowPendulum              {"show-pendulum"};
+  inline const Glib::ustring  kKeyStateFirstLaunch                {"first-launch"};
+  inline const Glib::ustring  kKeyStateProfileSelect              {"profile-select"};
+  inline const Glib::ustring  kKeyStateShowPendulum               {"show-pendulum"};
 
+}//namespace settings
+
+#include "SettingsList.h"
+#include "SoundTheme.h"
+
+namespace settings {
   /*
-   * Access Gio::Settings objects of the main application
+   * Access Gio::Settings or SettingLists of the application
    */
   Glib::RefPtr<Gio::Settings> settings();
   Glib::RefPtr<Gio::Settings> preferences();
-  Glib::RefPtr<Gio::Settings> state();
+  Glib::RefPtr<Gio::Settings> sound();
+  Glib::RefPtr<SettingsList<SoundTheme>> soundThemes();
   Glib::RefPtr<Gio::Settings> shortcuts();
+  Glib::RefPtr<Gio::Settings> state();
 
 }//namespace settings
 #endif//GMetronome_Settings_h

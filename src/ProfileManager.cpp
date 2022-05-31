@@ -42,13 +42,15 @@ void ProfileManager::setIOModule(std::unique_ptr<ProfileIOBase> ptr)
 Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
                                            const Profile::Content& content)
 {
-  gchar* id = g_uuid_string_random();
-  Profile p { header, content };
+  gchar* uuid = g_uuid_string_random();
+  Profile::Identifier id {uuid};
+  g_free(uuid);
 
+  Profile p { header, content };
+  
   try {
     io_->store(id, p);
     signal_changed_.emit();
-    return {id, p.header};
   }
   catch(const GMetronomeError& error)
   {
@@ -56,8 +58,8 @@ Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
     std::cerr << "ProfileManager: failed to store new profile ('"
               << error.what() << "')" << std::endl;
 #endif
-    return {id, p.header};
   }
+  return {id, p.header};
 }
 
 void ProfileManager::deleteProfile(const Profile::Identifier& id)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -22,8 +22,8 @@
 #endif
 
 #include "Application.h"
-#include "ProfileIOLocalXml.h"
 #include "MainWindow.h"
+#include "ProfileIOLocalXml.h"
 #include "Meter.h"
 #include "Shortcut.h"
 #include "Settings.h"
@@ -32,6 +32,11 @@
 #include <iostream>
 
 namespace {
+
+  const std::bitset<3> kAccentMaskAll    {"111"};
+  const std::bitset<3> kAccentMaskStrong {"001"};
+  const std::bitset<3> kAccentMaskMid    {"010"};
+  const std::bitset<3> kAccentMaskWeak   {"100"};
 
   std::string getErrorDetails(std::exception_ptr eptr)
   {
@@ -86,14 +91,17 @@ Application::Application() : Gtk::Application(PACKAGE_ID)
 Application::~Application()
 {
   try {
-    if (settings_state_)
-      settings_state_->set_boolean(settings::kKeyStateFirstLaunch, false);
+    if (settings::state())
+      settings::state()->set_boolean(settings::kKeyStateFirstLaunch, false);
   }
   catch (...) {}
 
   try {
-    if (settings_prefs_ && settings_prefs_->get_has_unapplied())
-      settings_prefs_->apply();
+    if (settings::sound() && settings::sound()->get_has_unapplied())
+    {
+      settings::sound()->apply();
+      g_settings_sync();
+    }
   }
   catch (...) {}
 }
@@ -130,23 +138,24 @@ void Application::on_activate()
 
 void Application::initSettings()
 {
-  settings_ = Gio::Settings::create(settings::kSchemaId);
-  settings_prefs_ = settings_->get_child(settings::kSchemaIdPrefsBasename);
-  settings_state_ = settings_->get_child(settings::kSchemaIdStateBasename);
-  settings_shortcuts_ = settings_prefs_->get_child(settings::kSchemaIdShortcutsBasename);
+  settings::soundThemes()->settings()->signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onSettingsSoundChanged));
 
-  settings_prefs_connection_ = settings_prefs_->signal_changed()
+  settings::preferences()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
 
-  settings_state_connection_ = settings_state_->signal_changed()
+  settings_state_connection_ = settings::state()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsStateChanged));
 
-  settings_shortcuts_connection_ = settings_shortcuts_->signal_changed()
+  settings::sound()->signal_changed()
+    .connect(sigc::mem_fun(*this, &Application::onSettingsSoundChanged));
+
+  settings::shortcuts()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsShortcutsChanged));
 
-  // to prevent heavy i/o (e.g. during volume adjustment) we cache prefs
-  // and propagate them to the backend in the destructor
-  settings_prefs_->delay();
+  // we cache sound prefs (e.g. volume adjustment) and propagate them
+  // to the backend in the destructor
+  settings::sound()->delay();
 }
 
 void Application::initActions()
@@ -155,7 +164,7 @@ void Application::initActions()
     {
       {kActionQuit,            sigc::mem_fun(*this, &Application::onQuit)},
 
-      {kActionVolume,          settings_prefs_},
+      {kActionVolume,          settings::sound()},
       {kActionVolumeIncrease,  sigc::mem_fun(*this, &Application::onVolumeIncrease)},
       {kActionVolumeDecrease,  sigc::mem_fun(*this, &Application::onVolumeDecrease)},
 
@@ -207,7 +216,7 @@ void Application::initUI()
   // initialize accelerators
   for (const auto& [key, shortcut_action] : kDefaultShortcutActionMap)
   {
-    Glib::ustring accel = settings_shortcuts_->get_string(key);
+    Glib::ustring accel = settings::shortcuts()->get_string(key);
 
     auto action = kActionDescriptions.find(shortcut_action.action_name);
     if (action != kActionDescriptions.end())
@@ -230,10 +239,10 @@ void Application::initProfiles()
   auto profile_list = profile_manager_.profileList();
 
   Glib::ustring restore_profile_id;
-  if (settings_prefs_->get_boolean(settings::kKeyPrefsRestoreProfile))
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsRestoreProfile))
   {
     restore_profile_id =
-      restore_profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
+      restore_profile_id = settings::state()->get_string(settings::kKeyStateProfileSelect);
   }
 
   if (!restore_profile_id.empty())
@@ -243,7 +252,7 @@ void Application::initProfiles()
 
     activate_action(kActionProfileSelect, state);
   }
-  else if (settings_state_->get_boolean(settings::kKeyStateFirstLaunch)
+  else if (settings::state()->get_boolean(settings::kKeyStateFirstLaunch)
            && profile_list.empty())
   {
     Glib::Variant<Glib::ustring> state
@@ -259,45 +268,107 @@ void Application::initProfiles()
 
 void Application::initTicker()
 {
-  configureTickerSound();
+  loadSelectedSoundTheme();
   configureAudioBackend();
 }
 
-void Application::configureTickerSound()
+void Application::loadSelectedSoundTheme()
 {
-  configureTickerSoundStrong();
-  configureTickerSoundMid();
-  configureTickerSoundWeak();
+  std::for_each(settings_sound_params_connections_.begin(),
+                settings_sound_params_connections_.end(),
+                [] (auto& connection) { connection.disconnect(); });
+
+  std::for_each(settings_sound_params_.begin(),
+                settings_sound_params_.end(),
+                [] (auto& settings) { settings.reset(); });
+
+  if (auto theme_id = settings::soundThemes()->selected(); !theme_id.empty())
+  {
+    try {
+      auto& theme_settings = settings::soundThemes()->settings(theme_id);
+
+      settings_sound_params_[0] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
+
+      if (settings_sound_params_[0])
+      {
+        settings_sound_params_connections_[0] =
+          settings_sound_params_[0]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskStrong); });
+      }
+
+      settings_sound_params_[1] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
+
+      if (settings_sound_params_[1])
+      {
+        settings_sound_params_connections_[1] =
+          settings_sound_params_[1]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskMid); });
+      }
+
+      settings_sound_params_[2] =
+        theme_settings.children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
+
+      if (settings_sound_params_[2])
+      {
+        settings_sound_params_connections_[2] =
+          settings_sound_params_[2]->signal_changed().connect(
+            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskWeak); });
+      }
+    }
+    catch(...) {
+#ifndef NDEBUG
+      std::cerr << "Application: failed to load sound theme '" << theme_id << "'" << std::endl;
+#endif
+      // Message error_message;
+      // error_message = kSoundThemeLoadingErrorMessage;
+      // error_message.details = getErrorDetails(std::current_exception());
+      // signal_message_.emit(error_message);
+    }
+  }
+  else {
+#ifndef NDEBUG
+      std::cerr << "Application: no sound theme selected" << std::endl;
+#endif
+  }
+  updateTickerSound(kAccentMaskAll);
 }
 
-void Application::configureTickerSoundStrong()
+void Application::updateTickerSound(const AccentMask& accents)
 {
-  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+  if (accents.none())
+    return;
 
-  ticker_.setSoundStrong(settings_prefs_->get_double(settings::kKeyPrefsSoundStrongFrequency),
-                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongVolume) *
-                         settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                         settings_prefs_->get_double(settings::kKeyPrefsSoundStrongBalance));
-}
+  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
-void Application::configureTickerSoundMid()
-{
-  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+  if (accents[0]) {
+    audio::SoundParameters params;
 
-  ticker_.setSoundMid(settings_prefs_->get_double(settings::kKeyPrefsSoundMidFrequency),
-                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidVolume) *
-                      settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                      settings_prefs_->get_double(settings::kKeyPrefsSoundMidBalance));
-}
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[0], params);
 
-void Application::configureTickerSoundWeak()
-{
-  constexpr double maxvol2 = settings::kMaxVolume * settings::kMaxVolume;
+    params.volume *= global_volume / 100.0;
+    ticker_.setSoundStrong(params);
+  }
+  if (accents[1]) {
+    audio::SoundParameters params;
 
-  ticker_.setSoundWeak(settings_prefs_->get_double(settings::kKeyPrefsSoundWeakFrequency),
-                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakVolume) *
-                       settings_prefs_->get_double(settings::kKeyPrefsVolume) / maxvol2,
-                       settings_prefs_->get_double(settings::kKeyPrefsSoundWeakBalance));
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[1], params);
+
+    params.volume *= global_volume / 100.0;
+    ticker_.setSoundMid(params);
+  }
+  if (accents[2]) {
+    audio::SoundParameters params;
+
+    if (settings_sound_params_[0])
+      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[2], params);
+
+    params.volume *= global_volume / 100.0;
+    ticker_.setSoundWeak(params);
+  }
 }
 
 void Application::configureAudioBackend()
@@ -307,7 +378,7 @@ void Application::configureAudioBackend()
 
   try {
     settings::AudioBackend backend = (settings::AudioBackend)
-      settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+      settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
     auto new_backend = audio::createBackend( backend );
 
@@ -324,7 +395,7 @@ void Application::configureAudioBackend()
       Glib::Variant<std::vector<Glib::ustring>> dev_list_state
         = Glib::Variant<std::vector<Glib::ustring>>::create(dev_list);
 
-      lookup_simple_action(kActionAudioDeviceList)->set_state(dev_list_state);
+      lookupSimpleAction(kActionAudioDeviceList)->set_state(dev_list_state);
 
       auto device_config = audio::kDefaultConfig;
       device_config.name = currentAudioDevice();
@@ -360,7 +431,7 @@ void Application::configureAudioDevice()
   ticker_.configureAudioDevice(cfg);
 }
 
-Glib::RefPtr<Gio::SimpleAction> Application::lookup_simple_action(const Glib::ustring& name)
+Glib::RefPtr<Gio::SimpleAction> Application::lookupSimpleAction(const Glib::ustring& name)
 {
   Glib::RefPtr<Gio::Action> action = lookup_action(name);
   return Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(action);
@@ -450,7 +521,7 @@ void Application::onTrainerEnabled(const Glib::VariantBase& value)
     ticker_.setTempo(tempo);
   }
 
-  lookup_simple_action(kActionTrainerEnabled)->set_state(new_state);
+  lookupSimpleAction(kActionTrainerEnabled)->set_state(new_state);
 }
 
 void Application::onMeterEnabled(const Glib::VariantBase& value)
@@ -473,7 +544,7 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
     ticker_.setMeter( kMeter1 );
   }
 
-  lookup_simple_action(kActionMeterEnabled)->set_state(new_state);
+  lookupSimpleAction(kActionMeterEnabled)->set_state(new_state);
 }
 
 void Application::onMeterSelect(const Glib::VariantBase& value)
@@ -503,7 +574,7 @@ void Application::onMeterSelect(const Glib::VariantBase& value)
       Glib::Variant<Glib::ustring> out_state =
         Glib::Variant<Glib::ustring>::create(new_meter_slot);
 
-      lookup_simple_action(kActionMeterSelect)->set_state(out_state);
+      lookupSimpleAction(kActionMeterSelect)->set_state(out_state);
     }
   }
 }
@@ -557,7 +628,7 @@ void Application::onMeterChanged_Custom(const Glib::VariantBase& value)
 void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
                                           Meter&& in_meter)
 {
-  auto action = lookup_simple_action(action_name);
+  auto action = lookupSimpleAction(action_name);
   if (action)
   {
     bool meter_enabled;
@@ -584,11 +655,11 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
+  double current_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
   auto [new_volume, valid] = validateVolume(current_volume + delta_volume);
 
-  settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
+  settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
 }
 
 void Application::onVolumeDecrease(const Glib::VariantBase& value)
@@ -596,11 +667,11 @@ void Application::onVolumeDecrease(const Glib::VariantBase& value)
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  double current_volume = settings_prefs_->get_double(settings::kKeyPrefsVolume);
+  double current_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
   auto [new_volume, valid] = validateVolume(current_volume - delta_volume);
 
-  settings_prefs_->set_double(settings::kKeyPrefsVolume, new_volume);
+  settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
 }
 
 void Application::onTempo(const Glib::VariantBase& value)
@@ -614,7 +685,7 @@ void Application::onTempo(const Glib::VariantBase& value)
 
   auto new_state = Glib::Variant<double>::create(tempo);
 
-  lookup_simple_action(kActionTempo)->set_state(new_state);
+  lookupSimpleAction(kActionTempo)->set_state(new_state);
 }
 
 void Application::onTempoIncrease(const Glib::VariantBase& value)
@@ -679,7 +750,7 @@ void Application::onTrainerStart(const Glib::VariantBase& value)
   auto [tempo, valid] = validateTrainerStart(in_tempo);
 
   auto new_state = Glib::Variant<double>::create(tempo);
-  lookup_simple_action(kActionTrainerStart)->set_state(new_state);
+  lookupSimpleAction(kActionTrainerStart)->set_state(new_state);
 }
 
 void Application::onTrainerTarget(const Glib::VariantBase& value)
@@ -694,7 +765,7 @@ void Application::onTrainerTarget(const Glib::VariantBase& value)
     ticker_.setTargetTempo(tempo);
 
   auto new_state = Glib::Variant<double>::create(tempo);
-  lookup_simple_action(kActionTrainerTarget)->set_state(new_state);
+  lookupSimpleAction(kActionTrainerTarget)->set_state(new_state);
 }
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
@@ -709,7 +780,7 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
     ticker_.setAccel(accel);
 
   auto new_state = Glib::Variant<double>::create(accel);
-  lookup_simple_action(kActionTrainerAccel)->set_state(new_state);
+  lookupSimpleAction(kActionTrainerAccel)->set_state(new_state);
 }
 
 void Application::onProfileManagerChanged()
@@ -725,7 +796,7 @@ void Application::onProfileManagerChanged()
   Glib::Variant<ProfileList> out_list_state
     = Glib::Variant<ProfileList>::create(out_list);
 
-  lookup_simple_action(kActionProfileList)->set_state(out_list_state);
+  lookupSimpleAction(kActionProfileList)->set_state(out_list_state);
 
   // update selection
   Glib::ustring selected_id;
@@ -747,8 +818,8 @@ void Application::onProfileManagerChanged()
       Glib::Variant<Glib::ustring> descr_state
         = Glib::Variant<Glib::ustring>::create(std::get<kProfileListEntryDescription>(*it));
 
-      lookup_simple_action(kActionProfileTitle)->set_state(title_state);
-      lookup_simple_action(kActionProfileDescription)->set_state(descr_state);
+      lookupSimpleAction(kActionProfileTitle)->set_state(title_state);
+      lookupSimpleAction(kActionProfileDescription)->set_state(descr_state);
     }
     else
     {
@@ -783,9 +854,9 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
     Glib::Variant<Glib::ustring> empty_state
       = Glib::Variant<Glib::ustring>::create({""});
 
-    lookup_simple_action(kActionProfileSelect)->set_state(empty_state);
-    lookup_simple_action(kActionProfileTitle)->set_state(empty_state);
-    lookup_simple_action(kActionProfileDescription)->set_state(empty_state);
+    lookupSimpleAction(kActionProfileSelect)->set_state(empty_state);
+    lookupSimpleAction(kActionProfileTitle)->set_state(empty_state);
+    lookupSimpleAction(kActionProfileDescription)->set_state(empty_state);
   }
   else
   {
@@ -795,15 +866,15 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
                            });
     if (it != plist.end())
     {
-      lookup_simple_action(kActionProfileSelect)->set_state(in_state);
+      lookupSimpleAction(kActionProfileSelect)->set_state(in_state);
 
       Glib::ustring& title = std::get<kProfileListEntryTitle>(*it);
       Glib::ustring& description = std::get<kProfileListEntryDescription>(*it);
 
-      lookup_simple_action(kActionProfileTitle)
+      lookupSimpleAction(kActionProfileTitle)
         ->set_state(Glib::Variant<Glib::ustring>::create( title ));
 
-      lookup_simple_action(kActionProfileDescription)
+      lookupSimpleAction(kActionProfileDescription)
         ->set_state(Glib::Variant<Glib::ustring>::create( description ));
     }
   }
@@ -812,7 +883,7 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
   get_action_state(kActionProfileSelect, selected_id);
 
   settings_state_connection_.block();
-  settings_state_->set_string(settings::kKeyStateProfileSelect, selected_id);
+  settings::state()->set_string(settings::kKeyStateProfileSelect, selected_id);
   settings_state_connection_.unblock();
 
   loadSelectedProfile();
@@ -838,6 +909,9 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionTrainerStart, content.trainer_start);
   get_action_state(kActionTrainerTarget, content.trainer_target);
   get_action_state(kActionTrainerAccel, content.trainer_accel);
+
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    content.sound_theme_id = settings::soundThemes()->selected();
 }
 
 void Application::convertProfileToAction(const Profile::Content& content)
@@ -870,6 +944,16 @@ void Application::convertProfileToAction(const Profile::Content& content)
                   Glib::Variant<double>::create(content.trainer_target) );
   activate_action(kActionTrainerAccel,
                   Glib::Variant<double>::create(content.trainer_accel) );
+
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+  {
+    if (content.sound_theme_id.empty()
+        || !settings::soundThemes()->select(content.sound_theme_id))
+    {
+      if (auto theme_list_settings = settings::soundThemes()->settings(); theme_list_settings)
+        theme_list_settings->reset(settings::kKeySettingsListSelectedEntry);
+    }
+  }
 }
 
 void Application::onProfileNew(const Glib::VariantBase& value)
@@ -903,10 +987,9 @@ void Application::loadSelectedProfile()
     Profile::Content content = profile_manager_.getProfileContent(id);
     convertProfileToAction(content);
   }
-
-  lookup_simple_action(kActionProfileDelete)->set_enabled(has_selected_id);
-  lookup_simple_action(kActionProfileTitle)->set_enabled(has_selected_id);
-  lookup_simple_action(kActionProfileDescription)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileDelete)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileTitle)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileDescription)->set_enabled(has_selected_id);
 }
 
 void Application::loadDefaultProfile()
@@ -918,9 +1001,9 @@ void Application::loadDefaultProfile()
 
   convertProfileToAction(kDefaultProfile.content);
 
-  lookup_simple_action(kActionProfileDelete)->set_enabled(has_selected_id);
-  lookup_simple_action(kActionProfileTitle)->set_enabled(has_selected_id);
-  lookup_simple_action(kActionProfileDescription)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileDelete)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileTitle)->set_enabled(has_selected_id);
+  lookupSimpleAction(kActionProfileDescription)->set_enabled(has_selected_id);
 }
 
 void Application::saveSelectedProfile()
@@ -930,7 +1013,7 @@ void Application::saveSelectedProfile()
 
   if (!id.empty())
   {
-    Profile::Content content;
+    Profile::Content content = profile_manager_.getProfileContent(id);
     convertActionToProfile(content);
     profile_manager_.setProfileContent(id, content);
   }
@@ -977,7 +1060,7 @@ void Application::onProfileTitle(const Glib::VariantBase& value)
 
     profile_manager_.setProfileHeader(id, header);
 
-    lookup_simple_action(kActionProfileTitle)->set_state(out_value);
+    lookupSimpleAction(kActionProfileTitle)->set_state(out_value);
   }
 }
 
@@ -1001,7 +1084,7 @@ void Application::onProfileDescription(const Glib::VariantBase& value)
 
     profile_manager_.setProfileHeader(id, header);
 
-    lookup_simple_action(kActionProfileDescription)->set_state(out_value);
+    lookupSimpleAction(kActionProfileDescription)->set_state(out_value);
   }
 }
 
@@ -1073,7 +1156,7 @@ void Application::onStart(const Glib::VariantBase& value)
     signal_message_.emit(error_message);
   }
 
-  lookup_simple_action(kActionStart)->set_state(new_state);
+  lookupSimpleAction(kActionStart)->set_state(new_state);
 }
 
 void Application::onAudioDeviceList(const Glib::VariantBase& value)
@@ -1087,7 +1170,7 @@ void Application::onAudioDeviceList(const Glib::VariantBase& value)
 Glib::ustring Application::currentAudioDeviceKey()
 {
   settings::AudioBackend backend = (settings::AudioBackend)
-    settings_prefs_->get_enum(settings::kKeyPrefsAudioBackend);
+    settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
   if (auto it = settings::kBackendToDeviceMap.find(backend);
       it != settings::kBackendToDeviceMap.end())
@@ -1100,36 +1183,29 @@ Glib::ustring Application::currentAudioDeviceKey()
 Glib::ustring Application::currentAudioDevice()
 {
   if (auto key = currentAudioDeviceKey(); !key.empty())
-    return settings_prefs_->get_string(key);
+    return settings::preferences()->get_string(key);
   else
     return "";
 }
 
 void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == settings::kKeyPrefsVolume)
+  if (key == settings::kKeyPrefsSaveSoundTheme)
   {
-    configureTickerSound();
+    // load sound theme from selected profile
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    {
+      Glib::ustring id;
+      get_action_state(kActionProfileSelect, id);
+      if (!id.empty())
+      {
+        if (Profile::Content content = profile_manager_.getProfileContent(id);
+            !content.sound_theme_id.empty())
+          settings::soundThemes()->select(content.sound_theme_id);
+      }
+    }
   }
-  else if (key == settings::kKeyPrefsSoundStrongFrequency
-           || key == settings::kKeyPrefsSoundStrongVolume
-           || key == settings::kKeyPrefsSoundStrongBalance)
-  {
-    configureTickerSoundStrong();
-  }
-  else if (key == settings::kKeyPrefsSoundMidFrequency
-           || key == settings::kKeyPrefsSoundMidVolume
-           || key == settings::kKeyPrefsSoundMidBalance)
-  {
-    configureTickerSoundMid();
-  }
-  else if (key == settings::kKeyPrefsSoundWeakFrequency
-           || key == settings::kKeyPrefsSoundWeakVolume
-           || key == settings::kKeyPrefsSoundWeakBalance)
-  {
-    configureTickerSoundWeak();
-  }
-  else if (key == settings::kKeyPrefsAudioBackend)
+  if (key == settings::kKeyPrefsAudioBackend)
   {
     configureAudioBackend();
   }
@@ -1143,7 +1219,7 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeyStateProfileSelect)
   {
-    Glib::ustring profile_id = settings_state_->get_string(settings::kKeyStateProfileSelect);
+    Glib::ustring profile_id = settings::state()->get_string(settings::kKeyStateProfileSelect);
 
     Glib::Variant<Glib::ustring> state
       = Glib::Variant<Glib::ustring>::create(profile_id);
@@ -1152,12 +1228,40 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
   }
 }
 
+void Application::onSettingsSoundChanged(const Glib::ustring& key)
+{
+  if (key == settings::kKeySoundVolume)
+  {
+    updateTickerSound(kAccentMaskAll);
+  }
+  else if (key == settings::kKeySettingsListSelectedEntry)
+  {
+    // store sound theme to selected profile
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    {
+      Glib::ustring id;
+      get_action_state(kActionProfileSelect, id);
+      if (!id.empty())
+      {
+        Profile::Content content = profile_manager_.getProfileContent(id);
+        content.sound_theme_id = settings::soundThemes()->selected();
+        profile_manager_.setProfileContent(id, content);
+      }
+    }
+    loadSelectedSoundTheme();
+  }
+  else if (key == settings::kKeySettingsListEntries)
+  {
+    /* nothing */
+  }
+}
+
 void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
 {
   auto shortcut_action = kDefaultShortcutActionMap.find(key);
   if (shortcut_action != kDefaultShortcutActionMap.end())
   {
-    Glib::ustring accel = settings_shortcuts_->get_string(key);
+    Glib::ustring accel = settings::shortcuts()->get_string(key);
 
     auto action = kActionDescriptions.find(shortcut_action->second.action_name);
     if (action != kActionDescriptions.end())

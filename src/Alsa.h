@@ -22,7 +22,7 @@
 
 #include "AudioBackend.h"
 #include <alsa/asoundlib.h>
-#include <map>
+#include <memory>
 
 namespace audio {
 

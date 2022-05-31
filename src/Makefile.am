@@ -12,6 +12,7 @@ gmetronome_SOURCES = \
 	AudioBackendDummy.cpp \
 	AudioBuffer.cpp \
 	Error.cpp \
+	Filter.cpp \
 	Generator.cpp \
 	main.cpp \
 	MainWindow.cpp \
@@ -26,8 +27,11 @@ gmetronome_SOURCES = \
 	Settings.cpp \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
+	SoundThemeEditor.cpp \
 	Synthesizer.cpp \
-	Ticker.cpp
+	Ticker.cpp \
+	Wavetable.cpp \
+	WavetableLibrary.cpp
 
 if HAVE_ALSA
 gmetronome_SOURCES += Alsa.cpp
@@ -52,10 +56,12 @@ noinst_HEADERS = \
 	AudioBackendDummy.h \
 	AudioBuffer.h \
 	Error.h \
+	Filter.h \
 	Generator.h \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
+	ObjectLibrary.h \
 	Oss.h \
 	Pendulum.h \
 	Profile.h \
@@ -66,10 +72,16 @@ noinst_HEADERS = \
 	PulseAudio.h \
 	Settings.h \
 	SettingsDialog.h \
+	SettingsList.h \
 	Shortcut.h \
+	SoundLibrary.h \
+	SoundTheme.h \
+	SoundThemeEditor.h \
 	SpinLock.h \
 	Synthesizer.h \
-	Ticker.h
+	Ticker.h \
+	Wavetable.h \
+	WavetableLibrary.h
 
 resourcesdir = $(top_srcdir)/src/resources
 
@@ -77,11 +89,31 @@ resources = \
 	$(resourcesdir)/ui/ShortcutDialog.glade \
 	$(resourcesdir)/ui/MainWindow.glade \
 	$(resourcesdir)/ui/SettingsDialog.glade \
+	$(resourcesdir)/ui/SoundThemeEditor.glade \
 	$(resourcesdir)/icons/note-quarter-symbolic.svg \
 	$(resourcesdir)/icons/note-eighth-symbolic.svg \
 	$(resourcesdir)/icons/note-triplet-symbolic.svg \
 	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
 	$(resourcesdir)/icons/profile-access-symbolic.svg \
+	$(resourcesdir)/icons/sound-classic-symbolic.svg \
+	$(resourcesdir)/icons/sound-modern-symbolic.svg \
+	$(resourcesdir)/icons/sound-bell-symbolic.svg \
+	$(resourcesdir)/icons/sound-timbre-symbolic.svg \
+	$(resourcesdir)/icons/sound-crossfade-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
+	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
+	$(resourcesdir)/icons/curve-keep-symbolic.svg \
+	$(resourcesdir)/icons/curve-linear-up-symbolic.svg \
+	$(resourcesdir)/icons/curve-linear-down-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-up-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-up-flipped-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-down-symbolic.svg \
+	$(resourcesdir)/icons/curve-cubic-down-flipped-symbolic.svg \
+	$(resourcesdir)/icons/curve-quartic-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml
