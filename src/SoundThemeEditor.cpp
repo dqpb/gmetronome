@@ -39,15 +39,15 @@ ShapeButton::ShapeButton(Mode mode)
 {
   switch (mode_) {
   case Mode::kAttack:
-    property_shape_ == "linear";
+    property_shape_ = "linear";
     set_image_from_icon_name("curve-linear-up-symbolic");
     break;
   case Mode::kHold:
-    property_shape_ == "keep";
+    property_shape_ = "keep";
     set_image_from_icon_name("curve-keep-symbolic");
     break;
   case Mode::kDecay:
-    property_shape_ == "linear";
+    property_shape_ = "linear";
     set_image_from_icon_name("curve-linear-down-symbolic");
     break;
   default:
