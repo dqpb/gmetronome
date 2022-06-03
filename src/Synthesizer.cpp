@@ -122,16 +122,16 @@ namespace audio {
     float balance_l = volumeToAmplitude( balance_vol_l, VolumeMapping::kLinear );
     float balance_r = volumeToAmplitude( balance_vol_r, VolumeMapping::kLinear );
 
-    float volume_l = volumeToAmplitude(volume) * balance_l;
-    float volume_r = volumeToAmplitude(volume) * balance_r;
+    float amp_l = volumeToAmplitude(volume) * balance_l;
+    float amp_r = volumeToAmplitude(volume) * balance_r;
 
-    Decibel noise_gain = volumeToDecibel( (mix + 100.0) / 2.0, VolumeMapping::kQuadratic );
-    Decibel osc_gain   = volumeToDecibel( (100.0 - mix) / 2.0, VolumeMapping::kQuadratic );
+    float noise_gain = volumeToAmplitude( (mix + 100.0) / 2.0, VolumeMapping::kLinear );
+    float osc_gain   = volumeToAmplitude( (100.0 - mix) / 2.0, VolumeMapping::kLinear );
 
-    Decibel sine_gain      = osc_gain - 18_dB * std::abs(0.0f - osc_timbre);
-    Decibel triangle_gain  = osc_gain - 18_dB * std::abs(1.0f - osc_timbre);
-    Decibel sawtooth_gain  = osc_gain - 18_dB * std::abs(2.0f - osc_timbre);
-    Decibel square_gain    = osc_gain - 18_dB * std::abs(3.0f - osc_timbre);
+    float sine_gain     = osc_gain * std::clamp( 1.0f - std::abs(0.0f - osc_timbre), 0.0f, 1.0f);
+    float triangle_gain = osc_gain * std::clamp( 1.0f - std::abs(1.0f - osc_timbre), 0.0f, 1.0f);
+    float sawtooth_gain = osc_gain * std::clamp( 1.0f - std::abs(2.0f - osc_timbre), 0.0f, 1.0f);
+    float square_gain   = osc_gain * std::clamp( 1.0f - std::abs(3.0f - osc_timbre), 0.0f, 1.0f);
 
     auto osc_envelope
       = buildEnvelope(osc_attack, osc_attack_shape, osc_hold, osc_hold_shape,
@@ -144,34 +144,35 @@ namespace audio {
     filter::std::Wave::Parameters sine_params =
       {
         osc_pitch,
-        float(sine_gain.amplitude()),
-        float(M_PI/2.0),
+        sine_gain,
+        0.0f,
         osc_detune
       };
     filter::std::Wave::Parameters triangle_params =
       {
         osc_pitch,
-        float(triangle_gain.amplitude()),
+        triangle_gain,
+        0.0f,
+        osc_detune
+      };
+    filter::std::Wave::Parameters square_params =
+      {
+        osc_pitch,
+        square_gain,
         0.0f,
         osc_detune
       };
     filter::std::Wave::Parameters sawtooth_params =
       {
         osc_pitch,
-        float(sawtooth_gain.amplitude()),
-        float(M_PI),
-        osc_detune
-      };
-    filter::std::Wave::Parameters square_params =
-      {
-        osc_pitch,
-        float(square_gain.amplitude()),
+        sawtooth_gain,
         0.0f,
+        //float(M_PI),
         osc_detune
       };
 
     // configure noise pipe
-    filter::get<filter::std::Noise>   (noise_pipe_).setLevel (noise_gain);
+    filter::get<filter::std::Noise>   (noise_pipe_).setAmplitude (noise_gain);
     filter::get<filter::std::Lowpass> (noise_pipe_).setCutoff (noise_cutoff);
     filter::get<filter::std::Gain>    (noise_pipe_).setEnvelope (std::move(noise_envelope));
 
@@ -179,13 +180,13 @@ namespace audio {
     noise_pipe_.process(noise_buffer_);
 
     // configure oscillator pipe
-    filter::get<1> /* Wave */           (osc_pipe_).setParameters(sine_params);
-    filter::get<2> /* Wave */           (osc_pipe_).setParameters(triangle_params);
-    filter::get<3> /* Wave */           (osc_pipe_).setParameters(sawtooth_params);
-    filter::get<4> /* Wave */           (osc_pipe_).setParameters(square_params);
-    filter::get<filter::std::Gain>      (osc_pipe_).setEnvelope(std::move(osc_envelope));
-    filter::get<filter::std::Mix>       (osc_pipe_).setBuffer(&noise_buffer_);
-    filter::get<filter::std::Normalize> (osc_pipe_).setAmplitude(volume_l, volume_r);
+    filter::get<1> /* Wave */ (osc_pipe_).setParameters(sine_params);
+    filter::get<2> /* Wave */ (osc_pipe_).setParameters(triangle_params);
+    filter::get<3> /* Wave */ (osc_pipe_).setParameters(square_params);
+    filter::get<4> /* Wave */ (osc_pipe_).setParameters(sawtooth_params);
+    filter::get<5> /* Gain */ (osc_pipe_).setEnvelope(std::move(osc_envelope));
+    filter::get<6> /* Mix  */ (osc_pipe_).setBuffer(&noise_buffer_);
+    filter::get<7> /* Gain */ (osc_pipe_).setAmplitude(amp_l, amp_r);
 
     // apply oscillator pipe
     osc_pipe_.process(osc_buffer_);

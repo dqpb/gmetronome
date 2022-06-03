@@ -134,7 +134,7 @@ namespace audio {
       | filter::std::Wave() // Square
       | filter::std::Gain()
       | filter::std::Mix()
-      | filter::std::Normalize()
+      | filter::std::Gain()
     );
 
     OscFilterPipe osc_pipe_;

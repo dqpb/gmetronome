@@ -68,67 +68,67 @@ namespace audio {
    *        period of the sine function.
    */
   struct SineRecipe : public WavetableRecipe
-    {
-      SineRecipe()
-        { /* nothing */ }
-      ~SineRecipe() override
-        { /* nothing */ }
-      size_t preferredPages(SampleRate rate) const override
-        { return 1; };
-      size_t preferredBasePageSize(SampleRate rate) const override
-        { return 2048; }
-      Wavetable::PageResize preferredPageResize(SampleRate rate) const override
-        { return Wavetable::PageResize::kNoResize; }
-      float preferredBase(SampleRate rate) const override
-        { return 40.0f; }
-      Wavetable::PageRange preferredRange(SampleRate rate) const override
-        { return Wavetable::PageRange::kFull; }
+  {
+    SineRecipe()
+      { /* nothing */ }
+    ~SineRecipe() override
+      { /* nothing */ }
+    size_t preferredPages(SampleRate rate) const override
+      { return 1; };
+    size_t preferredBasePageSize(SampleRate rate) const override
+      { return 2048; }
+    Wavetable::PageResize preferredPageResize(SampleRate rate) const override
+      { return Wavetable::PageResize::kNoResize; }
+    float preferredBase(SampleRate rate) const override
+      { return 40.0f; }
+    Wavetable::PageRange preferredRange(SampleRate rate) const override
+      { return Wavetable::PageRange::kFull; }
 
-      void fillPage(SampleRate rate,
-                    size_t page,
-                    float base,
-                    Wavetable::Page::iterator begin,
-                    Wavetable::Page::iterator end) const override;
-    };
+    void fillPage(SampleRate rate,
+                  size_t page,
+                  float base,
+                  Wavetable::Page::iterator begin,
+                  Wavetable::Page::iterator end) const override;
+  };
 
   /**
    * @class TriangleRecipe
    * @brief Standard recipe to build a multipage triangle wave.
    */
-    struct TriangleRecipe : public WavetableRecipe
-    {
-      void fillPage(SampleRate rate,
-                    size_t page,
-                    float base,
-                    Wavetable::Page::iterator begin,
-                    Wavetable::Page::iterator end) const override;
-    };
+  struct TriangleRecipe : public WavetableRecipe
+  {
+    void fillPage(SampleRate rate,
+                  size_t page,
+                  float base,
+                  Wavetable::Page::iterator begin,
+                  Wavetable::Page::iterator end) const override;
+  };
 
   /**
    * @class SawtoothRecipe
    * @brief Standard recipe to build a multipage sawtooth wave.
    */
-    struct SawtoothRecipe : public WavetableRecipe
-    {
-      void fillPage(SampleRate rate,
-                    size_t page,
-                    float base,
-                    Wavetable::Page::iterator begin,
-                    Wavetable::Page::iterator end) const override;
-    };
+  struct SawtoothRecipe : public WavetableRecipe
+  {
+    void fillPage(SampleRate rate,
+                  size_t page,
+                  float base,
+                  Wavetable::Page::iterator begin,
+                  Wavetable::Page::iterator end) const override;
+  };
 
   /**
    * @class SquareRecipe
    * @brief Standard recipe to build a multipage square wave.
    */
-    struct SquareRecipe : public WavetableRecipe
-    {
-      void fillPage(SampleRate rate,
-                    size_t page,
-                    float base,
-                    Wavetable::Page::iterator begin,
-                    Wavetable::Page::iterator end) const override;
-    };
+  struct SquareRecipe : public WavetableRecipe
+  {
+    void fillPage(SampleRate rate,
+                  size_t page,
+                  float base,
+                  Wavetable::Page::iterator begin,
+                  Wavetable::Page::iterator end) const override;
+  };
 
   /**
    * Builder class for an ObjectLibrary to create wavetables out of

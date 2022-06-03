@@ -25,6 +25,10 @@
 #include <cmath>
 #include <cassert>
 
+#ifndef NDEBUG
+#  include <iostream>
+#endif
+
 namespace audio {
 
   void SineRecipe::fillPage(SampleRate rate,
@@ -89,14 +93,20 @@ namespace audio {
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
     double step = 2.0 * M_PI / page_size;
 
-    for (size_t index = 0; index < page_size; ++index, ++begin)
+    double max = 0.0;
+    auto it = begin;
+    for (size_t index = 0; index < page_size; ++index, ++it)
     {
-      double sum = 0;
-      for (int harmonic = 1, sign = -1; harmonic <= max_harmonic; ++harmonic, sign *= -1)
+      double sum = 0.0;
+      for (int harmonic = 1, sign = 1; harmonic <= max_harmonic; ++harmonic, sign *= -1)
         sum += sign * 1.0 / harmonic * std::sin(harmonic * index * step);
 
-      *begin = 2.0 / M_PI * sum;
+      *it = sum;
+      max = std::max<double>(max, std::abs(*it));
     }
+    //normalize
+    if (max > 0.0)
+      std::for_each(begin, end, [&] (auto& value) {value /= max;});
   }
 
   void SquareRecipe::fillPage(SampleRate rate,
@@ -112,14 +122,20 @@ namespace audio {
     int max_harmonic = std::min(max_harmonic_1, max_harmonic_2);
     double step = 2.0 * M_PI / page_size;
 
-    for (size_t index = 0; index < page_size; ++index, ++begin)
+    double max = 0.0;
+    auto it = begin;
+    for (size_t index = 0; index < page_size; ++index, ++it)
     {
       double sum = 0;
       for (int harmonic = 1; harmonic <= max_harmonic; harmonic += 2)
         sum += 1.0 / harmonic * std::sin(harmonic * index * step);
 
-      *begin = 4.0 / M_PI * sum;
+      *it = sum;
+      max = std::max<double>(max, std::abs(*it));
     }
+    //normalize
+    if (max > 0.0)
+      std::for_each(begin, end, [&] (auto& value) {value /= max;});
   }
 
   WavetableBuilder::WavetableBuilder(SampleRate rate) : rate_{rate}

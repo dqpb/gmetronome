@@ -433,12 +433,37 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    explicit Gain(Automation envelope = {}) : envelope_(std::move(envelope))
+    Gain(float amp_l, float amp_r)
+      : mode_{Mode::kAmplitude}, amp_l_{amp_l}, amp_r_{amp_r}
+      { /* nothing */ }
+
+    explicit Gain(float amp = 0.0f) : Gain(amp, amp)
+      { /* nothing */ }
+
+    explicit Gain(Automation envelope)
+      : mode_{Mode::kAutomation},
+        envelope_{std::move(envelope)},
+        amp_l_{0.0f},
+        amp_r_{0.0f}
       { /* nothing */ }
 
     void setEnvelope(Automation envelope)
-      { envelope_ = std::move(envelope); }
-
+      {
+        envelope_ = std::move(envelope);
+        mode_ = Mode::kAutomation;
+      }
+    void setAmplitude(float amp_l, float amp_r)
+      {
+        amp_l_ = amp_l;
+        amp_r_ = amp_r;
+        mode_ = Mode::kAmplitude;
+      }
+    void setAmplitude(float amp)
+      {
+        amp_l_ = amp;
+        amp_r_ = amp;
+        mode_ = Mode::kAmplitude;
+      }
     void prepare(const StreamSpec& spec)
       {
         assert( isFloatingPoint(spec.format) );
@@ -452,14 +477,25 @@ namespace filter {
           return;
 
         auto frames = viewFrames<Format>(buffer);
-        seconds_dbl frame_duration {1.0 / buffer.rate()};
-
-        envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
-                        [] (auto& frame, const auto& time, float value)
-                          { frame *= value; });
+        if (mode_ == Mode::kAutomation)
+        {
+          seconds_dbl frame_duration {1.0 / buffer.rate()};
+          envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
+                          [] (auto& frame, const auto& time, float value)
+                            { frame *= value; });
+        }
+        else
+        {
+          std::for_each(frames.begin(), frames.end(),
+                        [this] (auto& frame) {frame *= {amp_l_, amp_r_}; });
+        }
       }
   private:
+    enum class Mode {kAutomation, kAmplitude} mode_;
+
     Automation envelope_;
+    float amp_l_;
+    float amp_r_;
   };
 
   /**
@@ -488,6 +524,9 @@ namespace filter {
 
     void setLevel(const Decibel& level)
       { amp_ = static_cast<float>(level.amplitude()); }
+
+    void setAmplitude(float amp)
+      { amp_ = amp; }
 
     void prepare(const StreamSpec& spec)
       {
