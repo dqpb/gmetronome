@@ -29,8 +29,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionQuit, { ActionScope::kApp, {}, {}, {}, true }
-  },
+  { kActionQuit, { ActionScope::kApp, {}, {}, {}, true } },
 
   /* Action         : kActionVolume
    * Scope          : Application
@@ -40,15 +39,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : (gsettings)
    */
-  { kActionVolume,
-    {
-      ActionScope::kApp,
-      {},
-      {},
-      {},
-      {}
-    }
-  },
+  { kActionVolume, { ActionScope::kApp, {}, {}, {}, {} } },
 
   /* Action         : kActionVolumeIncrease
    * Scope          : Application
@@ -170,11 +161,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionTempoTap,
-    {
-      ActionScope::kApp, {}, {}, {}, true
-    }
-  },
+  { kActionTempoTap, { ActionScope::kApp, {}, {}, {}, true } },
 
   /* Action         : kActionTrainerEnabled
    * Scope          : Application
@@ -494,8 +481,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionProfileDelete, { ActionScope::kApp, {}, {}, {}, true }
-  },
+  { kActionProfileDelete, { ActionScope::kApp, {}, {}, {}, true } },
 
   /* Action         :
    * Scope          : Application
@@ -505,8 +491,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     :
    * Enabled        :
    */
-  { kActionProfileReset, { ActionScope::kApp, {}, {}, {}, true }
-  },
+  { kActionProfileReset, { ActionScope::kApp, {}, {}, {}, true } },
 
   /* Action         :
    * Scope          : Application
@@ -570,9 +555,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowPrimaryMenu,
-    { ActionScope::kWin, {}, {}, {}, true }
-  },
+  { kActionShowPrimaryMenu, { ActionScope::kWin, {}, {}, {}, true } },
 
   /* Action         : kActionShowProfiles
    * Scope          : Window
@@ -582,8 +565,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowProfiles, { ActionScope::kWin, {}, {}, {}, true }
-  },
+  { kActionShowProfiles, { ActionScope::kWin, {}, {}, {}, true } },
 
   /* Action         : kActionShowPreferences
    * Scope          : Window
@@ -593,8 +575,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowPreferences, { ActionScope::kWin, {}, {}, {}, true }
-  },
+  { kActionShowPreferences, { ActionScope::kWin, {}, {}, {}, true } },
 
   /* Action         : kActionShowShortcuts
    * Scope          : Window
@@ -604,8 +585,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowShortcuts, { ActionScope::kWin, {}, {}, {}, true }
-  },
+  { kActionShowShortcuts, { ActionScope::kWin, {}, {}, {}, true } },
 
   /* Action         : kActionShowHelp
    * Scope          : Window
@@ -615,8 +595,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowHelp, { ActionScope::kWin, {}, {}, {}, false }
-  },
+  { kActionShowHelp, { ActionScope::kWin, {}, {}, {}, false } },
 
   /* Action         : kActionShowAbout
    * Scope          : Window
@@ -626,8 +605,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionShowAbout, { ActionScope::kWin, {}, {}, {}, true }
-  },
+  { kActionShowAbout, { ActionScope::kWin, {}, {}, {}, true } },
 
   /* Action         : kActionShowPendulum
    * Scope          : Window
