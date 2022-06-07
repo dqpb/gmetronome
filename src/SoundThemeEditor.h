@@ -37,9 +37,6 @@ public:
   Glib::PropertyProxy<Glib::ustring> property_shape()
     { return property_shape_.get_proxy(); }
 
-  Glib::PropertyProxy_ReadOnly<Glib::ustring> property_shape() const
-    { return property_shape_.get_proxy(); }
-
 private:
   Glib::Property<Glib::ustring> property_shape_;
   Mode mode_;
