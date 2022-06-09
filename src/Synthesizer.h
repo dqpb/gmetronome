@@ -67,9 +67,9 @@ namespace audio {
     float             percussion_decay        {10.0f};                 // [0.0f, 20.0f] (ms)
     EnvelopeRampShape percussion_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float mix      {-100.0f}; // [-100.0f, 100.0f] (percent)
-    float balance  {0.0f};    // [-100.0f, 100.0f] (percent)
-    float volume   {75.0f};   // [   0.0f, 100.0f] (percent)
+    float mix     {-100.0f}; // [-100.0f, 100.0f] (percent)
+    float pan     {0.0f};    // [-100.0f, 100.0f] (percent)
+    float volume  {75.0f};   // [   0.0f, 100.0f] (percent)
   };
 
   /**
@@ -134,7 +134,6 @@ namespace audio {
       | filter::std::Wave() // Square
       | filter::std::Gain()
       | filter::std::Mix()
-      | filter::std::Gain()
     );
 
     OscFilterPipe osc_pipe_;

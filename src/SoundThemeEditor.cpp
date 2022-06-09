@@ -195,7 +195,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("percussionAttackBox", percussion_attack_box_);
   builder_->get_widget("percussionHoldBox", percussion_hold_box_);
   builder_->get_widget("percussionDecayBox", percussion_decay_box_);
-  builder_->get_widget("balanceScale", balance_scale_);
+  builder_->get_widget("panScale", pan_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
   tone_pitch_adjustment_ =
@@ -220,8 +220,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionDecayAdjustment"));
   mix_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("mixAdjustment"));
-  balance_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("balanceAdjustment"));
+  pan_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("panAdjustment"));
   volume_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("volumeAdjustment"));
 
@@ -255,7 +255,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   mid_radio_button_->add(mid_accent_drawing_);
   weak_radio_button_->add(weak_accent_drawing_);
 
-  balance_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
+  pan_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
   signal_key_press_event()
     .connect(sigc::mem_fun(*this, &SoundThemeEditor::onKeyPressEvent));
@@ -390,8 +390,8 @@ void SoundThemeEditor::bindSoundProperties()
                           percussion_decay_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemeMix,
                           mix_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemeBalance,
-                          balance_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemePan,
+                          pan_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeVolume,
                           volume_adjustment_->property_value());
   }
@@ -422,7 +422,7 @@ void SoundThemeEditor::unbindSoundProperties()
   unbindProperty(percussion_decay_adjustment_->property_value());
   unbindProperty(percussion_decay_shape_button_.property_shape());
   unbindProperty(mix_adjustment_->property_value());
-  unbindProperty(balance_adjustment_->property_value());
+  unbindProperty(pan_adjustment_->property_value());
   unbindProperty(volume_adjustment_->property_value());
 }
 
@@ -507,9 +507,9 @@ namespace {
     {settings::kKeySoundThemePercussionDecay,       G_TYPE_DOUBLE},
     {settings::kKeySoundThemePercussionDecayShape,  G_TYPE_ENUM},
 
-    {settings::kKeySoundThemeMix,     G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeBalance, G_TYPE_DOUBLE},
-    {settings::kKeySoundThemeVolume,  G_TYPE_DOUBLE}
+    {settings::kKeySoundThemeMix,    G_TYPE_DOUBLE},
+    {settings::kKeySoundThemePan,    G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeVolume, G_TYPE_DOUBLE}
   };
 }//unnamed namespace
 

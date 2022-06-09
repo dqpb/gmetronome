@@ -112,18 +112,11 @@ namespace audio {
     float noise_decay        = std::clamp(params.percussion_decay, 0.0f, 20.0f);
     auto  noise_decay_shape  = params.percussion_decay_shape;
 
-    float mix      = std::clamp(params.mix, -100.0f, 100.0f);
-    float balance  = std::clamp(params.balance, -100.0f, 100.0f);
-    float volume   = std::clamp(params.volume, 0.0f, 100.0f);
+    float mix    = std::clamp(params.mix, -100.0f, 100.0f);
+    float pan    = std::clamp(params.pan, -100.0f, 100.0f);
+    float volume = std::clamp(params.volume, 0.0f, 125.0f);
 
-    float balance_vol_l = (balance > 0.0) ? 100.0 - balance : 100.0;
-    float balance_vol_r = (balance < 0.0) ? 100.0 + balance : 100.0;
-
-    float balance_l = volumeToAmplitude( balance_vol_l, VolumeMapping::kLinear );
-    float balance_r = volumeToAmplitude( balance_vol_r, VolumeMapping::kLinear );
-
-    float amp_l = volumeToAmplitude(volume) * balance_l;
-    float amp_r = volumeToAmplitude(volume) * balance_r;
+    float gain = volumeToAmplitude(volume);
 
     float noise_gain = volumeToAmplitude( (mix + 100.0) / 2.0, VolumeMapping::kLinear );
     float osc_gain   = volumeToAmplitude( (100.0 - mix) / 2.0, VolumeMapping::kLinear );
@@ -167,7 +160,6 @@ namespace audio {
         osc_pitch,
         sawtooth_gain,
         0.0f,
-        //float(M_PI),
         osc_detune
       };
 
@@ -186,7 +178,8 @@ namespace audio {
     filter::get<4> /* Wave */ (osc_pipe_).setParameters(sawtooth_params);
     filter::get<5> /* Gain */ (osc_pipe_).setEnvelope(std::move(osc_envelope));
     filter::get<6> /* Mix  */ (osc_pipe_).setBuffer(&noise_buffer_);
-    filter::get<7> /* Gain */ (osc_pipe_).setAmplitude(amp_l, amp_r);
+    filter::get<6>            (osc_pipe_).setGain(gain);
+    filter::get<6>            (osc_pipe_).setPan( pan / 100.0f );
 
     // apply oscillator pipe
     osc_pipe_.process(osc_buffer_);

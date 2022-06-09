@@ -33,6 +33,10 @@
 #include <cmath>
 #include <type_traits>
 
+#ifndef NDEBUG
+# include <iostream>
+#endif
+
 namespace audio {
 namespace filter {
 
@@ -631,16 +635,19 @@ namespace filter {
 
         float frame_tm = 1.0 / buffer.spec().rate;
         float freq = params_.freq;
-        float amp = params_.amp;
+        float amp = 0.5 * params_.amp; // half the sum of two voices
         float phase_os = params_.phase / (2.0 * M_PI);
         float detune = freq * std::pow(2.0f, params_.detune / 1200.0f) - freq;
         auto& tbl_page = tbl_->lookup(freq);
 
-        std::array<float,2> start = {
-          phase_os,
-          phase_os
+        // we use three slightly phase-shifted voices
+        std::array<float,3> start = {
+          phase_os ,
+          phase_os - float(M_PI) / 4.0f,
+          phase_os + float(M_PI) / 4.0f
         };
-        std::array<float,2> step = {
+        std::array<float,3> step = {
+          freq * frame_tm,
           (freq - detune) * frame_tm,
           (freq + detune) * frame_tm
         };
@@ -648,8 +655,8 @@ namespace filter {
                         [&] (auto& frame, auto& values)
                           {
                             frame += {
-                              amp * values[0],
-                              amp * values[1]
+                              amp * (values[0] + values[1]),
+                              amp * (values[0] + values[2])
                             };
                           });
       }
@@ -733,6 +740,18 @@ namespace filter {
     void setBuffer(const ByteBuffer* buffer)
       { buffer_ = buffer; }
 
+    void setGain(float gain_l, float gain_r)
+      {
+        gain_l_ = gain_l;
+        gain_r_ = gain_r;
+      }
+
+    void setGain(float gain)
+      { setGain(gain, gain); }
+
+    void setPan(float pan)
+      { pan_ = std::clamp(pan, -1.0f, 1.0f); }
+
     void prepare(const StreamSpec& spec)
       {
         assert( isFloatingPoint(spec.format) );
@@ -744,19 +763,50 @@ namespace filter {
         if (buffer_ == nullptr)
           return;
 
+        // To counteract fluctuations in the perception of loudness and tone during
+        // panning we try to keep overall signal powers constant, i.e. the sum of
+        // the powers of each speaker as well as the ratio of the powers of the left
+        // and the right channel stay constant.
+        //
+        // For pan laws see:
+        // https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/index.html
+        //
+        // For an informal explanation of the difference between stereo balancing
+        // and (true) panning see:
+        // https://forum.cockos.com/showthread.php?t=22122
+
+        constexpr float kCenterPos = float(M_PI / 4.0);
+
+        float pan = (pan_ + 1.0f) / 4.0f * float(M_PI); // [-1.0f, 1.0f] -> [0.0f, PI/2.0f]
+
+        float gain_ll = (pan <= kCenterPos) ? 1.0f / (2.0f * std::cos(pan)) : std::cos(pan);
+        float gain_rr = (pan <= kCenterPos) ? std::sin(pan) : 1.0f / (2.0f * std::sin(pan));
+
+        float gain_rl = (pan <= kCenterPos) ? 0.0f : std::sin(pan) - gain_rr;
+        float gain_lr = (pan <= kCenterPos) ? std::cos(pan) - gain_ll : 0.0f;
+
         auto frames1 = viewFrames<Format>(buffer);
         auto frames2 = viewFrames<Format>(*buffer_);
 
+        auto it1 = frames1.begin();
         auto it2 = frames2.begin();
-        for (auto it1 = frames1.begin();
-             it1 != frames1.end() && it2 != frames2.end();
-             ++it1, ++it2)
+
+        for (; it1 != frames1.end() && it2 != frames2.end(); ++it1, ++it2)
         {
-          *it1 += *it2;
+          float amp_l = (*it1)[0] + (*it2)[0];
+          float amp_r = (*it1)[1] + (*it2)[1];
+
+          *it1 = {
+            gain_l_ * ( gain_ll * amp_l + gain_lr * amp_r ),
+            gain_r_ * ( gain_rl * amp_l + gain_rr * amp_r ),
+          };
         }
       }
   private:
     const ByteBuffer* buffer_;
+    float gain_l_{1.0f};
+    float gain_r_{1.0f};
+    float pan_{0.0f};
   };
 
   namespace std {

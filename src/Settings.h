@@ -194,7 +194,7 @@ namespace settings {
   inline const Glib::ustring  kKeySoundThemePercussionDecay       {"percussion-decay"};
   inline const Glib::ustring  kKeySoundThemePercussionDecayShape  {"percussion-decay-shape"};
   inline const Glib::ustring  kKeySoundThemeMix                   {"mix"};
-  inline const Glib::ustring  kKeySoundThemeBalance               {"balance"};
+  inline const Glib::ustring  kKeySoundThemePan                   {"pan"};
   inline const Glib::ustring  kKeySoundThemeVolume                {"volume"};
 
   /*

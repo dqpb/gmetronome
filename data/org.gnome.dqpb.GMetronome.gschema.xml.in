@@ -154,15 +154,15 @@
       <summary></summary>
       <description></description>
      </key>
-    <key name="balance" type="d">
+    <key name="pan" type="d">
       <range min="-100.0" max="100.0"/>
       <default>0.0</default>
       <summary></summary>
       <description></description>
      </key>
     <key name="volume" type="d">
-      <range min="0.0" max="100.0"/>
-      <default>75.0</default>
+      <range min="0.0" max="125.0"/>
+      <default>100.0</default>
       <summary></summary>
       <description></description>
      </key>
@@ -202,7 +202,7 @@
     <override name="percussion-decay">10.0</override>
     <override name="percussion-decay-shape">'linear'</override>
     <override name="mix">-100.0</override>
-    <override name="balance">0.0</override>
+    <override name="pan">0.0</override>
     <override name="volume">100.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.mid-params"
@@ -225,7 +225,7 @@
     <override name="percussion-decay">10.0</override>
     <override name="percussion-decay-shape">'linear'</override>
     <override name="mix">-100.0</override>
-    <override name="balance">0.0</override>
+    <override name="pan">0.0</override>
     <override name="volume">100.0</override>
   </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.weak-params"
@@ -248,7 +248,7 @@
     <override name="percussion-decay">10.0</override>
     <override name="percussion-decay-shape">'linear'</override>
     <override name="mix">-100.0</override>
-    <override name="balance">0.0</override>
+    <override name="pan">0.0</override>
     <override name="volume">50.0</override>
   </schema>
 

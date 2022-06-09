@@ -353,7 +353,7 @@ namespace audio {
   inline
   double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kCubic)
   {
-    vol = std::clamp(vol, kMinVolume, kMaxVolume) / kMaxVolume;
+    vol = vol / 100.0;
 
     switch (map) {
     case VolumeMapping::kQuadratic:
@@ -365,7 +365,7 @@ namespace audio {
     case VolumeMapping::kLinear:
       [[fallthrough]];
     default:
-      /* linear mapping */
+      /* nothing to do */
       break;
     };
 

@@ -2,13 +2,13 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkAdjustment" id="balanceAdjustment">
+  <object class="GtkAdjustment" id="mixAdjustment">
     <property name="lower">-100</property>
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="mixAdjustment">
+  <object class="GtkAdjustment" id="panAdjustment">
     <property name="lower">-100</property>
     <property name="upper">100</property>
     <property name="step-increment">1</property>
@@ -74,7 +74,7 @@
     <property name="page-increment">0.10</property>
   </object>
   <object class="GtkAdjustment" id="volumeAdjustment">
-    <property name="upper">100</property>
+    <property name="upper">125</property>
     <property name="value">75</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
@@ -633,9 +633,9 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes" context="Preferences dialog">_Balance:</property>
+                        <property name="label" translatable="yes" context="Preferences dialog">Pan:</property>
                         <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">balanceScale</property>
+                        <property name="mnemonic-widget">panScale</property>
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
@@ -696,10 +696,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="balanceScale">
+                      <object class="GtkScale" id="panScale">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="adjustment">balanceAdjustment</property>
+                        <property name="adjustment">panAdjustment</property>
                         <property name="restrict-to-fill-level">False</property>
                         <property name="fill-level">1</property>
                         <property name="draw-value">False</property>

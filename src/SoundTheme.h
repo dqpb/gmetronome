@@ -87,7 +87,7 @@ struct SettingsListDelegate<SoundTheme>
           settings->get_enum(settings::kKeySoundThemePercussionDecayShape));
 
         target.mix = settings->get_double(settings::kKeySoundThemeMix);
-        target.balance = settings->get_double(settings::kKeySoundThemeBalance);
+        target.pan = settings->get_double(settings::kKeySoundThemePan);
         target.volume = settings->get_double(settings::kKeySoundThemeVolume);
       }
     }
@@ -128,7 +128,7 @@ struct SettingsListDelegate<SoundTheme>
                            static_cast<int>(source.percussion_decay_shape));
 
         settings->set_double(settings::kKeySoundThemeMix, source.mix);
-        settings->set_double(settings::kKeySoundThemeBalance, source.balance);
+        settings->set_double(settings::kKeySoundThemePan, source.pan);
         settings->set_double(settings::kKeySoundThemeVolume, source.volume);
       }
     }
@@ -205,7 +205,7 @@ struct SettingsListDelegate<SoundTheme>
         m = m || settings->get_user_value(settings::kKeySoundThemePercussionDecayShape, int_value);
 
         m = m || settings->get_user_value(settings::kKeySoundThemeMix, dbl_value);
-        m = m || settings->get_user_value(settings::kKeySoundThemeBalance, dbl_value);
+        m = m || settings->get_user_value(settings::kKeySoundThemePan, dbl_value);
         m = m || settings->get_user_value(settings::kKeySoundThemeVolume, dbl_value);
       }
       return m;
