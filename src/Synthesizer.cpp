@@ -118,8 +118,8 @@ namespace audio {
 
     float gain = volumeToAmplitude(volume);
 
-    float noise_gain = volumeToAmplitude( (mix + 100.0) / 2.0, VolumeMapping::kLinear );
-    float osc_gain   = volumeToAmplitude( (100.0 - mix) / 2.0, VolumeMapping::kLinear );
+    float osc_gain   = std::cos( (M_PI / 2.0) * (100.0 + mix) / 200.0 );
+    float noise_gain = std::sin( (M_PI / 2.0) * (100.0 + mix) / 200.0 );
 
     float sine_gain     = osc_gain * std::clamp( 1.0f - std::abs(0.0f - osc_timbre), 0.0f, 1.0f);
     float triangle_gain = osc_gain * std::clamp( 1.0f - std::abs(1.0f - osc_timbre), 0.0f, 1.0f);
@@ -148,17 +148,17 @@ namespace audio {
         0.0f,
         osc_detune
       };
-    filter::std::Wave::Parameters square_params =
-      {
-        osc_pitch,
-        square_gain,
-        0.0f,
-        osc_detune
-      };
     filter::std::Wave::Parameters sawtooth_params =
       {
         osc_pitch,
         sawtooth_gain,
+        0.0f,
+        osc_detune
+      };
+    filter::std::Wave::Parameters square_params =
+      {
+        osc_pitch,
+        square_gain,
         0.0f,
         osc_detune
       };
@@ -174,8 +174,8 @@ namespace audio {
     // configure oscillator pipe
     filter::get<1> /* Wave */ (osc_pipe_).setParameters(sine_params);
     filter::get<2> /* Wave */ (osc_pipe_).setParameters(triangle_params);
-    filter::get<3> /* Wave */ (osc_pipe_).setParameters(square_params);
-    filter::get<4> /* Wave */ (osc_pipe_).setParameters(sawtooth_params);
+    filter::get<3> /* Wave */ (osc_pipe_).setParameters(sawtooth_params);
+    filter::get<4> /* Wave */ (osc_pipe_).setParameters(square_params);
     filter::get<5> /* Gain */ (osc_pipe_).setEnvelope(std::move(osc_envelope));
     filter::get<6> /* Mix  */ (osc_pipe_).setBuffer(&noise_buffer_);
     filter::get<6>            (osc_pipe_).setGain(gain);
