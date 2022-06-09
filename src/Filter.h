@@ -635,16 +635,16 @@ namespace filter {
 
         float frame_tm = 1.0 / buffer.spec().rate;
         float freq = params_.freq;
-        float amp = 0.5 * params_.amp; // half the sum of two voices
+        float amp = 0.5f * params_.amp; // half the sum of two voices
         float phase_os = params_.phase / (2.0 * M_PI);
         float detune = freq * std::pow(2.0f, params_.detune / 1200.0f) - freq;
         auto& tbl_page = tbl_->lookup(freq);
 
-        // we use three slightly phase-shifted voices
+        // we use three voices
         std::array<float,3> start = {
-          phase_os ,
-          phase_os - float(M_PI) / 4.0f,
-          phase_os + float(M_PI) / 4.0f
+          phase_os,
+          phase_os, // - float(M_PI) / 4.0f,
+          phase_os  // + float(M_PI) / 4.0f
         };
         std::array<float,3> step = {
           freq * frame_tm,
