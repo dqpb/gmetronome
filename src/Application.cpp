@@ -910,7 +910,7 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionTrainerTarget, content.trainer_target);
   get_action_state(kActionTrainerAccel, content.trainer_accel);
 
-  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     content.sound_theme_id = settings::soundThemes()->selected();
 }
 
@@ -945,7 +945,7 @@ void Application::convertProfileToAction(const Profile::Content& content)
   activate_action(kActionTrainerAccel,
                   Glib::Variant<double>::create(content.trainer_accel) );
 
-  if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
   {
     if (content.sound_theme_id.empty()
         || !settings::soundThemes()->select(content.sound_theme_id))
@@ -1190,10 +1190,10 @@ Glib::ustring Application::currentAudioDevice()
 
 void Application::onSettingsPrefsChanged(const Glib::ustring& key)
 {
-  if (key == settings::kKeyPrefsSaveSoundTheme)
+  if (key == settings::kKeyPrefsLinkSoundTheme)
   {
     // load sound theme from selected profile
-    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     {
       Glib::ustring id;
       get_action_state(kActionProfileSelect, id);
@@ -1237,7 +1237,7 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
     // store sound theme to selected profile
-    if (settings::preferences()->get_boolean(settings::kKeyPrefsSaveSoundTheme))
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     {
       Glib::ustring id;
       get_action_state(kActionProfileSelect, id);

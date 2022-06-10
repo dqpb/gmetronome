@@ -90,7 +90,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="saveSoundThemeSwitch">
+                  <object class="GtkSwitch" id="linkSoundThemeSwitch">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">start</property>
@@ -107,7 +107,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes">Save and restore selected sound theme:</property>
+                    <property name="label" translatable="yes">_Link with selected sound theme:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">linkSoundThemeSwitch</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -604,7 +606,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Audio Device:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Audio _Device:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">audioDeviceComboBox</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -617,7 +621,9 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Audio backend:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Audio _Backend:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">audioBackendComboBox</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -639,22 +645,6 @@
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Audio Device</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
@@ -685,6 +675,24 @@
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Audio Settings</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">audioDeviceComboBox</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>

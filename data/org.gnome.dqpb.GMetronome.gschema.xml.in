@@ -403,7 +403,7 @@
       <summary></summary>
       <description></description>
     </key>
-    <key name="save-sound-theme" type="b">
+    <key name="link-sound-theme" type="b">
       <default>false</default>
       <summary></summary>
       <description></description>

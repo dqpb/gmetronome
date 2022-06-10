@@ -140,7 +140,7 @@ namespace settings {
    * .preferences keys
    */
   inline const Glib::ustring  kKeyPrefsRestoreProfile             {"restore-profile"};
-  inline const Glib::ustring  kKeyPrefsSaveSoundTheme             {"save-sound-theme"};
+  inline const Glib::ustring  kKeyPrefsLinkSoundTheme             {"link-sound-theme"};
   inline const Glib::ustring  kKeyPrefsPendulumAction             {"pendulum-action"};
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode          {"pendulum-phase-mode"};
   inline const Glib::ustring  kKeyPrefsMeterAnimation             {"meter-animation"};
