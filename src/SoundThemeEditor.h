@@ -87,6 +87,7 @@ private:
   ShapeButton percussion_hold_shape_button_;
   ShapeButton percussion_decay_shape_button_;
   Gtk::Scale* pan_scale_;
+  Gtk::Scale* volume_scale_;
   Glib::RefPtr<Gtk::Adjustment> tone_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_detune_adjustment_;

@@ -196,6 +196,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("percussionHoldBox", percussion_hold_box_);
   builder_->get_widget("percussionDecayBox", percussion_decay_box_);
   builder_->get_widget("panScale", pan_scale_);
+  builder_->get_widget("volumeScale", volume_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
   tone_pitch_adjustment_ =
@@ -256,6 +257,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   weak_radio_button_->add(weak_accent_drawing_);
 
   pan_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
+  volume_scale_->add_mark(100.0, Gtk::POS_BOTTOM, "");
 
   signal_key_press_event()
     .connect(sigc::mem_fun(*this, &SoundThemeEditor::onKeyPressEvent));
