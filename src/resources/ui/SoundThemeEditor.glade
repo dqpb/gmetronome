@@ -102,7 +102,9 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
-                <property name="label" translatable="yes">Title:</property>
+                <property name="label" translatable="yes" context="Sound theme editor">Title:</property>
+                <property name="use-underline">True</property>
+                <property name="mnemonic-widget">titleEntry</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -161,8 +163,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes" context="Preferences dialog">_Pitch:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Pitch:</property>
                             <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">pitchSpinButton</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -189,8 +192,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes" context="Preferences dialog">_Timbre:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Timbre:</property>
                             <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">toneTimbreScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -202,7 +206,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Detune:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Detune:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">toneDetuneScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -210,7 +216,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkScale">
+                          <object class="GtkScale" id="toneDetuneScale">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="adjustment">toneDetuneAdjustment</property>
@@ -230,7 +236,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Attack:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Attack:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">toneAttackScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -242,7 +250,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Decay:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Decay:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">toneDecayScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -285,7 +295,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="toneAttackScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -316,7 +326,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="toneDecayScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -344,7 +354,7 @@
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Tone</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Tone</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
                             </attributes>
@@ -360,7 +370,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="toneHoldScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -390,7 +400,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Hold:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Hold:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">toneHoldScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -416,7 +428,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Attack:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Attack:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">percussionAttackScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -428,7 +442,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Decay:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Decay:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">percussionDecayScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -440,7 +456,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Cutoff:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Cutoff:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">percussionCutoffScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -448,7 +466,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkScale">
+                          <object class="GtkScale" id="percussionCutoffScale">
                             <property name="width-request">180</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
@@ -470,7 +488,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="percussionAttackScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -501,7 +519,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="percussionDecayScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -531,7 +549,7 @@
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Percussion</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Percussion</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
                             </attributes>
@@ -547,7 +565,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="percussionHoldScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
@@ -578,7 +596,9 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">Hold:</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Hold:</property>
+                            <property name="use-underline">True</property>
+                            <property name="mnemonic-widget">percussionHoldScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -633,7 +653,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes" context="Preferences dialog">Pan:</property>
+                        <property name="label" translatable="yes" context="Sound theme editor">Pan:</property>
                         <property name="use-underline">True</property>
                         <property name="mnemonic-widget">panScale</property>
                       </object>
@@ -647,7 +667,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes" context="Preferences dialog">_Volume:</property>
+                        <property name="label" translatable="yes" context="Sound theme editor">Volume:</property>
                         <property name="use-underline">True</property>
                         <property name="mnemonic-widget">volumeScale</property>
                       </object>
@@ -717,7 +737,9 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes">Mix:</property>
+                        <property name="label" translatable="yes" context="Sound theme editor">Mix:</property>
+                        <property name="use-underline">True</property>
+                        <property name="mnemonic-widget">mixScale</property>
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
@@ -825,7 +847,7 @@
             <property name="can-focus">False</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
-            <property name="label" translatable="yes" comments="This appears in the sound theme editor if the theme was removed in the settings backend.">Not available anymore.</property>
+            <property name="label" translatable="yes" context="Sound theme editor" comments="This appears in the sound theme editor if the theme was removed in the settings backend.">Not available anymore.</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -839,7 +861,7 @@
       <object class="GtkHeaderBar" id="headerBar">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="title" translatable="yes" context="Preferences dialog">Sound Theme Editor</property>
+        <property name="title" translatable="yes" context="Sound theme editor">Sound Theme Editor</property>
         <property name="has-subtitle">False</property>
         <property name="spacing">10</property>
         <property name="show-close-button">True</property>
