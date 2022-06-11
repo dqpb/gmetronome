@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -26,10 +26,10 @@
 class GMetronomeError : public std::exception {
 public:
   GMetronomeError(const std::string& what = "");
-  
+
   const char* what() const noexcept override
     { return what_.c_str(); }
-  
+
 private:
   const std::string what_;
 };

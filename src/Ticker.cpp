@@ -147,6 +147,9 @@ namespace audio {
     {
       sync_swap_backend_flag_.test_and_set();
 
+      if (backend_)
+        closeBackend();
+
       if (using_dummy_ && backend)
       {
         std::swap(dummy_, backend_);
@@ -456,6 +459,10 @@ namespace audio {
     {
     case BackendState::kConfig:
       actual_device_config_ = backend_->open();
+      if (actual_device_config_.spec.channels != 2)
+        throw GMetronomeError {"Unsupported non-stereo audio device"};
+      if (actual_device_config_.spec.rate == 0)
+        throw GMetronomeError {"Unsupported audio device (invalid sample rate)"};
       break;
     case BackendState::kOpen:
       [[fallthrough]];

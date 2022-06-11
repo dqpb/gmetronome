@@ -39,6 +39,7 @@ struct Message
 };
 
 extern const Message kGenericErrorMessage;
+extern const Message kAudioErrorMessage;
 extern const Message kAudioBackendErrorMessage;
 extern const Message kSoundThemeLoadingErrorMessage;
 

@@ -1158,7 +1158,13 @@ void Application::onStart(const Glib::VariantBase& value)
     error_message = kAudioBackendErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
   }
-  catch(const std::exception& e)
+  catch(const GMetronomeError& e)
+  {
+    error = true;
+    error_message = kAudioErrorMessage;
+    error_message.details = getErrorDetails(std::current_exception());
+  }
+  catch(...)
   {
     error = true;
     error_message = kGenericErrorMessage;

@@ -34,6 +34,15 @@ const Message kGenericErrorMessage
   ""
 };
 
+const Message kAudioErrorMessage
+{
+  MessageCategory::kError,
+  "Audio problem",
+  "An audio related error occured. For further information see the details below. "
+  "Please check the audio configuration in the preferences dialog and try again.",
+  ""
+};
+
 const Message kAudioBackendErrorMessage
 {
   MessageCategory::kError,
