@@ -426,9 +426,25 @@ void Application::configureAudioBackend()
 
 void Application::configureAudioDevice()
 {
-  auto cfg = audio::kDefaultConfig;
-  cfg.name = currentAudioDevice();
-  ticker_.configureAudioDevice(cfg);
+  try {
+    audio::DeviceConfig device_config =
+    {
+      currentAudioDevice(),
+      audio::kDefaultSpec
+    };
+
+    if (auto backend = ticker_.getBackend(); backend)
+    {
+      backend->configure(device_config);
+      ticker_.setBackend(std::move(backend));
+    }
+  }
+  catch(...)
+  {
+    Message error_message = kAudioBackendErrorMessage;
+    error_message.details = getErrorDetails(std::current_exception());
+    signal_message_.emit(error_message);
+  }
 }
 
 Glib::RefPtr<Gio::SimpleAction> Application::lookupSimpleAction(const Glib::ustring& name)

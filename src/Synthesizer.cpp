@@ -35,6 +35,7 @@
 namespace audio {
 
   Synthesizer::Synthesizer(const StreamSpec& spec)
+    : spec_{SampleFormat::kUnknown, 0, 0}
   {
     wavetables_.insert(kSineTable, std::make_shared<SineRecipe>());
     wavetables_.insert(kTriangleTable, std::make_shared<TriangleRecipe>());
@@ -48,6 +49,9 @@ namespace audio {
   {
     assert(spec.rate > 0);
     assert(spec.channels == 2);
+
+    if (spec == spec_)
+      return;
 
     // rebuild wavetables
     wavetables_.prepare(spec.rate);

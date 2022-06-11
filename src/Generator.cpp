@@ -32,56 +32,97 @@
 
 namespace audio {
 
-  Generator::Generator(StreamSpec spec,
-                       microseconds maxChunkDuration,
-                       microseconds avgChunkDuration)
-    : kStreamSpec_(spec),
-      kMaxChunkDuration_(maxChunkDuration),
-      kAvgChunkDuration_(avgChunkDuration),
-      kMaxChunkFrames_(usecsToFrames(kMaxChunkDuration_, spec)),
-      kAvgChunkFrames_(usecsToFrames(kAvgChunkDuration_, spec)),
-      kMinutesFramesRatio_(1.0 / (60.0 * spec.rate)),
-      kMicrosecondsFramesRatio_(1000000. / spec.rate),
-      kFramesMinutesRatio_(1.0 / kMinutesFramesRatio_),
-      kFramesMicrosecondsRatio_(1.0 / kMicrosecondsFramesRatio_),
-      tempo_(convertTempoToFrameTime(120.0)),
-      target_tempo_(convertTempoToFrameTime(120.0)),
-      accel_(convertAccelToFrameTime(0.0)),
-      accel_saved_(accel_),
-      meter_(kMeter1),
-      sound_zero_(spec, 2 * kMaxChunkDuration_),
-      sounds_{spec},
-      current_beat_(0),
-      next_accent_(0),
-      frames_total_(0),
-      frames_done_(0),
-      stats_({0.0, 0.0, 0, 0, 0us})
+  namespace
+  {
+    constexpr microseconds kMaxChunkDuration {80ms};
+    constexpr microseconds kAvgChunkDuration {50ms};
+
+    //helper
+    double tempoToFrameTime(double tempo, const StreamSpec& spec)
+    {
+      double const kMinutesFramesRatio = (1.0 / 60.0) / spec.rate;
+      return kMinutesFramesRatio * tempo;
+    }
+    double tempoFromFrameTime(double tempo, const StreamSpec& spec)
+    {
+      double const kFramesMinutesRatio = spec.rate / (1.0 / 60.0);
+      return kFramesMinutesRatio * tempo;
+    }
+    double accelToFrameTime(double accel, const StreamSpec& spec)
+    {
+      double const kMinutesFramesRatio = (1.0 / 60.0) / spec.rate;
+      return kMinutesFramesRatio * kMinutesFramesRatio * accel;
+    }
+    double accelFromFrameTime(double accel, const StreamSpec& spec)
+    {
+      double const kFramesMinutesRatio = spec.rate / (1.0 / 60.0);
+      return kFramesMinutesRatio * kFramesMinutesRatio * accel;
+    }
+
+  }//unnamed namespace
+
+  Generator::Generator(const StreamSpec& spec)
+    : spec_{spec},
+      maxChunkFrames_{ (int) usecsToFrames(kMaxChunkDuration, spec_) },
+      avgChunkFrames_{ (int) usecsToFrames(kAvgChunkDuration, spec_) },
+      tempo_{ tempoToFrameTime(120.0, spec_) },
+      target_tempo_{tempo_},
+      accel_{0.0},
+      accel_saved_{0.0},
+      meter_{kMeter1},
+      sound_zero_(spec_, 2 * kMaxChunkDuration),
+      current_beat_{0},
+      next_accent_{0},
+      frames_total_{0},
+      frames_done_{0}
   {
     sounds_.insert(kAccentWeak, SoundParameters{});
     sounds_.insert(kAccentMid, SoundParameters{});
     sounds_.insert(kAccentStrong, SoundParameters{});
+    sounds_.prepare(spec_);
   }
 
-  Generator::~Generator()
-  {}
+  void Generator::prepare(const StreamSpec& spec)
+  {
+    assert(spec.rate > 0);
+    assert(spec.channels == 2);
+
+    if (spec == spec_)
+      return;
+
+    maxChunkFrames_ = usecsToFrames(kMaxChunkDuration, spec);
+    avgChunkFrames_ = usecsToFrames(kAvgChunkDuration, spec);
+
+    // recompute motion parameters
+    tempo_        = tempoToFrameTime(tempoFromFrameTime(tempo_, spec_), spec);
+    target_tempo_ = tempoToFrameTime(tempoFromFrameTime(target_tempo_, spec_), spec);
+    accel_        = accelToFrameTime(accelFromFrameTime(accel_, spec_), spec);
+    accel_saved_  = accelToFrameTime(accelFromFrameTime(accel_saved_, spec_), spec);
+
+    sound_zero_.resize(spec, 2 * kMaxChunkDuration);
+
+    sounds_.prepare(spec);
+
+    spec_ = spec;
+  }
 
   void Generator::setTempo(double tempo)
   {
-    tempo_ = convertTempoToFrameTime(tempo);
+    tempo_ = tempoToFrameTime(tempo, spec_);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
 
   void Generator::setTargetTempo(double target_tempo)
   {
-    target_tempo_ = convertTempoToFrameTime(target_tempo);
+    target_tempo_ = tempoToFrameTime(target_tempo, spec_);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
 
   void Generator::setAccel(double accel)
   {
-    accel_ = accel_saved_ = convertAccelToFrameTime(accel);
+    accel_ = accel_saved_ = accelToFrameTime(accel, spec_);
     recalculateAccelSign();
     recalculateFramesTotal();
   }
@@ -137,19 +178,11 @@ namespace audio {
       next_accent_ = 0;
   }
 
-  void Generator::updateSound(Accent accent, const SoundParameters& params)
+  void Generator::setSound(Accent accent, const SoundParameters& params)
   { sounds_.update(accent, params); }
 
   const Generator::Statistics& Generator::getStatistics() const
   { return stats_; }
-
-  double Generator::convertTempoToFrameTime(double tempo) {
-    return kMinutesFramesRatio_ * tempo;
-  }
-
-  double Generator::convertAccelToFrameTime(double accel) {
-    return kMinutesFramesRatio_ * kMinutesFramesRatio_ * accel;
-  }
 
   void Generator::recalculateAccelSign() {
     if (target_tempo_ == tempo_)
@@ -245,8 +278,8 @@ namespace audio {
     double tempo, accel;
     std::tie(tempo, accel) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
 
-    stats_.current_tempo = tempo * kFramesMinutesRatio_;
-    stats_.current_accel = accel * kFramesMinutesRatio_ * kFramesMinutesRatio_;
+    stats_.current_tempo = tempoFromFrameTime(tempo, spec_);
+    stats_.current_accel = accelFromFrameTime(accel, spec_);
 
     int current_accent = (next_accent_ + meter_.accents().size() - 1) % meter_.division();
 
@@ -257,8 +290,10 @@ namespace audio {
 
     int frames_left = std::max(0, frames_total_ - frames_done_);
 
+    const double kMicrosecondsFramesRatio = 1000000.0 / spec_.rate;
+
     stats_.next_accent_delay
-      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio_));
+      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio));
   }
 
   void Generator::start(const void*& data, size_t& bytes)
@@ -268,13 +303,13 @@ namespace audio {
     current_beat_ = -1;
     next_accent_  = 0;
 
-    frames_total_ = 2 * kMaxChunkFrames_;
+    frames_total_ = 2 * maxChunkFrames_;
     frames_done_  = 0;
 
     updateStatistics();
 
     data = sound_zero_.data();
-    bytes = frames_total_ * frameSize(kStreamSpec_);
+    bytes = frames_total_ * frameSize(spec_);
 
     frames_total_ = 0;
     frames_done_ = 0;
@@ -310,7 +345,7 @@ namespace audio {
         case kAccentWeak:
         {
           const auto& buffer = sounds_[accents[next_accent_]];
-          frames_chunk = buffer.size() / frameSize(kStreamSpec_);
+          frames_chunk = buffer.size() / frameSize(spec_);
           data = buffer.data();
           bytes = buffer.size();
         }
@@ -318,9 +353,9 @@ namespace audio {
 
         default:
         {
-          frames_chunk = kAvgChunkFrames_;
+          frames_chunk = avgChunkFrames_;
           data = sound_zero_.data();
-          bytes = kAvgChunkFrames_ * frameSize(kStreamSpec_);
+          bytes = avgChunkFrames_ * frameSize(spec_);
         }
         break;
         };
@@ -335,15 +370,15 @@ namespace audio {
       frames_done_ = 0;
       recalculateFramesTotal();
     }
-    else if (frames_left <= kMaxChunkFrames_) {
+    else if (frames_left <= maxChunkFrames_) {
       frames_chunk = frames_left;
       data = sound_zero_.data();
-      bytes = frames_left * frameSize(kStreamSpec_);
+      bytes = frames_left * frameSize(spec_);
     }
     else {
-      frames_chunk = frames_left / lround( (double) frames_left / kAvgChunkFrames_ );
+      frames_chunk = frames_left / lround( (double) frames_left / avgChunkFrames_ );
       data = sound_zero_.data();
-      bytes = frames_chunk * frameSize(kStreamSpec_);
+      bytes = frames_chunk * frameSize(spec_);
     }
 
     frames_done_ += frames_chunk;

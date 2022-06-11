@@ -69,8 +69,6 @@ namespace audio {
     void swapBackend(std::unique_ptr<Backend>& backend,
                      const microseconds& timeout = 500ms);
 
-    void configureAudioDevice(const audio::DeviceConfig& config);
-
     void start();
     void stop();
     void reset() noexcept;
@@ -93,7 +91,6 @@ namespace audio {
 
     std::unique_ptr<Backend> backend_;
     std::unique_ptr<Backend> dummy_;
-    DeviceConfig device_config_;
     DeviceConfig actual_device_config_;
 
     TickerState state_;
@@ -105,7 +102,6 @@ namespace audio {
     SoundParameters in_sound_strong_;
     SoundParameters in_sound_mid_;
     SoundParameters in_sound_weak_;
-    audio::DeviceConfig in_device_config_;
 
     Ticker::Statistics out_stats_;
 
@@ -117,7 +113,6 @@ namespace audio {
     std::atomic_flag sound_mid_imported_flag_;
     std::atomic_flag sound_weak_imported_flag_;
     std::atomic_flag sync_swap_backend_flag_;
-    std::atomic_flag device_config_imported_flag_;
 
     mutable std::mutex std_mutex_;
     mutable SpinLock spin_mutex_;
@@ -129,19 +124,19 @@ namespace audio {
     void importSoundStrong();
     void importSoundMid();
     void importSoundWeak();
-    void importDeviceConfig();
     bool syncSwapBackend();
 
-    void importSettings();
+    void importGeneratorSettings();
+    void importBackend();
 
     void exportStatistics();
     void exportBackend();
 
+    void openBackend();
+    void closeBackend();
     void startBackend();
     void stopBackend();
-    void configureBackend();
     void writeBackend(const void* data, size_t bytes);
-    void closeBackend();
 
     std::unique_ptr<std::thread> audio_thread_;
     std::atomic<bool> stop_audio_thread_flag_;
@@ -151,7 +146,6 @@ namespace audio {
     bool using_dummy_;
     bool ready_to_swap_;
     bool backend_swapped_;
-    bool need_restart_backend_;
 
     void startAudioThread();
     void stopAudioThread(bool join = false);

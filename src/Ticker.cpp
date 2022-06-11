@@ -25,15 +25,15 @@
 #include "Synthesizer.h"
 #include <array>
 #include <cassert>
-#include <iostream>
+
+#ifndef NDEBUG
+# include <iostream>
+#endif
 
 namespace audio {
 
   namespace
   {
-    constexpr microseconds  kMaxChunkDuration   = 80ms;
-    constexpr microseconds  kAvgChunkDuration   = 50ms;
-    constexpr microseconds  kSineDuration       = 60ms;
     constexpr microseconds  kSwapBackendTimeout = 1s;
 
     template<class T>
@@ -47,16 +47,15 @@ namespace audio {
     T clamp(T val, const Range<T>& range)
     { return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] ); }
 
-    constexpr Range<double> kTempoRange       = {30,250};
-    constexpr Range<double> kAccelRange       = {0,1000};
-  }
+    constexpr Range<double> kTempoRange  = {30.0, 250.0};
+    constexpr Range<double> kAccelRange  = {0.0, 1000.0};
+
+  }//unnamed namespace
 
   // Ticker
   Ticker::Ticker()
-    : generator_(kDefaultSpec, kMaxChunkDuration, kAvgChunkDuration),
-      backend_ {createBackend(settings::kAudioBackendNone)},
+    : backend_ {createBackend(settings::kAudioBackendNone)},
       dummy_ {nullptr},
-      device_config_ {kDefaultConfig},
       actual_device_config_ {kDefaultConfig},
       state_ {0},
       in_tempo_ {0},
@@ -66,15 +65,13 @@ namespace audio {
       in_sound_strong_ {},
       in_sound_mid_ {},
       in_sound_weak_ {},
-      in_device_config_ {kDefaultConfig},
       out_stats_ {0us, 0.0, 0.0, 0.0, 0, 0us, 0us},
       stop_audio_thread_flag_ {true},
       audio_thread_error_ {nullptr},
       audio_thread_error_flag_ {false},
       using_dummy_ {true},
       ready_to_swap_ {false},
-      backend_swapped_ {false},
-      need_restart_backend_ {false}
+      backend_swapped_ {false}
   {
     tempo_imported_flag_.test_and_set();
     target_tempo_imported_flag_.test_and_set();
@@ -84,7 +81,6 @@ namespace audio {
     sound_mid_imported_flag_.test_and_set();
     sound_weak_imported_flag_.test_and_set();
     sync_swap_backend_flag_.test_and_set();
-    device_config_imported_flag_.test_and_set();
   }
 
   Ticker::~Ticker()
@@ -150,17 +146,14 @@ namespace audio {
     else
     {
       sync_swap_backend_flag_.test_and_set();
+
+      if (using_dummy_ && backend)
+      {
+        std::swap(dummy_, backend_);
+        using_dummy_ = false;
+      }
       std::swap(backend, backend_);
     }
-  }
-
-  void Ticker::configureAudioDevice(const audio::DeviceConfig& config)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_device_config_ = config;
-    }
-    device_config_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setTempo(double tempo)
@@ -345,7 +338,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.updateSound(Accent::kAccentStrong, in_sound_strong_);
+      generator_.setSound(Accent::kAccentStrong, in_sound_strong_);
     }
     else sound_strong_imported_flag_.clear();
   }
@@ -355,7 +348,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.updateSound(Accent::kAccentMid, in_sound_mid_);
+      generator_.setSound(Accent::kAccentMid, in_sound_mid_);
     }
     else sound_mid_imported_flag_.clear();
   }
@@ -365,7 +358,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.updateSound(Accent::kAccentWeak, in_sound_weak_);
+      generator_.setSound(Accent::kAccentWeak, in_sound_weak_);
     }
     else sound_weak_imported_flag_.clear();
   }
@@ -404,15 +397,7 @@ namespace audio {
     return success;
   }
 
-  void Ticker::importDeviceConfig()
-  {
-    {
-      std::lock_guard<SpinLock> lck(spin_mutex_);
-      device_config_ = in_device_config_;
-    }
-  }
-
-  void Ticker::importSettings()
+  void Ticker::importGeneratorSettings()
   {
     if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
       importTempo();
@@ -428,26 +413,18 @@ namespace audio {
       importSoundMid();
     if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
       importSoundWeak();
+  }
 
-    bool need_restart_backend = false;
-
-    if (!device_config_imported_flag_.test_and_set(std::memory_order_acquire))
-    {
-      closeBackend();
-      importDeviceConfig();
-      configureBackend();
-      need_restart_backend = true;
-    }
-
+  void Ticker::importBackend()
+  {
     if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
     {
       closeBackend();
       syncSwapBackend();
-      need_restart_backend = true;
-    }
-
-    if (need_restart_backend)
+      openBackend(); // sets actual_device_config_
+      generator_.prepare(actual_device_config_.spec);
       startBackend();
+    }
   }
 
   void Ticker::exportStatistics()
@@ -472,20 +449,58 @@ namespace audio {
     }
   }
 
-  void Ticker::startBackend()
+  void Ticker::openBackend()
   {
     assert (backend_ != nullptr);
     switch (backend_->state())
     {
     case BackendState::kConfig:
       actual_device_config_ = backend_->open();
+      break;
+    case BackendState::kOpen:
+      [[fallthrough]];
+    case BackendState::kRunning:
+      [[fallthrough]];
+    default:
+      // nothing
+      break;
+    }
+  }
+
+  void Ticker::closeBackend()
+  {
+    assert (backend_ != nullptr);
+    switch (backend_->state())
+    {
+    case BackendState::kRunning:
+      stopBackend();
+      [[fallthrough]];
+    case BackendState::kOpen:
+      backend_->close();
+      break;
+    case BackendState::kConfig:
+      [[fallthrough]];
+    default:
+      // nothing
+      break;
+    }
+  }
+
+  void Ticker::startBackend()
+  {
+    assert (backend_ != nullptr);
+    switch (backend_->state())
+    {
+    case BackendState::kConfig:
+      openBackend();
       [[fallthrough]];
     case BackendState::kOpen:
       backend_->start();
-      [[fallthrough]];
+      break;
     case BackendState::kRunning:
-      // do nothing
+      [[fallthrough]];
     default:
+      // nothing
       break;
     }
   }
@@ -493,55 +508,26 @@ namespace audio {
   void Ticker::stopBackend()
   {
     assert (backend_ != nullptr);
-    if (backend_)
+    switch (backend_->state())
     {
-      switch (backend_->state())
-      {
-      case BackendState::kRunning:
-        backend_->stop();
-        [[fallthrough]];
-      case BackendState::kOpen:
-        [[fallthrough]];
-      case BackendState::kConfig:
-        // do nothing
-      default:
-        break;
-      }
+    case BackendState::kRunning:
+      backend_->stop();
+      break;
+    case BackendState::kOpen:
+      [[fallthrough]];
+    case BackendState::kConfig:
+      [[fallthrough]];
+    default:
+      // nothing
+      break;
     }
-  }
-
-  void Ticker::configureBackend()
-  {
-    assert (backend_ != nullptr);
-    closeBackend();
-    backend_->configure(in_device_config_);
   }
 
   void Ticker::writeBackend(const void* data, size_t bytes)
   {
-    if (backend_ && bytes > 0)
+    assert(backend_ != nullptr);
+    if (bytes > 0)
       backend_->write(data, bytes);
-  }
-
-  void Ticker::closeBackend()
-  {
-    assert (backend_ != nullptr);
-    if (backend_)
-    {
-      switch (backend_->state())
-      {
-      case BackendState::kRunning:
-        backend_->stop();
-        [[fallthrough]];
-      case BackendState::kOpen:
-        backend_->close();
-        [[fallthrough]];
-      case BackendState::kConfig:
-        // do nothing
-      default:
-        break;
-      }
-    }
   }
 
   void Ticker::audioThreadFunction() noexcept
@@ -550,16 +536,19 @@ namespace audio {
     size_t bytes;
 
     try {
-      importSettings();
+      openBackend(); // sets actual_device_config_
+      generator_.prepare(actual_device_config_.spec);
+      importGeneratorSettings();
       generator_.start(data, bytes);
       startBackend();
       exportStatistics();
       writeBackend(data, bytes);
 
       // enter the main loop
-      while ( ! stop_audio_thread_flag_ )
+      while ( !stop_audio_thread_flag_ )
       {
-        importSettings();
+        importBackend();
+        importGeneratorSettings();
         generator_.cycle(data, bytes);
         writeBackend(data, bytes);
         exportStatistics();
@@ -572,12 +561,17 @@ namespace audio {
     }
     catch(...)
     {
-      try { closeBackend(); }
-      catch(...)
-      {};
 #ifndef NDEBUG
       std::cerr << "Ticker: error in audio thread" << std::endl;
 #endif
+      try { closeBackend(); }
+      catch(...)
+      {
+#ifndef NDEBUG
+      std::cerr << "Ticker: failed to close audio backend after error in audio thread"
+                << std::endl;
+#endif
+      };
       audio_thread_error_ = std::current_exception();
       audio_thread_error_flag_.store(true, std::memory_order_release);
     }

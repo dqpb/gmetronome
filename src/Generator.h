@@ -33,50 +33,41 @@ namespace audio {
   public:
     struct Statistics
     {
-      double  current_tempo;
-      double  current_accel;
-      double  current_beat;
-      int     next_accent;
-      microseconds  next_accent_delay;
+      double current_tempo {0.0};
+      double current_accel {0.0};
+      double current_beat {0.0};
+      int next_accent {0};
+      microseconds next_accent_delay {0us};
     };
 
   public:
-    Generator(StreamSpec spec = kDefaultSpec,
-              microseconds maxChunkDuration = 80ms,
-              microseconds avgChunkDuration = 50ms);
+    Generator(const StreamSpec& spec = kDefaultSpec);
 
-    ~Generator();
+    void prepare(const StreamSpec& spec);
 
     void setTempo(double tempo);
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void swapMeter(Meter& meter);
 
-    void updateSound(Accent accent, const SoundParameters& params);
-
-    const Generator::Statistics& getStatistics() const;
+    void setSound(Accent accent, const SoundParameters& params);
 
     void start(const void*& data, size_t& bytes);
     void stop(const void*& data, size_t& bytes);
     void cycle(const void*& data, size_t& bytes);
 
-  private:
-    const StreamSpec kStreamSpec_;
-    const microseconds kMaxChunkDuration_;
-    const microseconds kAvgChunkDuration_;
-    const int kMaxChunkFrames_;
-    const int kAvgChunkFrames_;
-    const double kMinutesFramesRatio_;
-    const double kMicrosecondsFramesRatio_;
-    const double kFramesMinutesRatio_;
-    const double kFramesMicrosecondsRatio_;
+    const Generator::Statistics& getStatistics() const;
 
+  private:
+    StreamSpec spec_;
+    int maxChunkFrames_;
+    int avgChunkFrames_;
     double tempo_;
     double target_tempo_;
     double accel_;
     double accel_saved_;
     Meter meter_;
-    const ByteBuffer sound_zero_;
+    ByteBuffer sound_zero_;
     SoundLibrary sounds_;
     int current_beat_;
     unsigned next_accent_;

@@ -149,7 +149,7 @@ namespace audio {
       throw;
     }
     state_ = BackendState::kOpen;
-    return {};
+    return cfg_;
   }
 
   void OssBackend::close()
