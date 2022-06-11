@@ -117,17 +117,17 @@ namespace audio {
     mutable std::mutex std_mutex_;
     mutable SpinLock spin_mutex_;
 
-    void importTempo();
-    void importTargetTempo();
-    void importAccel();
-    void importMeter();
-    void importSoundStrong();
-    void importSoundMid();
-    void importSoundWeak();
+    bool importTempo();
+    bool importTargetTempo();
+    bool importAccel();
+    bool importMeter();
+    bool importSoundStrong();
+    bool importSoundMid();
+    bool importSoundWeak();
     bool syncSwapBackend();
 
-    void importGeneratorSettings();
-    void importBackend();
+    bool importGeneratorSettings();
+    bool importBackend();
 
     void exportStatistics();
     void exportBackend();

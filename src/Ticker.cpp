@@ -143,7 +143,7 @@ namespace audio {
         throw GMetronomeError {"failed to swap audio backend (audio thread not responding)"};
       }
     }
-    else
+    else // audio thread is not running
     {
       sync_swap_backend_flag_.test_and_set();
 
@@ -317,53 +317,78 @@ namespace audio {
     }
   }
 
-  void Ticker::importTempo()
-  { generator_.setTempo(in_tempo_.load()); }
+  bool Ticker::importTempo()
+  {
+    generator_.setTempo(in_tempo_.load());
+    return true;
+  }
 
-  void Ticker::importTargetTempo()
-  { generator_.setTargetTempo(in_target_tempo_.load()); }
+  bool Ticker::importTargetTempo()
+  {
+    generator_.setTargetTempo(in_target_tempo_.load());
+    return true;
+  }
 
-  void Ticker::importAccel()
-  { generator_.setAccel(in_accel_.load()); }
+  bool Ticker::importAccel()
+  {
+    generator_.setAccel(in_accel_.load());
+    return true;
+  }
 
-  void Ticker::importMeter()
+  bool Ticker::importMeter()
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
       generator_.swapMeter(in_meter_);
+      return true;
     }
-    else meter_imported_flag_.clear();
+    else {
+      meter_imported_flag_.clear();
+      return false;
+    }
   }
 
-  void Ticker::importSoundStrong()
+  bool Ticker::importSoundStrong()
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
       generator_.setSound(Accent::kAccentStrong, in_sound_strong_);
+      return true;
     }
-    else sound_strong_imported_flag_.clear();
+    else {
+      sound_strong_imported_flag_.clear();
+      return false;
+    }
   }
 
-  void Ticker::importSoundMid()
+  bool Ticker::importSoundMid()
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
       generator_.setSound(Accent::kAccentMid, in_sound_mid_);
+      return true;
     }
-    else sound_mid_imported_flag_.clear();
+    else {
+      sound_mid_imported_flag_.clear();
+      return false;
+    }
   }
 
-  void Ticker::importSoundWeak()
+  bool Ticker::importSoundWeak()
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
       generator_.setSound(Accent::kAccentWeak, in_sound_weak_);
+      return true;
     }
-    else sound_weak_imported_flag_.clear();
+    else {
+      sound_weak_imported_flag_.clear();
+      return false;
+    }
   }
 
   bool Ticker::syncSwapBackend()
@@ -400,34 +425,42 @@ namespace audio {
     return success;
   }
 
-  void Ticker::importGeneratorSettings()
+  bool Ticker::importGeneratorSettings()
   {
+    bool import = false;
+
     if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      importTempo();
+      import = importTempo() || import;
+
     if (!target_tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      importTargetTempo();
+      import = importTargetTempo() || import;
+
     if (!accel_imported_flag_.test_and_set(std::memory_order_acquire))
-      importAccel();
+      import = importAccel() || import;
+
     if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
-      importMeter();
+      import = importMeter() || import;
+
     if (!sound_strong_imported_flag_.test_and_set(std::memory_order_acquire))
-      importSoundStrong();
+      import = importSoundStrong() || import;
+
     if (!sound_mid_imported_flag_.test_and_set(std::memory_order_acquire))
-      importSoundMid();
+      import = importSoundMid() || import;
+
     if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
-      importSoundWeak();
+      import = importSoundWeak() || import;
+
+    return import;
   }
 
-  void Ticker::importBackend()
+  bool Ticker::importBackend()
   {
     if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
     {
       closeBackend();
-      syncSwapBackend();
-      openBackend(); // sets actual_device_config_
-      generator_.prepare(actual_device_config_.spec);
-      startBackend();
+      return syncSwapBackend();
     }
+    else return false;
   }
 
   void Ticker::exportStatistics()
@@ -554,7 +587,12 @@ namespace audio {
       // enter the main loop
       while ( !stop_audio_thread_flag_ )
       {
-        importBackend();
+        if (importBackend())
+        {
+          openBackend(); // updates actual_device_config_
+          generator_.prepare(actual_device_config_.spec);
+          startBackend();
+        }
         importGeneratorSettings();
         generator_.cycle(data, bytes);
         writeBackend(data, bytes);
