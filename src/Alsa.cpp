@@ -746,6 +746,7 @@ namespace audio {
   }
 
   bool AlsaBackend::validateAlsaDevice(const std::string& name,
+                                       bool open_succeeded,
                                        bool grope_succeeded,
                                        const AlsaDeviceCaps& caps)
   {
@@ -762,6 +763,15 @@ namespace audio {
         "oss",
         //"surround"
       };
+
+    if (!open_succeeded)
+    {
+#ifndef NDEBUG
+      std::cerr << "AlsaBackend: ignoring device '" << name << "' ("
+                << "could not open" << ")" << std::endl;
+#endif
+      return false;
+    }
 
     if (!grope_succeeded)
     {
@@ -829,18 +839,24 @@ namespace audio {
       try {
         AlsaDevice alsa_device (device_descr.name);
 
-        alsa_device.open();
-
         AlsaDeviceCaps device_caps;
+        bool open_succeeded = true;
         bool grope_succeeded = true;
 
         try {
-          device_caps = alsa_device.grope();
+          alsa_device.open();
         }
-        catch (...)
-        { grope_succeeded = false; }
+        catch (...) { open_succeeded = false; }
 
-        if (!validateAlsaDevice(device_descr.name, grope_succeeded, device_caps))
+        if (open_succeeded)
+        {
+          try {
+            device_caps = alsa_device.grope();
+          }
+          catch (...) { grope_succeeded = false; }
+        }
+
+        if (!validateAlsaDevice(device_descr.name, open_succeeded, grope_succeeded, device_caps))
           continue;
 
         audio::DeviceInfo device_info;

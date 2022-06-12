@@ -121,6 +121,7 @@ namespace audio {
     std::unique_ptr<AlsaDevice> alsa_device_;
 
     bool validateAlsaDevice(const std::string& name,
+                            bool open_succeeded,
                             bool grope_succeeded,
                             const AlsaDeviceCaps& caps);
 
