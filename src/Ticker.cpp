@@ -150,12 +150,7 @@ namespace audio {
       if (backend_)
         closeBackend();
 
-      if (using_dummy_ && backend)
-      {
-        std::swap(dummy_, backend_);
-        using_dummy_ = false;
-      }
-      std::swap(backend, backend_);
+      hardSwapBackend(backend);
     }
   }
 
@@ -423,6 +418,25 @@ namespace audio {
     }
 
     return success;
+  }
+
+  void Ticker::hardSwapBackend(std::unique_ptr<Backend>& backend)
+  {
+    // same as syncSwapBackend() without thread synchronization
+
+    if (using_dummy_)
+    {
+      std::swap(dummy_, backend_);
+      using_dummy_ = false;
+    }
+
+    std::swap(backend, backend_);
+
+    if (!backend_)
+    {
+      backend_ = std::move(dummy_);
+      using_dummy_ = true;
+    }
   }
 
   bool Ticker::importGeneratorSettings()

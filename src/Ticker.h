@@ -125,6 +125,7 @@ namespace audio {
     bool importSoundMid();
     bool importSoundWeak();
     bool syncSwapBackend();
+    void hardSwapBackend(std::unique_ptr<Backend>& backend);
 
     bool importGeneratorSettings();
     bool importBackend();
