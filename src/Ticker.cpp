@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, 2021 The GMetronome Team
+ * Copyright (C) 2020-2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
