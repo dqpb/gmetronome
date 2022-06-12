@@ -410,16 +410,20 @@ void Application::configureAudioBackend()
     error_message = kAudioBackendErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
   }
-  catch(const std::exception& e)
+  catch(...)
   {
     error = true;
-    error_message = kAudioBackendErrorMessage;
+    error_message = kAudioErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
   }
 
   if (error)
   {
-    ticker_.setBackend( nullptr ); // use dummy backend
+    try {
+      ticker_.setBackend( nullptr ); // use dummy backend
+    }
+    catch(...) { /* nothing */ }
+
     signal_message_.emit(error_message);
   }
 }
