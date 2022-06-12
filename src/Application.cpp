@@ -377,13 +377,17 @@ void Application::configureAudioBackend()
   Message error_message;
 
   try {
+    // dispose old backend and install a temporary dummy backend
+    ticker_.getBackend();
+
     settings::AudioBackend backend = (settings::AudioBackend)
       settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
-    auto new_backend = audio::createBackend( backend );
-
-    if (new_backend)
+    // create new backend
+    if (auto new_backend = audio::createBackend(backend);
+        new_backend != nullptr)
     {
+      // save device list
       auto audio_devices = new_backend->devices();
 
       std::vector<Glib::ustring> dev_list;
@@ -392,17 +396,19 @@ void Application::configureAudioBackend()
       std::transform(audio_devices.begin(), audio_devices.end(), std::back_inserter(dev_list),
                      [] (const auto& dev) { return dev.name; });
 
-      Glib::Variant<std::vector<Glib::ustring>> dev_list_state
-        = Glib::Variant<std::vector<Glib::ustring>>::create(dev_list);
-
-      lookupSimpleAction(kActionAudioDeviceList)->set_state(dev_list_state);
-
+      // configure and install new backend
       auto device_config = audio::kDefaultConfig;
       device_config.name = currentAudioDevice();
 
       new_backend->configure(device_config);
+      ticker_.setBackend( std::move(new_backend) );
+
+      // update device list action state
+      Glib::Variant<std::vector<Glib::ustring>> dev_list_state
+        = Glib::Variant<std::vector<Glib::ustring>>::create(dev_list);
+
+      lookupSimpleAction(kActionAudioDeviceList)->set_state(dev_list_state);
     }
-    ticker_.setBackend( std::move(new_backend) );
   }
   catch(const audio::BackendError& e)
   {
@@ -418,14 +424,7 @@ void Application::configureAudioBackend()
   }
 
   if (error)
-  {
-    try {
-      ticker_.setBackend( nullptr ); // use dummy backend
-    }
-    catch(...) { /* nothing */ }
-
     signal_message_.emit(error_message);
-  }
 }
 
 void Application::configureAudioDevice()
