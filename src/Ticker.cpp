@@ -22,7 +22,6 @@
 #endif
 
 #include "Ticker.h"
-#include "Synthesizer.h"
 #include <array>
 #include <cassert>
 

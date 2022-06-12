@@ -20,8 +20,8 @@
 #ifndef GMetronome_Ticker_h
 #define GMetronome_Ticker_h
 
-#include "AudioBuffer.h"
 #include "Meter.h"
+#include "Synthesizer.h"
 #include "Generator.h"
 #include "AudioBackend.h"
 #include "SpinLock.h"
