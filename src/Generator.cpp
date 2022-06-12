@@ -101,6 +101,10 @@ namespace audio {
     sound_zero_.resize(spec, 2 * kMaxChunkDuration);
 
     sounds_.prepare(spec);
+
+    // Since a change of the stream specification may necessitate resizing the sound
+    // buffers we update the sounds immediately to prevent memory allocations during
+    // real-time processing.
     sounds_.apply();
 
     spec_ = spec;
