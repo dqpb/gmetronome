@@ -25,34 +25,44 @@
 #include <cassert>
 
 #ifndef NDEBUG
-# include <iostream>
+#  include <iostream>
 #endif
 
 namespace audio {
 
-  void ByteBuffer::resample(const StreamSpec& spec)
+  template<typename SrcChannels, typename TgtChannels>
+  void resample(SrcChannels src_chs, TgtChannels tgt_chs, const ChannelMap& map)
   {
-    ByteBuffer resampled = ::audio::resample(*this, spec);
-    (*this) = std::move(resampled);
+    int map_size = static_cast<int>(map.size());
+    int src_size = static_cast<int>(src_chs.size());
+    int tgt_size = static_cast<int>(tgt_chs.size());
+
+    for (int src_idx = 0; src_idx < src_size; ++src_idx)
+    {
+      int tgt_idx = (map_size > src_idx) ? map[src_idx] : src_idx;
+
+      if (tgt_idx >= 0 && tgt_idx < tgt_size)
+        tgt_chs[tgt_idx] = src_chs[src_idx];
+    }
   }
 
-  template<typename Frames>
-  void resample(const ByteBuffer& src_buffer, Frames tgt_frames)
+  template<typename TgtChannels>
+  void resample(const ByteBuffer& src_buf, TgtChannels tgt_chs, const ChannelMap& map)
   {
     using Fmt = SampleFormat;
 
-    switch(src_buffer.spec().format)
+    switch(src_buf.spec().format)
     {
-    case Fmt::kU8: tgt_frames = viewFrames<Fmt::kU8>(src_buffer); break;
-    case Fmt::kS8: tgt_frames = viewFrames<Fmt::kS8>(src_buffer); break;
-    case Fmt::kS16LE: tgt_frames = viewFrames<Fmt::kS16LE>(src_buffer); break;
-    case Fmt::kS16BE: tgt_frames = viewFrames<Fmt::kS16BE>(src_buffer); break;
-    case Fmt::kU16LE: tgt_frames = viewFrames<Fmt::kU16LE>(src_buffer); break;
-    case Fmt::kU16BE: tgt_frames = viewFrames<Fmt::kU16BE>(src_buffer); break;
-    case Fmt::kS32LE: tgt_frames = viewFrames<Fmt::kS32LE>(src_buffer); break;
-    case Fmt::kS32BE: tgt_frames = viewFrames<Fmt::kS32BE>(src_buffer); break;
-    case Fmt::kFloat32LE: tgt_frames = viewFrames<Fmt::kFloat32LE>(src_buffer); break;
-    case Fmt::kFloat32BE: tgt_frames = viewFrames<Fmt::kFloat32BE>(src_buffer); break;
+    case Fmt::kU8: resample(viewChannels<Fmt::kU8>(src_buf), tgt_chs, map); break;
+    case Fmt::kS8: resample(viewChannels<Fmt::kS8>(src_buf), tgt_chs, map); break;
+    case Fmt::kS16LE: resample(viewChannels<Fmt::kS16LE>(src_buf), tgt_chs, map); break;
+    case Fmt::kS16BE: resample(viewChannels<Fmt::kS16BE>(src_buf), tgt_chs, map); break;
+    case Fmt::kU16LE: resample(viewChannels<Fmt::kU16LE>(src_buf), tgt_chs, map); break;
+    case Fmt::kU16BE: resample(viewChannels<Fmt::kU16BE>(src_buf), tgt_chs, map); break;
+    case Fmt::kS32LE: resample(viewChannels<Fmt::kS32LE>(src_buf), tgt_chs, map); break;
+    case Fmt::kS32BE: resample(viewChannels<Fmt::kS32BE>(src_buf), tgt_chs, map); break;
+    case Fmt::kFloat32LE: resample(viewChannels<Fmt::kFloat32LE>(src_buf), tgt_chs, map); break;
+    case Fmt::kFloat32BE: resample(viewChannels<Fmt::kFloat32BE>(src_buf), tgt_chs, map); break;
     case Fmt::kUnknown:
       [[fallthrough]];
     default:
@@ -63,20 +73,19 @@ namespace audio {
     };
   }
 
-  void resample(const ByteBuffer& src_buffer, ByteBuffer& tgt_buffer)
+  void resample(const ByteBuffer& src_buf, ByteBuffer& tgt_buf, const ChannelMap& map)
   {
-    const auto& src_spec = src_buffer.spec();
-    const auto& tgt_spec = tgt_buffer.spec();
+    const auto& src_spec = src_buf.spec();
+    const auto& tgt_spec = tgt_buf.spec();
 
-    // TODO: this should support channel and rate resampling too
-    assert(src_spec.channels == tgt_spec.channels);
+    // TODO: support rate resampling
     assert(src_spec.rate == tgt_spec.rate);
 
-    if (&src_buffer == &tgt_buffer)
+    if (&src_buf == &tgt_buf)
       return;
 
 #ifndef NDEBUG
-    if (src_buffer.frames() > tgt_buffer.frames())
+    if (src_buf.frames() > tgt_buf.frames())
       std::cerr << "AudioBuffer: target buffer too small for resampling" << std::endl;
 #endif
 
@@ -84,16 +93,16 @@ namespace audio {
 
     switch(tgt_spec.format)
     {
-    case Fmt::kS8:  resample( src_buffer, viewFrames<Fmt::kS8>(tgt_buffer) ); break;
-    case Fmt::kU8:  resample( src_buffer, viewFrames<Fmt::kU8>(tgt_buffer) ); break;
-    case Fmt::kS16LE:  resample( src_buffer, viewFrames<Fmt::kS16LE>(tgt_buffer) ); break;
-    case Fmt::kS16BE:  resample( src_buffer, viewFrames<Fmt::kS16BE>(tgt_buffer) ); break;
-    case Fmt::kU16LE:  resample( src_buffer, viewFrames<Fmt::kU16LE>(tgt_buffer) ); break;
-    case Fmt::kU16BE:  resample( src_buffer, viewFrames<Fmt::kU16BE>(tgt_buffer) ); break;
-    case Fmt::kS32LE:  resample( src_buffer, viewFrames<Fmt::kS32LE>(tgt_buffer) ); break;
-    case Fmt::kS32BE:  resample( src_buffer, viewFrames<Fmt::kS32BE>(tgt_buffer) ); break;
-    case Fmt::kFloat32LE: resample( src_buffer, viewFrames<Fmt::kFloat32LE>(tgt_buffer) ); break;
-    case Fmt::kFloat32BE: resample( src_buffer, viewFrames<Fmt::kFloat32BE>(tgt_buffer) ); break;
+    case Fmt::kS8: resample(src_buf, viewChannels<Fmt::kS8>(tgt_buf), map); break;
+    case Fmt::kU8: resample(src_buf, viewChannels<Fmt::kU8>(tgt_buf), map); break;
+    case Fmt::kS16LE: resample(src_buf, viewChannels<Fmt::kS16LE>(tgt_buf), map); break;
+    case Fmt::kS16BE: resample(src_buf, viewChannels<Fmt::kS16BE>(tgt_buf), map); break;
+    case Fmt::kU16LE: resample(src_buf, viewChannels<Fmt::kU16LE>(tgt_buf), map); break;
+    case Fmt::kU16BE: resample(src_buf, viewChannels<Fmt::kU16BE>(tgt_buf), map); break;
+    case Fmt::kS32LE: resample(src_buf, viewChannels<Fmt::kS32LE>(tgt_buf), map); break;
+    case Fmt::kS32BE: resample(src_buf, viewChannels<Fmt::kS32BE>(tgt_buf), map); break;
+    case Fmt::kFloat32LE: resample(src_buf, viewChannels<Fmt::kFloat32LE>(tgt_buf), map); break;
+    case Fmt::kFloat32BE: resample(src_buf, viewChannels<Fmt::kFloat32BE>(tgt_buf), map); break;
     case Fmt::kUnknown:
       [[fallthrough]];
     default:
@@ -102,13 +111,6 @@ namespace audio {
 #endif
       break;
     };
-  }
-
-  ByteBuffer resample(const ByteBuffer& src_buffer, const StreamSpec& tgt_spec)
-  {
-    ByteBuffer tgt_buffer(tgt_spec, src_buffer.frames() * frameSize(tgt_spec));
-    resample(src_buffer, tgt_buffer);
-    return tgt_buffer;
   }
 
 }//namespace audio

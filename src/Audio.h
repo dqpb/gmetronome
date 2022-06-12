@@ -26,6 +26,7 @@
 
 #include <chrono>
 #include <algorithm>
+#include <vector>
 #include <cmath>
 
 namespace audio {
@@ -256,6 +257,16 @@ namespace audio {
 
   /** Returns the play time for a given number of bytes. */
   microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec);
+
+  /**
+   * A ChannelMap describes an index-based mapping between the audio channels
+   * of two audio streams or buffers. Use negative values to ignore a channel
+   * in the operation.
+   * If the channel map has less entries than the number of channels of the
+   * source entity, the remaining channels are mapped to the taget channels
+   * with the same index.
+   */
+  using ChannelMap = std::vector<int>;
 
   class Decibel {
   public:

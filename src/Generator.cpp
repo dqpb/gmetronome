@@ -85,7 +85,6 @@ namespace audio {
   void Generator::prepare(const StreamSpec& spec)
   {
     assert(spec.rate > 0);
-    assert(spec.channels == 2);
 
     if (spec == spec_)
       return;
@@ -102,6 +101,7 @@ namespace audio {
     sound_zero_.resize(spec, 2 * kMaxChunkDuration);
 
     sounds_.prepare(spec);
+    sounds_.apply();
 
     spec_ = spec;
   }

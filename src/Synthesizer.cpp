@@ -48,7 +48,6 @@ namespace audio {
   void Synthesizer::prepare(const StreamSpec& spec)
   {
     assert(spec.rate > 0);
-    assert(spec.channels == 2);
 
     if (spec == spec_)
       return;

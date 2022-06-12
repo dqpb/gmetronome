@@ -492,9 +492,9 @@ namespace audio {
     {
     case BackendState::kConfig:
       actual_device_config_ = backend_->open();
-      if (actual_device_config_.spec.channels != 2)
-        throw GMetronomeError {"Unsupported non-stereo audio device"};
-      if (actual_device_config_.spec.rate == 0)
+      if (actual_device_config_.spec.channels <= 0)
+        throw GMetronomeError {"Unsupported audio device (invalid number of channels)"};
+      if (actual_device_config_.spec.rate <= 0)
         throw GMetronomeError {"Unsupported audio device (invalid sample rate)"};
       break;
     case BackendState::kOpen:

@@ -83,8 +83,6 @@ namespace audio {
     microseconds time() const
       { return bytesToUsecs(data_.size(), spec_); }
 
-    void resample(const StreamSpec& spec);
-
     void reinterpret(const StreamSpec& spec)
       { spec_ = spec; }
 
@@ -877,11 +875,9 @@ namespace audio {
    * The target buffer should be able to hold at least the same number of frames
    * as the source buffer. No buffer resizing or other heap allocations will take
    * place.
+   * (Currently only sample format conversion and channel mapping is implemented.)
    */
-  void resample(const ByteBuffer& source, ByteBuffer& target);
-
-  /** Resample an audio buffer to a target stream specification. */
-  ByteBuffer resample(const ByteBuffer& source, const StreamSpec& target_spec);
+  void resample(const ByteBuffer& source, ByteBuffer& target, const ChannelMap& map = {});
 
 }//namespace audio
 #endif//GMetronome_AudioBuffer_h
