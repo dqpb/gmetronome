@@ -75,9 +75,6 @@ namespace audio {
     int frames_done_;
     Generator::Statistics stats_;
 
-    double convertTempoToFrameTime(double tempo);
-    double convertAccelToFrameTime(double accel);
-
     void recalculateAccelSign();
     void recalculateFramesTotal();
     void recalculateMotionParameters();
