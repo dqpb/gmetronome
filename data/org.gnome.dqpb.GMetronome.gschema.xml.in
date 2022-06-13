@@ -400,13 +400,16 @@
 	  path="@PACKAGE_ID_PATH@/preferences/">
     <key name="restore-profile" type="b">
       <default>true</default>
-      <summary></summary>
+      <summary>Whether to load the last profile used on startup</summary>
       <description></description>
     </key>
     <key name="link-sound-theme" type="b">
       <default>false</default>
-      <summary></summary>
-      <description></description>
+      <summary>Wheter to link profiles and sound themes</summary>
+      <description>
+	If true, switching profiles also restores the previous sound theme. If the
+	desired sound theme does not exist anymore, the default will be loaded instead.
+      </description>
     </key>
     <key name="pendulum-action" enum="@PACKAGE_ID@.PendulumAction">
       <default>'real'</default>
@@ -431,7 +434,7 @@
     </key>
     <key name="audio-backend" enum="@PACKAGE_ID@.AudioBackend">
       <default>@GSCHEMAXML_DEFAULT_AUDIO_BACKEND@</default>
-      <summary>Audio backend</summary>
+      <summary>Which audio backend to use</summary>
       <description></description>
     </key>
     @GSCHEMAXML_ALSA_BEGIN@
@@ -475,7 +478,7 @@
     </key>
     <key name="show-pendulum" type="b">
       <default>true</default>
-      <summary></summary>
+      <summary>Whether to show the animated pendulum</summary>
       <description></description>
     </key>
   </schema>
