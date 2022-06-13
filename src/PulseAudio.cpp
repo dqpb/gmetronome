@@ -23,7 +23,10 @@
 
 #include "PulseAudio.h"
 #include <cassert>
-#include <iostream>
+
+#ifndef NDEBUG
+#  include <iostream>
+#endif
 
 namespace audio {
 
@@ -39,35 +42,74 @@ namespace audio {
       {}
     };
 
-    // Helper
-    pa_sample_spec convertSpecToPA(const StreamSpec& spec) noexcept
+    // convert sample formats
+    const std::vector<std::pair<SampleFormat, pa_sample_format_t>> kFormatMap =
+    {
+      {SampleFormat::kU8        , PA_SAMPLE_U8},
+      // {SampleFormat::kS8     , <unsupported>},
+      {SampleFormat::kS16LE     , PA_SAMPLE_S16LE},
+      {SampleFormat::kS16BE     , PA_SAMPLE_S16BE},
+      // {SampleFormat::kU16LE  , <unsupported>},
+      // {SampleFormat::kU16BE  , <unsupported>},
+      {SampleFormat::kS32LE     , PA_SAMPLE_S32LE},
+      {SampleFormat::kS32BE     , PA_SAMPLE_S32BE},
+      {SampleFormat::kFloat32LE , PA_SAMPLE_FLOAT32LE},
+      {SampleFormat::kFloat32BE , PA_SAMPLE_FLOAT32BE},
+      // {SampleFormat::kS24LE    , PA_SAMPLE_S24LE},
+      // {SampleFormat::kS24BE    , PA_SAMPLE_S24BE},
+      // {SampleFormat::kS24_32LE , PA_SAMPLE_S32LE},
+      // {SampleFormat::kS24_32BE , PA_SAMPLE_S32BE},
+      // {SampleFormat::kALAW     , PA_SAMPLE_ALAW},
+      // {SampleFormat::kULAW     , PA_SAMPLE_ULAW},
+      {SampleFormat::kUnknown , PA_SAMPLE_INVALID}
+    };
+
+    // helper
+    pa_sample_format_t formatToPA(const SampleFormat& fmt)
+    {
+      auto it = std::find_if(kFormatMap.begin(), kFormatMap.end(),
+                             [&fmt] (const auto& p) { return p.first == fmt; });
+
+      if (it != kFormatMap.end())
+        return it->second;
+      else
+        return PA_SAMPLE_INVALID;
+    }
+
+    SampleFormat formatFromPA(pa_sample_format_t fmt)
+    {
+      auto it = std::find_if(kFormatMap.begin(), kFormatMap.end(),
+                             [&fmt] (const auto& p) { return p.second == fmt; });
+
+      if (it != kFormatMap.end())
+        return it->first;
+      else
+        return SampleFormat::kUnknown;
+    }
+
+    pa_sample_spec specToPA(const StreamSpec& spec) noexcept
     {
       pa_sample_spec pa_spec;
+
+      pa_spec.format = formatToPA(spec.format);
       pa_spec.rate = spec.rate;
       pa_spec.channels = spec.channels;
 
-      switch(spec.format) {
-      // case SampleFormat::kU8        : pa_spec.format = PA_SAMPLE_U8;    break;
-      // case SampleFormat::kALAW      : pa_spec.format = PA_SAMPLE_ALAW;  break;
-      // case SampleFormat::kULAW      : pa_spec.format = PA_SAMPLE_ULAW;  break;
-      case SampleFormat::kS16LE     : pa_spec.format = PA_SAMPLE_S16LE; break;
-      // case SampleFormat::kS16BE     : pa_spec.format = PA_SAMPLE_S16BE; break;
-      // case SampleFormat::kFloat32LE : pa_spec.format = PA_SAMPLE_FLOAT32LE; break;
-      // case SampleFormat::kFloat32BE : pa_spec.format = PA_SAMPLE_FLOAT32BE; break;
-      // case SampleFormat::kS32LE     : pa_spec.format = PA_SAMPLE_S32LE; break;
-      // case SampleFormat::kS32BE     : pa_spec.format = PA_SAMPLE_S32BE; break;
-      // case SampleFormat::kS24LE     : pa_spec.format = PA_SAMPLE_S24LE; break;
-      // case SampleFormat::kS24BE     : pa_spec.format = PA_SAMPLE_S24BE; break;
-      // case SampleFormat::kS24_32LE  : pa_spec.format = PA_SAMPLE_S32LE; break;
-      // case SampleFormat::kS24_32BE  : pa_spec.format = PA_SAMPLE_S32BE; break;
-      default:
-        pa_spec.format = PA_SAMPLE_INVALID;
-        break;
-      };
       return pa_spec;
     }
 
-    const pa_sample_spec kPADefaultSpec = convertSpecToPA(kDefaultSpec);
+    StreamSpec specFromPA(const pa_sample_spec& pa_spec)
+    {
+      StreamSpec spec;
+
+      spec.format = formatFromPA(pa_spec.format);
+      spec.rate = pa_spec.rate;
+      spec.channels = pa_spec.channels;
+
+      return spec;
+    };
+
+    const pa_sample_spec kPADefaultSpec = specToPA(kDefaultSpec);
 
     const DeviceInfo kPADefaultInfo =
     {
@@ -83,12 +125,14 @@ namespace audio {
 
     const pa_buffer_attr kPADefaultBufferAttr =
     {
-      (uint32_t) kPADefaultSpec.channels * 8056, // maxlength
+      (uint32_t) -1, // maxlength
       (uint32_t) -1, // tlength
       (uint32_t) -1, // prebuf
       (uint32_t) -1, // minreq
       (uint32_t) -1  // fragsize
     };
+
+    std::chrono::duration<double> kPAMaxBufferDuration = 90ms;
 
   }//unnamed namespace
 
@@ -159,12 +203,18 @@ namespace audio {
   {
     assert(state_ == BackendState::kConfig);
 
-    pa_spec_ = convertSpecToPA(cfg_.spec);
-    pa_buffer_attr_.maxlength = cfg_.spec.channels * 8056;
+    pa_spec_ = specToPA(cfg_.spec);
+
+    pa_buffer_attr_ = kPADefaultBufferAttr;
+    pa_buffer_attr_.maxlength =
+      pa_bytes_per_second(&pa_spec_) * kPAMaxBufferDuration.count();
 
     state_ = BackendState::kOpen;
 
-    return kDefaultConfig;
+    DeviceConfig actual_cfg = cfg_;
+    actual_cfg.spec = specFromPA(pa_spec_);
+
+    return actual_cfg;
   }
 
   void PulseAudioBackend::close()
@@ -204,8 +254,10 @@ namespace audio {
       int error;
       if (pa_simple_drain(pa_simple_, &error) < 0)
       {
-        // do nothing in case of an error and try to close
-        // the connection and free resources
+#ifndef NDEBUG
+        std::cerr << "PulseBackend: draining failed but will continue to stop the backend"
+                  << std::endl;
+#endif
       }
       pa_simple_free(pa_simple_);
       pa_simple_ = nullptr;
