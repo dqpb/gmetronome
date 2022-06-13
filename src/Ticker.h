@@ -62,12 +62,12 @@ namespace audio {
     ~Ticker();
 
     void setBackend(std::unique_ptr<Backend> backend,
-                    const microseconds& timeout = 500ms);
+                    const microseconds& timeout = 2s);
 
-    std::unique_ptr<Backend> getBackend(const microseconds& timeout = 500ms);
+    std::unique_ptr<Backend> getBackend(const microseconds& timeout = 2s);
 
     void swapBackend(std::unique_ptr<Backend>& backend,
-                     const microseconds& timeout = 500ms);
+                     const microseconds& timeout = 2s);
 
     void start();
     void stop();
