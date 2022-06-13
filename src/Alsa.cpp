@@ -753,8 +753,11 @@ namespace audio {
     static const std::vector<std::string> kPrefixes =
       {
         "null",
-        //"samplerate",
-        //"speexrate",
+
+        "lavrate",    // these three *rate plugins tend to crash in
+        "samplerate", // conjunction with snd_pcm_drain
+        "speexrate",
+
         "pulse",
         //"speex",
         //"upmix",
