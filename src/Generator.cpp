@@ -302,8 +302,6 @@ namespace audio {
 
   void Generator::start(const void*& data, size_t& bytes)
   {
-    sounds_.apply();
-
     current_beat_ = -1;
     next_accent_  = 0;
 
