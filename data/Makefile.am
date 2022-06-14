@@ -45,6 +45,10 @@ gschema_in_file = org.gnome.dqpb.GMetronome.gschema.xml.in
 gschema_file = $(gschema_in_file:.xml.in=.xml)
 gschema_valid_file = $(gschema_file:.xml=.valid)
 
+#
+# Since GSETTINGS_RULES uses GNU make specific syntax and is therefore unportable
+# we use a slightly simplified and portable modification here
+#
 $(gschema_valid_file): $(gschema_file)
 	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) --strict --dry-run --schema-file=$(gschema_file) && touch $@
 
@@ -86,7 +90,6 @@ CLEANFILES = \
 	$(gschema_file)
 
 EXTRA_DIST = \
-	$(desktop_in_file) \
 	$(gschema_in_file) \
 	icons/16x16/org.gnome.dqpb.GMetronome.png \
 	icons/32x32/org.gnome.dqpb.GMetronome.png \
