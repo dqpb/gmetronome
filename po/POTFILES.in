@@ -9,3 +9,4 @@ src/SettingsDialog.cpp
 src/SoundTheme.h
 src/resources/ui/SoundThemeEditor.glade
 src/Shortcut.cpp
+data/org.gnome.dqpb.GMetronome.gschema.xml.in
