@@ -42,28 +42,51 @@ namespace audio {
         {}
     };
 
-    // Helper
-    int convertSampleFormatToOss(const SampleFormat& format)
+    constexpr int kUnknownFormat = -1;
+
+    // convert sample formats
+    const std::vector<std::pair<SampleFormat, int>> kFormatMap =
     {
-      int oss_format;
+      {SampleFormat::kU8        , AFMT_U8},
+      {SampleFormat::kS8        , AFMT_S8},
+      {SampleFormat::kS16LE     , AFMT_S16_LE},
+      {SampleFormat::kS16BE     , AFMT_S16_BE},
+      {SampleFormat::kU16LE     , AFMT_U16_LE},
+      {SampleFormat::kU16BE     , AFMT_U16_BE},
+      // {SampleFormat::kS32LE     , AFMT_S32_LE},
+      // {SampleFormat::kS32BE     , AFMT_S32_BE},
+      // {SampleFormat::kFloat32LE , AFMT_},
+      // {SampleFormat::kFloat32BE , AFMT_},
+      // {SampleFormat::kS24LE     , AFMT_},
+      // {SampleFormat::kS24BE     , AFMT_},
+      // {SampleFormat::kS24_32LE  , AFMT_},
+      // {SampleFormat::kS24_32BE  , AFMT_},
+      // {SampleFormat::kALAW      , AFMT_},
+      // {SampleFormat::kULAW      , AFMT_},
+      {SampleFormat::kUnknown   , kUnknownFormat}
+    };
 
-      switch(format) {
-      // case SampleFormat::kU8        : oss_format = AFMT_U8;    break;
-      // case SampleFormat::kS8        : oss_format = AFMT_S8;    break;
-      case SampleFormat::kS16LE     : oss_format = AFMT_S16_LE; break;
-      // case SampleFormat::kS16BE     : oss_format = AFMT_S16_BE; break;
-      // case SampleFormat::kS32LE     : oss_format = AFMT_S32_LE; break;
-      // case SampleFormat::kS32BE     : oss_format = AFMT_S32_BE; break;
-      // case SampleFormat::kS24LE     : oss_format = AFMT_S24_LE; break;
-      // case SampleFormat::kS24BE     : oss_format = AFMT_S24_BE; break;
-      // case SampleFormat::kALAW      : oss_format = AFMT_A_LAW;  break;
-      // case SampleFormat::kULAW      : oss_format = AFMT_MU_LAW;  break;
-      default:
-        oss_format = -1;
-        break;
-      };
+    // helper
+    int formatToOss(const SampleFormat& fmt)
+    {
+      auto it = std::find_if(kFormatMap.begin(), kFormatMap.end(),
+                             [&fmt] (const auto& p) { return p.first == fmt; });
 
-      return oss_format;
+      if (it != kFormatMap.end())
+        return it->second;
+      else
+        return kUnknownFormat;
+    }
+
+    SampleFormat formatFromOss(int fmt)
+    {
+      auto it = std::find_if(kFormatMap.begin(), kFormatMap.end(),
+                             [&fmt] (const auto& p) { return p.second == fmt; });
+
+      if (it != kFormatMap.end())
+        return it->first;
+      else
+        return SampleFormat::kUnknown;
     }
 
     const char* kDefaultDevice = "/dev/dsp";
@@ -255,11 +278,11 @@ namespace audio {
     //
     // set sample format
     //
-    int in_tmp = convertSampleFormatToOss(cfg_.spec.format);
+    int in_tmp = formatToOss(cfg_.spec.format);
     int out_tmp = in_tmp;
 
     if (in_tmp < 0)
-      throw OssError(state_, "failed to convert sample format");
+      throw OssError(state_, "invalid or unsupported sample format");
 
     if (ioctl (fd_, SNDCTL_DSP_SETFMT, &out_tmp) == -1)
       throw OssError(state_, errno);
