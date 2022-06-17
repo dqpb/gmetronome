@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021, 2022 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -28,6 +28,10 @@
 #include <sys/soundcard.h>
 #include <cassert>
 
+#ifndef NDEBUG
+#  include <iostream>
+#endif
+
 namespace audio {
 
   namespace {
@@ -39,6 +43,11 @@ namespace audio {
         {}
       OssError(BackendState state, int error)
         : BackendError(settings::kAudioBackendOss, state, strerror(error))
+        {}
+      OssError(BackendState state, const std::string& what, int error)
+        : BackendError(settings::kAudioBackendOss, state,
+                       what + " (" + std::to_string(error) +
+                       " '" + std::string(strerror(error)) + "')")
         {}
     };
 
@@ -89,35 +98,37 @@ namespace audio {
         return SampleFormat::kUnknown;
     }
 
-    const char* kDefaultDevice = "/dev/dsp";
+    const char* kOssDefaultDevice = "/dev/dsp";
 
-    const std::string kOssDeviceName = "/dev/dsp";
+    const std::string kOssDefaultDeviceName = "/dev/dsp";
 
-    const DeviceInfo kOssDeviceInfo =
+    const DeviceInfo kOssDefaultDeviceInfo =
     {
-      kOssDeviceName,
+      kOssDefaultDeviceName,
       "Default Output Device",
-      2,
-      2,
-      2,
+      kDefaultChannels,
+      kDefaultChannels,
+      kDefaultChannels,
       kDefaultRate,
       kDefaultRate,
       kDefaultRate
     };
 
-    const DeviceConfig kOssConfig = { kOssDeviceName, kDefaultSpec };
+    const DeviceConfig kOssDefaultConfig = { kOssDefaultDeviceName, kDefaultSpec };
 
   }//unnamed namespace
 
   OssBackend::OssBackend()
     : state_(BackendState::kConfig),
-      cfg_(kOssConfig),
+      in_cfg_(kOssDefaultConfig),
+      out_cfg_(kOssDefaultConfig),
       fd_(-1)
   {}
 
   OssBackend::OssBackend(OssBackend&& backend) noexcept
     : state_ {backend.state_},
-      cfg_ {std::move(backend.cfg_)},
+      in_cfg_ {std::move(backend.in_cfg_)},
+      out_cfg_ {std::move(backend.out_cfg_)},
       fd_ {backend.fd_}
   {
     backend.state_ = BackendState::kConfig;
@@ -127,7 +138,7 @@ namespace audio {
   OssBackend::~OssBackend()
   {
     try {
-      closeAudioDevice();
+      closeDevice();
     } catch(...) {}
   }
 
@@ -137,11 +148,12 @@ namespace audio {
       return *this;
 
     try {
-      closeAudioDevice();
+      closeDevice();
     } catch(...) {}
 
     state_ = std::exchange(backend.state_, BackendState::kConfig);
-    cfg_ = std::move(backend.cfg_);
+    in_cfg_ = std::move(backend.in_cfg_);
+    out_cfg_ = std::move(backend.out_cfg_);
     fd_ = std::exchange(backend.fd_, -1);
 
     return *this;
@@ -150,35 +162,27 @@ namespace audio {
   std::vector<DeviceInfo> OssBackend::devices()
   {
     // TODO: scan for output audio devices
-    return {kOssDeviceInfo};
+    return {kOssDefaultDeviceInfo};
   }
 
   void OssBackend::configure(const DeviceConfig& config)
-  { cfg_ = config; }
+  { in_cfg_ = config; }
 
   DeviceConfig OssBackend::configuration()
-  { return cfg_; }
+  { return in_cfg_; }
 
   DeviceConfig OssBackend::open()
   {
     assert(state_ == BackendState::kConfig);
-    openAudioDevice();
-    try {
-      configureAudioDevice();
-    }
-    catch(...)
-    {
-      try { closeAudioDevice(); } catch(...) {}
-      throw;
-    }
+    openAndConfigureDevice(); // updates out_cfg_
     state_ = BackendState::kOpen;
-    return cfg_;
+    return out_cfg_;
   }
 
   void OssBackend::close()
   {
     assert(state_ == BackendState::kOpen);
-    closeAudioDevice();
+    closeDevice();
     state_ = BackendState::kConfig;
   }
 
@@ -186,28 +190,18 @@ namespace audio {
   {
     assert(state_ == BackendState::kOpen);
 
-    // since the device might have been closed in a previous stop() call
-    // we need to re-open and re-configure it
+    // The device might have been closed in a previous stop() call
+    // so we need to re-open and re-configure it
     if (fd_ < 0)
-    {
-      openAudioDevice();
+      openAndConfigureDevice();
 
-      try {
-        configureAudioDevice();
-      }
-      catch(...)
-      {
-        try { closeAudioDevice(); } catch(...) {}
-        throw;
-      }
-    }
     state_ = BackendState::kRunning;
   }
 
   void OssBackend::stop()
   {
     assert(state_ == BackendState::kRunning);
-    closeAudioDevice();
+    closeDevice();
     state_ = BackendState::kOpen;
   }
 
@@ -215,7 +209,7 @@ namespace audio {
   {
     assert(state_ == BackendState::kRunning);
     if (::write (fd_, data, bytes) != (ssize_t) bytes)
-      throw OssError(state_, errno);
+      throw OssError(state_, "write failed", errno);
   }
 
   void OssBackend::flush()
@@ -239,7 +233,7 @@ namespace audio {
 
     int delay;
     if ( ioctl(fd_, SNDCTL_DSP_GETODELAY, &delay) != -1)
-      r = bytesToUsecs(delay, cfg_.spec);
+      r = bytesToUsecs(delay, out_cfg_.spec);
 
     return r;
   }
@@ -249,18 +243,31 @@ namespace audio {
     return state_;
   }
 
-  void OssBackend::openAudioDevice()
+  void OssBackend::openDevice()
   {
     if (fd_ >= 0)
       return;
 
-    const char* device = cfg_.name.empty() ? kDefaultDevice : cfg_.name.c_str();
+    const char* device = in_cfg_.name.empty() ? kOssDefaultDevice : in_cfg_.name.c_str();
 
     if ((fd_ = ::open (device, O_WRONLY, 0)) == -1)
-      throw OssError(state_, "failed to open audio device");
+      throw OssError(state_, "failed to open audio device", errno);
+
+    out_cfg_.name = device;
   }
 
-  void OssBackend::configureAudioDevice()
+  void OssBackend::closeDevice()
+  {
+    if (fd_ < 0)
+      return;
+
+    if ((fd_ = ::close(fd_)) == -1)
+      throw OssError(state_, "failed to close audio device", errno);
+
+    fd_ = -1;
+  }
+
+  void OssBackend::configureDevice()
   {
     if (fd_ < 0)
       return;
@@ -273,57 +280,65 @@ namespace audio {
     int frag = (max_fragments << 16) | (size_selector);
 
     if (ioctl(fd_, SNDCTL_DSP_SETFRAGMENT, &frag) == -1)
-      throw OssError(state_, errno);
+      throw OssError(state_, "failed to set buffer size", errno);
 
     //
     // set sample format
     //
-    int in_tmp = formatToOss(cfg_.spec.format);
-    int out_tmp = in_tmp;
+    int fmt = formatToOss(in_cfg_.spec.format);
 
-    if (in_tmp < 0)
+    if (fmt < 0)
       throw OssError(state_, "invalid or unsupported sample format");
 
-    if (ioctl (fd_, SNDCTL_DSP_SETFMT, &out_tmp) == -1)
-      throw OssError(state_, errno);
+    if (ioctl (fd_, SNDCTL_DSP_SETFMT, &fmt) == -1)
+      throw OssError(state_, "failed to set sample format", errno);
 
-    if (out_tmp != in_tmp)
-      throw OssError(state_, "audio device does not support the requested sample format");
+    out_cfg_.spec.format = formatFromOss(fmt); // set actual format
 
     //
     // set numer of channels
     //
-    in_tmp = cfg_.spec.channels;
-    out_tmp = in_tmp;
+    unsigned int channels = in_cfg_.spec.channels;
 
-    if (ioctl (fd_, SNDCTL_DSP_CHANNELS, &out_tmp) == -1)
-      throw OssError(state_, errno);
+    if (ioctl (fd_, SNDCTL_DSP_CHANNELS, &channels) == -1)
+      throw OssError(state_, "failed to set channel number", errno);
 
-    if (out_tmp != in_tmp)
-      throw OssError(state_, "audio device does not support the requested number of channels");
+    out_cfg_.spec.channels = channels; // set actual number of channels
 
     //
     // set sample rate
     //
-    in_tmp = cfg_.spec.rate;
-    out_tmp = in_tmp;
+    int speed = in_cfg_.spec.rate;
 
-    if (ioctl (fd_, SNDCTL_DSP_SPEED, &out_tmp) == -1)
-      throw OssError(state_, errno);
+    if (ioctl (fd_, SNDCTL_DSP_SPEED, &speed) == -1)
+      throw OssError(state_, "failed to set sample rate", errno);
 
-    if (out_tmp != in_tmp)
-      throw OssError(state_, "audio device does not support the requested sample rate");
+    out_cfg_.spec.rate = speed;
   }
 
-  void OssBackend::closeAudioDevice()
+  void OssBackend::openAndConfigureDevice()
   {
-    if (fd_ < 0)
-      return;
-
-    if ((fd_ = ::close(fd_)) == -1)
-      throw OssError(state_, errno);
-
-    fd_ = -1;
+    openDevice();
+    try {
+      configureDevice();
+    }
+    catch(...)
+    {
+#ifndef NDEBUG
+      std::cerr << "OssBackend: closing device after error during device configuration"
+                << std::endl;
+#endif
+      try {
+        closeDevice();
+      }
+      catch(const OssError& e)
+      {
+#ifndef NDEBUG
+        std::cerr << "OssBackend: " << e.what() << std::endl;
+#endif
+      }
+      throw;
+    }
   }
 
 }//namespace audio

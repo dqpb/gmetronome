@@ -54,12 +54,14 @@ namespace audio {
 
   private:
     BackendState state_;
-    audio::DeviceConfig cfg_;
+    audio::DeviceConfig in_cfg_;
+    audio::DeviceConfig out_cfg_;
     int fd_;
 
-    void openAudioDevice();
-    void configureAudioDevice();
-    void closeAudioDevice();
+    void openDevice();
+    void closeDevice();
+    void configureDevice();
+    void openAndConfigureDevice();
   };
 
 }//namespace audio
