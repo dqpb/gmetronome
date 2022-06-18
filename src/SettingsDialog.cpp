@@ -68,7 +68,7 @@ SettingsDialog::~SettingsDialog()
 {
   // delete remaining sound theme editors
   for(auto& [id, editor_ptr] : sound_theme_editors_)
-    editor_ptr->hide();
+    delete editor_ptr;
 }
 
 //static
