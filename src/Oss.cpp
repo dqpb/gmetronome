@@ -139,7 +139,13 @@ namespace audio {
   {
     try {
       closeDevice();
-    } catch(...) {}
+    }
+    catch(const OssError& e)
+    {
+#ifndef NDEBUG
+      std::cerr << "OssBackend: " << e.what() << std::endl;
+#endif
+    }
   }
 
   OssBackend& OssBackend::operator=(OssBackend&& backend) noexcept
@@ -149,8 +155,13 @@ namespace audio {
 
     try {
       closeDevice();
-    } catch(...) {}
-
+    }
+    catch(const OssError& e)
+    {
+#ifndef NDEBUG
+      std::cerr << "OssBackend: " << e.what() << std::endl;
+#endif
+    }
     state_ = std::exchange(backend.state_, BackendState::kConfig);
     in_cfg_ = std::move(backend.in_cfg_);
     out_cfg_ = std::move(backend.out_cfg_);
