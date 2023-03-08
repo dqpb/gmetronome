@@ -37,15 +37,15 @@ Since there is no official release yet, clone the project's repository:
 $ git clone https://gitlab.gnome.org/dqpb/gmetronome.git
 ```
 
-Change to the gmetronome directory and call autoreconf to generate the makefiles.
+Change to the gmetronome directory and call autogen.sh to generate the makefiles.
 This requires a working autotools (autoconf, automake) installation to succeed.
 
 ```
 $ cd gmetronome
-$ autoreconf --install
+$ NOCONFIGURE=1 ./autogen.sh
 ```
 
-Then run the traditional GNU triplet to install GMetronome with the default installation prefix (/usr/local):
+Then run the traditional GNU triplet to install GMetronome with the default installation prefix (/usr/local) and the default audio backend for your system:
 
 ```
 $ ./configure
