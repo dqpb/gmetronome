@@ -221,6 +221,11 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"], [The domain to use w
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.6])
 
+# Check msgfmt
+if test -f "$MSGFMT"; then :; else
+   AC_MSG_FAILURE([msgfmt not found. Please install gettext])
+fi
+
 PGRM_LOCALEDIR=[${datadir}/locale]
 AC_SUBST(PGRM_LOCALEDIR)
 
