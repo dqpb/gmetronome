@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The GMetronome Team
+ * Copyright (C) 2022, 2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -30,12 +30,12 @@ GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
   set_icon_name(PACKAGE_ID);
 
   // year of last commit
-  static const int year = 2022;
+  static const int year = 2023;
 
   set_program_name(Glib::get_application_name());
   set_version(VERSION);
   set_license_type(Gtk::LICENSE_GPL_3_0);
-  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2022"});
+  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2023"});
 
   //Put one translator per line, in the form
   //NAME <EMAIL>, YEAR1, YEAR2
