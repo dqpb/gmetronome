@@ -49,11 +49,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 AC_LANG_POP([C++])
 
 #
-# Header files
-#
-AC_HEADER_ASSERT
-
-#
 # Libraries
 #
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
