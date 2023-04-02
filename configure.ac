@@ -51,8 +51,8 @@ AC_LANG_POP([C++])
 #
 # Libraries
 #
-PKG_CHECK_MODULES([GTK], [gtk+-3.0])
-PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
+PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.24])
+PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0 >= 3.24])
 AM_PATH_GLIB_2_0
 
 GLIB_GSETTINGS
