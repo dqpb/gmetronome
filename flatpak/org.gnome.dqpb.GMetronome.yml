@@ -139,6 +139,7 @@
         {
             "name": "gmetronome",
             "buildsystem": "autotools",
+            "cppflags": "-DNDEBUG",
             "config-opts": [
                 "--with-pulseaudio",
                 "--without-alsa",
