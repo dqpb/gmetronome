@@ -140,7 +140,6 @@
             "name": "gmetronome",
             "buildsystem": "autotools",
             "config-opts": [
-                "--disable-assert",
                 "--with-pulseaudio",
                 "--without-alsa",
                 "--without-oss"
