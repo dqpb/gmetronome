@@ -121,7 +121,7 @@ release:
     - echo 'running release_job'
   release:
     name: '${PACKAGE_NAME} $CI_COMMIT_TAG'
-    description: "See README.md for further installation instructions."
+    description: "See README.md for installation instructions."
     tag_name: '$CI_COMMIT_TAG'
     assets:
       links:
