@@ -585,7 +585,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
 	  extends="@PACKAGE_ID@.settings-list"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/">
-    <override name="entries">['preset-01','preset-02','preset-03','preset-04']</override>
+    <override name="entries">['preset-01','preset-02','preset-03','preset-04','preset-05']</override>
     <override name="selected-entry">'preset-01'</override>
     <child name="preset-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"/>
     <child name="preset-02" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-02"/>
