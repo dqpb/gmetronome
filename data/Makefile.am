@@ -31,6 +31,9 @@ icons48_DATA = icons/48x48/org.gnome.dqpb.GMetronome.png
 icons64dir = $(datadir)/icons/hicolor/64x64/apps
 icons64_DATA = icons/64x64/org.gnome.dqpb.GMetronome.png
 
+icons128dir = $(datadir)/icons/hicolor/128x128/apps
+icons128_DATA = icons/128x128/org.gnome.dqpb.GMetronome.png
+
 icons256dir = $(datadir)/icons/hicolor/256x256/apps
 icons256_DATA = icons/256x256/org.gnome.dqpb.GMetronome.png
 
@@ -95,6 +98,7 @@ EXTRA_DIST = \
 	icons/32x32/org.gnome.dqpb.GMetronome.png \
 	icons/48x48/org.gnome.dqpb.GMetronome.png \
 	icons/64x64/org.gnome.dqpb.GMetronome.png \
+	icons/128x128/org.gnome.dqpb.GMetronome.png \
 	icons/256x256/org.gnome.dqpb.GMetronome.png \
 	icons/scalable/org.gnome.dqpb.GMetronome.svg \
 	icons/scalable/org.gnome.dqpb.GMetronome-symbolic.svg
