@@ -66,6 +66,7 @@ namespace audio {
       in_sound_weak_ {},
       out_stats_ {0us, 0.0, 0.0, 0.0, 0, 0us, 0us},
       stop_audio_thread_flag_ {true},
+      audio_thread_finished_flag_ {false},
       audio_thread_error_ {nullptr},
       audio_thread_error_flag_ {false},
       using_dummy_ {true},
@@ -277,21 +278,24 @@ namespace audio {
   {
     assert( audio_thread_ == nullptr );
 
-    stop_audio_thread_flag_ = false;
-
     try {
+      stop_audio_thread_flag_ = false;
+      audio_thread_finished_flag_ = false;
       state_.set(TickerStateFlag::kRunning);
+
       audio_thread_ = std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
     }
     catch(...)
     {
       state_.reset(TickerStateFlag::kRunning);
+      audio_thread_finished_flag_ = true;
       stop_audio_thread_flag_ = true;
+
       throw GMetronomeError("failed to start audio thread");
     }
   }
 
-  void Ticker::stopAudioThread(bool join)
+  void Ticker::stopAudioThread(bool join, const milliseconds& join_timeout)
   {
     assert( audio_thread_ != nullptr );
 
@@ -299,15 +303,30 @@ namespace audio {
 
     if (join && audio_thread_->joinable())
     {
-      try {
-        audio_thread_->join();
-        audio_thread_.reset(); //noexcept
-      }
-      catch(...)
+      // To prevent freezing of the ui thread in case of a non-responding audio thread
+      // we wait for the audio_thread_finished_flag to be set by the audio thread just
+      // before the end of execution. On success (i.e. no timeout) we join the audio thread,
+      // otherwise we raise an exception.
+
+      std::unique_lock<SpinLock> lck(spin_mutex_);
+
+      bool success = cond_var_.wait_for(lck, join_timeout,
+                                        [&] {return audio_thread_finished_flag_ == true;});
+      lck.unlock();
+
+      if (success)
       {
-        throw GMetronomeError("failed to join audio thread");
+        try {
+          audio_thread_->join();
+          audio_thread_.reset(); //noexcept
+        }
+        catch(...)
+        {
+          throw GMetronomeError("Failed to join audio thread.");
+        }
+        state_.reset(TickerStateFlag::kRunning);
       }
-      state_.reset(TickerStateFlag::kRunning);
+      else throw GMetronomeError("Audio thread not responing. (Timeout)");
     }
   }
 
@@ -598,7 +617,7 @@ namespace audio {
       writeBackend(data, bytes);
 
       // enter the main loop
-      while ( !stop_audio_thread_flag_ )
+      while ( ! stop_audio_thread_flag_ )
       {
         if (importBackend())
         {
@@ -633,6 +652,9 @@ namespace audio {
       audio_thread_error_ = std::current_exception();
       audio_thread_error_flag_.store(true, std::memory_order_release);
     }
+
+    audio_thread_finished_flag_ = true;
+    cond_var_.notify_one();
   }
 
 }//namespace audio

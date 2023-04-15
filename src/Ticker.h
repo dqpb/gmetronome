@@ -141,6 +141,7 @@ namespace audio {
 
     std::unique_ptr<std::thread> audio_thread_;
     std::atomic<bool> stop_audio_thread_flag_;
+    std::atomic<bool> audio_thread_finished_flag_;
     std::exception_ptr audio_thread_error_;
     std::atomic<bool> audio_thread_error_flag_;
     std::condition_variable_any cond_var_;
@@ -149,7 +150,7 @@ namespace audio {
     bool backend_swapped_;
 
     void startAudioThread();
-    void stopAudioThread(bool join = false);
+    void stopAudioThread(bool join = false, const milliseconds& join_timeout = 2s);
     void audioThreadFunction() noexcept;
   };
 
