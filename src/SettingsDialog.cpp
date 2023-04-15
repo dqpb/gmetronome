@@ -145,6 +145,7 @@ void SettingsDialog::initUI()
       });
 
   updateSoundThemeTreeStore();
+  sound_theme_tree_view_->expand_all();
   updateSoundThemeSelection();
 
   //
