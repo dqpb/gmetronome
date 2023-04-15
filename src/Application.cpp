@@ -91,17 +91,17 @@ Application::Application() : Gtk::Application(PACKAGE_ID)
 Application::~Application()
 {
   try {
-    if (settings::state())
-      settings::state()->set_boolean(settings::kKeyStateFirstLaunch, false);
-  }
-  catch (...) {}
-
-  try {
     if (settings::sound() && settings::sound()->get_has_unapplied())
     {
       settings::sound()->apply();
       g_settings_sync();
     }
+  }
+  catch (...) {}
+
+  try {
+    if (settings::state())
+      settings::state()->set_boolean(settings::kKeyStateFirstLaunch, false);
   }
   catch (...) {}
 }
@@ -245,20 +245,19 @@ void Application::initProfiles()
       restore_profile_id = settings::state()->get_string(settings::kKeyStateProfileSelect);
   }
 
-  if (!restore_profile_id.empty())
-  {
-    Glib::Variant<Glib::ustring> state
-      = Glib::Variant<Glib::ustring>::create(restore_profile_id);
-
-    activate_action(kActionProfileSelect, state);
-  }
-  else if (settings::state()->get_boolean(settings::kKeyStateFirstLaunch)
-           && profile_list.empty())
+  if (settings::state()->get_boolean(settings::kKeyStateFirstLaunch) && profile_list.empty())
   {
     Glib::Variant<Glib::ustring> state
       = Glib::Variant<Glib::ustring>::create(gettext(Profile::kDefaultTitle.c_str()));
 
     activate_action(kActionProfileNew, state);
+  }
+  else if (!restore_profile_id.empty())
+  {
+    Glib::Variant<Glib::ustring> state
+      = Glib::Variant<Glib::ustring>::create(restore_profile_id);
+
+    activate_action(kActionProfileSelect, state);
   }
   else
   {
@@ -862,47 +861,42 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
 {
   saveSelectedProfile();
 
-  Glib::Variant<Glib::ustring> in_state
+  const Glib::Variant<Glib::ustring> in_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
 
-  ProfileList plist;
-  get_action_state(kActionProfileList, plist);
+  const Glib::Variant<Glib::ustring> empty_string = Glib::Variant<Glib::ustring>::create({""});
 
-  if ( in_state.get().empty() )
-  {
-    Glib::Variant<Glib::ustring> empty_state
-      = Glib::Variant<Glib::ustring>::create({""});
+  Glib::Variant<Glib::ustring> out_state = empty_string;
+  Glib::Variant<Glib::ustring> profile_title = empty_string;
+  Glib::Variant<Glib::ustring> profile_description = empty_string;
 
-    lookupSimpleAction(kActionProfileSelect)->set_state(empty_state);
-    lookupSimpleAction(kActionProfileTitle)->set_state(empty_state);
-    lookupSimpleAction(kActionProfileDescription)->set_state(empty_state);
-  }
-  else
+  if ( ! in_state.get().empty() )
   {
-    auto it = std::find_if(plist.begin(), plist.end(),
-                           [&in_state] (auto& e) {
-                             return std::get<kProfileListEntryIdentifier>(e) == in_state.get();
-                           });
-    if (it != plist.end())
+    ProfileList plist;
+    get_action_state(kActionProfileList, plist);
+
+    if ( auto it = std::find_if(plist.begin(), plist.end(),
+                                [&in_state] (auto& e) {
+                                  return std::get<kProfileListEntryIdentifier>(e) == in_state.get();
+                                });
+         it != plist.end())
     {
-      lookupSimpleAction(kActionProfileSelect)->set_state(in_state);
+      out_state = in_state;
 
-      Glib::ustring& title = std::get<kProfileListEntryTitle>(*it);
-      Glib::ustring& description = std::get<kProfileListEntryDescription>(*it);
+      const Glib::ustring& title = std::get<kProfileListEntryTitle>(*it);
+      const Glib::ustring& description = std::get<kProfileListEntryDescription>(*it);
 
-      lookupSimpleAction(kActionProfileTitle)
-        ->set_state(Glib::Variant<Glib::ustring>::create( title ));
-
-      lookupSimpleAction(kActionProfileDescription)
-        ->set_state(Glib::Variant<Glib::ustring>::create( description ));
+      profile_title = Glib::Variant<Glib::ustring>::create( title );
+      profile_description = Glib::Variant<Glib::ustring>::create( description );
     }
   }
 
-  Glib::ustring selected_id;
-  get_action_state(kActionProfileSelect, selected_id);
+  lookupSimpleAction(kActionProfileSelect)->set_state(out_state);
+  lookupSimpleAction(kActionProfileTitle)->set_state(profile_title);
+  lookupSimpleAction(kActionProfileDescription)->set_state(profile_description);
 
   settings_state_connection_.block();
-  settings::state()->set_string(settings::kKeyStateProfileSelect, selected_id);
+  settings::state()->set_string(settings::kKeyStateProfileSelect, out_state.get());
   settings_state_connection_.unblock();
 
   loadSelectedProfile();
