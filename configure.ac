@@ -1,4 +1,4 @@
-AC_COPYRIGHT([Copyright (c) 2020-2022 The GMetronome Team. All rights reserved.])
+AC_COPYRIGHT([Copyright (c) 2020-2023 The GMetronome Team. All rights reserved.])
 
 AC_INIT([GMetronome],
 	[0.1.1],
