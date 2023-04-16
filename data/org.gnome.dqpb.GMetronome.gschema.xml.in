@@ -266,7 +266,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.strong-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-02/strong-params/">
-    <override name="tone-pitch">710</override>
+    <override name="tone-pitch">740</override>
     <override name="tone-timbre">1.28</override>
     <override name="tone-detune">25</override>
     <override name="tone-attack">16</override>
@@ -289,7 +289,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-02/mid-params/">
-    <override name="tone-pitch">660</override>
+    <override name="tone-pitch">659</override>
     <override name="tone-timbre">1.28</override>
     <override name="tone-detune">25</override>
     <override name="tone-attack">16</override>
@@ -312,7 +312,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-02/weak-params/">
-    <override name="tone-pitch">660</override>
+    <override name="tone-pitch">659</override>
     <override name="tone-timbre">1.28</override>
     <override name="tone-detune">25</override>
     <override name="tone-attack">16</override>
@@ -346,7 +346,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.strong-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-03/strong-params/">
-    <override name="tone-pitch">1400</override>
+    <override name="tone-pitch">1319</override>
     <override name="tone-timbre">0.0</override>
     <override name="tone-detune">0.0</override>
     <override name="tone-attack">1.0</override>
@@ -369,7 +369,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-03/mid-params/">
-    <override name="tone-pitch">1100</override>
+    <override name="tone-pitch">1047</override>
     <override name="tone-timbre">0.0</override>
     <override name="tone-detune">0.0</override>
     <override name="tone-attack">1.0</override>
@@ -392,7 +392,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-03/weak-params/">
-    <override name="tone-pitch">1100</override>
+    <override name="tone-pitch">1047</override>
     <override name="tone-timbre">0.0</override>
     <override name="tone-detune">0.0</override>
     <override name="tone-attack">1.0</override>
@@ -502,11 +502,11 @@
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.weak-params"/>
   </schema>
 
-    <!-- Flip Flop -->
+  <!-- Flip Flop -->
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.strong-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-05/strong-params/">
-    <override name="tone-pitch">2500</override>
+    <override name="tone-pitch">2349</override>
     <override name="tone-timbre">0</override>
     <override name="tone-detune">39.47</override>
     <override name="tone-attack">5.52</override>
@@ -529,7 +529,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-05/mid-params/">
-    <override name="tone-pitch">1500</override>
+    <override name="tone-pitch">1568</override>
     <override name="tone-timbre">0</override>
     <override name="tone-detune">39.47</override>
     <override name="tone-attack">5.52</override>
@@ -552,7 +552,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.weak-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-05/weak-params/">
-    <override name="tone-pitch">1500</override>
+    <override name="tone-pitch">1568</override>
     <override name="tone-timbre">0</override>
     <override name="tone-detune">39.47</override>
     <override name="tone-attack">5.52</override>
@@ -582,16 +582,97 @@
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.weak-params"/>
   </schema>
 
+  <!-- Palmas -->
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.strong-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-06/strong-params/">
+    <override name="tone-pitch">831</override>
+    <override name="tone-timbre">0.77</override>
+    <override name="tone-detune">88.16</override>
+    <override name="tone-attack">4.10</override>
+    <override name="tone-attack-shape">'cubic'</override>
+    <override name="tone-hold">9.104482758620676</override>
+    <override name="tone-hold-shape">'quartic'</override>
+    <override name="tone-decay">5.55</override>
+    <override name="tone-decay-shape">'linear'</override>
+    <override name="percussion-cutoff">5940</override>
+    <override name="percussion-attack">4</override>
+    <override name="percussion-attack-shape">'cubic'</override>
+    <override name="percussion-hold">12.92</override>
+    <override name="percussion-hold-shape">'quartic'</override>
+    <override name="percussion-decay">3.23</override>
+    <override name="percussion-decay-shape">'cubic'</override>
+    <override name="mix">7.91</override>
+    <override name="pan">0</override>
+    <override name="volume">110</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.mid-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-06/mid-params/">
+    <override name="tone-pitch">587</override>
+    <override name="tone-timbre">0.3</override>
+    <override name="tone-detune">44.74</override>
+    <override name="tone-attack">3.97</override>
+    <override name="tone-attack-shape">'linear'</override>
+    <override name="tone-hold">14.14</override>
+    <override name="tone-hold-shape">'quartic'</override>
+    <override name="tone-decay">1.55</override>
+    <override name="tone-decay-shape">'cubic-flipped'</override>
+    <override name="percussion-cutoff">3056</override>
+    <override name="percussion-attack">2.46</override>
+    <override name="percussion-attack-shape">'linear'</override>
+    <override name="percussion-hold">12</override>
+    <override name="percussion-hold-shape">'quartic'</override>
+    <override name="percussion-decay">3.08</override>
+    <override name="percussion-decay-shape">'cubic-flipped'</override>
+    <override name="mix">24.19</override>
+    <override name="pan">0</override>
+    <override name="volume">100</override>
+  </schema>
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.weak-params"
+	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-06/weak-params/">
+    <override name="tone-pitch">587</override>
+    <override name="tone-timbre">0.3</override>
+    <override name="tone-detune">44.74</override>
+    <override name="tone-attack">3.97</override>
+    <override name="tone-attack-shape">'linear'</override>
+    <override name="tone-hold">14.14</override>
+    <override name="tone-hold-shape">'quartic'</override>
+    <override name="tone-decay">1.55</override>
+    <override name="tone-decay-shape">'cubic-flipped'</override>
+    <override name="percussion-cutoff">2356</override>
+    <override name="percussion-attack">2.46</override>
+    <override name="percussion-attack-shape">'linear'</override>
+    <override name="percussion-hold">12</override>
+    <override name="percussion-hold-shape">'quartic'</override>
+    <override name="percussion-decay">3.08</override>
+    <override name="percussion-decay-shape">'cubic-flipped'</override>
+    <override name="mix">24.19</override>
+    <override name="pan">0</override>
+    <override name="volume">65</override>
+  </schema>
+
+  <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-06"
+	  extends="@PACKAGE_ID@.preferences.sound.theme"
+	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-06/">
+    <override name="title">'Palmas'</override>
+    <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.strong-params"/>
+    <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.mid-params"/>
+    <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.weak-params"/>
+  </schema>
+
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list"
 	  extends="@PACKAGE_ID@.settings-list"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/">
-    <override name="entries">['preset-01','preset-02','preset-03','preset-04','preset-05']</override>
+    <override name="entries">['preset-01','preset-02','preset-03','preset-04','preset-05','preset-06']</override>
     <override name="selected-entry">'preset-01'</override>
     <child name="preset-01" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"/>
     <child name="preset-02" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-02"/>
     <child name="preset-03" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-03"/>
     <child name="preset-04" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04"/>
     <child name="preset-05" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05"/>
+    <child name="preset-06" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06"/>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound"
