@@ -1,3 +1,10 @@
+2023-04-16  0.1.1
+
+	* Improve error handling in audio thread
+	* Make sound themes more consistent and add "Palmas" theme
+	* Revise application icons and add license metadata (CC BY 4.0)
+	* Fix sound themes tree view not expanded by default
+
 2023-04-05  0.1.0
 
 	* Version 0.1.0 released.
