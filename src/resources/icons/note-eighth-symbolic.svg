@@ -7,14 +7,15 @@
    viewBox="0 0 4.2333334 4.2333336"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
-   sodipodi:docname="eighth-note-symbolic.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="note-eighth-symbolic.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#">
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <sodipodi:namedview
      id="namedview7"
      pagecolor="#ffffff"
@@ -26,16 +27,18 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="40.993491"
-     inkscape:cx="9.2819613"
-     inkscape:cy="6.9523232"
+     inkscape:cx="9.2697643"
+     inkscape:cy="6.9645203"
      inkscape:window-width="1280"
-     inkscape:window-height="971"
+     inkscape:window-height="973"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      units="px"
-     inkscape:snap-global="true">
+     inkscape:snap-global="true"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid4773" />
@@ -62,7 +65,39 @@
      id="metadata4775">
     <rdf:RDF>
       <cc:Work
-         rdf:about="" />
+         rdf:about="">
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>dqpb &lt;dqpb@mailbox.org&gt;</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Copyright (C) 2023 The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:source>https://gitlab.gnome.org/dqpb/gmetronome</dc:source>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
 </svg>

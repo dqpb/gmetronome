@@ -5,8 +5,8 @@
    viewBox="0 0 48.0 48.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="gmetronome.svg"
-   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   sodipodi:docname="org.gnome.dqpb.GMetronome.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    inkscape:export-filename="/home/uwe/Development/gmetronome/src/resources/gmetronome.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
@@ -18,24 +18,10 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title1099">GMetronome application icon</title>
   <defs
      id="defs10">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient6572">
-      <stop
-         style="stop-color:#666666;stop-opacity:1"
-         offset="0"
-         id="stop6568" />
-      <stop
-         style="stop-color:#b3b3b3;stop-opacity:1"
-         offset="0.776407"
-         id="stop7548" />
-      <stop
-         style="stop-color:#cccccc;stop-opacity:0;"
-         offset="1"
-         id="stop6570" />
-    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient5922">
@@ -305,17 +291,6 @@
        x2="17"
        y2="44"
        gradientTransform="translate(15.313513)" />
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6572"
-       id="radialGradient6574"
-       cx="24.091698"
-       cy="44.734554"
-       fx="24.091698"
-       fy="44.734554"
-       r="19.521671"
-       gradientTransform="matrix(1.1015697,0.00902559,-6.5869647e-4,0.09735439,-2.2037041,41.229943)"
-       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -325,18 +300,20 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="10.379716"
-     inkscape:cx="20.183596"
-     inkscape:cy="23.796412"
+     inkscape:cx="24.374463"
+     inkscape:cy="27.312886"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      inkscape:window-width="1280"
-     inkscape:window-height="971"
+     inkscape:window-height="973"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:pagecheckerboard="0">
+     inkscape:pagecheckerboard="0"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid19" />
@@ -349,24 +326,48 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>dqpb &lt;dqpb@mailbox.org&gt;</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" />
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Copyright (C) 2023 The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:source>https://gitlab.gnome.org/dqpb/gmetronome</dc:source>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>GMetronome application icon</dc:title>
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <ellipse
-       style="fill:url(#radialGradient6574);fill-opacity:1;stroke:none;stroke-width:0.273462;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
-       id="path6486"
-       cx="24.305511"
-       cy="45.802494"
-       rx="21.528318"
-       ry="1.9298115" />
     <path
-       style="opacity:1;mix-blend-mode:normal;fill:#5f8dd3;fill-opacity:1;stroke:#010101;stroke-width:0.312;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 16.440013,3.920002 c 1.169999,-3.1199974 14.559988,-3.1199974 15.599988,0 2.809922,8.429769 10.399991,31.199974 10.399991,31.199974 V 45.519968 H 6.0400218 V 35.119976 c 0,0 7.2799942,-22.879981 10.3999912,-31.199974 z"
+       style="opacity:1;mix-blend-mode:normal;fill:#5f8dd3;fill-opacity:1;stroke:#010101;stroke-width:0.315086;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 16.440674,3.9682591 c 1.1699,-3.18228317 14.558754,-3.18228317 15.598666,0 2.809684,8.5980559 10.399109,31.8228319 10.399109,31.8228319 V 46.398702 H 6.0415646 V 35.791091 c 0,0 7.2793774,-23.336744 10.3991094,-31.8228319 z"
        id="path77"
        sodipodi:nodetypes="ssccccs" />
     <ellipse
