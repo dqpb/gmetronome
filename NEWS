@@ -1,3 +1,12 @@
+2023-04-17  0.2.0
+
+	* New application id: org.gnome.gitlab.dqpb.GMetronome
+	  (formerly org.gnome.dqpb.GMetronome)
+
+	  If necessary, use dconf dump/load to migrate your app settings
+	  to the new location (/org/gnome/gitlab/dqpb/GMetronome/).
+	  Profiles are not affected.
+
 2023-04-16  0.1.1
 
 	* Improve error handling in audio thread
