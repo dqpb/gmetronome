@@ -158,9 +158,9 @@
             ],
             "sources": [
                 {
-                    "type": "archive",
-                    "url": "https://gitlab.gnome.org/dqpb/gmetronome/-/releases/0.1.1/downloads/gmetronome-0.1.1.tar.bz2",
-                    "sha256": "6c27399a69fc560582adc078cb8fb4bb931c881face8d9c2e7aaaa30187863df"
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/dqpb/gmetronome.git",
+                    "branch": "main"
                 }
             ]
         }
