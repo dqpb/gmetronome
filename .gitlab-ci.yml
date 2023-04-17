@@ -60,7 +60,7 @@ distcheck:
 
 flatpak:
   stage: build
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:41'
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:44'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
