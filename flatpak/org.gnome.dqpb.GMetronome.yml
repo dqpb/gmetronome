@@ -148,8 +148,7 @@
             "name": "gmetronome",
             "buildsystem": "autotools",
             "build-options": {
-                "cppflags": "-DNDEBUG",
-                "cxxflags": "-O2",
+                "cppflags": "-DNDEBUG"
             },
             "config-opts": [
                 "--with-pulseaudio",
