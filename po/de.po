@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-04-01 18:02+0200\n"
+"POT-Creation-Date: 2023-04-16 18:23+0200\n"
 "PO-Revision-Date: 2023-04-01 19:49+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
@@ -19,22 +19,22 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Generator: Gtranslator 42.0\n"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:7
-#: data/org.gnome.dqpb.GMetronome.desktop.in.in:5
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
 msgid "GMetronome"
 msgstr "GMetronome"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:8
-#: data/org.gnome.dqpb.GMetronome.desktop.in.in:6
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:8
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
 msgid "Maintain tempo while practicing your instrument"
 msgstr "Halte das Tempo beim Üben deines Instruments"
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:10
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:10
 msgid ""
 "A practical and precise tempo measurement tool for composers and musicians."
 msgstr "Ein praktischer Taktmesser für Komponisten und Musiker."
 
-#: data/org.gnome.dqpb.GMetronome.metainfo.xml.in.in:16
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
 msgid "The main window"
 msgstr "Das Hauptfenster"
 
@@ -447,20 +447,20 @@ msgid "Preferences"
 msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:191
+#: src/SettingsDialog.cpp:192
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:197
+#: src/SettingsDialog.cpp:198
 msgid "Shortcut"
 msgstr "Tastenkürzel"
 
-#: src/SettingsDialog.cpp:604
+#: src/SettingsDialog.cpp:605
 msgid "Presets"
 msgstr "Voreinstellungen"
 
-#: src/SettingsDialog.cpp:619
+#: src/SettingsDialog.cpp:620
 msgid "Custom"
 msgstr "Eigene"
 
@@ -733,131 +733,131 @@ msgctxt "Shortcut title"
 msgid "Enable / Disable Trainer"
 msgstr "Trainer Ein / Aus"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:174
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:174
 msgid "Title of the sound theme"
 msgstr "Titel des Soundthemas"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:612
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:693
 msgid "Keyboard shortcut to quit the application"
 msgstr "Tastenkürzel um die Anwendung zu beenden"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:616
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:697
 msgid "Keyboard shortcut to show the primary menu"
 msgstr "Tastenkürzel um das Hauptmenü anzuzeigen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:620
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:701
 msgid "Keyboard shortcut to show the profiles menu"
 msgstr "Tastenkürzel um das Profil-Menü anzuzeigen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:624
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:705
 msgid "Keyboard shortcut to show the preferences dialog"
 msgstr "Tastenkürzel um den Einstellungsdialog zu öffnen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:628
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:709
 msgid "Keyboard shortcut to show the help for keyboard shortcuts"
 msgstr "Tastenkürzel zum Anzeigen der Hilfe für Tastenkürzel"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:632
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:713
 msgid "Keyboard shortcut to show the help"
 msgstr "Tastenkürzel zum Anzeigen der Hilfe"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:636
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:717
 msgid "Keyboard shortcut to show the about dialog"
 msgstr "Tastenkürzel zum Anzeigen des Info-Dialogs"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:640
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:721
 msgid "Keyboard shortcut to toggle pendulum display"
 msgstr "Tastenkürzel zum Ein- oder Ausblenden der Pendelanzeige"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:644
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:725
 msgid "Keyboard shortcut to toggle full screen mode"
 msgstr "Tastenkürzel zum Umschalten des Vollbildmodus"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:648
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:729
 msgid "Keyboard shortcut to start or stop the metronome"
 msgstr "Tastenkürzel zum Starten oder Stoppen des Metronoms"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:652
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:733
 msgid "Keyboard shortcut to increase the volume by 1 percent"
 msgstr "Tastenkürzel zur Erhöhung der Lautstärke um 1 Prozent"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:656
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:737
 msgid "Keyboard shortcut to decrease the volume by 1 percent"
 msgstr "Tastenkürzel zum Verringern der Lautstärke um 1 Prozent"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:660
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:741
 msgid "Keyboard shortcut to increase the volume by 10 percent"
 msgstr "Tastenkürzel zur Erhöhung der Lautstärke um 10 Prozent"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:664
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:745
 msgid "Keyboard shortcut to decrease the volume by 10 percent"
 msgstr "Tastenkürzel zum Verringern der Lautstärke um 10 Prozent"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:668
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:749
 msgid "Keyboard shortcut to increase the tempo by 1 bpm"
 msgstr "Tastenkürzel zum Erhöhen des Tempos um 1 bpm"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:672
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:753
 msgid "Keyboard shortcut to decrease the tempo by 1 bpm"
 msgstr "Tastenkürzel zum Verringern des Tempos um 1 bpm"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:676
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:757
 msgid "Keyboard shortcut to increase the tempo by 10 bpm"
 msgstr "Tastenkürzel zum Erhöhen des Tempos um 10 bpm"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:680
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:761
 msgid "Keyboard shortcut to decrease the tempo by 10 bpm"
 msgstr "Tastenkürzel zum Verringern des Tempos um 10 bpm"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:684
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:765
 msgid "Keyboard shortcut to tap the tempo"
 msgstr "Tastenkürzel zum Klopfen des Tempos"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:688
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:769
 msgid "Keyboard shortcut to toggle metric accentuation"
 msgstr "Tastenkürzel zum Ein- oder Ausschalten der Betonung"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:692
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:773
 msgid "Keyboard shortcut to select the simple duple meter"
 msgstr "Tastenkürzel um den binären Zweiertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:696
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:777
 msgid "Keyboard shortcut to select the simple triple meter"
 msgstr "Tastenkürzel um den binären Dreiertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:700
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:781
 msgid "Keyboard shortcut to select the simple quadruple meter"
 msgstr "Tastenkürzel um den binären Vierertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:704
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:785
 msgid "Keyboard shortcut to select the compound duple meter"
 msgstr "Tastenkürzel um den ternären Zweiertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:708
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:789
 msgid "Keyboard shortcut to select the compound triple meter"
 msgstr "Tastenkürzel um den ternären Dreiertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:712
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:793
 msgid "Keyboard shortcut to select the compound quadruple meter"
 msgstr "Tastenkürzel um den ternären Vierertakt zu wählen"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:716
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:797
 msgid "Keyboard shortcut to select the custom meter"
 msgstr "Tastenkürzel zur Auswahl des benutzerdefinierten Takts"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:720
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:801
 msgid "Keyboard shortcut to toggle tempo trainer"
 msgstr "Tastenkürzel zum Ein- oder Ausschalten des Tempo-Trainers"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:728
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:809
 msgid "Whether to load the last profile used on startup"
 msgstr "Ob das zuletzt verwendete Profil beim Start geladen werden soll"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:733
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:814
 msgid "Wheter to link profiles and sound themes"
 msgstr "Ob das Profil mit dem Soundthema verknüft werden soll"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:734
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:815
 msgid ""
 "If true, switching profiles also restores the previous sound theme. If the "
 "desired sound theme does not exist anymore, the default will be loaded "
@@ -867,31 +867,31 @@ msgstr ""
 "das Soundthema wiederhergestellt. Falls das gewünschte Soundthema nicht mehr "
 "existiert, wird die Voreinstellung geladen."
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:762
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:843
 msgid "Which audio backend to use"
 msgstr "Welches Audio-Backend verwendet werden soll"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:768
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:849
 msgid "Audio device for the ALSA backend"
 msgstr "Welches Audiogerät für das ALSA-Backend verwendet werden soll"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:769
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:850
 msgid "ALSA compliant string representation for names of pcm devices"
 msgstr "ALSA-konforme Zeichenkette für den Namen des PCM-Geräts"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:777
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:858
 msgid "Audio device for the OSS backend"
 msgstr "Audiogerät für das OSS-Backend"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:784
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:865
 msgid "Name of a sink for the pulseaudio backend"
 msgstr "Name einer Senke für das Pulseaudio-Backend"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:801
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:882
 msgid "Selected profile"
 msgstr "Ausgewähltes Profil"
 
-#: data/org.gnome.dqpb.GMetronome.gschema.xml.in:806
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:887
 msgid "Whether to show the animated pendulum"
 msgstr "Ob die Pendelanimation angezeigt werden soll"
 

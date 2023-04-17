@@ -1,12 +1,12 @@
 AC_COPYRIGHT([Copyright (c) 2020-2023 The GMetronome Team. All rights reserved.])
 
 AC_INIT([GMetronome],
-	[0.1.1],
+	[0.2.0],
 	[https://gitlab.gnome.org/dqpb/gmetronome/issues],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
 
-package_id="org.gnome.dqpb.GMetronome"
+package_id="org.gnome.gitlab.dqpb.GMetronome"
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -201,10 +201,10 @@ AS_IF([test "x$have_pulseaudio" = "xyes"],
 )
 
 AC_CONFIG_FILES([
-  data/org.gnome.dqpb.GMetronome.gschema.xml
-  data/org.gnome.dqpb.GMetronome.metainfo.xml.in
-  data/org.gnome.dqpb.GMetronome.desktop.in
-  src/resources/org.gnome.dqpb.GMetronome.gresource.xml
+  data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml
+  data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in
+  data/org.gnome.gitlab.dqpb.GMetronome.desktop.in
+  src/resources/org.gnome.gitlab.dqpb.GMetronome.gresource.xml
 ])
 
 #

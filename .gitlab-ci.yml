@@ -58,36 +58,104 @@ distcheck:
     - make -j "$(nproc)" distcheck
   needs: ["build-image"]
 
-flatpak:
-  stage: build
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:44'
+#
+# This is a modified version of
+#  https://gitlab.gnome.org/GNOME/citemplates/raw/master/flatpak/flatpak_ci_initiative.yml
+# to work with autotools.
+
+.flatpak:
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
+  stage: 'build'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_TAG != null'
+  interruptible: true
   variables:
-    GIT_SUBMODULE_STRATEGY: normal
-    FLATPAK_MANIFEST_PATH: 'flatpak/org.gnome.dqpb.GMetronome.yml'
-    FLATPAK_MODULE: '${PACKAGE_TARNAME}'
+    # Pass "--runtime" in order to build a runtime or extension
+    EXPORT_RUNTIME: ""
+  # Till now this was the template job used for everything,
+  # so assume its default tags are x86 to avoid breaking backwards
+  # compatibility.
   tags:
     - flatpak
   script:
+    - flatpak --version
     # Report the installed versions of the runtime
     - flatpak info org.gnome.Platform
     - flatpak info org.gnome.Sdk
+
     # Print the date, since appstream depends on local timezone
     - date && date -u
-    - rewrite-flatpak-manifest ${FLATPAK_MANIFEST_PATH} ${FLATPAK_MODULE} ${CONFIG_OPTS}
-    - flatpak-builder --user --disable-rofiles-fuse --jobs $(nproc) ${FLATPAK_MODULE}-build ${FLATPAK_MANIFEST_PATH}
-  cache:
-    - key: "$CI_JOB_NAME"
-      paths:
-        - '.flatpak-builder/downloads'
-        - '.flatpak-builder/git'
-    - key: "$CI_JOB_NAME"
-      paths:
-        - '.flatpak-builder/cache'
-        - '.flatpak-builder/ccache'
+
+    - rewrite-flatpak-manifest ${MANIFEST_PATH} ${FLATPAK_MODULE} ${CONFIG_OPTS}
+    - flatpak-builder --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+    # Generate a Flatpak bundle
+    - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
+    - tar cf repo.tar repo/
+
+  artifacts:
+    name: 'Flatpak artifacts'
+    when: 'always'
+    paths:
+      - $BUNDLE
+      - 'repo.tar'
+    expire_in: 14 days
+
+.publish_nightly:
+  image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst16:2e5978e92d15e501923042d5d56d7da72eb26564'
+  stage: 'release'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG != null'
+  timeout: '100m'
+  script:
+    - tar xf repo.tar
+    - flatpak build-update-repo --generate-static-deltas repo/
+    - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
+    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
+    - flat-manager-client purge ${BUILD_ID}
+    - exit $result
+  variables:
+    FLAT_MANAGER_URL: https://flat-manager.gnome.org/
+    FLATPAK_REPO: nightly
+  only:
+    refs:
+      - 'master'
+      - 'main'
+      - 'mainline'
+      - $CI_DEFAULT_BRANCH
+    variables:
+      - $REPO_TOKEN
+
+.vars-flatpak-nightly:
+  variables:
+    MANIFEST_PATH: "flatpak/org.gnome.gitlab.dqpb.GMetronome.yml"
+    FLATPAK_MODULE: "gmetronome"
+    APP_ID: "org.gnome.gitlab.dqpb.GMetronome"
+    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    BUNDLE: "gmetronome-git.flatpak"
+
+# Build Flatpak for x86_64
+flatpak@x86_64:
+  extends: ['.flatpak', '.vars-flatpak-nightly']
+  tags:
+    - flatpak
+
+# Build Flatpak for aarch64
+flatpak@aarch64:
+  extends: ['.flatpak', '.vars-flatpak-nightly']
+  tags:
+    - flatpak-aarch64
+
+#nightly@x86_64:
+#  extends: '.publish_nightly'
+#  needs: ['flatpak@x86_64']
+
+#nightly@aarch64:
+#  extends: '.publish_nightly'
+#  needs: ['flatpak@aarch64']
 
 source-tarball:
   stage: package

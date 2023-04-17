@@ -1,7 +1,7 @@
 {
-    "app-id": "org.gnome.dqpb.GMetronome",
+    "app-id": "org.gnome.gitlab.dqpb.GMetronome",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "44",
+    "runtime-version": "master",
     "sdk": "org.gnome.Sdk",
     "command": "gmetronome",
     "finish-args": [
