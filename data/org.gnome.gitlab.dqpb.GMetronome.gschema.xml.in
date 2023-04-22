@@ -422,7 +422,7 @@
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.weak-params"/>
   </schema>
 
-  <!-- Bass & Snare -->
+  <!-- Kick & Snare -->
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.strong-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-04/strong-params/">
@@ -496,7 +496,7 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-04"
 	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-04/">
-    <override name="title">'Bass &amp; Snare'</override>
+    <override name="title">'Kick &amp; Snare'</override>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.weak-params"/>
