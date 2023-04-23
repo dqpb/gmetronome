@@ -36,15 +36,15 @@ namespace audio {
     return sampleSize(spec.format) * spec.channels;
   }
 
-  size_t usecsToFrames(std::chrono::microseconds usecs, const StreamSpec& spec) {
-    return (size_t) ((usecs.count() * spec.rate) / std::micro::den);
+  size_t usecsToFrames(microseconds usecs, const StreamSpec& spec) {
+    return (size_t) ((std::chrono::abs(usecs).count() * spec.rate) / std::micro::den);
   }
 
-  std::chrono::microseconds framesToUsecs(size_t frames, const StreamSpec& spec) {
-    return std::chrono::microseconds((frames * std::micro::den) / spec.rate);
+  microseconds framesToUsecs(size_t frames, const StreamSpec& spec) {
+    return microseconds((frames * std::micro::den) / spec.rate);
   }
 
-  size_t usecsToBytes(std::chrono::microseconds usecs, const StreamSpec& spec) {
+  size_t usecsToBytes(microseconds usecs, const StreamSpec& spec) {
     return usecsToFrames(usecs, spec) * frameSize(spec);
   }
 
