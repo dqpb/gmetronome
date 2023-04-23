@@ -100,7 +100,7 @@ distcheck:
     paths:
       - $BUNDLE
       - 'repo.tar'
-    expire_in: 14 days
+    expire_in: 2 hours
 
 .publish_nightly:
   image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst16:2e5978e92d15e501923042d5d56d7da72eb26564'
