@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-04-16 18:23+0200\n"
-"PO-Revision-Date: 2023-04-01 19:49+0200\n"
+"POT-Creation-Date: 2023-04-23 12:30+0200\n"
+"PO-Revision-Date: 2023-04-23 12:43+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 42.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
@@ -34,7 +34,47 @@ msgid ""
 "A practical and precise tempo measurement tool for composers and musicians."
 msgstr "Ein praktischer Taktmesser für Komponisten und Musiker."
 
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
+msgid "Features:"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:13
+msgid "Tempo range from 30 to 250 beats per minute"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:14
+msgid "Custom accentuation patterns"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
+msgid "Divisible beats for simple and compound meters"
+msgstr ""
+
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
+msgid "Three accentuation levels for strong, middle and weak accents"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:17
+msgid "Pre defined patterns for widely used meters and time signatures"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
+msgid "Integrated synthesizer to customize click sounds"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
+msgid "Accurate trainer function to smoothly raise or lower tempo"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:20
+msgid "Profiles to save and restore metronome settings"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:21
+msgid "Customizable keyboard shortcuts for nearly all metronome functions"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:28
 msgid "The main window"
 msgstr "Das Hauptfenster"
 
@@ -43,7 +83,7 @@ msgstr "Das Hauptfenster"
 #: src/About.cpp:42
 msgctxt "About dialog"
 msgid "translator-credits"
-msgstr "dqpb <dqpb@mailbox.org>, 2021, 2022"
+msgstr "dqpb <dqpb@mailbox.org>, 2021-2023"
 
 #. The following parameters will be replaced:
 #. %1 - year of the last commit
@@ -288,14 +328,17 @@ msgid "_Restore previous profile:"
 msgstr "Letztes Profil _wiederherstellen:"
 
 #: src/resources/ui/SettingsDialog.glade:82
+msgctxt "Preferences dialog"
 msgid "Profiles"
 msgstr "Profile"
 
 #: src/resources/ui/SettingsDialog.glade:110
+msgctxt "Preferences dialog"
 msgid "_Link with selected sound theme:"
-msgstr "Profile mit Sound Thema _verknüpfen"
+msgstr "Profile mit Sound Thema _verknüpfen:"
 
 #: src/resources/ui/SettingsDialog.glade:179
+msgctxt "Preferences dialog"
 msgid "_General"
 msgstr "_Allgemein"
 
@@ -373,18 +416,22 @@ msgstr ""
 "Zahlenwerte zu Problemen bis hin zu vollständigem Animationsausfall führen."
 
 #: src/resources/ui/SettingsDialog.glade:416
+msgctxt "Preferences dialog"
 msgid "_Animation"
 msgstr "A_nimation"
 
 #: src/resources/ui/SettingsDialog.glade:440
+msgctxt "Preferences dialog"
 msgid "Sound _Theme"
 msgstr "Sound _Thema"
 
 #: src/resources/ui/SettingsDialog.glade:548
+msgctxt "Preferences dialog"
 msgid "_Edit"
 msgstr "_Bearbeiten"
 
 #: src/resources/ui/SettingsDialog.glade:583
+msgctxt "Preferences dialog"
 msgid "_Sound"
 msgstr "_Sound"
 
@@ -429,8 +476,9 @@ msgid "Audio Settings"
 msgstr "Audioeinstellungen"
 
 #: src/resources/ui/SettingsDialog.glade:722
+msgctxt "Preferences dialog"
 msgid "Audio _Device"
-msgstr "Audiogerät"
+msgstr "Audio_gerät"
 
 #: src/resources/ui/SettingsDialog.glade:768
 msgctxt "Preferences dialog"
@@ -438,6 +486,7 @@ msgid "_Reset shortcuts"
 msgstr "Tastenkürzel _zurücksetzen"
 
 #: src/resources/ui/SettingsDialog.glade:797
+msgctxt "Preferences dialog"
 msgid "Short_cuts"
 msgstr "_Tastenkürzel"
 
@@ -448,21 +497,25 @@ msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
 #: src/SettingsDialog.cpp:192
+msgctxt "Preferences dialog"
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
 #: src/SettingsDialog.cpp:198
+msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr "Tastenkürzel"
 
 #: src/SettingsDialog.cpp:605
+msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr "Voreinstellungen"
 
 #: src/SettingsDialog.cpp:620
+msgctxt "Preferences dialog"
 msgid "Custom"
-msgstr "Eigene"
+msgstr "Eigenes"
 
 #. default title for new sound themes
 #: src/SoundTheme.h:36
