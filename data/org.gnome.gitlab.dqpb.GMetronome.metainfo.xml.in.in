@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2022 dqpb <dqpb@mailbox.org> -->
+<!-- Copyright (C) 2022-2023 The GMetronome Team -->
 <component type="desktop-application">
   <id>@PACKAGE_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
@@ -8,6 +8,18 @@
   <summary>Maintain tempo while practicing your instrument</summary>
   <description>
     <p>A practical and precise tempo measurement tool for composers and musicians.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Tempo range from 30 to 250 beats per minute</li>
+      <li>Custom accentuation patterns</li>
+      <li>Divisible beats for simple and compound meters</li>
+      <li>Three accentuation levels for strong, middle and weak accents</li>
+      <li>Pre defined patterns for widely used meters and time signatures</li>
+      <li>Integrated synthesizer to customize click sounds</li>
+      <li>Accurate trainer function to smoothly raise or lower tempo</li>
+      <li>Profiles to save and restore metronome settings</li>
+      <li>Customizable keyboard shortcuts for nearly all metronome functions</li>
+    </ul>
   </description>
   <url type="homepage">@PACKAGE_URL@</url>
   <url type="bugtracker">@PACKAGE_BUGREPORT@</url>
