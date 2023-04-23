@@ -189,13 +189,13 @@ void SettingsDialog::initUI()
 
   shortcuts_tree_view_->append_column(
     // Shortcuts table header title (first column)
-    _("Action"),
+    C_("Preferences dialog", "Action"),
     shortcuts_model_columns_.action_name );
 
   shortcuts_tree_view_->insert_column_with_data_func(
     -1,
     // Shortcuts table header title (second column)
-    _("Shortcut"),
+    C_("Preferences dialog", "Shortcut"),
     accel_cell_renderer_,
     sigc::mem_fun(*this, &SettingsDialog::onAccelCellData) );
 
@@ -602,7 +602,7 @@ void SettingsDialog::updateSoundThemeTreeStore()
 
     top_rowit->set_value(col_type, SoundThemeModelColumns::Type::kHeadline);
     top_rowit->set_value(col_id, Glib::ustring(""));
-    top_rowit->set_value(col_title, Glib::ustring(_("Presets")));
+    top_rowit->set_value(col_title, Glib::ustring(C_("Preferences dialog", "Presets")));
 
     updateSoundThemeModelRows(top_rowit->children(),
                               presets, SoundThemeModelColumns::Type::kPreset);
@@ -617,7 +617,7 @@ void SettingsDialog::updateSoundThemeTreeStore()
 
     top_rowit->set_value(col_type, SoundThemeModelColumns::Type::kHeadline);
     top_rowit->set_value(col_id, Glib::ustring(""));
-    top_rowit->set_value(col_title, Glib::ustring(_("Custom")));
+    top_rowit->set_value(col_title, Glib::ustring(C_("Preferences dialog", "Custom")));
 
     updateSoundThemeModelRows(top_rowit->children(),
                               themes, SoundThemeModelColumns::Type::kCustom);

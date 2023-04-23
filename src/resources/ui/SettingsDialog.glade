@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkAdjustment" id="animationSyncAdjustment">
@@ -79,7 +79,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
-                    <property name="label" translatable="yes">Profiles</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Profiles</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                     </attributes>
@@ -107,7 +107,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes">_Link with selected sound theme:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">_Link with selected sound theme:</property>
                     <property name="use-underline">True</property>
                     <property name="mnemonic-widget">linkSoundThemeSwitch</property>
                   </object>
@@ -176,7 +176,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_General</property>
+                <property name="label" translatable="yes" context="Preferences dialog">_General</property>
                 <property name="use-underline">True</property>
               </object>
               <packing>
@@ -413,7 +413,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Animation</property>
+                <property name="label" translatable="yes" context="Preferences dialog">_Animation</property>
                 <property name="use-underline">True</property>
               </object>
               <packing>
@@ -437,7 +437,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
-                    <property name="label" translatable="yes">Sound _Theme</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">Sound _Theme</property>
                     <property name="use-underline">True</property>
                     <property name="mnemonic-widget">soundThemeTreeView</property>
                     <attributes>
@@ -545,7 +545,7 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="soundThemeEditButton">
-                                <property name="label" translatable="yes">_Edit</property>
+                                <property name="label" translatable="yes" context="Preferences dialog">_Edit</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
@@ -580,7 +580,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Sound</property>
+                <property name="label" translatable="yes" context="Preferences dialog">_Sound</property>
                 <property name="use-underline">True</property>
               </object>
               <packing>
@@ -719,7 +719,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Audio _Device</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Audio _Device</property>
                 <property name="use-underline">True</property>
               </object>
               <packing>
@@ -794,7 +794,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Short_cuts</property>
+                <property name="label" translatable="yes" context="Preferences dialog">Short_cuts</property>
                 <property name="use-underline">True</property>
               </object>
               <packing>
