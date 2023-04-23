@@ -31,7 +31,7 @@ build-image:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - echo "FROM debian:testing" > Dockerfile
     - echo "RUN apt-get update" >> Dockerfile
-    - echo "RUN apt-get install -y --no-install-recommends build-essential automake autoconf gettext autopoint libgtk-3-bin libgtk-3-dev libgtkmm-3.0-dev libpulse-dev cppcheck" >> Dockerfile
+    - echo "RUN apt-get install -y --no-install-recommends build-essential automake autoconf gettext autopoint libgtk-3-bin libgtk-3-dev libgtkmm-3.0-dev libpulse-dev libasound2-dev cppcheck" >> Dockerfile
     - export container=docker
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:build-debian-latest --cache=true --cache-ttl=720h
 
@@ -51,7 +51,7 @@ distcheck:
     - NOCONFIGURE=1 ./autogen.sh
     - mkdir ${BUILD_DIR}
     - cd ${BUILD_DIR}
-    - ../configure CXXFLAGS="-Wall" --prefix=${CI_PROJECT_DIR}/${INSTALL_DIR} --with-oss
+    - ../configure CXXFLAGS="-Wall" --prefix=${CI_PROJECT_DIR}/${INSTALL_DIR} --with-oss --with-alsa --with-pulseaudio
     - make -j "$(nproc)"
     - make -j "$(nproc)" install
     - make -j "$(nproc)" dist-bzip2
