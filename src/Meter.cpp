@@ -45,7 +45,7 @@ void Meter::setDivision(int division)
     for (size_t src_index = 0; src_index < accents_.size(); ++src_index)
     {
       size_t tgt_index = std::round(src_index * ratio);
-      if (accents_[src_index] > new_accents[tgt_index])
+      if (tgt_index < new_accents.size() && accents_[src_index] > new_accents[tgt_index])
         new_accents[tgt_index] = accents_[src_index];
     }
     accents_.swap(new_accents);
