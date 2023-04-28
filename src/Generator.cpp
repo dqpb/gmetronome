@@ -363,10 +363,9 @@ namespace audio {
         };
 
         if (next_accent_ % meter_.division() == 0)
-          ++current_beat_;
+          current_beat_ = (current_beat_ + 1) % meter_.beats();
 
-        if (++next_accent_ == accents.size())
-          next_accent_ = 0;
+        next_accent_ = (next_accent_ + 1) % accents.size();
       }
       recalculateMotionParameters();
       frames_done_ = 0;

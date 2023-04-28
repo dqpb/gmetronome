@@ -33,7 +33,7 @@ using std::literals::chrono_literals::operator""us;
 using seconds_dbl = std::chrono::duration<double>;
 
 // behaviour
-constexpr double kActionAngleReal     = M_PI / 5.0;  // rad
+constexpr double kActionAngleReal     = M_PI / 5.5;  // rad
 constexpr double kActionAngleCenter   = 0.0;         // rad
 constexpr double kActionAngleEdge     = M_PI / 2.0;  // rad
 constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
@@ -135,26 +135,41 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     omega_ = 0.0;
     theta_ = phase_mode_shift_;
 
+    target_omega_ = 0.0;
+    target_theta_ = phase_mode_shift_ + action_angle_;
+
     startAnimation();
   }
 
-  if (stats.current_tempo == 0.0)
+  if (stats.current_tempo == 0.0 || stats.current_beat < 0)
   {
     target_omega_ = 0.0;
     target_theta_ = phase_mode_shift_;
   }
   else
   {
+    // compute new target velocity
+    target_omega_ = stats.current_tempo / 60.0 * M_PI;
+
+    // compute the new target phase
+    double tmp;
+    double beat_pos_1 = M_PI * std::modf(stats.current_beat, &tmp);
+    double beat_pos_2 = beat_pos_1 + M_PI;
+
+    double dev_1 = std::remainder(beat_pos_1 - target_theta_, 2.0 * M_PI);
+    double dev_2 = std::remainder(beat_pos_2 - target_theta_, 2.0 * M_PI);
+
+    if (std::abs(dev_1) < std::abs(dev_2))
+      target_theta_ += dev_1;
+    else
+      target_theta_ += dev_2;
+
     microseconds now(g_get_monotonic_time());
     microseconds click_time = stats.timestamp + stats.backend_latency + sync;
     seconds_dbl time_delta = now - click_time;
 
-    target_omega_ = stats.current_tempo / 60.0 * M_PI;
-
-    target_theta_ = stats.current_beat * M_PI;
     target_theta_ += target_omega_ * time_delta.count();
     target_theta_ += action_angle_;
-    target_theta_ += phase_mode_shift_;
 
     target_theta_ = std::fmod(target_theta_ + 2.0 * M_PI, 2.0 * M_PI);
   }
@@ -216,6 +231,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     theta_ = std::fmod(theta_, 2 * M_PI);
 
     target_theta_ += target_omega_ * frame_time_delta.count();
+    target_theta_ = std::fmod(target_theta_, 2 * M_PI);
 
     bool redraw_marking = false;
     double marking_target_amplitude = needleAmplitude(target_omega_);
