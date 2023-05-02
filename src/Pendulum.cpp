@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -108,8 +108,6 @@ void Pendulum::setAction(ActionAngle action)
 
 void Pendulum::setPhaseMode(PhaseMode mode)
 {
-  double old_shift = phase_mode_shift_;
-
   switch (mode)
   {
   case PhaseMode::kLeft:
@@ -122,8 +120,6 @@ void Pendulum::setPhaseMode(PhaseMode mode)
     phase_mode_shift_ = kPhaseModeShiftLeft;
     break;
   }
-
-  target_theta_ += phase_mode_shift_ - old_shift;
 }
 
 void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
