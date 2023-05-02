@@ -187,6 +187,7 @@ void Application::initActions()
       {kActionMeterCompound3,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound3)},
       {kActionMeterCompound4,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound4)},
       {kActionMeterCustom,     sigc::mem_fun(*this, &Application::onMeterChanged_Custom)},
+      {kActionMeterSync,       sigc::mem_fun(*this, &Application::onMeterSync)},
 
       {kActionProfileList,         sigc::mem_fun(*this, &Application::onProfileList)},
       {kActionProfileSelect,       sigc::mem_fun(*this, &Application::onProfileSelect)},
@@ -666,6 +667,16 @@ void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
 
     action->set_state(out_state);
   }
+}
+
+void Application::onMeterSync(const Glib::VariantBase& value)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  double beat_position
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+
+  ticker_.syncMeter(beat_position);
 }
 
 void Application::onVolumeIncrease(const Glib::VariantBase& value)

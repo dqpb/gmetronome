@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -179,6 +179,11 @@ namespace audio {
       in_meter_ = std::move(meter);
     }
     meter_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::syncMeter(double beat)
+  {
+    //not implemented yet
   }
 
   void Ticker::setSoundStrong(const SoundParameters& params)

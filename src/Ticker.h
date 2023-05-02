@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -79,6 +79,8 @@ namespace audio {
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void setMeter(Meter meter);
+
+    void syncMeter(double beat);
 
     void setSoundStrong(const SoundParameters& params);
     void setSoundMid(const SoundParameters& params);

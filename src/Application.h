@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -23,6 +23,7 @@
 #include "ProfileManager.h"
 #include "Action.h"
 #include "Ticker.h"
+#include "TapAnalyser.h"
 #include "Message.h"
 
 #include <gtkmm.h>
@@ -52,6 +53,7 @@ protected:
 
 private:
   audio::Ticker ticker_;
+  TapAnalyser tap_analyser_;
   ProfileManager profile_manager_;
 
   // Current sound theme parameter settings
@@ -119,6 +121,8 @@ private:
   void onMeterChanged_Custom(const Glib::VariantBase& value);
   void onMeterChanged_SetState(const Glib::ustring& action_name,
                                Meter&& meter);
+  void onMeterSync(const Glib::VariantBase& value);
+
   // Trainer
   void onTrainerEnabled(const Glib::VariantBase& value);
   void onTrainerStart(const Glib::VariantBase& value);
