@@ -61,6 +61,7 @@ namespace audio {
       in_target_tempo_ {0},
       in_accel_ {0},
       in_meter_ {},
+      in_beat_ {0.0},
       in_sound_strong_ {},
       in_sound_mid_ {},
       in_sound_weak_ {},
@@ -77,6 +78,7 @@ namespace audio {
     target_tempo_imported_flag_.test_and_set();
     accel_imported_flag_.test_and_set();
     meter_imported_flag_.test_and_set();
+    beat_imported_flag_.test_and_set();
     sound_strong_imported_flag_.test_and_set();
     sound_mid_imported_flag_.test_and_set();
     sound_weak_imported_flag_.test_and_set();
@@ -181,9 +183,10 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::syncMeter(double beat)
+  void Ticker::setBeatPosition(double beat)
   {
-    //not implemented yet
+    in_beat_.store(beat);
+    beat_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setSoundStrong(const SoundParameters& params)
@@ -362,9 +365,14 @@ namespace audio {
       return true;
     }
     else {
-      meter_imported_flag_.clear();
       return false;
     }
+  }
+
+  bool Ticker::importBeat()
+  {
+    generator_.setBeatPosition(in_beat_.load());
+    return true;
   }
 
   bool Ticker::importSoundStrong()
@@ -376,7 +384,6 @@ namespace audio {
       return true;
     }
     else {
-      sound_strong_imported_flag_.clear();
       return false;
     }
   }
@@ -390,7 +397,6 @@ namespace audio {
       return true;
     }
     else {
-      sound_mid_imported_flag_.clear();
       return false;
     }
   }
@@ -404,7 +410,6 @@ namespace audio {
       return true;
     }
     else {
-      sound_weak_imported_flag_.clear();
       return false;
     }
   }
@@ -462,32 +467,31 @@ namespace audio {
     }
   }
 
-  bool Ticker::importGeneratorSettings()
+  void Ticker::importGeneratorSettings()
   {
-    bool import = false;
-
     if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importTempo() || import;
+      if (!importTempo()) tempo_imported_flag_.clear();
 
     if (!target_tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importTargetTempo() || import;
+      if (!importTargetTempo()) target_tempo_imported_flag_.clear();
 
     if (!accel_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importAccel() || import;
+      if (!importAccel()) accel_imported_flag_.clear();
 
     if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importMeter() || import;
+      if (!importMeter()) meter_imported_flag_.clear();
+
+    if (!beat_imported_flag_.test_and_set(std::memory_order_acquire))
+      if (!importBeat()) beat_imported_flag_.clear();
 
     if (!sound_strong_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importSoundStrong() || import;
+      if (!importSoundStrong()) sound_strong_imported_flag_.clear();
 
     if (!sound_mid_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importSoundMid() || import;
+      if (!importSoundMid()) sound_mid_imported_flag_.clear();
 
     if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
-      import = importSoundWeak() || import;
-
-    return import;
+      if (!importSoundWeak()) sound_weak_imported_flag_.clear();
   }
 
   bool Ticker::importBackend()
