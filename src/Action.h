@@ -52,7 +52,7 @@ inline const Glib::ustring  kActionMeterCompound2       {"meter-compound-2"};
 inline const Glib::ustring  kActionMeterCompound3       {"meter-compound-3"};
 inline const Glib::ustring  kActionMeterCompound4       {"meter-compound-4"};
 inline const Glib::ustring  kActionMeterCustom          {"meter-custom"};
-inline const Glib::ustring  kActionMeterSync            {"meter-sync"};
+inline const Glib::ustring  kActionMeterSeek            {"meter-seek"};
 inline const Glib::ustring  kActionProfileList          {"profile-list"};
 inline const Glib::ustring  kActionProfileSelect        {"profile-select"};
 inline const Glib::ustring  kActionProfileNew           {"profile-new"};

@@ -121,7 +121,7 @@ private:
   void onMeterChanged_Custom(const Glib::VariantBase& value);
   void onMeterChanged_SetState(const Glib::ustring& action_name,
                                Meter&& meter);
-  void onMeterSync(const Glib::VariantBase& value);
+  void onMeterSeek(const Glib::VariantBase& value);
 
   // Trainer
   void onTrainerEnabled(const Glib::VariantBase& value);

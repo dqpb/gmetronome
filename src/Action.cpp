@@ -419,7 +419,7 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : kActionMeterSync
+  /* Action         : kActionMeterSeek
    * Scope          : Application
    * Parameter type : double
    * State type     : -
@@ -427,7 +427,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionMeterSync,
+  { kActionMeterSeek,
     {
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
