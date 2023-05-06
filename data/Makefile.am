@@ -85,7 +85,10 @@ install-data-local: install-gsettings-schemas
 mostlyclean-local: clean-gsettings-schemas
 
 install-data-hook:
-	touch $(datadir)/icons/hicolor
+	@-if test -z "$(DESTDIR)"; then	\
+		echo "Updating icon theme cache."; \
+		gtk-update-icon-cache -f -t $(datadir)/icons/hicolor; \
+	fi
 
 CLEANFILES = \
 	$(desktop_file) \
