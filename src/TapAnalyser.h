@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -22,54 +22,44 @@
 
 #include "Meter.h"
 #include <list>
-#include <vector>
 #include <chrono>
 
-template<typename T>
-struct Estimate
-{
-  T value;
-  double confidence;
-};
 
 class TapAnalyser {
 public:
+  template<typename T>
+  struct Estimate
+  {
+    T value;
+    double confidence;
+  };
+
+  struct Result
+  {
+    Estimate<double> tempo {120.0, 0.0};
+    Estimate<Meter> meter {kMeter1, 0.0};
+    Estimate<double> beat {0.0, 0.0};
+  };
+
+public:
   TapAnalyser();
-  
+
   void tap(double value = 1.0);
   void reset();
-  
-  Estimate<double> tempo();
-  Estimate<Meter> meter();
-  
-  double beat();
-  
+
+  Result result();
+
 private:
 
-  struct Tap_ 
+  struct Tap_
   {
-    std::chrono::time_point<std::chrono::steady_clock> time;
-    double value;
+    std::chrono::microseconds time {0};
+    double value {0.0};
   };
-  
-  struct DataPoint_
-  {
-    int    time_slot;
-    double value;
-    double weighted_value;
-    double tempo;
-  };
-  
+
   std::list<Tap_> taps_;
-  std::vector<DataPoint_> corr_;
 
-  void correlate();
-
-  // enum {
-  //   kUndefined = -2,
-  //   kNoise = -1
-  // };
-  //void dbscan();
+  Result compute_estimation();
 };
 
 #endif//GMetronome_TapAnalyser_h

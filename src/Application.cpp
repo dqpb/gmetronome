@@ -747,6 +747,43 @@ void Application::onTempoDecrease(const Glib::VariantBase& value)
 
 void Application::onTempoTap(const Glib::VariantBase& value)
 {
+  //std::cout << __PRETTY_FUNCTION__ << " TIME: " << g_get_monotonic_time() << std::endl;
+  auto ticker_stats = ticker_.getStatistics();
+
+  double new_tempo = ticker_stats.current_tempo;
+  
+  tap_analyser_.tap(1.0);
+
+  const TapAnalyser::Result& result = tap_analyser_.result();
+
+  //std::cout << "tempo: " << result.tempo.value << " conf: " << result.tempo.confidence << std::endl;
+  
+  if (result.tempo.confidence > 0.5)
+  {
+    new_tempo = std::clamp(result.tempo.value, Profile::kMinTempo, Profile::kMaxTempo);
+    ticker_.setTempo( new_tempo );
+  }
+
+  double new_beat = std::round( ticker_stats.current_beat );
+
+  double time_diff = std::abs(new_beat - ticker_stats.current_beat) / new_tempo * 60.0 * 1000.0;
+  //std::cout << "time diff: " << time_diff << std::endl;
+
+  //if ( time_diff > 50.0 )
+  {
+    new_beat = new_beat + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
+    ticker_.setBeatPosition( new_beat );
+
+    // std::cout << "current_beat: " <<  ticker_stats.current_beat
+    //           << " new_beat: " <<  new_beat
+    //           << " latency: " << ticker_stats.backend_latency.count() << "us"
+    //           << std::endl;
+  }
+
+  // Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
+  // activate_action(kActionTempo, new_tempo_state);
+
+  /*
   using std::literals::chrono_literals::operator""min;
 
   static auto now = std::chrono::steady_clock::now();
@@ -767,6 +804,7 @@ void Application::onTempoTap(const Glib::VariantBase& value)
     }
   }
   last_timepoint = now;
+  */
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)

@@ -191,15 +191,21 @@ namespace audio {
     // normalize beat position
     beat = std::clamp<double>(std::fmod(beat,  meter_n_beats), 0.0, meter_n_beats);
 
+    // split beat position into integral and fractional parts
+    double integral;
+    double fractional = std::modf(beat, &integral);
+
     // set the current beat
-    current_beat_ = std::floor(beat);
+    if (fractional == 0.0)
+      current_beat_ = std::fmod(integral + meter_n_beats - 1.0, meter_n_beats);
+    else
+      current_beat_ = std::floor(beat);
 
     // compute beat position measured in accents
     double accent = beat * meter_n_subdivs;
 
     // split accent position into integral and fractional parts
-    double integral;
-    double fractional = std::modf(accent, &integral);
+    fractional = std::modf(accent, &integral);
 
     if (fractional == 0.0)
     {
@@ -211,13 +217,13 @@ namespace audio {
       next_accent_ = std::fmod(integral + 1, meter_n_accents);
       frames_done_ = fractional * (double) frames_total_;
     }
-    std::cout << "beat: " << beat
-              << " current_beat: " << current_beat_
-              << " accent: " << accent
-              << " next_accent: " << next_accent_
-              << " frames_total: " << frames_total_
-              << " frames_done: " << frames_done_
-              << std::endl;
+    // std::cout << "set beat: " << beat
+    //           << " current_beat: " << current_beat_
+    //           << " accent: " << accent
+    //           << " next_accent: " << next_accent_
+    //           << " frames_total: " << frames_total_
+    //           << " frames_done: " << frames_done_
+    //           << std::endl;
       }
 
   void Generator::setSound(Accent accent, const SoundParameters& params)
