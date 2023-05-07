@@ -32,8 +32,11 @@ namespace {
   using std::literals::chrono_literals::operator""s;
   using std::literals::chrono_literals::operator""min;
 
-  const microseconds kTapTimeout = 2s;
-  const std::size_t kMaxTaps = 3;
+  using seconds_dbl = std::chrono::duration<double>;
+  using minutes_dbl = std::chrono::duration<double, std::ratio<60>>;
+
+  const microseconds kTapTimeout = 2400ms; // == 25 bpm
+  const std::size_t kMaxTaps = 8;
 
   template<class Iterator>
   microseconds timeGap(const Iterator& it)
@@ -55,46 +58,98 @@ void TapAnalyser::tap(double value)
   if (value == 0.0)
     return;
 
-  microseconds now {g_get_monotonic_time()};
+  Tap new_tap {microseconds(g_get_monotonic_time()), value};
 
-  if (! taps_.empty())
+  std::cout << "New tap time: " << new_tap.time.count() << std::endl;
+
+  if (isOutlier(new_tap))
   {
-    auto gap = now - taps_.back().time;
-    if ( (! taps_.empty() && gap > kTapTimeout)
-         || (taps_.size() >= 2 && std::chrono::abs(gap - timeGap( taps_.rbegin())) > 200ms ) )
-      reset();
+    std::cout << "Tap is outlier." << std::endl;
+    reset();
   }
-
   if (taps_.size() >= kMaxTaps)
-    taps_.pop_front();
+    taps_.pop_back();
 
-  taps_.push_back({ now, value });
+  taps_.push_front(std::move(new_tap));
 }
 
 void TapAnalyser::reset()
 {
-  //std::cout << "RESET ANALYSER." << std::endl;
+  std::cout << "Reset Analyser." << std::endl;
   taps_.clear();
 }
 
 TapAnalyser::Result TapAnalyser::result()
 {
-  return compute_estimation();
+  return computeEstimate();
 }
 
-TapAnalyser::Result TapAnalyser::compute_estimation()
+bool TapAnalyser::isOutlier(const Tap& tap)
+{
+  if (taps_.empty())
+    return false;
+
+  auto gap = tap.time - taps_.front().time;
+
+  if (gap > kTapTimeout)
+  {
+    std::cout << "gap: " << gap.count() << " - Timeout!" << std::endl;
+    return true;
+  }
+
+  if (taps_.size() >= 2)
+  {
+    auto first = taps_.begin();
+    auto second = std::next(first);
+
+    auto prev_gap = first->time - second->time;
+
+    std::cout << "gap: " << gap.count()
+              << " prev gap: " << prev_gap.count()
+              << std::endl;
+
+    // This constant is kind of arbitrary but measurements have shown, that humans are
+    // pretty good in the synchronization–continuation task (SCT) at 1-3 Hz, so we
+    // assume that a deviation slightly larger than 3 Hz means, that we are tapping
+    // a different tempo now.
+    if(std::chrono::abs(gap - prev_gap) > 150ms)
+    {
+      std::cout << "Gap outside tolarable variance." << std::endl;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+TapAnalyser::Result TapAnalyser::computeEstimate()
 {
   Result result;
 
+  minutes_dbl sum = 0min;
+  size_t n = 0;
+
   if (taps_.size() > 1)
   {
-    auto gap = timeGap(taps_.rbegin());
+    auto first = taps_.begin();
+    auto second = std::next(first);
 
-    if (gap.count() > 0)
+    for (;second != taps_.end(); ++first, ++second)
     {
-      result.tempo.value = 1min / gap;
-      result.tempo.confidence = 1.0;
+      sum += (first->time - second->time);
+      ++n;
     }
+
+    minutes_dbl avg_duration = sum / n;
+
+    result.tempo.value = minutes_dbl(1) / avg_duration;
+    result.tempo.confidence = 1.0;
+
+    std::cout << "taps: " << taps_.size()
+              << " gaps: " << n
+              << " avg_duration: " << avg_duration.count()
+              << " tempo: " << result.tempo.value
+              << std::endl;
   }
 
   return result;

@@ -21,7 +21,7 @@
 #define GMetronome_TapAnalyser_h
 
 #include "Meter.h"
-#include <list>
+#include <deque>
 #include <chrono>
 
 
@@ -51,15 +51,59 @@ public:
 
 private:
 
-  struct Tap_
+  struct Tap
   {
     std::chrono::microseconds time {0};
     double value {0.0};
   };
 
-  std::list<Tap_> taps_;
+  using TapDeque = std::deque<Tap>;
 
-  Result compute_estimation();
+  /*
+  class Duration
+  {
+  public:
+    TapDeque::const_iterator first_tap();
+    TapDeque::const_iterator second_tap();
+
+    std::chrono::microseconds value();
+
+  private:
+    TapDeque::const_iterator first_;
+    TapDeque::const_iterator second_;
+  };
+
+  class DurationView {
+  public:
+    class Iterator {
+    public:
+
+    private:
+      const TapDeque& taps_;
+      TapDeque::iterator it_;
+    };
+
+  public:
+    DurationView(const TapDeque& taps) : taps_{taps}
+      {}
+
+    Iterator begin();
+    Iterator end();
+
+    size_t size() const
+      { return taps_.size() / 2; }
+
+  private:
+    const TapDeque& taps_;
+  };
+  */
+
+  TapDeque taps_;
+
+  //DurationView durations_{taps_};
+
+  bool isOutlier(const Tap& tap);
+  Result computeEstimate();
 };
 
 #endif//GMetronome_TapAnalyser_h
