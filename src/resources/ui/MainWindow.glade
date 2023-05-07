@@ -729,12 +729,20 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="tempoTapButton">
-                            <property name="label" translatable="yes" context="Main window">Tap</property>
+                          <object class="GtkEventBox" id="tapEventBox">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="focus-on-click">False</property>
-                            <property name="receives-default">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="margin-start">5</property>
+                                <property name="margin-end">5</property>
+                                <property name="margin-top">5</property>
+                                <property name="margin-bottom">5</property>
+                                <property name="label" translatable="yes" context="Main window">Tap</property>
+                              </object>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
