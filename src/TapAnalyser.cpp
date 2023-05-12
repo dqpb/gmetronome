@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -19,6 +19,7 @@
 
 #include "TapAnalyser.h"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <glib.h>
 
@@ -36,41 +37,53 @@ namespace {
   using minutes_dbl = std::chrono::duration<double, std::ratio<60>>;
 
   const microseconds kTapTimeout = 2400ms; // == 25 bpm
-  const std::size_t kMaxTaps = 8;
-
-  template<class Iterator>
-  microseconds timeGap(const Iterator& it)
-  {
-    Iterator it2 = it;
-    ++it2;
-    return it->time - it2->time;
-  }
+  const std::size_t kMaxTaps = 7;
 
 }//unnamed namespace
 
 TapAnalyser::TapAnalyser()
-{}
-
-void TapAnalyser::tap(double value)
 {
-  value = std::clamp(value, 0.0, 1.0);
+  // nothing to do
+}
 
-  if (value == 0.0)
-    return;
+TapAnalyser::Result TapAnalyser::tap(double value)
+{
+  Flags flags {0x0};
 
-  Tap new_tap {microseconds(g_get_monotonic_time()), value};
+  Tap new_tap {microseconds(g_get_monotonic_time()), std::clamp(value, 0.0, 1.0)};
 
   std::cout << "New tap time: " << new_tap.time.count() << std::endl;
 
-  if (isOutlier(new_tap))
+  if (isTimeout(new_tap))
   {
-    std::cout << "Tap is outlier." << std::endl;
+    std::cout << "Tap Timeout." << std::endl;
+    flags.set(kTimeout);
     reset();
   }
-  if (taps_.size() >= kMaxTaps)
+  else if (isOutlier(new_tap))
+  {
+    std::cout << "Tap is Outlier." << std::endl;
+    flags.set(kOutlier);
+    reset();
+  }
+  else
+  {
+    flags.set(kValid);
+  }
+
+  if (taps_.size() == kMaxTaps)
     taps_.pop_back();
 
   taps_.push_front(std::move(new_tap));
+
+  if (taps_.size() == 1)
+    flags.set(kInit);
+
+  auto [tempo, confidence] = estimate();
+
+  cached_result_ = std::make_tuple(flags, tempo, confidence);
+
+  return cached_result_;
 }
 
 void TapAnalyser::reset()
@@ -79,12 +92,7 @@ void TapAnalyser::reset()
   taps_.clear();
 }
 
-TapAnalyser::Result TapAnalyser::result()
-{
-  return computeEstimate();
-}
-
-bool TapAnalyser::isOutlier(const Tap& tap)
+bool TapAnalyser::isTimeout(const Tap& tap)
 {
   if (taps_.empty())
     return false;
@@ -92,44 +100,37 @@ bool TapAnalyser::isOutlier(const Tap& tap)
   auto gap = tap.time - taps_.front().time;
 
   if (gap > kTapTimeout)
-  {
-    std::cout << "gap: " << gap.count() << " - Timeout!" << std::endl;
     return true;
-  }
 
+  return false;
+}
+
+bool TapAnalyser::isOutlier(const Tap& tap)
+{
   if (taps_.size() >= 2)
   {
-    auto first = taps_.begin();
-    auto second = std::next(first);
+    auto gap = tap.time - taps_.front().time;
 
-    auto prev_gap = first->time - second->time;
-
-    std::cout << "gap: " << gap.count()
-              << " prev gap: " << prev_gap.count()
-              << std::endl;
-
-    // This constant is kind of arbitrary but measurements have shown, that humans are
-    // pretty good in the synchronization–continuation task (SCT) at 1-3 Hz, so we
-    // assume that a deviation slightly larger than 3 Hz means, that we are tapping
-    // a different tempo now.
-    if(std::chrono::abs(gap - prev_gap) > 150ms)
+    if (auto [validity, tempo, confidence] = cached_result_; confidence > 0.5)
     {
-      std::cout << "Gap outside tolarable variance." << std::endl;
-      return true;
+      minutes_dbl avg_gap {1.0 / tempo};
+
+      if(std::chrono::abs(avg_gap - gap) > 150ms)
+        return true;
     }
   }
 
   return false;
 }
 
-TapAnalyser::Result TapAnalyser::computeEstimate()
+std::tuple<double,double> TapAnalyser::estimate()
 {
-  Result result;
-
+  double tempo = 120.0;
+  double confidence = 0.0;
   minutes_dbl sum = 0min;
   size_t n = 0;
 
-  if (taps_.size() > 1)
+  if (taps_.size() >= 2)
   {
     auto first = taps_.begin();
     auto second = std::next(first);
@@ -142,15 +143,122 @@ TapAnalyser::Result TapAnalyser::computeEstimate()
 
     minutes_dbl avg_duration = sum / n;
 
-    result.tempo.value = minutes_dbl(1) / avg_duration;
-    result.tempo.confidence = 1.0;
+    tempo = minutes_dbl(1) / avg_duration;
 
+    if (taps_.size() == 2)
+    {
+      confidence = 0.0;
+    }
+    else
+    {
+      // compute standard deviation.
+      double sd = 0.0;
+      first = taps_.begin();
+      second = std::next(first);
+      n = 0;
+
+      for (;second != taps_.end(); ++first, ++second)
+      {
+        double dev = (minutes_dbl(1) / (first->time - second->time)) - tempo;
+        sd += dev * dev;
+        ++n;
+      }
+
+      sd = std::sqrt(sd / n);
+
+      std::cout << "SD: " << sd << std::endl;
+
+      // compute the coefficient of variation (CV)
+      double cv =  sd / tempo;
+
+      std::cout << "CV: " << cv << std::endl;
+
+      // Use Vangel's approximation to get the confidence interval for CV:
+      // Vangel, Mark G. “Confidence Intervals for a Normal Coefficient of Variation.”
+      // The American Statistician 50, no. 1 (1996): 21–26. https://doi.org/10.2307/2685039.
+
+      // Percentiles of the chi-squared distribution with significance level alpha=0.05
+      static const std::array<double, 16> kChiSquared1 = {
+        0,
+        5.02,
+        7.38,
+        9.35,
+        11.14,
+        12.83,
+        14.45,
+        16.01,
+        17.53,
+        19.02,
+        20.48,
+        21.92,
+        23.34,
+        24.74,
+        26.12,
+        27.49
+      };
+
+      static const std::array<double, 16> kChiSquared2 = {
+        0,
+        0.00098,
+        0.0506,
+        0.216,
+        0.484,
+        0.831,
+        1.24,
+        1.69,
+        2.18,
+        2.70,
+        3.25,
+        3.82,
+        4.40,
+        5.01,
+        5.63,
+        6.26
+      };
+
+      // the approximation is only valid for CV's less than 0.33
+      //const double K = std::clamp(cv, 0.0, 0.33);
+      const double K = cv;
+      const double K_squared = K * K;
+      //const double u1 = kChiSquared1[n-1];
+      const double u2 = kChiSquared2[n-1];
+
+      // const double rad1 = ((u1 + 2.0) / n - 1.0) * K_squared + u1 / (n - 1);
+      // const double ci1 = K / std::sqrt(rad1);
+
+      const double rad2 = ((u2 + 2.0) / n - 1.0) * K_squared + u2 / (n - 1);
+
+      if (rad2 > 0)
+      {
+        const double ci2 = K / std::sqrt(rad2);
+
+        // scale and map CI to interval [1.0, 0.0]
+        confidence = 1.0 - std::tanh(2.0 * ci2);
+      }
+      else
+      {
+        confidence = 0.0;
+      }
+
+      // std::cout << "K: " << K
+      //           << " K²: " << K_squared
+      //           << " u1: " << u1
+      //           << " u2: " << u2
+      //           << " rad1: " << rad1
+      //           << " rad2: " << rad2
+      //           << std::endl;
+
+      // std::cout << "CI: [" << ci1 << "," << ci2 << "]" << std::endl;
+
+      std::cout << "Confidence: " << confidence << std::endl;
+    }
     std::cout << "taps: " << taps_.size()
               << " gaps: " << n
-              << " avg_duration: " << avg_duration.count()
-              << " tempo: " << result.tempo.value
+              << " avg_dur: " << avg_duration.count()
+              << " tempo: " << tempo
+              << " confidence: " << confidence
               << std::endl;
   }
 
-  return result;
+  return std::make_tuple(tempo, confidence);
 }

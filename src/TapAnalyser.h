@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -22,32 +22,28 @@
 
 #include "Meter.h"
 #include <deque>
+#include <tuple>
+#include <bitset>
 #include <chrono>
-
 
 class TapAnalyser {
 public:
-  template<typename T>
-  struct Estimate
+
+  enum Flag
   {
-    T value;
-    double confidence;
+    kValid = 0,
+    kInit = 1,
+    kTimeout = 2,
+    kOutlier = 3
   };
 
-  struct Result
-  {
-    Estimate<double> tempo {120.0, 0.0};
-    Estimate<Meter> meter {kMeter1, 0.0};
-    Estimate<double> beat {0.0, 0.0};
-  };
+  using Flags = std::bitset<4>;
+  using Result = std::tuple<Flags, double, double>;
 
 public:
   TapAnalyser();
 
-  void tap(double value = 1.0);
-  void reset();
-
-  Result result();
+  Result tap(double value = 1.0);
 
 private:
 
@@ -58,52 +54,16 @@ private:
   };
 
   using TapDeque = std::deque<Tap>;
-
-  /*
-  class Duration
-  {
-  public:
-    TapDeque::const_iterator first_tap();
-    TapDeque::const_iterator second_tap();
-
-    std::chrono::microseconds value();
-
-  private:
-    TapDeque::const_iterator first_;
-    TapDeque::const_iterator second_;
-  };
-
-  class DurationView {
-  public:
-    class Iterator {
-    public:
-
-    private:
-      const TapDeque& taps_;
-      TapDeque::iterator it_;
-    };
-
-  public:
-    DurationView(const TapDeque& taps) : taps_{taps}
-      {}
-
-    Iterator begin();
-    Iterator end();
-
-    size_t size() const
-      { return taps_.size() / 2; }
-
-  private:
-    const TapDeque& taps_;
-  };
-  */
-
   TapDeque taps_;
 
-  //DurationView durations_{taps_};
+  Result cached_result_{"0001", 120.0, 0.0};
 
+  void reset();
+
+  bool isTimeout(const Tap& tap);
   bool isOutlier(const Tap& tap);
-  Result computeEstimate();
+
+  std::tuple<double,double> estimate();
 };
 
 #endif//GMetronome_TapAnalyser_h

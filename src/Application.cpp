@@ -751,23 +751,26 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
   double new_tempo = ticker_stats.current_tempo;
 
-  tap_analyser_.tap(1.0);
+  auto [flags, tempo, confidence] = tap_analyser_.tap(1.0);
 
-  const TapAnalyser::Result& result = tap_analyser_.result();
-
-  if (result.tempo.confidence > 0.5)
+  if (flags.test(TapAnalyser::kValid) && !flags.test(TapAnalyser::kInit))
   {
-    new_tempo = std::clamp(result.tempo.value, Profile::kMinTempo, Profile::kMaxTempo);
+    new_tempo = std::clamp(tempo, Profile::kMinTempo, Profile::kMaxTempo);
     Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
     activate_action(kActionTempo, new_tempo_state);
+
+    double new_volume = confidence * 100.0;
+
+    Glib::Variant<double> new_volume_state = Glib::Variant<double>::create( new_volume );
+    activate_action(kActionVolume, new_volume_state);
   }
 
-  double new_beat = std::round( ticker_stats.current_beat );
+  double new_beat = std::round(ticker_stats.current_beat);
 
+  // time difference between the current beat position and the tapped beat
   double time_diff = std::abs(new_beat - ticker_stats.current_beat) / new_tempo * 60.0 * 1000.0;
-  //std::cout << "time diff: " << time_diff << std::endl;
 
-  if (time_diff > 50.0)
+  //if (time_diff > 20.0)
   {
     new_beat = new_beat + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
     ticker_.setBeatPosition( new_beat );
