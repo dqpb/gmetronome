@@ -56,7 +56,7 @@ private:
   using TapDeque = std::deque<Tap>;
   TapDeque taps_;
 
-  Result cached_result_{"0001", 120.0, 0.0};
+  Result cached_result_{0x0, 120.0, 0.0};
 
   void reset();
 
