@@ -44,6 +44,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
   builder_->get_widget("linkSoundThemeSwitch", link_sound_theme_switch_);
+  builder_->get_widget("autoAdjustVolumeSwitch", auto_adjust_volume_switch_);
   builder_->get_widget("soundGrid", sound_grid_);
   builder_->get_widget("soundThemeTreeView", sound_theme_tree_view_);
   builder_->get_widget("soundThemeAddButton", sound_theme_add_button_);
@@ -55,6 +56,9 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("audioDeviceSpinner", audio_device_spinner_);
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
+
+  input_latency_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("inputLatencyAdjustment"));
 
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
@@ -225,6 +229,10 @@ void SettingsDialog::initBindings()
                                 restore_profile_switch_->property_state());
   settings::preferences()->bind(settings::kKeyPrefsLinkSoundTheme,
                                 link_sound_theme_switch_->property_state());
+  settings::preferences()->bind(settings::kKeyPrefsAutoAdjustVolume,
+                                auto_adjust_volume_switch_->property_state());
+  settings::preferences()->bind(settings::kKeyPrefsInputDeviceLatency,
+                                input_latency_adjustment_->property_value());
   //
   // Animation tab
   //

@@ -285,7 +285,7 @@
     <override name="mix">50</override>
     <override name="pan">0</override>
     <override name="volume">110</override>
-  </schema>  
+  </schema>
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.mid-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-02/mid-params/">
@@ -817,6 +817,17 @@
 	desired sound theme does not exist anymore, the default will be loaded instead.
       </description>
     </key>
+    <key name="auto-adjust-volume" type="b">
+      <default>true</default>
+      <summary>Whether the volume should be dropped when tapping</summary>
+      <description></description>
+    </key>
+    <key name="input-device-latency" type="d">
+      <range min="0.0" max="10000.0"/>
+      <default>0.0</default>
+      <summary></summary>
+      <description></description>
+    </key>
     <key name="pendulum-action" enum="@PACKAGE_ID@.PendulumAction">
       <default>'real'</default>
       <summary></summary>
@@ -833,7 +844,7 @@
       <description></description>
     </key>
     <key name="animation-sync" type="d">
-      <range min="-10000." max="10000."/>
+      <range min="-10000.0" max="10000.0"/>
       <default>0.0</default>
       <summary></summary>
       <description></description>
