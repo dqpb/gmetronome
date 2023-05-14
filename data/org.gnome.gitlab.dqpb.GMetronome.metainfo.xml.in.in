@@ -6,9 +6,8 @@
   <project_license>GPL-3.0+</project_license>
   <name>GMetronome</name>
   <developer_name>The GMetronome Team</developer_name>
-  <summary>Maintain tempo while practicing your instrument</summary>
+  <summary>A tempo measurement tool for composers and musicians</summary>
   <description>
-    <p>A practical and precise tempo measurement tool for composers and musicians.</p>
     <p>Features:</p>
     <ul>
       <li>Tempo range from 30 to 250 beats per minute</li>
