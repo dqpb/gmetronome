@@ -683,6 +683,11 @@
       <summary></summary>
       <description></description>
     </key>
+    <key name="auto-adjust-volume" type="b">
+      <default>true</default>
+      <summary>Whether the volume should be dropped when tapping</summary>
+      <description></description>
+    </key>
     <child name="themes" schema="@PACKAGE_ID@.preferences.sound.theme-list"/>
   </schema>
 
@@ -816,11 +821,6 @@
 	If true, switching profiles also restores the previous sound theme. If the
 	desired sound theme does not exist anymore, the default will be loaded instead.
       </description>
-    </key>
-    <key name="auto-adjust-volume" type="b">
-      <default>true</default>
-      <summary>Whether the volume should be dropped when tapping</summary>
-      <description></description>
     </key>
     <key name="input-device-latency" type="d">
       <range min="0.0" max="10000.0"/>
