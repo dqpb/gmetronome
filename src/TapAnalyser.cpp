@@ -52,17 +52,13 @@ TapAnalyser::Result TapAnalyser::tap(double value)
 
   Tap new_tap {microseconds(g_get_monotonic_time()), std::clamp(value, 0.0, 1.0)};
 
-  std::cout << "New tap time: " << new_tap.time.count() << std::endl;
-
   if (isTimeout(new_tap))
   {
-    std::cout << "Tap Timeout." << std::endl;
     flags.set(kTimeout);
     reset();
   }
   else if (isOutlier(new_tap))
   {
-    std::cout << "Tap is Outlier." << std::endl;
     flags.set(kOutlier);
     reset();
   }
@@ -88,7 +84,6 @@ TapAnalyser::Result TapAnalyser::tap(double value)
 
 void TapAnalyser::reset()
 {
-  std::cout << "Reset Analyser." << std::endl;
   taps_.clear();
 }
 
@@ -166,36 +161,32 @@ std::tuple<double,double> TapAnalyser::estimate()
 
       sd = std::sqrt(sd / n);
 
-      std::cout << "SD: " << sd << std::endl;
-
       // compute the coefficient of variation (CV)
       double cv =  sd / tempo;
-
-      std::cout << "CV: " << cv << std::endl;
 
       // Use Vangel's approximation to get the confidence interval for CV:
       // Vangel, Mark G. “Confidence Intervals for a Normal Coefficient of Variation.”
       // The American Statistician 50, no. 1 (1996): 21–26. https://doi.org/10.2307/2685039.
 
       // Percentiles of the chi-squared distribution with significance level alpha=0.05
-      static const std::array<double, 16> kChiSquared1 = {
-        0,
-        5.02,
-        7.38,
-        9.35,
-        11.14,
-        12.83,
-        14.45,
-        16.01,
-        17.53,
-        19.02,
-        20.48,
-        21.92,
-        23.34,
-        24.74,
-        26.12,
-        27.49
-      };
+      // static const std::array<double, 16> kChiSquared1 = {
+      //   0,
+      //   5.02,
+      //   7.38,
+      //   9.35,
+      //   11.14,
+      //   12.83,
+      //   14.45,
+      //   16.01,
+      //   17.53,
+      //   19.02,
+      //   20.48,
+      //   21.92,
+      //   23.34,
+      //   24.74,
+      //   26.12,
+      //   27.49
+      // };
 
       static const std::array<double, 16> kChiSquared2 = {
         0,
@@ -239,25 +230,7 @@ std::tuple<double,double> TapAnalyser::estimate()
       {
         confidence = 0.0;
       }
-
-      // std::cout << "K: " << K
-      //           << " K²: " << K_squared
-      //           << " u1: " << u1
-      //           << " u2: " << u2
-      //           << " rad1: " << rad1
-      //           << " rad2: " << rad2
-      //           << std::endl;
-
-      // std::cout << "CI: [" << ci1 << "," << ci2 << "]" << std::endl;
-
-      std::cout << "Confidence: " << confidence << std::endl;
     }
-    std::cout << "taps: " << taps_.size()
-              << " gaps: " << n
-              << " avg_dur: " << avg_duration.count()
-              << " tempo: " << tempo
-              << " confidence: " << confidence
-              << std::endl;
   }
 
   return std::make_tuple(tempo, confidence);
