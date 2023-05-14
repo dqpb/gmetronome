@@ -8,11 +8,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="inputLatencyAdjustment">
-    <property name="upper">1000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
   <object class="GtkWindow" id="settingsDialog">
     <property name="can-focus">False</property>
     <property name="icon-name">gtk-preferences</property>
@@ -164,32 +159,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">Inpu_t device latency (ms):</property>
-                    <property name="use-underline">True</property>
-                    <property name="mnemonic-widget">inputLatencySpinButton</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">6</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="inputLatencySpinButton">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="input-purpose">number</property>
-                    <property name="adjustment">inputLatencyAdjustment</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">6</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

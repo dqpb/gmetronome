@@ -57,9 +57,6 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
 
-  input_latency_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("inputLatencyAdjustment"));
-
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
 
@@ -229,10 +226,8 @@ void SettingsDialog::initBindings()
                                 restore_profile_switch_->property_state());
   settings::preferences()->bind(settings::kKeyPrefsLinkSoundTheme,
                                 link_sound_theme_switch_->property_state());
-  settings::preferences()->bind(settings::kKeyPrefsAutoAdjustVolume,
-                                auto_adjust_volume_switch_->property_state());
-  settings::preferences()->bind(settings::kKeyPrefsInputDeviceLatency,
-                                input_latency_adjustment_->property_value());
+  settings::sound()->bind(settings::kKeySoundAutoAdjustVolume,
+                          auto_adjust_volume_switch_->property_state());
   //
   // Animation tab
   //
