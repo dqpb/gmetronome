@@ -419,6 +419,24 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionMeterSeek
+   * Scope          : Application
+   * Parameter type : double
+   * State type     : -
+   * State value    : -
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionMeterSeek,
+    {
+      ActionScope::kApp,
+      Glib::Variant<double>::variant_type(),
+      {},
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionProfileList
    * Scope          : Application
    * Parameter type : -

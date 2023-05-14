@@ -29,6 +29,7 @@ gmetronome_SOURCES = \
 	Shortcut.cpp \
 	SoundThemeEditor.cpp \
 	Synthesizer.cpp \
+	TapAnalyser.cpp \
 	Ticker.cpp \
 	Wavetable.cpp \
 	WavetableLibrary.cpp
@@ -79,6 +80,7 @@ noinst_HEADERS = \
 	SoundThemeEditor.h \
 	SpinLock.h \
 	Synthesizer.h \
+	TapAnalyser.h \
 	Ticker.h \
 	Wavetable.h \
 	WavetableLibrary.h

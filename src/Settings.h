@@ -141,6 +141,7 @@ namespace settings {
    */
   inline const Glib::ustring  kKeyPrefsRestoreProfile             {"restore-profile"};
   inline const Glib::ustring  kKeyPrefsLinkSoundTheme             {"link-sound-theme"};
+  inline const Glib::ustring  kKeyPrefsInputDeviceLatency         {"input-device-latency"};
   inline const Glib::ustring  kKeyPrefsPendulumAction             {"pendulum-action"};
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode          {"pendulum-phase-mode"};
   inline const Glib::ustring  kKeyPrefsMeterAnimation             {"meter-animation"};
@@ -167,6 +168,7 @@ namespace settings {
    * .preferences.sound keys
    */
   inline const Glib::ustring  kKeySoundVolume                     {"volume"};
+  inline const Glib::ustring  kKeySoundAutoAdjustVolume           {"auto-adjust-volume"};
   inline const Glib::ustring  kKeySoundThemeList                  {"theme-list"};
 
   /*

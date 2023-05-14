@@ -102,7 +102,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
-  builder_->get_widget("tempoTapButton", tempo_tap_button_);
+  builder_->get_widget("tapEventBox", tap_event_box_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
@@ -271,8 +271,8 @@ void MainWindow::initBindings()
     .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
                                               accent_revealer_->property_reveal_child() ));
 
-  // deprecated: use Gtk::Widget::signal_button_press_event()
-  tempo_tap_button_->signal_pressed()
+  tap_event_box_->add_events(Gdk::BUTTON_PRESS_MASK);
+  tap_event_box_->signal_button_press_event()
     .connect(sigc::mem_fun(*this, &MainWindow::onTempoTap));
 
   action_bindings_
@@ -418,9 +418,14 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
   return true;
 }
 
-void MainWindow::onTempoTap()
+bool MainWindow::onTempoTap(GdkEventButton* button_event)
 {
-  Gtk::Application::get_default()->activate_action(kActionTempoTap);
+  if (button_event->type != GDK_2BUTTON_PRESS
+      && button_event->type != GDK_3BUTTON_PRESS)
+  {
+    Gtk::Application::get_default()->activate_action(kActionTempoTap);
+  }
+  return true;
 }
 
 void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)

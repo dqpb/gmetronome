@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="beatsAdjustment">
     <property name="lower">1</property>
     <property name="upper">12</property>
@@ -729,12 +729,20 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="tempoTapButton">
-                            <property name="label" translatable="yes" context="Main window">Tap</property>
+                          <object class="GtkEventBox" id="tapEventBox">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="focus-on-click">False</property>
-                            <property name="receives-default">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="margin-start">5</property>
+                                <property name="margin-end">5</property>
+                                <property name="margin-top">5</property>
+                                <property name="margin-bottom">5</property>
+                                <property name="label" translatable="yes" context="Main window">Tap</property>
+                              </object>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>

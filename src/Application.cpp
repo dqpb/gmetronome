@@ -29,6 +29,7 @@
 #include "Settings.h"
 
 #include <cassert>
+#include <algorithm>
 #include <iostream>
 
 namespace {
@@ -187,6 +188,7 @@ void Application::initActions()
       {kActionMeterCompound3,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound3)},
       {kActionMeterCompound4,  sigc::mem_fun(*this, &Application::onMeterChanged_Compound4)},
       {kActionMeterCustom,     sigc::mem_fun(*this, &Application::onMeterChanged_Custom)},
+      {kActionMeterSeek,       sigc::mem_fun(*this, &Application::onMeterSeek)},
 
       {kActionProfileList,         sigc::mem_fun(*this, &Application::onProfileList)},
       {kActionProfileSelect,       sigc::mem_fun(*this, &Application::onProfileSelect)},
@@ -293,7 +295,10 @@ void Application::loadSelectedSoundTheme()
       {
         settings_sound_params_connections_[0] =
           settings_sound_params_[0]->signal_changed().connect(
-            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskStrong); });
+            [&] (const Glib::ustring& key) {
+                double volume = settings::sound()->get_double(settings::kKeySoundVolume);
+                updateTickerSound(kAccentMaskStrong, volume);
+            });
       }
 
       settings_sound_params_[1] =
@@ -303,7 +308,10 @@ void Application::loadSelectedSoundTheme()
       {
         settings_sound_params_connections_[1] =
           settings_sound_params_[1]->signal_changed().connect(
-            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskMid); });
+            [&] (const Glib::ustring& key) {
+              double volume = settings::sound()->get_double(settings::kKeySoundVolume);
+              updateTickerSound(kAccentMaskMid, volume);
+            });
       }
 
       settings_sound_params_[2] =
@@ -313,7 +321,10 @@ void Application::loadSelectedSoundTheme()
       {
         settings_sound_params_connections_[2] =
           settings_sound_params_[2]->signal_changed().connect(
-            [&] (const Glib::ustring& key) { updateTickerSound(kAccentMaskWeak); });
+            [&] (const Glib::ustring& key) {
+              double volume = settings::sound()->get_double(settings::kKeySoundVolume);
+              updateTickerSound(kAccentMaskWeak, volume);
+            });
       }
     }
     catch(...) {
@@ -331,15 +342,15 @@ void Application::loadSelectedSoundTheme()
       std::cerr << "Application: no sound theme selected" << std::endl;
 #endif
   }
-  updateTickerSound(kAccentMaskAll);
+
+  double volume = settings::sound()->get_double(settings::kKeySoundVolume);
+  updateTickerSound(kAccentMaskAll, volume);
 }
 
-void Application::updateTickerSound(const AccentMask& accents)
+void Application::updateTickerSound(const AccentMask& accents, double volume)
 {
   if (accents.none())
     return;
-
-  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
   if (accents[0]) {
     audio::SoundParameters params;
@@ -347,7 +358,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[0], params);
 
-    params.volume *= global_volume / 100.0;
+    params.volume *= volume / 100.0;
     ticker_.setSoundStrong(params);
   }
   if (accents[1]) {
@@ -356,7 +367,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[1], params);
 
-    params.volume *= global_volume / 100.0;
+    params.volume *= volume / 100.0;
     ticker_.setSoundMid(params);
   }
   if (accents[2]) {
@@ -365,7 +376,7 @@ void Application::updateTickerSound(const AccentMask& accents)
     if (settings_sound_params_[0])
       SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[2], params);
 
-    params.volume *= global_volume / 100.0;
+    params.volume *= volume / 100.0;
     ticker_.setSoundWeak(params);
   }
 }
@@ -668,6 +679,12 @@ void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
   }
 }
 
+void Application::onMeterSeek(const Glib::VariantBase& value)
+{
+  double beat = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  ticker_.setBeatPosition(beat);
+}
+
 void Application::onVolumeIncrease(const Glib::VariantBase& value)
 {
   double delta_volume
@@ -740,26 +757,40 @@ void Application::onTempoDecrease(const Glib::VariantBase& value)
 
 void Application::onTempoTap(const Glib::VariantBase& value)
 {
-  using std::literals::chrono_literals::operator""min;
+  auto ticker_stats = ticker_.getStatistics();
 
-  static auto now = std::chrono::steady_clock::now();
-  static auto last_timepoint = now;
+  double new_tempo = ticker_stats.current_tempo;
 
-  now = std::chrono::steady_clock::now();
+  auto [flags, tempo, confidence] = tap_analyser_.tap(1.0);
 
-  auto duration = now - last_timepoint;
-
-  if ( duration.count() > 0 )
+  if (flags.test(TapAnalyser::kValid) && !flags.test(TapAnalyser::kInit))
   {
-    double bpm = 1min / duration;
-
-    if ( bpm >= Profile::kMinTempo && bpm <= Profile::kMaxTempo )
-    {
-      Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( bpm );
-      activate_action(kActionTempo, new_tempo_state);
-    }
+    new_tempo = std::clamp(tempo, Profile::kMinTempo, Profile::kMaxTempo);
+    Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
+    activate_action(kActionTempo, new_tempo_state);
   }
-  last_timepoint = now;
+
+  if (audio::TickerState state = ticker_.state();
+      state.test(audio::TickerStateFlag::kStarted))
+  {
+    if (settings::sound()->get_boolean(settings::kKeySoundAutoAdjustVolume))
+        startDropVolumeTimer( (1.0 - confidence) * 50.0 );
+  }
+
+  double new_beat = std::round(ticker_stats.current_beat);
+
+  // time difference between the current beat position and the tapped beat
+  double time_diff = std::abs(new_beat - ticker_stats.current_beat) / new_tempo * 60.0 * 1000.0;
+
+  // to prevent unsteady sound during tapping we apply the phase adjustment only,
+  // when the difference is larger than 20ms
+  if (time_diff > 20.0)
+  {
+    new_beat = new_beat + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
+
+    // apply phase adjustment
+    ticker_.setBeatPosition( new_beat );
+  }
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
@@ -1141,11 +1172,11 @@ void Application::onStart(const Glib::VariantBase& value)
         ticker_.setTempo(trainer_start_tempo);
       }
       ticker_.start();
-      startTimer();
+      startStatsTimer();
     }
     else
     {
-      stopTimer();
+      stopStatsTimer();
       ticker_.stop();
     }
   }
@@ -1251,7 +1282,11 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeySoundVolume)
   {
-    updateTickerSound(kAccentMaskAll);
+    if (!isDropVolumeTimerRunning())
+    {
+      double volume = settings::sound()->get_double(settings::kKeySoundVolume);
+      updateTickerSound(kAccentMaskAll, volume);
+    }
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
@@ -1293,21 +1328,21 @@ void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
   }
 }
 
-void Application::startTimer()
+void Application::startStatsTimer()
 {
-  timer_connection_ = Glib::signal_timeout()
-    .connect(sigc::mem_fun(*this, &Application::onTimer), 70);
+  stats_timer_connection_ = Glib::signal_timeout()
+    .connect(sigc::mem_fun(*this, &Application::onStatsTimer), 70);
 }
 
-void Application::stopTimer()
+void Application::stopStatsTimer()
 {
   using std::literals::chrono_literals::operator""us;
 
-  timer_connection_.disconnect();
+  stats_timer_connection_.disconnect();
   signal_ticker_statistics_.emit({ 0us, 0.0, 0.0, -1.0, -1, 0us, 0us });
 }
 
-bool Application::onTimer()
+bool Application::onStatsTimer()
 {
   using std::literals::chrono_literals::operator""us;
 
@@ -1334,6 +1369,49 @@ bool Application::onTimer()
     signal_ticker_statistics_.emit(stats);
     return true;
   }
+}
+
+void Application::startDropVolumeTimer(double drop)
+{
+  drop = std::clamp(drop, 0.0, 100.0);
+  volume_drop_ = std::max(volume_drop_, drop);
+
+  dropVolume(volume_drop_);
+
+  if (!isDropVolumeTimerRunning())
+  {
+    volume_timer_connection_ = Glib::signal_timeout()
+      .connect(sigc::mem_fun(*this, &Application::onDropVolumeTimer), 250);
+  }
+}
+
+void Application::stopDropVolumeTimer()
+{
+  if (isDropVolumeTimerRunning())
+  {
+    volume_timer_connection_.disconnect();
+    dropVolume(0.0);
+  }
+}
+
+bool Application::isDropVolumeTimerRunning()
+{
+  return volume_timer_connection_.connected();
+}
+
+bool Application::onDropVolumeTimer()
+{
+  volume_drop_ = std::clamp(volume_drop_ - 5.0, 0.0, 100.0);
+  dropVolume(volume_drop_);
+  return volume_drop_ > 0.0;
+}
+
+void Application::dropVolume(double drop)
+{
+  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
+  double volume = std::clamp(global_volume - global_volume / 100.0 * drop, 0.0, 100.0);
+
+  updateTickerSound(kAccentMaskAll, volume);
 }
 
 // helper

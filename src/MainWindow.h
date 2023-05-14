@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -104,7 +104,7 @@ private:
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
   Gtk::Scale* tempo_scale_;
-  Gtk::Button* tempo_tap_button_;
+  Gtk::EventBox* tap_event_box_;
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
@@ -154,7 +154,7 @@ private:
   void onToggleFullScreen(const Glib::VariantBase& value);
 
   // UI handler
-  void onTempoTap();
+  bool onTempoTap(GdkEventButton* button_event);
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void activateMeterAction(const Glib::ustring& action, const Glib::VariantBase& param);
   void onMeterChanged();

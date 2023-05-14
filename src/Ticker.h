@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -80,6 +80,8 @@ namespace audio {
     void setAccel(double accel);
     void setMeter(Meter meter);
 
+    void setBeatPosition(double beat);
+
     void setSoundStrong(const SoundParameters& params);
     void setSoundMid(const SoundParameters& params);
     void setSoundWeak(const SoundParameters& params);
@@ -99,6 +101,7 @@ namespace audio {
     std::atomic<double> in_target_tempo_;
     std::atomic<double> in_accel_;
     Meter in_meter_;
+    std::atomic<double> in_beat_;
     SoundParameters in_sound_strong_;
     SoundParameters in_sound_mid_;
     SoundParameters in_sound_weak_;
@@ -109,6 +112,7 @@ namespace audio {
     std::atomic_flag target_tempo_imported_flag_;
     std::atomic_flag accel_imported_flag_;
     std::atomic_flag meter_imported_flag_;
+    std::atomic_flag beat_imported_flag_;
     std::atomic_flag sound_strong_imported_flag_;
     std::atomic_flag sound_mid_imported_flag_;
     std::atomic_flag sound_weak_imported_flag_;
@@ -121,13 +125,14 @@ namespace audio {
     bool importTargetTempo();
     bool importAccel();
     bool importMeter();
+    bool importBeat();
     bool importSoundStrong();
     bool importSoundMid();
     bool importSoundWeak();
     bool syncSwapBackend();
     void hardSwapBackend(std::unique_ptr<Backend>& backend);
 
-    bool importGeneratorSettings();
+    void importGeneratorSettings();
     bool importBackend();
 
     void exportStatistics();

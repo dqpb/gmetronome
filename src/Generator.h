@@ -50,6 +50,8 @@ namespace audio {
     void setAccel(double accel);
     void swapMeter(Meter& meter);
 
+    void setBeatPosition(double beat);
+
     void setSound(Accent accent, const SoundParameters& params);
 
     void start(const void*& data, size_t& bytes);

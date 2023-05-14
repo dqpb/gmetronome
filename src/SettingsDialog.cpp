@@ -44,6 +44,7 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("animationSyncSpinButton", animation_sync_spin_button_);
   builder_->get_widget("restoreProfileSwitch", restore_profile_switch_);
   builder_->get_widget("linkSoundThemeSwitch", link_sound_theme_switch_);
+  builder_->get_widget("autoAdjustVolumeSwitch", auto_adjust_volume_switch_);
   builder_->get_widget("soundGrid", sound_grid_);
   builder_->get_widget("soundThemeTreeView", sound_theme_tree_view_);
   builder_->get_widget("soundThemeAddButton", sound_theme_add_button_);
@@ -225,6 +226,8 @@ void SettingsDialog::initBindings()
                                 restore_profile_switch_->property_state());
   settings::preferences()->bind(settings::kKeyPrefsLinkSoundTheme,
                                 link_sound_theme_switch_->property_state());
+  settings::sound()->bind(settings::kKeySoundAutoAdjustVolume,
+                          auto_adjust_volume_switch_->property_state());
   //
   // Animation tab
   //
