@@ -55,13 +55,15 @@ private:
   audio::Ticker ticker_;
   TapAnalyser tap_analyser_;
   ProfileManager profile_manager_;
+  double volume_drop_{0.0};
 
   // Current sound theme parameter settings
   std::array<Glib::RefPtr<Gio::Settings>,3> settings_sound_params_;
 
   // Connections
   sigc::connection settings_state_connection_;
-  sigc::connection timer_connection_;
+  sigc::connection stats_timer_connection_;
+  sigc::connection volume_timer_connection_;
   std::array<sigc::connection,3> settings_sound_params_connections_;
 
   // Signals
@@ -80,7 +82,7 @@ private:
   using AccentMask = std::bitset<3>; // strong, mid, weak
 
   void loadSelectedSoundTheme();
-  void updateTickerSound(const AccentMask& accents);
+  void updateTickerSound(const AccentMask& accents, double volume);
   void configureAudioBackend();
   void configureAudioDevice();
 
@@ -161,9 +163,15 @@ private:
   void onSettingsShortcutsChanged(const Glib::ustring& key);
 
   // Timer
-  void startTimer();
-  void stopTimer();
-  bool onTimer();
+  void startStatsTimer();
+  void stopStatsTimer();
+  bool onStatsTimer();
+
+  void startDropVolumeTimer(double drop = 50.0);
+  void stopDropVolumeTimer();
+  bool isDropVolumeTimerRunning();
+  bool onDropVolumeTimer();
+  void dropVolume(double drop);
 
   // Input validation
   std::pair<double,bool> validateTempo(double value);
