@@ -1,6 +1,6 @@
 GMetronome
 ==========
-A practical and precise tempo measurement tool for composers and musicians.
+A tempo measurement tool for composers and musicians.
 
 ![Screenshot](data/screenshots/screenshot.png)
 
@@ -12,9 +12,9 @@ Features
 * Three accentuation levels for strong, middle and weak accents
 * Pre defined patterns for widely used meters and time signatures
 * Integrated synthesizer to customize click sounds
-* Accurate trainer function to smoothly raise or lower tempo
+* Trainer function to smoothly raise or lower tempo
 * Profiles to (automatically) save and restore metronome settings
-* Customizable keyboard shortcuts for nearly all metronome functions
+* Customizable keyboard shortcuts
 * Support for different audio backends
 
 Download, Building and Installation
