@@ -721,6 +721,7 @@
                             <property name="input-purpose">number</property>
                             <property name="adjustment">tempoAdjustment</property>
                             <property name="digits">2</property>
+                            <property name="numeric">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
