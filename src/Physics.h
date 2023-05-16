@@ -25,17 +25,10 @@
 
 namespace physics {
 
-  using std::chrono::seconds;
-  using std::chrono::microseconds;
-  using std::chrono::milliseconds;
-
-  using std::literals::chrono_literals::operator""s;
-  using std::literals::chrono_literals::operator""ms;
-  using std::literals::chrono_literals::operator""us;
-
   using seconds_dbl = std::chrono::duration<double>;
 
-  constexpr seconds_dbl infinite_time {std::numeric_limits<double>::infinity()};
+  constexpr seconds_dbl kInfiniteTime {std::numeric_limits<double>::infinity()};
+  constexpr seconds_dbl kZeroTime {seconds_dbl::zero()};
 
   class ModuloKinematics {
 
@@ -51,7 +44,7 @@ namespace physics {
       { return m_; }
 
     void accelerate(double a)
-      { accelerate(a, infinite_time); }
+      { accelerate(a, kInfiniteTime); }
 
     void accelerate(double a, const seconds_dbl& time);
 
@@ -59,15 +52,18 @@ namespace physics {
 
     void remodule(double m);
 
-    void reset(double p, double v, double a);
+    void reset(double p = 0.0,
+               double v = 0.0,
+               double a = 0.0,
+               const seconds_dbl& a_time = kZeroTime);
 
     seconds_dbl arrival(double p);
-    
+
   private:
     double p_{0.0};
-    double v_{1.0};
+    double v_{0.0};
     double a_{0.0};
-    double m_{4.0};
+    double m_{1.0};
 
     seconds_dbl a_time_{0.0};
   };
