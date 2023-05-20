@@ -126,5 +126,8 @@ the description above.
 
 How to report bugs
 ------------------
-Bug reports and suggestions are very welcome and can be reported on the 
+Feedback from the community helps us to improve the quality of the software
+and adapt this tool better to the different needs and use cases. Please let us
+know if you encounter a bug or have any suggestions and file an issue on our
 project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).
+Thanks!
