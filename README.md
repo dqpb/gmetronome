@@ -13,7 +13,7 @@ Features
 * Pre defined patterns for widely used meters and time signatures
 * Integrated synthesizer to customize click sounds
 * Trainer function to smoothly raise or lower tempo
-* Profiles to (automatically) save and restore metronome settings
+* Profiles to save and restore metronome settings
 * Customizable keyboard shortcuts
 * Support for different audio backends
 
@@ -126,5 +126,5 @@ the description above.
 
 How to report bugs
 ------------------
-Bugs should be reported on the project's
-[issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).
+Bug reports and suggestions are very welcome and can be reported on the 
+project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).
