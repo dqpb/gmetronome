@@ -23,6 +23,7 @@
 
 #include "Physics.h"
 #include "Error.h"
+#include <algorithm>
 #include <cmath>
 #include <cassert>
 
@@ -45,7 +46,128 @@ namespace physics {
     }
   }//unnamed namespace
 
-  void ModuloKinematics::accelerate(double a, const seconds_dbl& time)
+
+  // SimpleMotion
+  SimpleMotion::SimpleMotion(double position,
+                             double velocity,
+                             double acceleration)
+    : p_{position},
+      v_{velocity},
+      a_{acceleration}
+  {
+    // nothing
+  }
+
+  void SimpleMotion::accelerate(double a)
+  {
+    a_ = a;
+  }
+
+  void SimpleMotion::reset(double p, double v, double a)
+  {
+    p_ = p;
+    v_ = v;
+    SimpleMotion::accelerate(a);
+  }
+
+  void SimpleMotion::step(const seconds_dbl& time)
+  {
+    std::tie(p_,v_) = step(p_,v_,a_,time);
+  }
+
+  // SimpleOscillator
+  SimpleOscillator::SimpleOscillator(double position,
+                                     double velocity,
+                                     double acceleration,
+                                     double module)
+    : SimpleMotion(position, velocity, acceleration),
+      m_{module}
+  {
+    //nothing
+  }
+
+  void SimpleOscillator::reset(double p, double v, double a)
+  {
+    SimpleMotion::reset(modulo(p, m_), v, a);
+  }
+
+  void SimpleOscillator::step(const seconds_dbl& time)
+  {
+    SimpleMotion::step(time);
+    SimpleMotion::reset(modulo(position(), m_), velocity(), acceleration());
+  }
+
+  void SimpleOscillator::remodule(double m)
+  {
+    assert(m != 0.0);
+    m_ = m;
+    SimpleMotion::reset(modulo(position(), m_), velocity(), acceleration());
+  }
+
+  // SimpleSyncOscillator
+  SimpleSyncOscillator::SimpleSyncOscillator(double position,
+                                             double velocity,
+                                             double acceleration,
+                                             double module)
+    : SimpleOscillator(position, velocity, acceleration, module)
+  {
+    // nothing
+  }
+
+  void SimpleSyncOscillator::syncPosition(double deviation)
+  {
+    p_dev_ = deviation;
+  }
+
+  void SimpleSyncOscillator::syncVelocity(double deviation)
+  {
+    v_dev_ = deviation;
+  }
+
+  void SimpleSyncOscillator::accelerate(double a)
+  {
+    SimpleOscillator::accelerate(a);
+    syncPosition(0.0);
+    syncVelocity(0.0);
+  }
+
+  void SimpleSyncOscillator::step(const seconds_dbl& time)
+  {
+    static constexpr double kMaxAcceleration = 5.0;
+
+    double a = kMaxAcceleration * std::tanh(p_dev_ + v_dev_);
+
+    if (a != 0.0)
+    {
+      auto [p,v] = SimpleMotion::step(position(), velocity(), a, time);
+
+      p_dev_ -= (p_dev_ != 0.0) ? p - position() : 0.0;
+      v_dev_ -= (v_dev_ != 0.0) ? v - velocity() : 0.0;
+
+      SimpleOscillator::accelerate(a);
+    }
+    SimpleOscillator::step(time);
+  }
+
+
+
+
+  /*
+  Oscillator::Oscillator(double position,
+                         double velocity,
+                         double acceleration,
+                         double module)
+    : p_{position},
+      v_{velocity},
+      a_{acceleration},
+      m_{module},
+      a_time_{0.0}
+  {
+    if (a_ != 0.0)
+      a_time_ = kInfiniteTime;
+  }
+
+  void Oscillator::accelerate(double a, const seconds_dbl& time)
   {
     a_time_ = (time < kZeroTime) ? kZeroTime : time;
 
@@ -55,7 +177,7 @@ namespace physics {
       a_ = a;
   }
 
-  void ModuloKinematics::step(const seconds_dbl& time)
+  void Oscillator::step(const seconds_dbl& time)
   {
     if (time <= 0s || time == kInfiniteTime)
       return;
@@ -78,14 +200,14 @@ namespace physics {
     p_ = modulo(p_, m_);
   }
 
-  void ModuloKinematics::remodule(double m)
+  void Oscillator::remodule(double m)
   {
     assert(m != 0.0);
     m_ = m;
     p_ = modulo(p_, m_);
   }
 
-  void ModuloKinematics::reset(double p, double v,
+  void Oscillator::reset(double p, double v,
                                double a, const seconds_dbl& a_time)
   {
     p_ = modulo(p, m_);
@@ -93,7 +215,7 @@ namespace physics {
     accelerate(a, a_time);
   }
 
-  seconds_dbl ModuloKinematics::arrival(double p)
+  seconds_dbl Oscillator::arrival(double p) const
   {
     if ( std::isinf(p) )
       return kInfiniteTime;
@@ -186,5 +308,5 @@ namespace physics {
 
     return result;
   }
-
+  */
 }//namespace physics
