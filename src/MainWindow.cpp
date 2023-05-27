@@ -36,6 +36,7 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <cmath>
 
 //static
 MainWindow* MainWindow::create()
@@ -1066,7 +1067,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
 
   int tempo_integral_int = tempo_integral;
-  int tempo_fraction_int = tempo_fraction * std::pow(10, precision);
+  int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
 
   auto text = Glib::ustring::format(tempo_integral_int);
 
