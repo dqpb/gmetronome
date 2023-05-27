@@ -37,7 +37,6 @@
     <kudo>HiDpiIcon</kudo>
     <kudo>HighContrast</kudo>
     <kudo>ModernToolkit</kudo>
-    <kudo>UserDocs</kudo>
   </kudos>
   <launchable type="desktop-id">@PACKAGE_ID@.desktop</launchable>
   <provides>
