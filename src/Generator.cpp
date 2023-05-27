@@ -196,10 +196,10 @@ namespace audio {
     double fractional = std::modf(beat, &integral);
 
     // set the current beat
-    if (fractional == 0.0)
-      current_beat_ = std::fmod(integral + meter_n_beats - 1.0, meter_n_beats);
-    else
-      current_beat_ = std::floor(beat);
+    // if (fractional == 0.0)
+    //   current_beat_ = std::fmod(integral + meter_n_beats - 1.0, meter_n_beats);
+    // else
+    //   current_beat_ = std::floor(beat);
 
     // compute beat position measured in accents
     double accent = beat * meter_n_subdivs;
@@ -207,24 +207,25 @@ namespace audio {
     // split accent position into integral and fractional parts
     fractional = std::modf(accent, &integral);
 
-    if (fractional == 0.0)
+    int new_frames_done = fractional * (double) frames_total_;
+    int frames_diff = new_frames_done - frames_done_;
+
+    if (std::abs(frames_diff) <= frames_total_ / 2)
+    {
+      next_accent_ = std::fmod(integral + 1, meter_n_accents);
+      frames_done_ += frames_diff;
+    }
+    else if (frames_done_ < frames_total_ / 2)
     {
       next_accent_ = integral;
-      frames_done_ = frames_total_;
+      frames_done_ = -frames_total_ + new_frames_done;
     }
     else
     {
-      next_accent_ = std::fmod(integral + 1, meter_n_accents);
-      frames_done_ = fractional * (double) frames_total_;
+      next_accent_ = integral;
+      frames_done_ = frames_total_ + new_frames_done;
     }
-    // std::cout << "set beat: " << beat
-    //           << " current_beat: " << current_beat_
-    //           << " accent: " << accent
-    //           << " next_accent: " << next_accent_
-    //           << " frames_total: " << frames_total_
-    //           << " frames_done: " << frames_done_
-    //           << std::endl;
-      }
+  }
 
   void Generator::setSound(Accent accent, const SoundParameters& params)
   { sounds_.update(accent, params); }
@@ -412,7 +413,7 @@ namespace audio {
         next_accent_ = (next_accent_ + 1) % accents.size();
       }
       recalculateMotionParameters();
-      frames_done_ = 0;
+      frames_done_ = -frames_left;
       recalculateFramesTotal();
     }
     else if (frames_left <= maxChunkFrames_) {
