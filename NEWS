@@ -1,3 +1,9 @@
+2023-05-27  0.2.2
+
+	*  Auto-adjust volume when tapping a tempo (can be switched off)
+	*  Better sound synchronization when tapping
+	*  Some minor bugfixes
+
 2023-04-26  0.2.1
 
 	* Fix crash when changing division on a custom meter
@@ -22,7 +28,7 @@
 
 	* Version 0.1.0 released.
 
--- 
+--
 Copyright (C) 2023 The GMetronome Team
 
 This file is part of GMetronome.

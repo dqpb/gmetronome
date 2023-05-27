@@ -18,7 +18,7 @@
       <li>Integrated synthesizer to customize click sounds</li>
       <li>Accurate trainer function to smoothly raise or lower tempo</li>
       <li>Profiles to save and restore metronome settings</li>
-      <li>Customizable keyboard shortcuts for nearly all metronome functions</li>
+      <li>Customizable keyboard shortcuts</li>
     </ul>
   </description>
   <url type="homepage">@PACKAGE_URL@</url>
@@ -45,7 +45,15 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
-    <release version="0.2.2"/>
+    <release version="0.2.2" date="2023-05-27">
+      <description>
+	<ul>
+	  <li>Auto-adjust volume when tapping a tempo (can be switched off)</li>
+	  <li>Better sound synchronization when tapping</li>
+	  <li>Some minor bugfixes</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.2.1" date="2023-04-26">
       <description>
 	<ul>
