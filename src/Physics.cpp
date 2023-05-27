@@ -48,105 +48,100 @@ namespace physics {
 
 
   // SimpleMotion
-  SimpleMotion::SimpleMotion(double position,
-                             double velocity,
-                             double acceleration)
-    : p_{position},
-      v_{velocity},
-      a_{acceleration}
+  SimpleMotion::SimpleMotion(const MotionParameters& params)
+    : params_{params}
   {
     // nothing
   }
 
-  void SimpleMotion::accelerate(double a)
+  void SimpleMotion::set(const MotionParameters& params)
   {
-    a_ = a;
-  }
-
-  void SimpleMotion::reset(double p, double v, double a)
-  {
-    p_ = p;
-    v_ = v;
-    SimpleMotion::accelerate(a);
+    params_ = params;
   }
 
   void SimpleMotion::step(const seconds_dbl& time)
   {
-    std::tie(p_,v_) = step(p_,v_,a_,time);
+    auto& [p,v,a] = params_;
+    double v_0 = v;
+
+    v += a * time.count();
+    p += 0.5 * (v_0 + v) * time.count();
   }
 
   // SimpleOscillator
-  SimpleOscillator::SimpleOscillator(double position,
-                                     double velocity,
-                                     double acceleration,
-                                     double module)
-    : SimpleMotion(position, velocity, acceleration),
+  SimpleOscillator::SimpleOscillator(const MotionParameters& params, double module)
+    : SimpleMotion(params),
       m_{module}
   {
     //nothing
   }
 
-  void SimpleOscillator::reset(double p, double v, double a)
+  void SimpleOscillator::set(const MotionParameters& params)
   {
-    SimpleMotion::reset(modulo(p, m_), v, a);
+    const auto& [p,v,a] = params;
+    SimpleMotion::set({modulo(p, m_), v, a});
   }
 
   void SimpleOscillator::step(const seconds_dbl& time)
   {
     SimpleMotion::step(time);
-    SimpleMotion::reset(modulo(position(), m_), velocity(), acceleration());
+    SimpleOscillator::set(SimpleMotion::state());
   }
 
   void SimpleOscillator::remodule(double m)
   {
     assert(m != 0.0);
     m_ = m;
-    SimpleMotion::reset(modulo(position(), m_), velocity(), acceleration());
+    SimpleOscillator::set(SimpleMotion::state());
   }
 
   // SimpleSyncOscillator
-  SimpleSyncOscillator::SimpleSyncOscillator(double position,
-                                             double velocity,
-                                             double acceleration,
-                                             double module)
-    : SimpleOscillator(position, velocity, acceleration, module)
+  SimpleSyncOscillator::SimpleSyncOscillator(const MotionParameters& params, double module)
+    : SimpleOscillator(params, module)
   {
     // nothing
   }
 
-  void SimpleSyncOscillator::syncPosition(double deviation)
-  {
-    p_dev_ = deviation;
-  }
-
-  void SimpleSyncOscillator::syncVelocity(double deviation)
-  {
-    v_dev_ = deviation;
-  }
-
-  void SimpleSyncOscillator::accelerate(double a)
-  {
-    SimpleOscillator::accelerate(a);
-    syncPosition(0.0);
-    syncVelocity(0.0);
-  }
-
   void SimpleSyncOscillator::step(const seconds_dbl& time)
   {
-    static constexpr double kMaxAcceleration = 5.0;
+  }
 
-    double a = kMaxAcceleration * std::tanh(p_dev_ + v_dev_);
+  void SimpleSyncOscillator::syncPosition(double deviation, const seconds_dbl& time)
+  {
+    // p_m_t1_ = -6.0 * deviation / (time.count() * time.count());
+    // p_m_ = m / time.count();
+  }
 
-    if (a != 0.0)
+  void SimpleSyncOscillator::syncVelocity(double deviation, const seconds_dbl& time)
+  {
+    MotionParameters new_params = SimpleMotion::state();
+    auto& [p,v,a] = new_params;
+
+    if (isSyncingVelocity()) // remove old sync acceleration
+      a -= v_a_;
+
+    if (time == kZeroTime)
     {
-      auto [p,v] = SimpleMotion::step(position(), velocity(), a, time);
-
-      p_dev_ -= (p_dev_ != 0.0) ? p - position() : 0.0;
-      v_dev_ -= (v_dev_ != 0.0) ? v - velocity() : 0.0;
-
-      SimpleOscillator::accelerate(a);
+      v += deviation;       // instantaneous velocity change
+      v_a_ = 0.0;           // and no further acceleration
     }
-    SimpleOscillator::step(time);
+    else
+    {
+      v_a_ = deviation / time.count();
+      a += v_a_;
+    }
+    v_time_ = time;
+    SimpleOscillator::set(new_params);
+  }
+
+  bool SimpleSyncOscillator::isSyncingPosition() const
+  {
+    return false;
+  }
+
+  bool SimpleSyncOscillator::isSyncingVelocity() const
+  {
+    return v_time_ != kZeroTime;
   }
 
 
@@ -207,8 +202,8 @@ namespace physics {
     p_ = modulo(p_, m_);
   }
 
-  void Oscillator::reset(double p, double v,
-                               double a, const seconds_dbl& a_time)
+  void Oscillator::set(double p, double v,
+  double a, const seconds_dbl& a_time)
   {
     p_ = modulo(p, m_);
     v_ = v;
