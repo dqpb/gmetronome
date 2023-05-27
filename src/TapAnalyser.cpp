@@ -17,18 +17,23 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "TapAnalyser.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <glib.h>
 
-#include <iostream>
+#ifndef NDEBUG
+# include <iostream>
+#endif
 
 namespace {
 
   using std::chrono::microseconds;
-  using std::literals::chrono_literals::operator""us;
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""s;
   using std::literals::chrono_literals::operator""min;
