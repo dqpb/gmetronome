@@ -48,9 +48,9 @@
     <release version="0.2.2" date="2023-05-27">
       <description>
 	<ul>
-	  <li>Auto-adjust volume when tapping a tempo (can be switched off)</li>
+	  <li>Auto-adjust volume when tapping a tempo</li>
 	  <li>Better sound synchronization when tapping</li>
-	  <li>Some minor bugfixes</li>
+	  <li>Some minor bug fixes</li>
 	</ul>
       </description>
     </release>
