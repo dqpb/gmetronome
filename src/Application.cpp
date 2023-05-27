@@ -777,20 +777,12 @@ void Application::onTempoTap(const Glib::VariantBase& value)
         startDropVolumeTimer( (1.0 - confidence) * 50.0 );
   }
 
-  double new_beat = std::round(ticker_stats.current_beat);
+  // compute new phase
+  double new_beat = std::round(ticker_stats.current_beat)
+    + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
 
-  // time difference between the current beat position and the tapped beat
-  double time_diff = std::abs(new_beat - ticker_stats.current_beat) / new_tempo * 60.0 * 1000.0;
-
-  // to prevent unsteady sound during tapping we apply the phase adjustment only,
-  // when the difference is larger than 20ms
-  if (time_diff > 20.0)
-  {
-    new_beat = new_beat + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
-
-    // apply phase adjustment
-    ticker_.setBeatPosition( new_beat );
-  }
+  // apply phase adjustment
+  ticker_.setBeatPosition( new_beat );
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
