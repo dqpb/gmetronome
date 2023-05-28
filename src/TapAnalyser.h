@@ -28,7 +28,6 @@
 
 class TapAnalyser {
 public:
-
   enum Flag
   {
     kValid = 0,
@@ -38,7 +37,22 @@ public:
   };
 
   using Flags = std::bitset<4>;
-  using Result = std::tuple<Flags, double, double>;
+
+  struct Tap
+  {
+    std::chrono::microseconds time {0};
+    double value {0.0};
+    Flags flags {0x0};
+  };
+
+  struct Estimate
+  {
+    double tempo {120.0};                  // estimated tempo
+    std::chrono::microseconds phase {0};   // estimated phase
+    double confidence {0.0};               // confidence
+  };
+
+  using Result = std::tuple<const Tap&, const Estimate&>;
 
 public:
   TapAnalyser();
@@ -46,24 +60,17 @@ public:
   Result tap(double value = 1.0);
 
 private:
-
-  struct Tap
-  {
-    std::chrono::microseconds time {0};
-    double value {0.0};
-  };
-
   using TapDeque = std::deque<Tap>;
   TapDeque taps_;
 
-  Result cached_result_{0x0, 120.0, 0.0};
-
   void reset();
 
-  bool isTimeout(const Tap& tap);
-  bool isOutlier(const Tap& tap);
+  bool isTimeout(const std::chrono::microseconds& tap_time);
+  bool isOutlier(const std::chrono::microseconds& tap_time);
 
-  std::tuple<double,double> estimate();
+  Estimate cached_estimate_;
+
+  Estimate estimate();
 };
 
 #endif//GMetronome_TapAnalyser_h

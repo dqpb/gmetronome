@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <numeric>
 #include <glib.h>
 
 #ifndef NDEBUG
@@ -34,9 +35,9 @@
 namespace {
 
   using std::chrono::microseconds;
+  using std::literals::chrono_literals::operator""us;
   using std::literals::chrono_literals::operator""ms;
   using std::literals::chrono_literals::operator""s;
-  using std::literals::chrono_literals::operator""min;
 
   using seconds_dbl = std::chrono::duration<double>;
   using minutes_dbl = std::chrono::duration<double, std::ratio<60>>;
@@ -53,38 +54,36 @@ TapAnalyser::TapAnalyser()
 
 TapAnalyser::Result TapAnalyser::tap(double value)
 {
-  Flags flags {0x0};
+  microseconds tap_time {g_get_monotonic_time()};
+  double tap_value = std::clamp(value, 0.0, 1.0);
+  Flags tap_flags {0x0};
 
-  Tap new_tap {microseconds(g_get_monotonic_time()), std::clamp(value, 0.0, 1.0)};
-
-  if (isTimeout(new_tap))
+  if (isTimeout(tap_time))
   {
-    flags.set(kTimeout);
+    tap_flags.set(kTimeout);
     reset();
   }
-  else if (isOutlier(new_tap))
+  else if (isOutlier(tap_time))
   {
-    flags.set(kOutlier);
+    tap_flags.set(kOutlier);
     reset();
   }
   else
   {
-    flags.set(kValid);
+    tap_flags.set(kValid);
   }
 
   if (taps_.size() == kMaxTaps)
     taps_.pop_back();
 
-  taps_.push_front(std::move(new_tap));
+  if (taps_.empty())
+    tap_flags.set(kInit);
 
-  if (taps_.size() == 1)
-    flags.set(kInit);
+  taps_.push_front({tap_time, tap_value, tap_flags});
 
-  auto [tempo, confidence] = estimate();
+  cached_estimate_ = estimate();
 
-  cached_result_ = std::make_tuple(flags, tempo, confidence);
-
-  return cached_result_;
+  return {taps_.front(), cached_estimate_};
 }
 
 void TapAnalyser::reset()
@@ -92,12 +91,12 @@ void TapAnalyser::reset()
   taps_.clear();
 }
 
-bool TapAnalyser::isTimeout(const Tap& tap)
+bool TapAnalyser::isTimeout(const microseconds& tap_time)
 {
   if (taps_.empty())
     return false;
 
-  auto gap = tap.time - taps_.front().time;
+  auto gap = tap_time - taps_.front().time;
 
   if (gap > kTapTimeout)
     return true;
@@ -105,13 +104,13 @@ bool TapAnalyser::isTimeout(const Tap& tap)
   return false;
 }
 
-bool TapAnalyser::isOutlier(const Tap& tap)
+bool TapAnalyser::isOutlier(const microseconds& tap_time)
 {
   if (taps_.size() >= 2)
   {
-    auto gap = tap.time - taps_.front().time;
+    auto gap = tap_time - taps_.front().time;
 
-    if (auto [validity, tempo, confidence] = cached_result_; confidence > 0.5)
+    if (auto [tempo, phase, confidence] = cached_estimate_; confidence > 0.5)
     {
       minutes_dbl avg_gap {1.0 / tempo};
 
@@ -123,28 +122,31 @@ bool TapAnalyser::isOutlier(const Tap& tap)
   return false;
 }
 
-std::tuple<double,double> TapAnalyser::estimate()
+TapAnalyser::Estimate TapAnalyser::estimate()
 {
   double tempo = 120.0;
+  microseconds phase = 0us;
   double confidence = 0.0;
-  minutes_dbl sum = 0min;
-  size_t n = 0;
 
   if (taps_.size() >= 2)
   {
-    auto first = taps_.begin();
-    auto second = std::next(first);
+    minutes_dbl sum = std::accumulate(taps_.begin(), taps_.end(), 0us,
+                                      [] (microseconds sum, const Tap& tap) {
+                                        return sum + tap.time; });
 
-    for (;second != taps_.end(); ++first, ++second)
-    {
-      sum += (first->time - second->time);
-      ++n;
-    }
+    minutes_dbl avg_time = sum / taps_.size();
+    minutes_dbl tap_period = taps_.front().time - taps_.back().time;
+    minutes_dbl avg_gap = tap_period / (taps_.size() - 1);
 
-    minutes_dbl avg_duration = sum / n;
+    // compute tempo
+    tempo = minutes_dbl(1) / avg_gap;
 
-    tempo = minutes_dbl(1) / avg_duration;
+    // compute the estimated beat position of the last beat;
+    // this value is optimal in the sense, that the sum of squared errors (i.e. the
+    // deviation of the tappings from the estimated beat positions) is minimized
+    phase = std::chrono::duration_cast<microseconds>(avg_time + 0.5 * tap_period);
 
+    // compute confidence
     if (taps_.size() == 2)
     {
       confidence = 0.0;
@@ -153,9 +155,9 @@ std::tuple<double,double> TapAnalyser::estimate()
     {
       // compute standard deviation.
       double sd = 0.0;
-      first = taps_.begin();
-      second = std::next(first);
-      n = 0;
+      auto first = taps_.begin();
+      auto second = std::next(first);
+      size_t n = 0;
 
       for (;second != taps_.end(); ++first, ++second)
       {
@@ -236,7 +238,11 @@ std::tuple<double,double> TapAnalyser::estimate()
         confidence = 0.0;
       }
     }
+  } // if (taps_.size() >= 2) ...
+  else if (taps_.size() == 1)
+  {
+    phase = taps_.front().time;
   }
 
-  return std::make_tuple(tempo, confidence);
+  return {tempo, phase, confidence};
 }
