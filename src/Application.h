@@ -46,6 +46,9 @@ public:
   sigc::signal<void, const audio::Ticker::Statistics&> signalTickerStatistics()
     { return signal_ticker_statistics_; }
 
+  sigc::signal<void, double> signalTap()
+    { return signal_tap_; }
+
 protected:
   // Overrides of default signal handlers:
   void on_startup() override;
@@ -69,6 +72,7 @@ private:
   // Signals
   sigc::signal<void, const Message&> signal_message_;
   sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics_;
+  sigc::signal<void, double> signal_tap_;
 
   // Main window
   MainWindow* main_window_;

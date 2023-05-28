@@ -36,6 +36,7 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <cmath>
 
 //static
 MainWindow* MainWindow::create()
@@ -103,6 +104,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentBox", accent_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
   builder_->get_widget("tapEventBox", tap_event_box_);
+  builder_->get_widget("tapLevelBar", tap_level_bar_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
   builder_->get_widget("beatsLabel", beats_label_);
@@ -362,6 +364,9 @@ void MainWindow::initBindings()
 
   app->signalTickerStatistics()
     .connect(sigc::mem_fun(*this, &MainWindow::onTickerStatistics));
+
+  app->signalTap()
+    .connect(sigc::mem_fun(*this, &MainWindow::onTap));
 
   tempo_integral_label_->signal_size_allocate()
     .connect(sigc::mem_fun(*this, &MainWindow::onTempoLabelAllocate));
@@ -1066,7 +1071,10 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
 
   int tempo_integral_int = tempo_integral;
-  int tempo_fraction_int = tempo_fraction * std::pow(10, precision);
+  int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
+
+  if (tempo_fraction_int == 100)
+    tempo_fraction_int = 0;
 
   auto text = Glib::ustring::format(tempo_integral_int);
 
@@ -1102,6 +1110,55 @@ void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
     updateAccentAnimation(stats);
 
   updatePendulum(stats);
+}
+
+void MainWindow::onTap(double confidence)
+{
+  tap_level_bar_->set_value(confidence);
+
+  if (!isTapAnimationTimerRunning())
+    startTapAnimationTimer();
+}
+
+namespace {
+  constexpr unsigned int kTapAnimationTimerInterval = 100; // ms
+  constexpr double kTapAnimationFallOffVelocity = 0.8; // units per second
+}//unnamed namespace
+
+void MainWindow::startTapAnimationTimer()
+{
+  if (!isTapAnimationTimerRunning())
+  {
+    tap_animation_timer_connection_ = Glib::signal_timeout()
+      .connect(sigc::mem_fun(*this, &MainWindow::onTapAnimationTimer),
+               kTapAnimationTimerInterval);
+  }
+}
+
+void MainWindow::stopTapAnimationTimer()
+{
+  if (isTapAnimationTimerRunning())
+  {
+    tap_animation_timer_connection_.disconnect();
+    tap_level_bar_->set_value(0.0);
+  }
+}
+
+bool MainWindow::isTapAnimationTimerRunning()
+{
+  return tap_animation_timer_connection_.connected();
+}
+
+bool MainWindow::onTapAnimationTimer()
+{
+  double value = tap_level_bar_->get_value();
+
+  value -= kTapAnimationFallOffVelocity * kTapAnimationTimerInterval / 1000.0;
+  value = std::clamp(value, 0.0, 1.0);
+
+  tap_level_bar_->set_value(value);
+
+  return value > 0.0;
 }
 
 void MainWindow::onMessage(const Message& message)

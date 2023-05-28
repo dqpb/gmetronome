@@ -761,9 +761,10 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
   double new_tempo = ticker_stats.current_tempo;
 
-  auto [flags, tempo, confidence] = tap_analyser_.tap(1.0);
+  const auto& [tap, estimate] = tap_analyser_.tap(1.0);
+  auto [tempo, phase, confidence] = estimate;
 
-  if (flags.test(TapAnalyser::kValid) && !flags.test(TapAnalyser::kInit))
+  if (tap.flags.test(TapAnalyser::kValid) && !tap.flags.test(TapAnalyser::kInit))
   {
     new_tempo = std::clamp(tempo, Profile::kMinTempo, Profile::kMaxTempo);
     Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
@@ -777,20 +778,18 @@ void Application::onTempoTap(const Glib::VariantBase& value)
         startDropVolumeTimer( (1.0 - confidence) * 50.0 );
   }
 
-  double new_beat = std::round(ticker_stats.current_beat);
+  // tempo in beats per microsecond
+  double new_tempo_bpus = new_tempo / 60.0 / 1000000.0;
 
-  // time difference between the current beat position and the tapped beat
-  double time_diff = std::abs(new_beat - ticker_stats.current_beat) / new_tempo * 60.0 * 1000.0;
+  // compute new phase
+  double new_beat = std::round(ticker_stats.current_beat)
+    + new_tempo_bpus * (phase - tap.time).count()
+    + new_tempo_bpus * ticker_stats.backend_latency.count();
 
-  // to prevent unsteady sound during tapping we apply the phase adjustment only,
-  // when the difference is larger than 20ms
-  if (time_diff > 20.0)
-  {
-    new_beat = new_beat + new_tempo / 60.0 / 1000000.0 * ticker_stats.backend_latency.count();
+  // apply phase adjustment
+  ticker_.setBeatPosition( new_beat );
 
-    // apply phase adjustment
-    ticker_.setBeatPosition( new_beat );
-  }
+  signal_tap_.emit(confidence);
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)
