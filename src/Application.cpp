@@ -788,6 +788,8 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
   // apply phase adjustment
   ticker_.setBeatPosition( new_beat );
+
+  signal_tap_.emit(confidence);
 }
 
 void Application::onTrainerStart(const Glib::VariantBase& value)

@@ -57,6 +57,7 @@ private:
   sigc::connection profile_selection_changed_connection_;
   sigc::connection profile_popover_show_connection_;
   sigc::connection pendulum_restore_connection_;
+  sigc::connection tap_animation_timer_connection_;
 
   // Dialogs
   SettingsDialog* preferences_dialog_;
@@ -105,6 +106,7 @@ private:
   Gtk::Box* accent_box_;
   Gtk::Scale* tempo_scale_;
   Gtk::EventBox* tap_event_box_;
+  Gtk::LevelBar* tap_level_bar_;
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
   Gtk::Label* beats_label_;
@@ -190,6 +192,12 @@ private:
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
   void updatePendulum(const audio::Ticker::Statistics& stats);
   void onTickerStatistics(const audio::Ticker::Statistics& stats);
+  void onTap(double confidence);
+
+  void startTapAnimationTimer();
+  void stopTapAnimationTimer();
+  bool isTapAnimationTimerRunning();
+  bool onTapAnimationTimer();
 
   void onMessage(const Message& message);
   void onMessageResponse(int response);
