@@ -22,7 +22,6 @@
 #endif
 
 #include "Physics.h"
-#include "Error.h"
 #include <algorithm>
 #include <cmath>
 #include <cassert>
@@ -33,20 +32,110 @@
 
 namespace physics {
 
+/*
   namespace {
     using std::chrono::seconds;
     using std::literals::chrono_literals::operator""s;
-
-    // modulo operation that does not trunc (like std::fmod) or round
-    // (like std::remainder) the quotient but uses the largest integer
-    // value not greater than the result of the division (std::floor)
-    constexpr double modulo(double x, double y)
-    {
-      return x - y * std::floor( x / y );
-    }
   }//unnamed namespace
+  
+  void Oscillator::remodule(double m)
+  {
+    assert(m != 0.0);
+    m_ = m;
+    p_ = physics::modulo(p_,m_);
+  }
+
+  size_t Oscillator::registerForce (const Force& f, const seconds_dbl& time)
+  {
+    forces_.push_back({f, time});
+    addForceTime(forces_.back());
+    return forces_.size() - 1;
+  }
+
+  void Oscillator::updateForce(size_t id, const Force& f, const seconds_dbl& time)
+  {
+    assert(id < forces_.size());
+    forces_[id] = {f, time};
+    updateForceTime();
+  }
+
+  void Oscillator::resetForce(size_t id)
+  {
+    updateForce(id, {0.0,0.0}, kZeroTime);
+  }
+
+  void Oscillator::step(seconds_dbl time)
+  {
+    while (time > kZeroTime)
+    {
+      seconds_dbl force_time = std::min(time, f_.time);
+
+      if (force_time == kZeroTime)
+        force_time = time;
+
+      double a = f_.force.base;
+      double slope = f_.force.slope;
+
+      double t1 = force_time.count();
+      double t2 = t1 * t1;
+      double t3 = t2 * t1;
+
+      p_ += slope / 6.0 * t3 + a / 2.0 * t2 + v_ * t1;
+      v_ += slope / 2.0 * t2 + a * t1;
+
+      p_ = physics::modulo(p_,m_);
+
+      updateForceTime(force_time);
+
+      time -= force_time;
+    }
+  }
+
+  Oscillator::ForceTime_& Oscillator::ForceTime_::operator<<(const seconds_dbl& shift)
+  {
+    force << shift;
+    time -= shift;
+    return (*this);
+  }
+
+  Oscillator::ForceTime_& Oscillator::ForceTime_::operator>>(const seconds_dbl& shift)
+  { return ((*this) << -time); }
+
+  void Oscillator::resetForceTime()
+  {
+    f_ = {{0.0, 0.0}, kInfiniteTime};
+  }
+
+  void Oscillator::updateForceTime(const seconds_dbl& time)
+  {
+    resetForceTime();
+    for (auto& f : forces_)
+    {
+      if (time < f.time)
+        f << time;
+      else
+        f << f.time;
+
+      addForceTime(f);
+    }
+  }
+
+  void Oscillator::addForceTime(const ForceTime_& f)
+  {
+    if (f.time > kZeroTime)
+    {
+      f_.force += f.force;
+      f_.time = std::min(f_.time, f.time);
+    }
+  }
+*/
 
 
+
+
+
+
+/*
   // SimpleMotion
   SimpleMotion::SimpleMotion(const MotionParameters& params)
     : params_{params}
@@ -144,7 +233,7 @@ namespace physics {
     return v_time_ != kZeroTime;
   }
 
-
+*/
 
 
   /*
