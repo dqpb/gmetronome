@@ -21,12 +21,39 @@
 #define GMetronome_Auxiliary_h
 
 #include <cmath>
+#include <tuple>
+#include <array>
 
 namespace aux {
   namespace math {
 
-    // modulo operation that uses the largest integer value not greater
-    // than the result of the division (std::floor)
+    /**
+     * @function  solveQuadratic
+     * @brief     Computes all real solutions of the quadratic equation
+     * @return    A tuple containing the number of solutions and the roots
+     */
+    std::tuple<
+      size_t,
+      std::array<double,2>
+      >
+    solveQuadratic(double a2, double a1, double a0);
+
+    /**
+     * @function  solveCubic
+     * @brief     Computes all real solutions of the cubic equation
+     * @return    A tuple containing the number of solutions and the roots
+     */
+    std::tuple<
+      size_t,
+      std::array<double,3>
+      >
+    solveCubic(double a3, double a2, double a1, double a0);
+
+    /**
+     * @function  modulo
+     * @brief     Modulo operation that uses the largest integer value
+     *            not greater than the result of the division (std::floor)
+     */
     constexpr double modulo(double x, double y)
     { return x - y * std::floor( x / y ); }
 
