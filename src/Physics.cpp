@@ -22,9 +22,6 @@
 #endif
 
 #include "Physics.h"
-#include <algorithm>
-#include <cmath>
-#include <cassert>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -32,365 +29,330 @@
 
 namespace physics {
 
-/*
   namespace {
-    using std::chrono::seconds;
-    using std::literals::chrono_literals::operator""s;
+
+    [[maybe_unused]] constexpr double bpm_2_bps(double bpm)
+    { return bpm / 60.0; }
+
+    [[maybe_unused]] constexpr double bps_2_bpm(double bps)
+    { return bps * 60.0; }
+
+    [[maybe_unused]] constexpr double bpm2_2_bps2(double bpm2)
+    { return bpm2 / 60.0 / 60.0; }
+
+    [[maybe_unused]] constexpr double bps2_2_bpm2(double bps2)
+    { return bps2 * 60.0 * 60.0; }
+
   }//unnamed namespace
-  
-  void Oscillator::remodule(double m)
+
+
+  Metronome::Metronome()
+    : osc_(4.0)
+  { }
+
+  void Metronome::start()
   {
-    assert(m != 0.0);
-    m_ = m;
-    p_ = physics::modulo(p_,m_);
+    //not implemented yet
   }
 
-  size_t Oscillator::registerForce (const Force& f, const seconds_dbl& time)
+  void Metronome::stop()
   {
-    forces_.push_back({f, time});
-    addForceTime(forces_.back());
-    return forces_.size() - 1;
+    //not implemented yet
   }
 
-  void Oscillator::updateForce(size_t id, const Force& f, const seconds_dbl& time)
+  void Metronome::setTempo(double tempo)
   {
-    assert(id < forces_.size());
-    forces_[id] = {f, time};
-    updateForceTime();
+    tempo_ = bpm_2_bps(tempo);
+    osc_.resetVelocity(tempo_);
+
+    if (force_mode_ == ForceMode::kAccelForce)
+      updateOscForce(ForceMode::kAccelForce);
   }
 
-  void Oscillator::resetForce(size_t id)
+  void Metronome::setTargetTempo(double tempo)
   {
-    updateForce(id, {0.0,0.0}, kZeroTime);
+    target_tempo_ = bpm_2_bps(tempo);
+
+    if (force_mode_ == ForceMode::kAccelForce)
+      updateOscForce(ForceMode::kAccelForce);
   }
 
-  void Oscillator::step(seconds_dbl time)
+  void Metronome::setAcceleration(double accel)
   {
-    while (time > kZeroTime)
+    accel_ = bpm2_2_bps2(accel);
+
+    if (force_mode_ == ForceMode::kAccelForce)
+      updateOscForce(ForceMode::kAccelForce);
+  }
+
+  void Metronome::setMeter(double beats, int division)
+  {
+    //not implemented yet
+  }
+
+  void Metronome::sync(double beat, double tempo, const seconds_dbl& time)
+  {
+    sync_beat_dev_ = beat;
+    sync_tempo_dev_ = bpm_2_bps(tempo);
+    sync_start_tempo_ = osc_.velocity();
+    sync_time_ = time;
+
+    if (force_mode_ == ForceMode::kSyncForce)
+      updateOscForce(ForceMode::kSyncForce);
+    else
+      switchForceMode(ForceMode::kSyncForce);
+  }
+
+  double Metronome::position() const
+  { return osc_.position(); }
+
+  double Metronome::tempo() const
+  { return bps_2_bpm(osc_.velocity()); }
+
+  double Metronome::acceleration() const
+  { return bps2_2_bpm2(osc_.force().base); }
+
+
+  void Metronome::updateOscForce(ForceMode mode)
+  {
+    switch (mode) {
+    case ForceMode::kNoForce:
     {
-      seconds_dbl force_time = std::min(time, f_.time);
-
-      if (force_time == kZeroTime)
-        force_time = time;
-
-      double a = f_.force.base;
-      double slope = f_.force.slope;
-
-      double t1 = force_time.count();
-      double t2 = t1 * t1;
-      double t3 = t2 * t1;
-
-      p_ += slope / 6.0 * t3 + a / 2.0 * t2 + v_ * t1;
-      v_ += slope / 2.0 * t2 + a * t1;
-
-      p_ = physics::modulo(p_,m_);
-
-      updateForceTime(force_time);
-
-      time -= force_time;
+      //std::cout << ", noforce";
+      osc_.resetForce();
     }
-  }
+    break;
 
-  Oscillator::ForceTime_& Oscillator::ForceTime_::operator<<(const seconds_dbl& shift)
-  {
-    force << shift;
-    time -= shift;
-    return (*this);
-  }
-
-  Oscillator::ForceTime_& Oscillator::ForceTime_::operator>>(const seconds_dbl& shift)
-  { return ((*this) << -time); }
-
-  void Oscillator::resetForceTime()
-  {
-    f_ = {{0.0, 0.0}, kInfiniteTime};
-  }
-
-  void Oscillator::updateForceTime(const seconds_dbl& time)
-  {
-    resetForceTime();
-    for (auto& f : forces_)
+    case ForceMode::kAccelForce:
     {
-      if (time < f.time)
-        f << time;
+      //std::cout << ", accelforce";
+      const auto& [force, time] = computeAccelForce(target_tempo_ - osc_.velocity(), accel_);
+      accel_r_time_ = time;
+      osc_.resetForce(force);
+    }
+    break;
+
+    case ForceMode::kSyncForce:
+    {
+      //std::cout << ", syncforce";
+      const auto& [force, time] = computeSyncForce(sync_beat_dev_, sync_tempo_dev_, sync_time_);
+      sync_r_time_ = time;
+      osc_.resetForce(force);
+    }
+    break;
+    };
+  }
+
+  void Metronome::switchForceMode(ForceMode mode)
+  {
+    updateOscForce(mode);
+    force_mode_ = mode;
+  }
+
+  void Metronome::step(seconds_dbl time)
+  {
+    if (force_mode_ == ForceMode::kSyncForce)
+    {
+      seconds_dbl sync_step_time = std::min(sync_r_time_, time);
+      osc_.step(sync_step_time);
+
+      time -= sync_step_time;
+      sync_r_time_ -= sync_step_time;
+
+      if (sync_r_time_ <= kZeroTime) // handle possible rounding errors
+        osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
+
+      if (time <= kZeroTime)
+        return;
+    }
+
+    if (force_mode_ != ForceMode::kAccelForce
+        && osc_.velocity() != target_tempo_
+        && accel_ != 0.0)
+    {
+      switchForceMode(ForceMode::kAccelForce);
+    }
+
+    if (force_mode_ == ForceMode::kAccelForce)
+    {
+      seconds_dbl accel_step_time = std::min(accel_r_time_, time);
+      osc_.step(accel_step_time);
+
+      time -= accel_step_time;
+      accel_r_time_ -= accel_step_time;
+
+      if (accel_r_time_ <= kZeroTime) // handle possible rounding errors
+        osc_.resetVelocity(target_tempo_);
+
+      if (time <= kZeroTime)
+        return;
+    }
+
+    if (force_mode_ != ForceMode::kNoForce)
+      switchForceMode(ForceMode::kNoForce);
+
+    if (time > kZeroTime)
+      osc_.step(time);
+  }
+
+  namespace {
+
+    // Returns the smallest positive value in the array or a negative
+    // value, if no such value exists.
+    // This is used in conjunction with the return values of
+    // aux::math::solveCubic and aux::math::solveQuadratic.
+    template<size_t S>
+    double posmin(const std::tuple<size_t, std::array<double,S>>& tpl)
+    {
+      const auto& [n,a] = tpl;
+
+      if (n == 0)
+        return -1;
+
+      double m = std::numeric_limits<double>::infinity();
+
+      for (size_t i = 0; i < n; ++i)
+        if (a[i] >= 0.0 && a[i] < m)
+          m = a[i];
+
+      if (m == std::numeric_limits<double>::infinity())
+        return -1;
       else
-        f << f.time;
-
-      addForceTime(f);
+        return m;
     }
-  }
 
-  void Oscillator::addForceTime(const ForceTime_& f)
-  {
-    if (f.time > kZeroTime)
+    // Computes the time until a given position is reached under the influence
+    // of a force and updates position and velocity. If the position is never
+    // reached or not reached within the time limit max_time, the time limit
+    // is returned.
+    seconds_dbl arrival(double& p0, double& v0, double p,
+                        const Force& force, const seconds_dbl& max_time)
     {
-      f_.force += f.force;
-      f_.time = std::min(f_.time, f.time);
-    }
-  }
-*/
+      double a3 = force.slope / 6.0;
+      double a2 = force.base / 2.0;
+      double a1 = v0;
+      double a0 = p0 - p;
 
+      seconds_dbl time {posmin(aux::math::solveCubic(a3, a2, a1, a0))};
 
-
-
-
-
-/*
-  // SimpleMotion
-  SimpleMotion::SimpleMotion(const MotionParameters& params)
-    : params_{params}
-  {
-    // nothing
-  }
-
-  void SimpleMotion::set(const MotionParameters& params)
-  {
-    params_ = params;
-  }
-
-  void SimpleMotion::step(const seconds_dbl& time)
-  {
-    auto& [p,v,a] = params_;
-    double v_0 = v;
-
-    v += a * time.count();
-    p += 0.5 * (v_0 + v) * time.count();
-  }
-
-  // SimpleOscillator
-  SimpleOscillator::SimpleOscillator(const MotionParameters& params, double module)
-    : SimpleMotion(params),
-      m_{module}
-  {
-    //nothing
-  }
-
-  void SimpleOscillator::set(const MotionParameters& params)
-  {
-    const auto& [p,v,a] = params;
-    SimpleMotion::set({modulo(p, m_), v, a});
-  }
-
-  void SimpleOscillator::step(const seconds_dbl& time)
-  {
-    SimpleMotion::step(time);
-    SimpleOscillator::set(SimpleMotion::state());
-  }
-
-  void SimpleOscillator::remodule(double m)
-  {
-    assert(m != 0.0);
-    m_ = m;
-    SimpleOscillator::set(SimpleMotion::state());
-  }
-
-  // SimpleSyncOscillator
-  SimpleSyncOscillator::SimpleSyncOscillator(const MotionParameters& params, double module)
-    : SimpleOscillator(params, module)
-  {
-    // nothing
-  }
-
-  void SimpleSyncOscillator::step(const seconds_dbl& time)
-  {
-  }
-
-  void SimpleSyncOscillator::syncPosition(double deviation, const seconds_dbl& time)
-  {
-    // p_m_t1_ = -6.0 * deviation / (time.count() * time.count());
-    // p_m_ = m / time.count();
-  }
-
-  void SimpleSyncOscillator::syncVelocity(double deviation, const seconds_dbl& time)
-  {
-    MotionParameters new_params = SimpleMotion::state();
-    auto& [p,v,a] = new_params;
-
-    if (isSyncingVelocity()) // remove old sync acceleration
-      a -= v_a_;
-
-    if (time == kZeroTime)
-    {
-      v += deviation;       // instantaneous velocity change
-      v_a_ = 0.0;           // and no further acceleration
-    }
-    else
-    {
-      v_a_ = deviation / time.count();
-      a += v_a_;
-    }
-    v_time_ = time;
-    SimpleOscillator::set(new_params);
-  }
-
-  bool SimpleSyncOscillator::isSyncingPosition() const
-  {
-    return false;
-  }
-
-  bool SimpleSyncOscillator::isSyncingVelocity() const
-  {
-    return v_time_ != kZeroTime;
-  }
-
-*/
-
-
-  /*
-  Oscillator::Oscillator(double position,
-                         double velocity,
-                         double acceleration,
-                         double module)
-    : p_{position},
-      v_{velocity},
-      a_{acceleration},
-      m_{module},
-      a_time_{0.0}
-  {
-    if (a_ != 0.0)
-      a_time_ = kInfiniteTime;
-  }
-
-  void Oscillator::accelerate(double a, const seconds_dbl& time)
-  {
-    a_time_ = (time < kZeroTime) ? kZeroTime : time;
-
-    if (a_time_ == kZeroTime)
-      a_ = 0.0;
-    else
-      a_ = a;
-  }
-
-  void Oscillator::step(const seconds_dbl& time)
-  {
-    if (time <= 0s || time == kInfiniteTime)
-      return;
-
-    double v_0 = v_;
-    seconds_dbl eff_a_time = std::min(a_time_, time);
-
-    if (eff_a_time > 0s)
-    {
-      v_ += a_ * eff_a_time.count();
-      p_ += 0.5 * (v_0 + v_) * eff_a_time.count();
-
-      a_time_ -= eff_a_time;
-
-      if (a_time_ <= 0s)
-        a_ = 0.0;
+      if (time > kZeroTime && time <= max_time)
+      {
+        applyForce(p0, v0, force, time);
+        return time;
+      }
+      else
+      {
+        applyForce(p0, v0, force, max_time);
+        return max_time;
+      }
     }
 
-    p_ += v_ * (time - eff_a_time).count();
-    p_ = modulo(p_, m_);
-  }
+  }//unnamed namespace
 
-  void Oscillator::remodule(double m)
+  seconds_dbl Metronome::arrival(double p) const
   {
-    assert(m != 0.0);
-    m_ = m;
-    p_ = modulo(p_, m_);
-  }
+    p = aux::math::modulo(p, osc_.module());
 
-  void Oscillator::set(double p, double v,
-  double a, const seconds_dbl& a_time)
-  {
-    p_ = modulo(p, m_);
-    v_ = v;
-    accelerate(a, a_time);
-  }
+    double v0 = osc_.velocity();
+    double p0 = osc_.position();
 
-  seconds_dbl Oscillator::arrival(double p) const
-  {
-    if ( std::isinf(p) )
-      return kInfiniteTime;
+    seconds_dbl time = kZeroTime;
 
-    p = modulo(p, m_);
-
-    if (p == p_)
+    if (p == p0)
       return kZeroTime;
 
-    double p_l = (p < p_) ? p : p - m_;
-    double p_r = (p > p_) ? p : p + m_;
+    // we assume that the metronome is never going backwards
+    if (p < p0)
+      p += osc_.module();
 
-    seconds_dbl result {kInfiniteTime};
-
-    if (a_ == 0.0)
+    // sync force phase
+    if (force_mode_ == ForceMode::kSyncForce)
     {
-      if (v_ > 0.0)
-        result = seconds_dbl( (p_r - p_) / v_ );
-      else if (v_ < 0.0)
-        result = seconds_dbl( (p_l - p_) / v_ );
+      const Force& force = osc_.force();
+      time += physics::arrival(p0, v0, p, force, sync_r_time_);
+    }
+
+    if (p0 >= p)
+      return time;
+
+    // accel force phase
+    if (v0 != target_tempo_ && accel_ != 0.0)
+    {
+      if (double v_dev = target_tempo_ - v0; v_dev != 0.0)
+      {
+        auto [force, force_time] = computeAccelForce(v_dev, accel_);
+        time += physics::arrival(p0, v0, p, force, force_time);
+      }
+    }
+
+    if (p0 >= p)
+      return time;
+
+    // no force phase
+    if (v0 != 0.0)
+      time += seconds_dbl((p - p0) / v0);
+    else
+      time = kInfiniteTime;
+
+    return time;
+  }
+
+  //static
+  std::pair<Force, seconds_dbl>
+  Metronome::computeAccelForce(double v_dev, double a)
+  {
+    std::pair<Force, seconds_dbl> r {{0.0}, kZeroTime};
+    auto& [r_force, r_time] = r;
+
+    if (v_dev != 0.0)
+    {
+      if (a == 0.0)
+      {
+        r_time = kInfiniteTime;
+        r_force = {0.0, 0.0};
+      }
+      else if (seconds_dbl t { v_dev / a }; t > kZeroTime)
+      {
+        r_time = t;
+        r_force = {a, 0.0};
+      }
       else
-        result = kInfiniteTime;
+      {
+        r_time = -t;
+        r_force = {-a, 0.0};
+      }
     }
     else
     {
-      double a = a_ / 2.0;
-      double b = v_;
-      double c_l = p_ - p_l;
-      double c_r = p_ - p_r;
-
-      double b_by_2a = b / (2.0 * a);
-      double b_by_2a_squared = b_by_2a * b_by_2a;
-
-      double c_l_by_a = c_l / a;
-      double c_r_by_a = c_r / a;
-
-      double radicand_l = b_by_2a_squared - c_l_by_a;
-      double radicand_r = b_by_2a_squared - c_r_by_a;
-
-      seconds_dbl t = kInfiniteTime;
-
-      if (radicand_l >= 0.0)
-      {
-        double root_l = std::sqrt(radicand_l);
-        seconds_dbl t_1 {-b_by_2a + root_l};
-        seconds_dbl t_2 {-b_by_2a - root_l};
-
-        if (t_1 > kZeroTime && t_1 < t)
-          t = t_1;
-        if (t_2 > kZeroTime && t_2 < t)
-          t = t_2;
-      }
-
-      if (radicand_r >= 0.0)
-      {
-        double root_r = std::sqrt(radicand_r);
-        seconds_dbl t_1 {-b_by_2a + root_r};
-        seconds_dbl t_2 {-b_by_2a - root_r};
-
-        if (t_1 > kZeroTime && t_1 < t)
-          t = t_1;
-        if (t_2 > kZeroTime && t_2 < t)
-          t = t_2;
-      }
-
-      if (t > a_time_) // the target is not reached in the acceleration phase
-      {
-        double at_dbl = a_time_.count();
-        double at_dbl_squared = at_dbl * at_dbl;
-
-        // position after acceleration phase
-        double pa = modulo(a * at_dbl_squared + v_ * at_dbl + p_, m_);
-
-        // velocity after acceleration phase
-        double va = a_ * at_dbl + v_;
-
-        p_l = (p < pa) ? p : p - m_;
-        p_r = (p > pa) ? p : p + m_;
-
-        if (va > 0.0)
-          result = a_time_ + seconds_dbl( (p_r - pa) / va );
-        else if (va < 0.0)
-          result = a_time_ + seconds_dbl( (p_l - pa) / va );
-        else
-          result = kInfiniteTime;
-      }
-      else
-        result = t;
+      r_time = kZeroTime;
+      r_force = {a, 0.0};
     }
-
-    return result;
+    return r;
   }
-  */
+
+  //static
+  std::pair<Force, seconds_dbl>
+  Metronome::computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
+  {
+    std::pair<Force, seconds_dbl> r {{0.0}, time};
+    auto& [r_force, r_time] = r;
+
+    if (time != kZeroTime)
+    {
+      double sync_time = time.count();
+      double sync_time_squared = sync_time * sync_time;
+      double sync_time_cubed = sync_time_squared * sync_time;
+
+      if (p_dev != 0.0)
+      {
+        r_force.base = 6.0 * p_dev / sync_time_squared;
+        r_force.slope = -12.0 * p_dev / sync_time_cubed;
+      }
+
+      if (v_dev != 0.0)
+        r_force.base += v_dev / sync_time;
+    }
+    return r;
+  }
+
 }//namespace physics
