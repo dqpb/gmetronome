@@ -35,7 +35,7 @@ namespace aux {
       double solveCubic1(double a3, double a2, double a1, double a0,
                          double q, double r, double r2_plus_q3)
       {
-        double A = std::cbrt(std::abs(r) + sqrt(r2_plus_q3));
+        double A = std::cbrt(std::abs(r) + std::sqrt(r2_plus_q3));
         double t1 = (r >= 0) ? A - q / A : q / A - A;
         return t1 - a2 / 3.0;
       }
@@ -82,7 +82,7 @@ namespace aux {
 
       double A = std::sqrt(radicand);
 
-      // use different formulas to provide numerically stable soutions and
+      // use different formulas to provide numerically stable solutions and
       // prevent subtractive cancellation
       if (a1 >= 0.0)
         return {2, {(-a1 - A) / (2.0 * a2), (2.0 * a0) / (-a1 - A)}};
