@@ -172,7 +172,6 @@ namespace audio {
 
     avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
 
-    accent_point_ = false;
     updateFramesLeft(ctrl);
   }
 
