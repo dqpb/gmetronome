@@ -22,6 +22,9 @@
 #endif
 
 #include "Physics.h"
+#include <algorithm>
+#include <tuple>
+#include <array>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -46,54 +49,59 @@ namespace physics {
   }//unnamed namespace
 
 
-  Metronome::Metronome()
+  BeatKinematics::BeatKinematics()
     : osc_(4.0)
   { }
 
-  void Metronome::start()
+  void BeatKinematics::reset()
   {
-    //not implemented yet
+    osc_.resetPosition(0.0);
+    switchForceMode(ForceMode::kNoForce);
   }
 
-  void Metronome::stop()
-  {
-    //not implemented yet
-  }
-
-  void Metronome::setTempo(double tempo)
+  void BeatKinematics::setTempo(double tempo)
   {
     tempo_ = bpm_2_bps(tempo);
+
     osc_.resetVelocity(tempo_);
 
-    if (force_mode_ == ForceMode::kAccelForce)
+    if (force_mode_ == ForceMode::kSyncForce)
+    {
+      if (tempo_ != target_tempo_ && accel_ != 0)
+        switchForceMode(ForceMode::kAccelForce);
+      else
+        switchForceMode(ForceMode::kNoForce);
+    }
+    else if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
+      switchForceMode(ForceMode::kAccelForce);
+    else if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
   }
 
-  void Metronome::setTargetTempo(double tempo)
+  void BeatKinematics::setTargetTempo(double tempo)
   {
     target_tempo_ = bpm_2_bps(tempo);
 
-    if (force_mode_ == ForceMode::kAccelForce)
+    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
+      switchForceMode(ForceMode::kAccelForce);
+    else if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
   }
 
-  void Metronome::setAcceleration(double accel)
+  void BeatKinematics::setAcceleration(double accel)
   {
     accel_ = bpm2_2_bps2(accel);
 
-    if (force_mode_ == ForceMode::kAccelForce)
+    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
+      switchForceMode(ForceMode::kAccelForce);
+    else if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
   }
 
-  void Metronome::setMeter(double beats, int division)
+  void BeatKinematics::synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time)
   {
-    //not implemented yet
-  }
-
-  void Metronome::sync(double beat, double tempo, const seconds_dbl& time)
-  {
-    sync_beat_dev_ = beat;
-    sync_tempo_dev_ = bpm_2_bps(tempo);
+    sync_beat_dev_ = beat_dev;
+    sync_tempo_dev_ = bpm_2_bps(tempo_dev);
     sync_start_tempo_ = osc_.velocity();
     sync_time_ = time;
 
@@ -103,29 +111,27 @@ namespace physics {
       switchForceMode(ForceMode::kSyncForce);
   }
 
-  double Metronome::position() const
+  double BeatKinematics::position() const
   { return osc_.position(); }
 
-  double Metronome::tempo() const
+  double BeatKinematics::tempo() const
   { return bps_2_bpm(osc_.velocity()); }
 
-  double Metronome::acceleration() const
+  double BeatKinematics::acceleration() const
   { return bps2_2_bpm2(osc_.force().base); }
 
 
-  void Metronome::updateOscForce(ForceMode mode)
+  void BeatKinematics::updateOscForce(ForceMode mode)
   {
     switch (mode) {
     case ForceMode::kNoForce:
     {
-      //std::cout << ", noforce";
       osc_.resetForce();
     }
     break;
 
     case ForceMode::kAccelForce:
     {
-      //std::cout << ", accelforce";
       const auto& [force, time] = computeAccelForce(target_tempo_ - osc_.velocity(), accel_);
       accel_r_time_ = time;
       osc_.resetForce(force);
@@ -134,7 +140,6 @@ namespace physics {
 
     case ForceMode::kSyncForce:
     {
-      //std::cout << ", syncforce";
       const auto& [force, time] = computeSyncForce(sync_beat_dev_, sync_tempo_dev_, sync_time_);
       sync_r_time_ = time;
       osc_.resetForce(force);
@@ -143,13 +148,13 @@ namespace physics {
     };
   }
 
-  void Metronome::switchForceMode(ForceMode mode)
+  void BeatKinematics::switchForceMode(ForceMode mode)
   {
     updateOscForce(mode);
     force_mode_ = mode;
   }
 
-  void Metronome::step(seconds_dbl time)
+  void BeatKinematics::step(seconds_dbl time)
   {
     if (force_mode_ == ForceMode::kSyncForce)
     {
@@ -238,6 +243,7 @@ namespace physics {
       if (time > kZeroTime && time <= max_time)
       {
         applyForce(p0, v0, force, time);
+        p0 = p; // handle limited fp precision
         return time;
       }
       else
@@ -249,21 +255,16 @@ namespace physics {
 
   }//unnamed namespace
 
-  seconds_dbl Metronome::arrival(double p) const
+  seconds_dbl BeatKinematics::arrival(double p_dev) const
   {
-    p = aux::math::modulo(p, osc_.module());
-
     double v0 = osc_.velocity();
     double p0 = osc_.position();
+    double p = p0 + p_dev;
 
     seconds_dbl time = kZeroTime;
 
     if (p == p0)
-      return kZeroTime;
-
-    // we assume that the metronome is never going backwards
-    if (p < p0)
-      p += osc_.module();
+      return time;
 
     // sync force phase
     if (force_mode_ == ForceMode::kSyncForce)
@@ -272,7 +273,7 @@ namespace physics {
       time += physics::arrival(p0, v0, p, force, sync_r_time_);
     }
 
-    if (p0 >= p)
+    if (p0 == p)
       return time;
 
     // accel force phase
@@ -285,11 +286,11 @@ namespace physics {
       }
     }
 
-    if (p0 >= p)
+    if (p0 == p)
       return time;
 
     // no force phase
-    if (v0 != 0.0)
+    if ((v0 > 0.0 && p > p0) || (v0 < 0.0 && p < p0))
       time += seconds_dbl((p - p0) / v0);
     else
       time = kInfiniteTime;
@@ -299,7 +300,7 @@ namespace physics {
 
   //static
   std::pair<Force, seconds_dbl>
-  Metronome::computeAccelForce(double v_dev, double a)
+  BeatKinematics::computeAccelForce(double v_dev, double a)
   {
     std::pair<Force, seconds_dbl> r {{0.0}, kZeroTime};
     auto& [r_force, r_time] = r;
@@ -332,9 +333,9 @@ namespace physics {
 
   //static
   std::pair<Force, seconds_dbl>
-  Metronome::computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
+  BeatKinematics::computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
   {
-    std::pair<Force, seconds_dbl> r {{0.0}, time};
+    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
     auto& [r_force, r_time] = r;
 
     if (time != kZeroTime)
@@ -345,12 +346,15 @@ namespace physics {
 
       if (p_dev != 0.0)
       {
-        r_force.base = 6.0 * p_dev / sync_time_squared;
-        r_force.slope = -12.0 * p_dev / sync_time_cubed;
+        r_force.base += 6.0 * p_dev / sync_time_squared;
+        r_force.slope += -12.0 * p_dev / sync_time_cubed;
       }
 
       if (v_dev != 0.0)
-        r_force.base += v_dev / sync_time;
+      {
+        r_force.base += -2.0 * v_dev / sync_time;
+        r_force.slope += 6.0 * v_dev / sync_time_squared;
+      }
     }
     return r;
   }

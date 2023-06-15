@@ -28,6 +28,7 @@
 #include "Shortcut.h"
 #include "Settings.h"
 
+#include <chrono>
 #include <cassert>
 #include <algorithm>
 #include <iostream>
@@ -681,8 +682,7 @@ void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
 
 void Application::onMeterSeek(const Glib::VariantBase& value)
 {
-  double beat = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  ticker_.setBeatPosition(beat);
+  // not implemented yet
 }
 
 void Application::onVolumeIncrease(const Glib::VariantBase& value)
@@ -755,6 +755,17 @@ void Application::onTempoDecrease(const Glib::VariantBase& value)
   activate_action(kActionTempo, new_tempo_state);
 }
 
+namespace {
+
+  using std::chrono::milliseconds;
+  using std::literals::chrono_literals::operator""ms;
+
+  constexpr double  kMaxVolumeDrop = 75.0; // percent
+  constexpr milliseconds  kDropVolumeTimerInterval = 250ms;
+  constexpr double kDropVolumeRecoverSpeed = 30.0; // percent/s
+
+}//unnamed namespace
+
 void Application::onTempoTap(const Glib::VariantBase& value)
 {
   auto ticker_stats = ticker_.getStatistics();
@@ -775,19 +786,19 @@ void Application::onTempoTap(const Glib::VariantBase& value)
       state.test(audio::TickerStateFlag::kStarted))
   {
     if (settings::sound()->get_boolean(settings::kKeySoundAutoAdjustVolume))
-        startDropVolumeTimer( (1.0 - confidence) * 50.0 );
+        startDropVolumeTimer( (1.0 - confidence) * kMaxVolumeDrop );
   }
-
   // tempo in beats per microsecond
   double new_tempo_bpus = new_tempo / 60.0 / 1000000.0;
 
-  // compute new phase
-  double new_beat = std::round(ticker_stats.current_beat)
+  double beat_dev = std::round(ticker_stats.current_beat) - ticker_stats.current_beat
     + new_tempo_bpus * (phase - tap.time).count()
     + new_tempo_bpus * ticker_stats.backend_latency.count();
 
+  //double tempo_dev = new_tempo - ticker_stats.current_tempo;
+
   // apply phase adjustment
-  ticker_.setBeatPosition( new_beat );
+  ticker_.synchronize(beat_dev, 0.0);
 
   signal_tap_.emit(confidence);
 }
@@ -1355,16 +1366,6 @@ bool Application::onStatsTimer()
   else
   {
     audio::Ticker::Statistics stats = ticker_.getStatistics();
-
-    bool meter_enabled;
-    get_action_state(kActionMeterEnabled, meter_enabled);
-
-    if (!meter_enabled)
-    {
-      stats.next_accent = -1;
-      stats.next_accent_delay = 0us;
-    }
-
     signal_ticker_statistics_.emit(stats);
     return true;
   }
@@ -1380,7 +1381,8 @@ void Application::startDropVolumeTimer(double drop)
   if (!isDropVolumeTimerRunning())
   {
     volume_timer_connection_ = Glib::signal_timeout()
-      .connect(sigc::mem_fun(*this, &Application::onDropVolumeTimer), 250);
+      .connect(sigc::mem_fun(*this, &Application::onDropVolumeTimer),
+               kDropVolumeTimerInterval.count());
   }
 }
 
@@ -1400,7 +1402,8 @@ bool Application::isDropVolumeTimerRunning()
 
 bool Application::onDropVolumeTimer()
 {
-  volume_drop_ = std::clamp(volume_drop_ - 5.0, 0.0, 100.0);
+  constexpr double kVolumeRecover = kDropVolumeRecoverSpeed * kDropVolumeTimerInterval / 1000ms;
+  volume_drop_ = std::clamp(volume_drop_ - kVolumeRecover, 0.0, 100.0);
   dropVolume(volume_drop_);
   return volume_drop_ > 0.0;
 }

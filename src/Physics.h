@@ -24,9 +24,7 @@
 
 #include <chrono>
 #include <limits>
-#include <cmath>
-#include <vector>
-#include <algorithm>
+#include <utility>
 #include <cassert>
 
 namespace physics {
@@ -137,22 +135,23 @@ namespace physics {
   };
 
   /**
-   * @class Metronome
+   * @class BeatKinematics
    */
-  class Metronome {
+  class BeatKinematics {
   public:
     // ctor
-    Metronome();
+    BeatKinematics();
 
     /**
-     * @function start
+     * @function reset
      */
-    void start();
+    void reset();
 
     /**
-     * @function stop
+     * @function setBeats
      */
-    void stop();
+    void setBeats(double beats)
+      { osc_.remodule(beats); }
 
     /**
      * @function setTempo
@@ -177,14 +176,9 @@ namespace physics {
     void setAcceleration(double accel);
 
     /**
-     * @function setMeter
+     * @function synchronize
      */
-    void setMeter(double beats, int division = 1);
-
-    /**
-     * @function sync
-     */
-    void sync(double beat, double tempo, const seconds_dbl& time);
+    void synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time);
 
     double position() const;
     double tempo() const;
@@ -198,7 +192,7 @@ namespace physics {
     /**
      * @function arrival
      */
-    seconds_dbl arrival(double p) const;
+    seconds_dbl arrival(double p_dev) const;
 
   private:
     Oscillator osc_{2.0};
@@ -210,7 +204,6 @@ namespace physics {
     double sync_tempo_dev_{0.0};
     double sync_start_tempo_{0.0};
     seconds_dbl sync_time_{0.0};
-    int division_{1};
 
     enum class ForceMode
     {
