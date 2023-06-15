@@ -1074,8 +1074,10 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
 
   if (tempo_fraction_int == 100)
+  {
     tempo_fraction_int = 0;
-
+    tempo_integral_int += 1;
+  }  
   auto text = Glib::ustring::format(tempo_integral_int);
 
   if (text != tempo_integral_label_->get_text())
