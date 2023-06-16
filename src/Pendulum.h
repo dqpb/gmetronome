@@ -52,23 +52,23 @@ public:
   void synchronize(const audio::Ticker::Statistics& stats,
                    const std::chrono::microseconds& sync);
 private:
-  Meter meter_;
-  double action_angle_;
-  double phase_mode_shift_;
-  bool animation_running_;
-  double theta_;
-  double alpha_;
-  double omega_;
-  double target_omega_;
-  double target_theta_;
-  std::chrono::microseconds last_frame_time_;
-  double needle_amplitude_;
-  double needle_theta_;
-  double needle_length_;
-  std::array<double,2> needle_base_;
-  std::array<double,2> needle_tip_;
-  double marking_radius_;
-  double marking_amplitude_;
+  Meter meter_{kMeterSimple4};
+  double action_angle_{0.0};
+  double phase_mode_shift_{0.0};
+  bool animation_running_{false};
+  double theta_{0.0};
+  double alpha_{0.0};
+  double omega_{0.0};
+  double target_omega_{0.0};
+  double target_theta_{0.0};
+  std::chrono::microseconds last_frame_time_{0};
+  double needle_amplitude_{0.0};
+  double needle_theta_{0.0};
+  double needle_length_{0.9};
+  std::array<double,2> needle_base_{0.5, 1.0};
+  std::array<double,2> needle_tip_{0.5, 0.0};
+  double marking_radius_{1.0};
+  double marking_amplitude_{0.0};
 
   void startAnimation();
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);

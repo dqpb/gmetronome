@@ -17,66 +17,63 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Pendulum.h"
 #include <cairomm/context.h>
 #include <algorithm>
-#include <iostream>
 
-using std::chrono::seconds;
-using std::chrono::microseconds;
-using std::chrono::milliseconds;
+#ifndef NDEBUG
+# include <iostream>
+#endif
 
-using std::literals::chrono_literals::operator""s;
-using std::literals::chrono_literals::operator""ms;
-using std::literals::chrono_literals::operator""us;
+namespace {
 
-using seconds_dbl = std::chrono::duration<double>;
+  using std::chrono::seconds;
+  using std::chrono::microseconds;
+
+  using std::literals::chrono_literals::operator""s;
+  using std::literals::chrono_literals::operator""us;
+
+  using seconds_dbl = std::chrono::duration<double>;
 
 // behaviour
-constexpr double kActionAngleReal     = M_PI / 5.5;  // rad
-constexpr double kActionAngleCenter   = 0.0;         // rad
-constexpr double kActionAngleEdge     = M_PI / 2.0;  // rad
-constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
-constexpr double kPhaseModeShiftRight = M_PI;        // rad
+  constexpr double kActionAngleReal     = M_PI / 5.5;  // rad
+  constexpr double kActionAngleCenter   = 0.0;         // rad
+  constexpr double kActionAngleEdge     = M_PI / 2.0;  // rad
+  constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
+  constexpr double kPhaseModeShiftRight = M_PI;        // rad
 
 // dynamics
-constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
-constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
-constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
-constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
-constexpr double kNeedleAmplitudeChangeRate  = 1.0 * M_PI;    // rad/s
-constexpr double kMarkingAmplitudeChangeRate = 1.5 * M_PI;    // rad/s
+  constexpr double kMaxAlpha           = (8.0 * M_PI / 1.0);    // rad/s²
+  constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
+  constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
+  constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
+  constexpr double kNeedleAmplitudeChangeRate  = 1.0 * M_PI;    // rad/s
+  constexpr double kMarkingAmplitudeChangeRate = 1.5 * M_PI;    // rad/s
 
 // element appearance
-constexpr double kNeedleWidth        = 3.0;   // pixel
-constexpr double kNeedleShadowOffset = 6.0;   // pixel
-constexpr double kNeedleLength       = 92.0;  // percent of markings height
-constexpr double kKnobRadius         = 10.0;  // pixel
+  constexpr double kNeedleWidth        = 3.0;   // pixel
+  constexpr double kNeedleShadowOffset = 6.0;   // pixel
+  constexpr double kNeedleLength       = 92.0;  // percent of markings height
+  constexpr double kKnobRadius         = 10.0;  // pixel
 
 // widget dimensions
-const double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
-const int    kWidgetHeight           = 150;
-const int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
+  const double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
+  const int    kWidgetHeight           = 150;
+  const int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
+
+}//unnamed namespace
 
 Pendulum::Pendulum()
   : Glib::ObjectBase("pendulum"),
     Gtk::Widget(),
-    meter_{kMeterSimple4},
     action_angle_{kActionAngleReal},
     phase_mode_shift_{kPhaseModeShiftLeft},
-    animation_running_{false},
     theta_{phase_mode_shift_},
-    alpha_{0.0},
-    omega_{0.0},
-    target_omega_{0.0},
     target_theta_{phase_mode_shift_},
-    last_frame_time_{0},
-    needle_amplitude_{0.0},
-    needle_theta_{0.0},
-    needle_length_{0.9},
-    needle_base_ {0.5, 1.0},
-    needle_tip_ {0.5, 0.0},
-    marking_radius_{1.0},
     marking_amplitude_{kMaxNeedleAmplitude}
 {}
 
@@ -312,15 +309,6 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   const double sin_marking_amplitude = std::sin(marking_amplitude_);
   const double cos_marking_amplitude = std::cos(marking_amplitude_);
   const double needle_length_half = needle_length_ / 2.0;
-
-  // debug: draw a frame
-  // Gdk::Cairo::set_source_rgba(cr, primary_color);
-  // cr->move_to(0, 0);
-  // cr->line_to(width, 0);
-  // cr->line_to(width, height);
-  // cr->line_to(0, height);
-  // cr->line_to(0, 0);
-  // cr->stroke();
 
   // draw markings
   cr->save();
