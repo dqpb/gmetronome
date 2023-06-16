@@ -788,15 +788,32 @@ void Application::onTempoTap(const Glib::VariantBase& value)
     if (settings::sound()->get_boolean(settings::kKeySoundAutoAdjustVolume))
         startDropVolumeTimer( (1.0 - confidence) * kMaxVolumeDrop );
   }
+
+  // Synchronize the tap with the nearest audible beat:
+  //
+  //      +--latency-+         stats
+  //      |          |           |
+  //   ---1----------:---2-------:----:-3-------> device beat
+  //   --------------1-----------:--2-:---------> audible beat (device + latency)
+  //   --s-------s-------s-------s----:--s------> device stats creation (time stamp)
+  //   ->>>--time-->>>----------------|--------->
+  //                                 now (tap time)
+
   // tempo in beats per microsecond
+  double current_tempo_bpus = ticker_stats.current_tempo / 60.0 / 1000000.0;
   double new_tempo_bpus = new_tempo / 60.0 / 1000000.0;
 
-  double beat_dev = std::round(ticker_stats.current_beat) - ticker_stats.current_beat
-    + new_tempo_bpus * (phase - tap.time).count()
-    + new_tempo_bpus * ticker_stats.backend_latency.count();
+  // device beat at tap time
+  double device_beat = ticker_stats.current_beat
+    + current_tempo_bpus * (tap.time - ticker_stats.timestamp).count();
 
-  //double tempo_dev = new_tempo - ticker_stats.current_tempo;
+  // audible beat at tap time
+  double audible_beat = device_beat
+    - current_tempo_bpus * ticker_stats.backend_latency.count();
 
+  double beat_dev = std::round(audible_beat) - audible_beat
+    + new_tempo_bpus * (phase - tap.time).count(); // deviation from the
+                                                   // estimated tap time (phase)
   // apply phase adjustment
   ticker_.synchronize(beat_dev, 0.0);
 
