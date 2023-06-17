@@ -38,6 +38,63 @@
 #include <algorithm>
 #include <cmath>
 
+namespace {
+
+  void onCssParsingError(const Glib::RefPtr<const Gtk::CssSection>& section,
+                         const Glib::Error& error)
+  {
+    std::cerr << "CSS parsing error: " << error.what() << std::endl;
+    if (section)
+    {
+      if (const auto file = section->get_file(); file)
+        std::cerr << "  URI = " << file->get_uri() << std::endl;
+
+      std::cerr << "  start_line = " << section->get_start_line()+1
+                << ", end_line = " << section->get_end_line()+1 << std::endl;
+      std::cerr << "  start_position = " << section->get_start_position()
+                << ", end_position = " << section->get_end_position() << std::endl;
+    }
+  }
+
+  Glib::RefPtr<Gtk::CssProvider> getGlobalCssProvider()
+  {
+    static Glib::RefPtr<Gtk::CssProvider> css_provider;
+
+    if (!css_provider)
+    {
+      css_provider = Gtk::CssProvider::create();
+      css_provider->signal_parsing_error().connect(&onCssParsingError);
+
+      Gtk::StyleContext::add_provider_for_screen(
+        Gdk::Screen::get_default(),
+        css_provider,
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+      try
+      {
+        auto css_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/css/global.css";
+        css_provider->load_from_resource(css_resource_path);
+      }
+      catch(const Gtk::CssProviderError& ex)
+      {
+        std::cerr << "Global CSS: CssProviderError, Gtk::CssProvider::load_from_path() failed: "
+                  << ex.what() << std::endl;
+      }
+      catch(const Glib::Error& ex)
+      {
+        std::cerr << "Global CSS: Gtk::CssProvider::load_from_path() failed: "
+                  << ex.what() << std::endl;
+      }
+    }
+    return css_provider;
+  }
+
+  Glib::RefPtr<Gtk::CssProvider> registerGlobalCssProvider() {
+    return getGlobalCssProvider();
+  }
+
+}//unnamed namespace
+
 //static
 MainWindow* MainWindow::create()
 {
@@ -51,7 +108,7 @@ MainWindow* MainWindow::create()
   MainWindow* window = nullptr;
   builder_->get_widget_derived("mainWindow", window);
   if (!window)
-    throw std::runtime_error("No \"app_window\" object in window.ui");
+    throw std::runtime_error("No \"mainWindow\" object in MainWindow.glade");
 
   return window;
 }
@@ -64,6 +121,9 @@ MainWindow::MainWindow(BaseObjectType* cobject,
     animation_sync_{0},
     bottom_resizable_{true}
 {
+  // install global css provider for default screen
+  registerGlobalCssProvider();
+
   builder_->get_widget("headerBar", header_bar_);
   builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
   builder_->get_widget("tempoFractionLabel", tempo_fraction_label_);
@@ -1077,7 +1137,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   {
     tempo_fraction_int = 0;
     tempo_integral_int += 1;
-  }  
+  }
   auto text = Glib::ustring::format(tempo_integral_int);
 
   if (text != tempo_integral_label_->get_text())
