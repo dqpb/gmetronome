@@ -415,17 +415,26 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
   switch ( button_state ) {
   case kAccentStrong:
   {
-    cairo_context->move_to(M,1);
-    cairo_context->line_to(L,6);
-    cairo_context->line_to(L,10);
-    cairo_context->line_to(R,10);
-    cairo_context->line_to(R,6);
-    cairo_context->line_to(M,1);
+    cairo_context->move_to(M, 1.0);
+    cairo_context->line_to(L, 6.0);
+    cairo_context->line_to(L, 10.0);
+    cairo_context->line_to(R, 10.0);
+    cairo_context->line_to(R, 6.0);
+    cairo_context->line_to(M, 1.0);
 
     Gdk::Cairo::set_source_rgba(cairo_context, color2);
     cairo_context->fill();
 
+    cairo_context->move_to(M, 1.0 + 0.5);
+    cairo_context->line_to(L + 0.5, 6.0);
+    cairo_context->line_to(L + 0.5, 10.0 - 0.5);
+    cairo_context->line_to(R - 0.5, 10.0 - 0.5);
+    cairo_context->line_to(R - 0.5, 6.0);
+    cairo_context->line_to(M, 1.0 + 0.5);
+
     Gdk::Cairo::set_source_rgba(cairo_context, color1);
+    cairo_context->set_line_width(1.0);
+    cairo_context->stroke();
     [[fallthrough]];
   }
   case kAccentMid:
