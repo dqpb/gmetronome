@@ -1,1 +1,7 @@
-/* nothing to do here */
+/*
+* Workaround: Some themes (Greybird, Adapta, Numix) set 'min-height' to 32px
+* for vertical levelbars which leads to a permanently filled trough in the lower
+* 32px area when the levelbar value is greater than zero.
+*/
+levelbar.vertical block { min-width: 1px; min-height: 1px; }
+levelbar.vertical trough { min-width: 2px; }
