@@ -140,7 +140,7 @@ namespace physics {
   class BeatKinematics {
   public:
     // ctor
-    BeatKinematics();
+    BeatKinematics(double beats = 4.0);
 
     /**
      * @function reset
@@ -195,7 +195,7 @@ namespace physics {
     seconds_dbl arrival(double p_dev) const;
 
   private:
-    Oscillator osc_{2.0};
+    Oscillator osc_{4.0};
 
     double tempo_{0.0};           // beats / s
     double target_tempo_{0.0};    // beats / s
