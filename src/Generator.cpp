@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -22,8 +22,8 @@
 #endif
 
 #include "Generator.h"
-#include "Filter.h"
 #include <cmath>
+#include <ratio>
 #include <cassert>
 
 #ifndef NDEBUG
@@ -32,410 +32,261 @@
 
 namespace audio {
 
-  namespace
-  {
-    constexpr microseconds kMaxChunkDuration {80ms};
-    constexpr microseconds kAvgChunkDuration {50ms};
+  namespace {
+    constexpr microseconds kMaxChunkDuration = 80ms;
+    constexpr microseconds kAvgChunkDuration = 50ms;
+    constexpr microseconds kFillBufferDuration = 250ms;
+    constexpr microseconds kKinematicsSyncTime = 1000ms;
 
-    //helper
-    double tempoToFrameTime(double tempo, const StreamSpec& spec)
-    {
-      double const kMinutesFramesRatio = (1.0 / 60.0) / spec.rate;
-      return kMinutesFramesRatio * tempo;
-    }
-    double tempoFromFrameTime(double tempo, const StreamSpec& spec)
-    {
-      double const kFramesMinutesRatio = spec.rate / (1.0 / 60.0);
-      return kFramesMinutesRatio * tempo;
-    }
-    double accelToFrameTime(double accel, const StreamSpec& spec)
-    {
-      double const kMinutesFramesRatio = (1.0 / 60.0) / spec.rate;
-      return kMinutesFramesRatio * kMinutesFramesRatio * accel;
-    }
-    double accelFromFrameTime(double accel, const StreamSpec& spec)
-    {
-      double const kFramesMinutesRatio = spec.rate / (1.0 / 60.0);
-      return kFramesMinutesRatio * kFramesMinutesRatio * accel;
-    }
+    // not implemented yet
+    // constexpr microseconds kDrainBufferDuration = 50ms;
 
   }//unnamed namespace
 
-  Generator::Generator(const StreamSpec& spec)
-    : spec_{spec},
-      maxChunkFrames_{ (int) usecsToFrames(kMaxChunkDuration, spec_) },
-      avgChunkFrames_{ (int) usecsToFrames(kAvgChunkDuration, spec_) },
-      tempo_{ tempoToFrameTime(120.0, spec_) },
-      target_tempo_{tempo_},
-      accel_{0.0},
-      accel_saved_{0.0},
-      meter_{kMeter1},
-      sound_zero_(spec_, 2 * kMaxChunkDuration),
-      current_beat_{0},
-      next_accent_{0},
-      frames_total_{0},
-      frames_done_{0}
+  // FillBufferGenerator
+  //
+  void FillBufferGenerator::prepare(BeatStreamController& ctrl)
   {
-    sounds_.insert(kAccentWeak, SoundParameters{});
-    sounds_.insert(kAccentMid, SoundParameters{});
-    sounds_.insert(kAccentStrong, SoundParameters{});
-    sounds_.prepare(spec_);
+    max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
+                                 ctrl.sound(kAccentOff).frames());
+
+    avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
+
+    double percentage = (frames_total_ > 0) ? 100.0 * frames_done_ / frames_total_ : 0;
+
+    frames_total_ = usecsToFrames(kFillBufferDuration, ctrl.spec());
+    frames_done_ = frames_total_ / 100.0 * percentage;
   }
 
-  void Generator::prepare(const StreamSpec& spec)
+  void FillBufferGenerator::enter(BeatStreamController& ctrl)
   {
-    assert(spec.rate > 0);
-
-    if (spec == spec_)
-      return;
-
-    maxChunkFrames_ = usecsToFrames(kMaxChunkDuration, spec);
-    avgChunkFrames_ = usecsToFrames(kAvgChunkDuration, spec);
-
-    // recompute motion parameters
-    tempo_        = tempoToFrameTime(tempoFromFrameTime(tempo_, spec_), spec);
-    target_tempo_ = tempoToFrameTime(tempoFromFrameTime(target_tempo_, spec_), spec);
-    accel_        = accelToFrameTime(accelFromFrameTime(accel_, spec_), spec);
-    accel_saved_  = accelToFrameTime(accelFromFrameTime(accel_saved_, spec_), spec);
-
-    sound_zero_.resize(spec, 2 * kMaxChunkDuration);
-
-    sounds_.prepare(spec);
-
-    // Since a change of the stream specification may necessitate resizing the sound
-    // buffers we update the sounds immediately to prevent memory allocations during
-    // real-time processing.
-    sounds_.apply();
-
-    spec_ = spec;
-  }
-
-  void Generator::setTempo(double tempo)
-  {
-    tempo_ = tempoToFrameTime(tempo, spec_);
-    recalculateAccelSign();
-    recalculateFramesTotal();
-  }
-
-  void Generator::setTargetTempo(double target_tempo)
-  {
-    target_tempo_ = tempoToFrameTime(target_tempo, spec_);
-    recalculateAccelSign();
-    recalculateFramesTotal();
-  }
-
-  void Generator::setAccel(double accel)
-  {
-    accel_ = accel_saved_ = accelToFrameTime(accel, spec_);
-    recalculateAccelSign();
-    recalculateFramesTotal();
-  }
-
-  void Generator::swapMeter(Meter& meter)
-  {
-    double s_subdiv = meter_.division();
-    double t_subdiv = meter.division();
-
-    std::swap(meter_, meter);
-
-    auto fmodulo = [](double a, double b) -> int
-                     {
-                       int ai = std::lround(a);
-                       int bi = std::lround(b);
-                       return (ai % bi + bi) % bi;
-                     };
-
-    double accent_ratio = (double) t_subdiv / s_subdiv;
-    double s_next_accent = next_accent_;
-    double s_prev_accent = s_next_accent - 1.;
-    double s_accent = s_prev_accent + accel_ / 2. * (frames_done_ * frames_done_) + frames_done_ * tempo_ * s_subdiv;
-    double t_accent = accent_ratio * s_accent;
-    double t_next_accent = std::ceil( t_accent );
-    double t_prev_accent = t_next_accent - 1;
-
-    // compute frames_done
-    if (accel_ == 0) {
-      frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
-      frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, t_subdiv);
-    }
-    else {
-      // TODO
-      /*
-        double p = 2.0 * tempo / accel;
-        double q = -2.0 * delta_s / accel;
-        double p_half = p / 2.;
-        double radicand = p_half * p_half - q;
-      */
-      // ...
-
-      // tempo_ = ...
-
-      // temp. solution (remove)
-      frames_done_ = (t_accent - t_prev_accent) / ( tempo_ * t_subdiv );
-
-      // temp solution. tempo should be the old tempo at the last pulse
-      frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, t_subdiv);
-    }
-
-    next_accent_ = fmodulo(t_next_accent, meter_.accents().size());
-    if (next_accent_ >= meter_.accents().size())
-      next_accent_ = 0;
-  }
-
-  void Generator::setBeatPosition(double beat)
-  {
-    int meter_n_beats = meter_.beats();
-    int meter_n_subdivs = meter_.division();
-    int meter_n_accents = meter_n_beats * meter_n_subdivs;
-
-    // normalize beat position
-    beat = std::clamp<double>(std::fmod(beat,  meter_n_beats), 0.0, meter_n_beats);
-
-    // split beat position into integral and fractional parts
-    double integral;
-    double fractional = std::modf(beat, &integral);
-
-    // set the current beat
-    // if (fractional == 0.0)
-    //   current_beat_ = std::fmod(integral + meter_n_beats - 1.0, meter_n_beats);
-    // else
-    //   current_beat_ = std::floor(beat);
-
-    // compute beat position measured in accents
-    double accent = beat * meter_n_subdivs;
-
-    // split accent position into integral and fractional parts
-    fractional = std::modf(accent, &integral);
-
-    int new_frames_done = fractional * (double) frames_total_;
-    int frames_diff = new_frames_done - frames_done_;
-
-    if (std::abs(frames_diff) <= frames_total_ / 2)
-    {
-      next_accent_ = std::fmod(integral + 1, meter_n_accents);
-      frames_done_ += frames_diff;
-    }
-    else if (frames_done_ < frames_total_ / 2)
-    {
-      next_accent_ = integral;
-      frames_done_ = -frames_total_ + new_frames_done;
-    }
-    else
-    {
-      next_accent_ = integral;
-      frames_done_ = frames_total_ + new_frames_done;
-    }
-  }
-
-  void Generator::setSound(Accent accent, const SoundParameters& params)
-  { sounds_.update(accent, params); }
-
-  const Generator::Statistics& Generator::getStatistics() const
-  { return stats_; }
-
-  void Generator::recalculateAccelSign() {
-    if (target_tempo_ == tempo_)
-      accel_ = 0;
-    else
-      accel_ = std::copysign(accel_saved_, (target_tempo_ < tempo_) ? -1. : 1.);
-  }
-
-  void Generator::recalculateFramesTotal() {
-    frames_total_ = framesPerPulse(tempo_, target_tempo_, accel_, meter_.division());
-  }
-
-  void Generator::recalculateMotionParameters() {
-    std::tie(tempo_, accel_) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
-  }
-
-  std::pair<double, double> Generator::motionAfterNFrames(double tempo,
-                                                          double target_tempo,
-                                                          double accel,
-                                                          size_t n_frames)
-  {
-    double new_tempo;
-    double new_accel;
-
-    if (accel == 0) {
-      new_tempo = tempo;
-      new_accel = 0;
-    }
-    else {
-      new_tempo = accel * n_frames + tempo;
-      if ( (accel > 0 && new_tempo >= target_tempo) || (accel < 0 && new_tempo <= target_tempo) )
-      {
-        new_tempo = target_tempo;
-        new_accel = 0;
-      }
-      else {
-        new_accel = accel;
-      }
-    }
-    return {new_tempo,new_accel};
-  }
-
-  size_t Generator::framesPerPulse(double tempo,
-                                   double target_tempo,
-                                   double accel,
-                                   unsigned subdiv)
-  {
-    double frames_total;
-
-    tempo = tempo * subdiv;
-    accel = accel * subdiv;
-    target_tempo = target_tempo * subdiv;
-
-    auto framesAfterCompoundMotion = [&tempo,&target_tempo,&accel](double t) -> size_t
-                                       {
-                                         double s = accel / 2. * t * t + tempo * t;
-                                         return t + ( 1. - s ) / target_tempo;
-                                       };
-
-    if (accel == 0) {
-      frames_total = (size_t) ( 1. / tempo );
-    }
-    else {
-      double p = 2.0 * tempo / accel;
-      double q = -2.0 / accel;
-      double p_half = p / 2.;
-      double radicand = p_half * p_half - q;
-      double t = ( target_tempo - tempo ) / accel;
-
-      if (accel > 0) {
-        frames_total =  ( -p_half + sqrt(radicand) );
-        if (t<frames_total) {
-          frames_total = framesAfterCompoundMotion(t);
-        }
-      }
-      else {
-        if (radicand < 0) {
-          frames_total = framesAfterCompoundMotion(t);
-        }
-        else {
-          frames_total = (size_t) ( -p_half - sqrt(radicand) );
-          if (t<frames_total) {
-            frames_total = framesAfterCompoundMotion(t);
-          }
-        }
-      }
-    }
-    return frames_total;
-  }
-
-  void Generator::updateStatistics()
-  {
-    double tempo, accel;
-    std::tie(tempo, accel) = motionAfterNFrames(tempo_, target_tempo_, accel_, frames_done_);
-
-    stats_.current_tempo = tempoFromFrameTime(tempo, spec_);
-    stats_.current_accel = accelFromFrameTime(accel, spec_);
-
-    int current_accent = (next_accent_ + meter_.accents().size() - 1) % meter_.division();
-
-    stats_.current_beat = current_beat_
-      + (current_accent + (double) frames_done_ / frames_total_) / meter_.division();
-
-    stats_.next_accent = next_accent_;
-
-    int frames_left = std::max(0, frames_total_ - frames_done_);
-
-    const double kMicrosecondsFramesRatio = 1000000.0 / spec_.rate;
-
-    stats_.next_accent_delay
-      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio));
-  }
-
-  void Generator::start(const void*& data, size_t& bytes)
-  {
-    current_beat_ = -1;
-    next_accent_  = 0;
-
-    frames_total_ = 2 * maxChunkFrames_;
-    frames_done_  = 0;
-
-    updateStatistics();
-
-    data = sound_zero_.data();
-    bytes = frames_total_ * frameSize(spec_);
-
-    frames_total_ = 0;
     frames_done_ = 0;
   }
 
-  void Generator::stop(const void*& data, size_t& bytes)
-  {
-    stats_.current_tempo = 0;
-    stats_.current_accel = 0;
-    stats_.current_beat = 0.0;
-    stats_.next_accent = 0;
-    stats_.next_accent_delay = 0us;
+  void FillBufferGenerator::leave(BeatStreamController& ctrl)
+  { }
 
-    data = sound_zero_.data();
-    bytes = 0;
-  }
-
-  void Generator::cycle(const void*& data, size_t& bytes)
+  void FillBufferGenerator::cycle(BeatStreamController& ctrl,
+                                  const void*& data, size_t& bytes)
   {
-    const AccentPattern& accents = meter_.accents();
+    size_t frames_left = frames_total_ - frames_done_;
     size_t frames_chunk = 0;
 
-    int frames_left = frames_total_ - frames_done_;
-
-    if (frames_left <= 0)
-    {
-      if (!accents.empty())
-      {
-        switch (accents[next_accent_])
-        {
-        case kAccentStrong:
-        case kAccentMid:
-        case kAccentWeak:
-        {
-          const auto& buffer = sounds_[accents[next_accent_]];
-          frames_chunk = buffer.size() / frameSize(spec_);
-          data = buffer.data();
-          bytes = buffer.size();
-        }
-        break;
-
-        default:
-        {
-          frames_chunk = avgChunkFrames_;
-          data = sound_zero_.data();
-          bytes = avgChunkFrames_ * frameSize(spec_);
-        }
-        break;
-        };
-
-        if (next_accent_ % meter_.division() == 0)
-          current_beat_ = (current_beat_ + 1) % meter_.beats();
-
-        next_accent_ = (next_accent_ + 1) % accents.size();
-      }
-      recalculateMotionParameters();
-      frames_done_ = -frames_left;
-      recalculateFramesTotal();
-    }
-    else if (frames_left <= maxChunkFrames_) {
+    if (frames_left <= max_chunk_frames_)
       frames_chunk = frames_left;
-      data = sound_zero_.data();
-      bytes = frames_left * frameSize(spec_);
-    }
-    else {
-      frames_chunk = frames_left / lround( (double) frames_left / avgChunkFrames_ );
-      data = sound_zero_.data();
-      bytes = frames_chunk * frameSize(spec_);
-    }
+    else
+      frames_chunk = frames_left / std::lround( (double) frames_left / avg_chunk_frames_ );
+
+    data = ctrl.sound(kAccentOff).data();
+    bytes = frames_chunk * frameSize(ctrl.spec());
 
     frames_done_ += frames_chunk;
 
-    // std::cerr << "total: " << frames_total_
-    //           << "\tdone: " << frames_done_
-    //           << "\tchunk: " << frames_chunk
-    //           << "\tnext: " << next_accent_
-    //           << std::endl;
+    if (frames_done_ >= frames_total_)
+      switchGenerator(ctrl, kPreCountGenerator);
+  }
 
-    updateStatistics();
+  void FillBufferGenerator::updateStatus(BeatStreamController& ctrl, StreamStatus& status)
+  {
+    size_t frames_left = frames_total_ - frames_done_;
+
+    status.position = -1.0;
+    status.tempo = 0.0;
+    status.acceleration = 0.0;
+    status.next_accent = 0;
+
+    const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
+
+    status.next_accent_delay
+      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio));
+  }
+
+  // PreCountGenerator (not implemented yet)
+  //
+  void PreCountGenerator::enter(BeatStreamController& ctrl)
+  {
+    switchGenerator(ctrl, kRegularGenerator); // skip this generator
+  }
+
+  void PreCountGenerator::leave(BeatStreamController& ctrl)
+  { }
+
+  // RegularGenerator
+  //
+  void RegularGenerator::onTempoChanged(BeatStreamController& ctrl)
+  {
+    k_.setTempo(ctrl.tempo());
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::onTargetTempoChanged(BeatStreamController& ctrl)
+  {
+    k_.setTargetTempo(ctrl.targetTempo());
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::onAccelerationChanged(BeatStreamController& ctrl)
+  {
+    k_.setAcceleration(ctrl.acceleration());
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::onSynchronize(BeatStreamController& ctrl,
+                                       double beat_dev, double tempo_dev)
+  {
+    k_.synchronize(beat_dev, tempo_dev, kKinematicsSyncTime);
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::onMeterChanged(BeatStreamController& ctrl)
+  {
+    const Meter& meter = ctrl.meter();
+    //const AccentPattern& accents = meter.accents();
+
+    k_.setBeats(meter.beats());
+
+    accent_ = std::trunc(k_.position() * meter.division());
+    accent_point_ = false;
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::onSoundChanged(BeatStreamController& ctrl, Accent a)
+  {
+    //not implemented yet
+  }
+
+  void RegularGenerator::onStart(BeatStreamController& ctrl)
+  {
+    //not implemented yet
+  }
+
+  void RegularGenerator::onStop(BeatStreamController& ctrl)
+  {
+    //not implemented yet
+  }
+
+  void RegularGenerator::prepare(BeatStreamController& ctrl)
+  {
+    max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
+                                 ctrl.sound(kAccentOff).frames());
+
+    avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
+
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::enter(BeatStreamController& ctrl)
+  {
+    k_.reset();
+    k_.setBeats(ctrl.meter().beats());
+    k_.setTempo(ctrl.tempo());
+    k_.setTargetTempo(ctrl.targetTempo());
+    k_.setAcceleration(ctrl.acceleration());
+
+    accent_ = 0;
+    accent_point_ = true;
+    updateFramesLeft(ctrl);
+  }
+
+  void RegularGenerator::leave(BeatStreamController& ctrl)
+  { }
+
+  void RegularGenerator::cycle(BeatStreamController& ctrl,
+                               const void*& data, size_t& bytes)
+  {
+    const Meter& meter = ctrl.meter();
+    const AccentPattern& accents = meter.accents();
+
+    size_t frames_chunk = 0;
+    if (accent_point_)
+    {
+      const auto& sound_buffer = ctrl.sound(accents[accent_]);
+
+      frames_chunk = std::min(sound_buffer.frames(), frames_left_);
+
+      data = sound_buffer.data();
+      bytes = frames_chunk * frameSize(ctrl.spec());
+    }
+    else // play silence
+    {
+      const auto& sound_buffer = ctrl.sound(kAccentOff);
+
+      if (frames_left_ <= max_chunk_frames_)
+        frames_chunk = frames_left_;
+      else
+        frames_chunk = frames_left_ / std::lround( (double) frames_left_ / avg_chunk_frames_ );
+
+      frames_chunk = std::min(sound_buffer.frames(), frames_chunk);
+
+      data = sound_buffer.data();
+      bytes = frames_chunk * frameSize(ctrl.spec());
+    }
+
+    // update physics, frames_total_ and frames_done_
+    step(ctrl, frames_chunk);
+  }
+
+  void RegularGenerator::updateStatus(BeatStreamController& ctrl, StreamStatus& status)
+  {
+    const Meter& meter = ctrl.meter();
+    const AccentPattern& accents = meter.accents();
+
+    status.position = k_.position();
+    status.tempo = k_.tempo();
+    status.acceleration = k_.acceleration();
+    status.next_accent = (accent_ + 1) % accents.size();
+
+    const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
+
+    status.next_accent_delay
+      = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio));
+  }
+
+  void RegularGenerator::updateFramesLeft(BeatStreamController& ctrl)
+  {
+    const Meter& meter = ctrl.meter();
+
+    double accent_position = 0.0; // in accent units
+    if (accent_point_)
+      accent_position = std::round(k_.position() * meter.division());
+    else
+      accent_position = std::floor(k_.position() * meter.division());
+
+    double next_accent_position = (accent_position + 1.0) / meter.division(); // in beat units
+    double distance = next_accent_position - k_.position();
+
+    physics::seconds_dbl arrival_time = k_.arrival(distance);
+    frames_left_ = std::lround(ctrl.spec().rate * arrival_time.count());
+  }
+
+  void RegularGenerator::step(BeatStreamController& ctrl, size_t frames_chunk)
+  {
+    const Meter& meter = ctrl.meter();
+    const AccentPattern& accents = meter.accents();
+
+    k_.step(framesToUsecs(frames_chunk, ctrl.spec()));
+
+    assert(frames_left_ >= frames_chunk);
+    frames_left_ -= frames_chunk;
+
+    if (frames_left_ == 0)
+    {
+      accent_ = (accent_ + 1) % accents.size();
+      accent_point_ = true;
+      updateFramesLeft(ctrl);
+    }
+    else
+    {
+      accent_point_ = false;
+    }
+  }
+
+  // DrainGenerator
+  //
+  void DrainGenerator::cycle(BeatStreamController& ctrl,
+                             const void*& data, size_t& bytes)
+  {
+    // not implemented yet
   }
 
 }//namespace audio
