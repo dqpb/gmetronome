@@ -90,7 +90,7 @@ namespace physics {
    */
   class Oscillator {
   public:
-    Oscillator(double module = 1.0) : m_{module} {}
+    explicit Oscillator(double module = 1.0) : m_{module} {}
 
     double position() const
       { return p_; }
@@ -140,7 +140,7 @@ namespace physics {
   class BeatKinematics {
   public:
     // ctor
-    BeatKinematics(double beats = 4.0);
+    explicit BeatKinematics(double beats = 4.0) : osc_(beats) {}
 
     /**
      * @function reset

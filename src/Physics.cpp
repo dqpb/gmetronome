@@ -48,11 +48,6 @@ namespace physics {
 
   }//unnamed namespace
 
-
-  BeatKinematics::BeatKinematics(double beats)
-    : osc_(beats)
-  { }
-
   void BeatKinematics::reset()
   {
     osc_.resetPosition(0.0);
