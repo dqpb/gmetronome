@@ -124,6 +124,9 @@ namespace physics {
                     const seconds_dbl& time = kInfiniteTime)
       { f_ = f; f_time_ = time; }
 
+    void resetForce(const std::pair<Force, seconds_dbl>& f)
+      { f_ = f.first; f_time_ = f.second; }
+
     seconds_dbl step(const seconds_dbl& time)
       {
         seconds_dbl step_time = std::min(f_time_, time);
@@ -145,7 +148,7 @@ namespace physics {
     double p_{0.0};
     double v_{0.0};
     Force f_{0.0, 0.0};
-    seconds_dbl f_time_{0.0};
+    seconds_dbl f_time_{kInfiniteTime};
   };
 
   std::pair<Force, seconds_dbl>
