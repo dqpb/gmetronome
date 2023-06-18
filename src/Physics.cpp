@@ -128,16 +128,14 @@ namespace physics {
     case ForceMode::kAccelForce:
     {
       const auto& [force, time] = computeAccelForce(target_tempo_ - osc_.velocity(), accel_);
-      accel_r_time_ = time;
-      osc_.resetForce(force);
+      osc_.resetForce(force, time);
     }
     break;
 
     case ForceMode::kSyncForce:
     {
       const auto& [force, time] = computeSyncForce(sync_beat_dev_, sync_tempo_dev_, sync_time_);
-      sync_r_time_ = time;
-      osc_.resetForce(force);
+      osc_.resetForce(force, time);
     }
     break;
     };
@@ -153,16 +151,12 @@ namespace physics {
   {
     if (force_mode_ == ForceMode::kSyncForce)
     {
-      seconds_dbl sync_step_time = std::min(sync_r_time_, time);
-      osc_.step(sync_step_time);
+      time = osc_.step(time);
 
-      time -= sync_step_time;
-      sync_r_time_ -= sync_step_time;
-
-      if (sync_r_time_ <= kZeroTime) // handle possible rounding errors
+      // if force time is exceeded handle possible rounding errors
+      if (time > kZeroTime)
         osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
-
-      if (time <= kZeroTime)
+      else
         return;
     }
 
@@ -175,16 +169,11 @@ namespace physics {
 
     if (force_mode_ == ForceMode::kAccelForce)
     {
-      seconds_dbl accel_step_time = std::min(accel_r_time_, time);
-      osc_.step(accel_step_time);
+      time = osc_.step(time);
 
-      time -= accel_step_time;
-      accel_r_time_ -= accel_step_time;
-
-      if (accel_r_time_ <= kZeroTime) // handle possible rounding errors
+      if (time > kZeroTime)
         osc_.resetVelocity(target_tempo_);
-
-      if (time <= kZeroTime)
+      else
         return;
     }
 
@@ -265,7 +254,8 @@ namespace physics {
     if (force_mode_ == ForceMode::kSyncForce)
     {
       const Force& force = osc_.force();
-      time += physics::arrival(p0, v0, p, force, sync_r_time_);
+      const seconds_dbl& force_time = osc_.remainingForceTime();
+      time += physics::arrival(p0, v0, p, force, force_time);
     }
 
     if (p0 == p)
@@ -293,9 +283,8 @@ namespace physics {
     return time;
   }
 
-  //static
   std::pair<Force, seconds_dbl>
-  BeatKinematics::computeAccelForce(double v_dev, double a)
+  computeAccelForce(double v_dev, double a)
   {
     std::pair<Force, seconds_dbl> r {{0.0}, kZeroTime};
     auto& [r_force, r_time] = r;
@@ -326,9 +315,8 @@ namespace physics {
     return r;
   }
 
-  //static
   std::pair<Force, seconds_dbl>
-  BeatKinematics::computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
+  computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
   {
     std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
     auto& [r_force, r_time] = r;

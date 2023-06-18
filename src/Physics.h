@@ -117,14 +117,27 @@ namespace physics {
     const Force& force() const
       { return f_; }
 
-    void resetForce(const Force& f = {0.0, 0.0})
-      { f_ = f; }
+    const seconds_dbl& remainingForceTime() const
+      { return f_time_; }
 
-    void step(const seconds_dbl& time)
+    void resetForce(const Force& f = {0.0, 0.0},
+                    const seconds_dbl& time = kInfiniteTime)
+      { f_ = f; f_time_ = time; }
+
+    seconds_dbl step(const seconds_dbl& time)
       {
-        applyForce(p_,v_,f_,time);
+        seconds_dbl step_time = std::min(f_time_, time);
+        applyForce(p_,v_,f_,step_time);
         p_ = aux::math::modulo(p_,m_);
-        shiftForce(f_,time);
+
+        f_time_ -= step_time;
+
+        if (f_time_ <= kZeroTime)
+          resetForce();
+        else
+          shiftForce(f_,step_time);
+
+        return time - step_time;
       }
 
   private:
@@ -132,7 +145,14 @@ namespace physics {
     double p_{0.0};
     double v_{0.0};
     Force f_{0.0, 0.0};
+    seconds_dbl f_time_{0.0};
   };
+
+  std::pair<Force, seconds_dbl>
+  computeAccelForce(double v_dev, double a);
+
+  std::pair<Force, seconds_dbl>
+  computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time);
 
   /**
    * @class BeatKinematics
@@ -214,19 +234,8 @@ namespace physics {
 
     ForceMode force_mode_{ForceMode::kNoForce};
 
-    seconds_dbl accel_r_time_{0.0};
-    seconds_dbl sync_r_time_{0.0};
-
     void switchForceMode(ForceMode mode);
     void updateOscForce(ForceMode mode);
-
-    static
-    std::pair<Force, seconds_dbl>
-    computeAccelForce(double v_dev, double a);
-
-    static
-    std::pair<Force, seconds_dbl>
-    computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time);
   };
 
 }//namespace physics
