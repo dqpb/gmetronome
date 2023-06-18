@@ -145,7 +145,7 @@ namespace physics {
     double p_{0.0};
     double v_{0.0};
     Force f_{0.0, 0.0};
-    seconds_dbl f_time_{0.0};
+    seconds_dbl f_time_{kInfiniteTime};
   };
 
   std::pair<Force, seconds_dbl>
