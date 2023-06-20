@@ -121,7 +121,7 @@ namespace physics {
       { return f_time_; }
 
     void resetForce(const Force& f = {0.0, 0.0},
-                    const seconds_dbl& time = kInfiniteTime)
+                    const seconds_dbl& time = kZeroTime)
       { f_ = f; f_time_ = time; }
 
     void resetForce(const std::pair<Force, seconds_dbl>& f)
