@@ -129,16 +129,27 @@ namespace physics {
 
     seconds_dbl step(const seconds_dbl& time)
       {
-        seconds_dbl step_time = std::min(f_time_, time);
-        applyForce(p_,v_,f_,step_time);
-        p_ = aux::math::modulo(p_,m_);
+        if (time == kZeroTime)
+          return kZeroTime;
 
-        f_time_ -= step_time;
+        seconds_dbl step_time = kZeroTime;
 
-        if (f_time_ <= kZeroTime)
-          resetForce();
+        if (f_time_ > kZeroTime)
+        {
+          step_time = std::min(f_time_, time);
+          applyForce(p_,v_,f_,step_time);
+          f_time_ -= step_time;
+          if (f_time_ <= kZeroTime)
+            resetForce();
+          else
+            shiftForce(f_,step_time);
+        }
         else
-          shiftForce(f_,step_time);
+        {
+          step_time = time;
+          applyForce(p_,v_,{0.0, 0.0},step_time);
+        }
+        p_ = aux::math::modulo(p_,m_);
 
         return time - step_time;
       }
@@ -148,7 +159,7 @@ namespace physics {
     double p_{0.0};
     double v_{0.0};
     Force f_{0.0, 0.0};
-    seconds_dbl f_time_{kInfiniteTime};
+    seconds_dbl f_time_{0.0};
   };
 
   std::pair<Force, seconds_dbl>

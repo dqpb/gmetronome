@@ -154,9 +154,9 @@ namespace physics {
       time = osc_.step(time);
 
       // if force time is exceeded handle possible rounding errors
-      if (time > kZeroTime)
+      if (osc_.remainingForceTime() == kZeroTime)
         osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
-      else
+      else if (time <= kZeroTime)
         return;
     }
 
@@ -171,9 +171,9 @@ namespace physics {
     {
       time = osc_.step(time);
 
-      if (time > kZeroTime)
+      if (osc_.remainingForceTime() == kZeroTime)
         osc_.resetVelocity(target_tempo_);
-      else
+      else if (time <= kZeroTime)
         return;
     }
 
