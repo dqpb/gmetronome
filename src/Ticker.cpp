@@ -491,11 +491,13 @@ namespace audio {
 
       const auto& gen_stats = stream_ctrl_.status();
 
-      out_stats_.current_tempo = gen_stats.tempo;
-      out_stats_.current_accel = gen_stats.acceleration;
-      out_stats_.current_beat = gen_stats.position;
+      out_stats_.position = gen_stats.position;
+      out_stats_.tempo = gen_stats.tempo;
+      out_stats_.acceleration = gen_stats.acceleration;
+      out_stats_.module = gen_stats.module;
       out_stats_.next_accent = gen_stats.next_accent;
       out_stats_.next_accent_delay = gen_stats.next_accent_delay;
+      out_stats_.generator_state = gen_stats.state;
 
       if (backend_)
         out_stats_.backend_latency = backend_->latency();

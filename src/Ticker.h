@@ -54,11 +54,13 @@ namespace audio {
     struct Statistics
     {
       microseconds  timestamp {0us};
-      double        current_tempo {0.0};
-      double        current_accel {0.0};
-      double        current_beat {0.0};
-      int           next_accent {0};
+      double        position {0.0};
+      double        tempo {0.0};
+      double        acceleration {0.0};
+      double        module {0.0};
+      int           next_accent {-1};
       microseconds  next_accent_delay {0us};
+      int           generator_state {-1};
       microseconds  backend_latency {0us};
     };
 

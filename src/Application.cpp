@@ -770,7 +770,7 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 {
   auto ticker_stats = ticker_.getStatistics();
 
-  double new_tempo = ticker_stats.current_tempo;
+  double new_tempo = ticker_stats.tempo;
 
   const auto& [tap, estimate] = tap_analyser_.tap(1.0);
   auto [tempo, phase, confidence] = estimate;
@@ -800,11 +800,11 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   //                                 now (tap time)
 
   // tempo in beats per microsecond
-  double current_tempo_bpus = ticker_stats.current_tempo / 60.0 / 1000000.0;
+  double current_tempo_bpus = ticker_stats.tempo / 60.0 / 1000000.0;
   double new_tempo_bpus = new_tempo / 60.0 / 1000000.0;
 
   // device beat at tap time
-  double device_beat = ticker_stats.current_beat
+  double device_beat = ticker_stats.position
     + current_tempo_bpus * (tap.time - ticker_stats.timestamp).count();
 
   // audible beat at tap time
@@ -1363,10 +1363,8 @@ void Application::startStatsTimer()
 
 void Application::stopStatsTimer()
 {
-  using std::literals::chrono_literals::operator""us;
-
   stats_timer_connection_.disconnect();
-  signal_ticker_statistics_.emit({ 0us, 0.0, 0.0, -1.0, -1, 0us, 0us });
+  signal_ticker_statistics_.emit(audio::Ticker::Statistics{});
 }
 
 bool Application::onStatsTimer()

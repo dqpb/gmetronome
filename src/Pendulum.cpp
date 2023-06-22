@@ -119,14 +119,14 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
   if (!animation_running_)
     startAnimation();
 
-  if (stats.next_accent < 0)
+  if (!shutdown_ && stats.generator_state < 0)
   {
     k_.shutdown(kShutdownTime);
     shutdown_ = true;
   }
   else
   {
-    double target_omega = stats.current_tempo / 60.0 * M_PI;
+    double target_omega = stats.tempo / 60.0 * M_PI;
 
     if (shutdown_) // init phase
     {
@@ -142,7 +142,7 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     omega_dev = target_omega - k_.omega();
 
     double tmp;
-    double target_theta = M_PI * std::modf(stats.current_beat, &tmp);
+    double target_theta = M_PI * std::modf(stats.position, &tmp);
 
     microseconds now(g_get_monotonic_time());
     microseconds click_time = stats.timestamp + stats.backend_latency + sync;

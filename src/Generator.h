@@ -40,8 +40,10 @@ namespace audio {
     double position {0.0};
     double tempo {0.0};
     double acceleration {0.0};
+    double module {1.0};
     int next_accent {0};
     microseconds next_accent_delay {0us};
+    size_t state {0};
   };
 
   /**
