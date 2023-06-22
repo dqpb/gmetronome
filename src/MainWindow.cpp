@@ -959,8 +959,6 @@ void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::mem_fn(&sigc::connection::unblock));
-
-  pendulum_.setMeter(meter);
 }
 
 void MainWindow::updateAccentButtons(const Meter& meter)
@@ -1087,7 +1085,7 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 
 void MainWindow::updateTempo(double tempo)
 {
-  cancelButtonAnimations();
+  //cancelButtonAnimations();
 }
 
 void MainWindow::updateStart(bool running)
