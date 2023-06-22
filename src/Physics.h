@@ -166,6 +166,9 @@ namespace physics {
   computeAccelForce(double v_dev, double a);
 
   std::pair<Force, seconds_dbl>
+  computeAccelForce(double v_dev, const seconds_dbl& time);
+
+  std::pair<Force, seconds_dbl>
   computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time);
 
   /**
@@ -250,6 +253,37 @@ namespace physics {
 
     void switchForceMode(ForceMode mode);
     void updateOscForce(ForceMode mode);
+  };
+
+  /**
+   * @class PendulumKinematics
+   */
+  class PendulumKinematics {
+  public:
+    // ctor
+    PendulumKinematics() = default;
+
+    void reset(double theta = 0.0, double omega = 0.0)
+      {
+        osc_.reset(theta, omega);
+        osc_.resetForce();
+      }
+
+    double theta() const
+      { return osc_.position(); }
+    double omega() const
+      { return osc_.velocity(); }
+    double alpha() const
+      { return osc_.force().base; }
+
+    void shutdown(const seconds_dbl& time);
+
+    void synchronize(double theta_dev, double omega_dev, const seconds_dbl& time);
+
+    void step(seconds_dbl time);
+
+  private:
+    Oscillator osc_{2.0 * M_PI};
   };
 
 }//namespace physics

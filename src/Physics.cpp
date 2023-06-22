@@ -50,7 +50,7 @@ namespace physics {
 
   void BeatKinematics::reset()
   {
-    osc_.resetPosition(0.0);
+    osc_.reset();
     switchForceMode(ForceMode::kNoForce);
   }
 
@@ -316,6 +316,19 @@ namespace physics {
   }
 
   std::pair<Force, seconds_dbl>
+  computeAccelForce(double v_dev, const seconds_dbl& time)
+  {
+    std::pair<Force, seconds_dbl> r {{0.0}, time};
+    auto& [r_force, r_time] = r;
+
+    if (time != kZeroTime)
+    {
+      r_force.base = v_dev / time.count();
+    }
+    return r;
+  }
+
+  std::pair<Force, seconds_dbl>
   computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
   {
     std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
@@ -340,6 +353,23 @@ namespace physics {
       }
     }
     return r;
+  }
+
+
+  void PendulumKinematics::shutdown(const seconds_dbl& time)
+  {
+    osc_.resetForce(computeAccelForce(-osc_.velocity(), time));
+  }
+
+  void PendulumKinematics::synchronize(double theta_dev, double omega_dev, const seconds_dbl& time)
+  {
+    const auto& [force, force_time] = computeSyncForce(theta_dev, omega_dev, time);
+    osc_.resetForce(force, force_time);
+  }
+
+  void PendulumKinematics::step(seconds_dbl time)
+  {
+    while( osc_.step(time) > kZeroTime );
   }
 
 }//namespace physics
