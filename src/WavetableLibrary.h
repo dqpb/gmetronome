@@ -136,7 +136,7 @@ namespace audio {
    */
   class WavetableBuilder {
   public:
-    WavetableBuilder(SampleRate rate = kDefaultRate);
+    explicit WavetableBuilder(SampleRate rate = kDefaultRate);
 
     void prepare(SampleRate rate);
     Wavetable create(std::shared_ptr<WavetableRecipe> recipe);

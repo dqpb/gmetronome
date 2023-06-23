@@ -85,7 +85,7 @@ namespace audio {
    */
   class Synthesizer {
   public:
-    Synthesizer(const StreamSpec& spec = kDefaultSpec);
+    explicit Synthesizer(const StreamSpec& spec = kDefaultSpec);
 
     /** Pre-allocate resources */
     void prepare(const StreamSpec& spec);

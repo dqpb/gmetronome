@@ -25,7 +25,7 @@
 
 class GMetronomeError : public std::exception {
 public:
-  GMetronomeError(const std::string& what = "");
+  explicit GMetronomeError(const std::string& what = "");
 
   const char* what() const noexcept override
     { return what_.c_str(); }

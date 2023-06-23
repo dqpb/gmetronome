@@ -137,11 +137,11 @@ namespace audio {
     using iterator       = container_type::iterator;
     using const_iterator = container_type::const_iterator;
 
-    Wavetable(size_t n_pages = 0,
-              size_t base_page_size = 1024,
-              PageResize page_resize = PageResize::kAuto,
-              float base_frequency = 40,
-              PageRange range = PageRange::kOctave);
+    explicit Wavetable(size_t n_pages = 0,
+                       size_t base_page_size = 1024,
+                       PageResize page_resize = PageResize::kAuto,
+                       float base_frequency = 40,
+                       PageRange range = PageRange::kOctave);
 
     void resize(size_t n_pages = 0,
                 size_t base_page_size = 1024,

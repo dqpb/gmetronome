@@ -138,9 +138,9 @@ public:
   static inline constexpr int kMaxBeats     = 12;
   static inline constexpr int kMaxDivision  = 4;
 
-  Meter(int division = kSimpleMeter,
-        int beats = kQuadrupleMeter,
-        const AccentPattern& accents = kAccentPatternSimple4);
+  explicit Meter(int division = kSimpleMeter,
+                 int beats = kQuadrupleMeter,
+                 const AccentPattern& accents = kAccentPatternSimple4);
 
   int division() const
     { return division_; }
@@ -167,20 +167,20 @@ private:
   void checkDataIntegrity();
 };
 
-inline const Meter kMeter1 = {kNoDivision, kSingleMeter, kAccentPattern1};
-inline const Meter kMeter2 = {kNoDivision, kDupleMeter, kAccentPattern2};
-inline const Meter kMeter3 = {kNoDivision, kTripleMeter, kAccentPattern3};
-inline const Meter kMeter4 = {kNoDivision, kQuadrupleMeter, kAccentPattern4};
+inline const Meter kMeter1 {kNoDivision, kSingleMeter, kAccentPattern1};
+inline const Meter kMeter2 {kNoDivision, kDupleMeter, kAccentPattern2};
+inline const Meter kMeter3 {kNoDivision, kTripleMeter, kAccentPattern3};
+inline const Meter kMeter4 {kNoDivision, kQuadrupleMeter, kAccentPattern4};
 
-inline const Meter kMeterSimple1 = {kSimpleMeter, kSingleMeter, kAccentPatternSimple1};
-inline const Meter kMeterSimple2 = {kSimpleMeter, kDupleMeter, kAccentPatternSimple2};
-inline const Meter kMeterSimple3 = {kSimpleMeter, kTripleMeter, kAccentPatternSimple3};
-inline const Meter kMeterSimple4 = {kSimpleMeter, kQuadrupleMeter, kAccentPatternSimple4};
+inline const Meter kMeterSimple1 {kSimpleMeter, kSingleMeter, kAccentPatternSimple1};
+inline const Meter kMeterSimple2 {kSimpleMeter, kDupleMeter, kAccentPatternSimple2};
+inline const Meter kMeterSimple3 {kSimpleMeter, kTripleMeter, kAccentPatternSimple3};
+inline const Meter kMeterSimple4 {kSimpleMeter, kQuadrupleMeter, kAccentPatternSimple4};
 
-inline const Meter kMeterCompound1 = {kCompoundMeter, kSingleMeter, kAccentPatternCompound1};
-inline const Meter kMeterCompound2 = {kCompoundMeter, kDupleMeter, kAccentPatternCompound2};
-inline const Meter kMeterCompound3 = {kCompoundMeter, kTripleMeter, kAccentPatternCompound3};
-inline const Meter kMeterCompound4 = {kCompoundMeter, kQuadrupleMeter, kAccentPatternCompound4};
+inline const Meter kMeterCompound1 {kCompoundMeter, kSingleMeter, kAccentPatternCompound1};
+inline const Meter kMeterCompound2 {kCompoundMeter, kDupleMeter, kAccentPatternCompound2};
+inline const Meter kMeterCompound3 {kCompoundMeter, kTripleMeter, kAccentPatternCompound3};
+inline const Meter kMeterCompound4 {kCompoundMeter, kQuadrupleMeter, kAccentPatternCompound4};
 
 
 #include <glibmm/variant.h>
@@ -276,7 +276,7 @@ public:
   }
 
   Meter get() const {
-    Meter data = {
+    Meter data {
       get_child<int>(0),
       get_child<int>(1),
       get_child<AccentPattern>(2)

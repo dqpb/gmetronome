@@ -605,7 +605,7 @@ namespace filter {
     };
 
   public:
-    Wave(const Wavetable* tbl = nullptr, const Parameters& params = {})
+    explicit Wave(const Wavetable* tbl = nullptr, const Parameters& params = {})
       : tbl_{tbl},
         params_{params}
       { /* nothing */ }
@@ -734,7 +734,7 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Mix(const ByteBuffer* buffer = nullptr) : buffer_{buffer}
+    explicit Mix(const ByteBuffer* buffer = nullptr) : buffer_{buffer}
       {/*nothing*/}
 
     void setBuffer(const ByteBuffer* buffer)

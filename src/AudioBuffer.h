@@ -59,7 +59,7 @@ namespace audio {
     using  const_iterator  = typename container_type::const_iterator;
 
   public:
-    ByteBuffer(const StreamSpec& spec = kDefaultSpec, size_type count = 0)
+    explicit ByteBuffer(const StreamSpec& spec = kDefaultSpec, size_type count = 0)
       : spec_{spec},
         data_(count, 0)
       {}

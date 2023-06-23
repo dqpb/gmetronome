@@ -89,7 +89,7 @@ namespace audio {
     static_assert((std::is_base_of_v<StreamGeneratorBase, Gs> && ...),
                   "Invalid StreamGenerator type");
   public:
-    StreamController(const StreamSpec& spec = kDefaultSpec);
+    explicit StreamController(const StreamSpec& spec = kDefaultSpec);
 
     void setTempo(double tempo);
     void setTargetTempo(double tempo);
@@ -144,7 +144,7 @@ namespace audio {
   //
   class StreamGeneratorError : public GMetronomeError {
   public:
-    StreamGeneratorError(const std::string& what = "") : GMetronomeError(what)
+    explicit StreamGeneratorError(const std::string& what = "") : GMetronomeError(what)
       { }
   };
 
@@ -167,7 +167,7 @@ namespace audio {
   class StreamControllerError : public GMetronomeError
   {
   public:
-    StreamControllerError(const std::string& what = "") : GMetronomeError(what)
+    explicit StreamControllerError(const std::string& what = "") : GMetronomeError(what)
       { }
   };
 

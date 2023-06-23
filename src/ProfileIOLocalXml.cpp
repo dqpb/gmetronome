@@ -391,7 +391,7 @@ namespace {
         {
           if (current_meter_ != nullptr) {
 
-            (*current_meter_) =
+            (*current_meter_) = Meter
               {
                 current_meter_division_,
                 current_meter_beats_,
