@@ -93,7 +93,6 @@ namespace audio {
     status.position = -1.0;
     status.tempo = 0.0;
     status.acceleration = 0.0;
-    status.module = ctrl.meter().beats();
     status.next_accent = 0;
 
     const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
@@ -237,7 +236,6 @@ namespace audio {
     status.position = k_.position();
     status.tempo = k_.tempo();
     status.acceleration = k_.acceleration();
-    status.module = meter.beats();
     status.next_accent = (accent_ + 1) % accents.size();
 
     const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;

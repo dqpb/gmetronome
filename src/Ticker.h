@@ -57,7 +57,8 @@ namespace audio {
       double        position {0.0};
       double        tempo {0.0};
       double        acceleration {0.0};
-      double        module {0.0};
+      int           n_beats {-1};
+      int           n_accents {-1};
       int           next_accent {-1};
       microseconds  next_accent_delay {0us};
       int           generator_state {-1};

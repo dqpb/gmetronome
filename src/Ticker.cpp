@@ -490,11 +490,13 @@ namespace audio {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
 
       const auto& gen_stats = stream_ctrl_.status();
+      const auto& meter = stream_ctrl_.meter();
 
       out_stats_.position = gen_stats.position;
       out_stats_.tempo = gen_stats.tempo;
       out_stats_.acceleration = gen_stats.acceleration;
-      out_stats_.module = gen_stats.module;
+      out_stats_.n_beats = meter.beats();
+      out_stats_.n_accents = meter.beats() * meter.division();
       out_stats_.next_accent = gen_stats.next_accent;
       out_stats_.next_accent_delay = gen_stats.next_accent_delay;
       out_stats_.generator_state = gen_stats.state;
