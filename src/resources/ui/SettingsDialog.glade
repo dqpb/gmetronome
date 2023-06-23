@@ -107,7 +107,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes" context="Preferences dialog">_Link with selected sound theme:</property>
+                    <property name="label" translatable="yes" context="Preferences dialog">_Link with sound theme:</property>
                     <property name="use-underline">True</property>
                     <property name="mnemonic-widget">linkSoundThemeSwitch</property>
                   </object>
