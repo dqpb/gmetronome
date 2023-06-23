@@ -33,57 +33,15 @@
 #include <algorithm>
 #include <iostream>
 
-namespace {
-
-  std::string getErrorDetails(std::exception_ptr eptr)
-  {
-    std::string details;
-    try
-    {
-      if (eptr) std::rethrow_exception(eptr);
-    }
-    catch(const audio::BackendError& e)
-    {
-      details += "Backend: ";
-      switch(e.backend()) {
-      case settings::kAudioBackendNone: details += "none ("; break;
-#if HAVE_ALSA
-      case settings::kAudioBackendAlsa: details += "alsa ("; break;
-#endif
-#if HAVE_OSS
-      case settings::kAudioBackendOss: details += "oss ("; break;
-#endif
-#if HAVE_PULSEAUDIO
-      case settings::kAudioBackendPulseaudio: details += "pulseaudio ("; break;
-#endif
-      default: details += "unknown ("; break;
-      };
-
-      switch(e.state()) {
-      case audio::BackendState::kConfig: details += "config)"; break;
-      case audio::BackendState::kOpen: details += "open)"; break;
-      case audio::BackendState::kRunning: details += "running)"; break;
-      default: details += "unknown) : "; break;
-      };
-      details += "\nWhat: ";
-      details += e.what();
-    }
-    catch(const std::exception& e)
-    {
-      details += e.what();
-    }
-    return details;
-  }
-
-}//unnamed namespace
-
 Glib::RefPtr<Application> Application::create()
 {
   return Glib::RefPtr<Application>(new Application());
 }
 
 Application::Application() : Gtk::Application(PACKAGE_ID)
-{}
+{
+  // nothing
+}
 
 Application::~Application()
 {
@@ -268,6 +226,49 @@ void Application::initTicker()
   loadSelectedSoundTheme();
   configureAudioBackend();
 }
+
+namespace {
+  // helper
+  std::string getErrorDetails(std::exception_ptr eptr)
+  {
+    std::string details;
+    try
+    {
+      if (eptr) std::rethrow_exception(eptr);
+    }
+    catch(const audio::BackendError& e)
+    {
+      details += "Backend: ";
+      switch(e.backend()) {
+      case settings::kAudioBackendNone: details += "none ("; break;
+#if HAVE_ALSA
+      case settings::kAudioBackendAlsa: details += "alsa ("; break;
+#endif
+#if HAVE_OSS
+      case settings::kAudioBackendOss: details += "oss ("; break;
+#endif
+#if HAVE_PULSEAUDIO
+      case settings::kAudioBackendPulseaudio: details += "pulseaudio ("; break;
+#endif
+      default: details += "unknown ("; break;
+      };
+
+      switch(e.state()) {
+      case audio::BackendState::kConfig: details += "config)"; break;
+      case audio::BackendState::kOpen: details += "open)"; break;
+      case audio::BackendState::kRunning: details += "running)"; break;
+      default: details += "unknown) : "; break;
+      };
+      details += "\nWhat: ";
+      details += e.what();
+    }
+    catch(const std::exception& e)
+    {
+      details += e.what();
+    }
+    return details;
+  }
+}//unnamed namespace
 
 void Application::loadSelectedSoundTheme()
 {
