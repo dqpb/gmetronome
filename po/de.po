@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.1\n"
+"Project-Id-Version: gmetronome 0.2.2\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-05-27 17:00+0200\n"
-"PO-Revision-Date: 2023-05-27 17:29+0200\n"
+"POT-Creation-Date: 2023-06-23 11:52+0200\n"
+"PO-Revision-Date: 2023-06-23 11:56+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -33,52 +33,65 @@ msgid "A tempo measurement tool for composers and musicians"
 msgstr "Ein praktischer Taktmesser für Komponisten und Musiker"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
+msgid ""
+"GMetronome is a free and open source software metronome for GNU/Linux and "
+"other Unix-like operating systems."
+msgstr ""
+"GMetronome ist ein freies Software-Metronom für GNU/Linux und andere Unix-"
+"ähnlichen Betriebssysteme."
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Features:"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:13
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:14
 msgid "Tempo range from 30 to 250 beats per minute"
 msgstr "Tempobereich von 30 bis 250 Schlägen pro Minute"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:14
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
 msgid "Custom accentuation patterns"
 msgstr "Benutzerdefinierte Betonungsmuster"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
 msgid "Divisible beats for simple and compound meters"
 msgstr "Teilbare Schläge für einfache und zusammengesetzte Taktarten"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:17
 msgid "Three accentuation levels for strong, middle and weak accents"
 msgstr "Drei Betonungsstufen für starke, mittlere und schwache Akzente"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:17
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
 msgid "Pre defined patterns for widely used meters and time signatures"
 msgstr "Vordefinierte Betonungsmuster für weit verbreitete Taktarten"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
 msgid "Integrated synthesizer to customize click sounds"
 msgstr "Integrierter Synthesizer zum Anpassen der Sounds"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
-msgid "Accurate trainer function to smoothly raise or lower tempo"
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:20
+msgid "Trainer function to smoothly raise or lower tempo"
 msgstr "Trainerfunktion um das Tempo sanft anzuheben oder abzusenken"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:20
-msgid "Profiles to save and restore metronome settings"
-msgstr "Profile zum Speichern und Wiederherstellen von Metronom-Einstellungen"
-
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:21
+msgid "Profiles to save and restore metronome settings"
+msgstr "Profile zum Speichern und Wiederherstellen der Metronom-Einstellungen"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:22
 msgid "Customizable keyboard shortcuts"
 msgstr "Einstellbare Tastenkürzel"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:28
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:29
 msgid "The main window"
 msgstr "Das Hauptfenster"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
 msgid "Maintain tempo while practicing your instrument"
 msgstr "Halte das Tempo beim Üben deines Instruments"
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:14
+msgid "Bar;Beats;BPM;Measure;Metronome;Minute;Practice;Rhythm;Tap;Tempo;Time;"
+msgstr "Takt;BPM;Messen;Metronom;Minute;Übung;Rhythmus;Klopfen;Tempo;Zeit;"
 
 #. Put one translator per line, in the form
 #. NAME <EMAIL>, YEAR1, YEAR2
@@ -102,11 +115,13 @@ msgstr "Webseite"
 
 #. default title for new profiles
 #: src/Profile.h:38
+msgctxt "Profile"
 msgid "New Profile"
 msgstr "Neues Profil"
 
 #. placeholder title for untitled profiles
 #: src/Profile.h:40
+msgctxt "Profile"
 msgid "Untitled Profile"
 msgstr "Unbenanntes Profil"
 
@@ -150,171 +165,165 @@ msgctxt "Profiles menu"
 msgid "Profiles"
 msgstr "Profile"
 
-#. Tooltip
-#: src/resources/ui/MainWindow.glade:304
-msgctxt "Profiles menu"
-msgid "List of profiles"
-msgstr "Profilliste"
-
-#: src/resources/ui/MainWindow.glade:328
+#: src/resources/ui/MainWindow.glade:327
 msgctxt "Profiles menu"
 msgid "_New"
 msgstr "_Neu"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:332
+#: src/resources/ui/MainWindow.glade:331
 msgctxt "Profiles menu"
 msgid "Create a new profile"
 msgstr "Erstelle ein neues Profil"
 
-#: src/resources/ui/MainWindow.glade:343
+#: src/resources/ui/MainWindow.glade:342
 msgctxt "Profiles menu"
 msgid "_Delete"
 msgstr "_Löschen"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:347
+#: src/resources/ui/MainWindow.glade:346
 msgctxt "Profiles menu"
 msgid "Delete selected profile"
 msgstr "Lösche das markierte Profil"
 
-#: src/resources/ui/MainWindow.glade:359
+#: src/resources/ui/MainWindow.glade:358
 msgctxt "Profiles menu"
 msgid "_Reset"
 msgstr "_Zurücksetzen"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:363
+#: src/resources/ui/MainWindow.glade:362
 msgctxt "Profiles menu"
 msgid "Reset the metronome"
 msgstr "Setze das Metronom zurück"
 
-#: src/resources/ui/MainWindow.glade:485
+#: src/resources/ui/MainWindow.glade:484
 msgctxt "Main window"
 msgid "_Accents"
 msgstr "_Betonung"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:490
+#: src/resources/ui/MainWindow.glade:489
 msgctxt "Main window"
 msgid "Toggle accentuation"
 msgstr "Betonung Ein/Aus"
 
-#: src/resources/ui/MainWindow.glade:503
+#: src/resources/ui/MainWindow.glade:502
 msgctxt "Main window"
 msgid "_Trainer"
 msgstr "_Trainer"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:508
+#: src/resources/ui/MainWindow.glade:507
 msgctxt "Main window"
 msgid "Toggle tempo trainer"
 msgstr "Trainer Ein/Aus"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:525
+#: src/resources/ui/MainWindow.glade:524
 msgctxt "Main window"
 msgid "Toggle Full Screen"
 msgstr "Vollbild"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:548
+#: src/resources/ui/MainWindow.glade:547
 msgctxt "Main window"
 msgid "Application menu"
 msgstr "Hauptmenü"
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:570
+#: src/resources/ui/MainWindow.glade:569
 msgctxt "Main window"
 msgid "Profiles menu"
 msgstr "Profile"
 
-#: src/resources/ui/MainWindow.glade:744
+#: src/resources/ui/MainWindow.glade:748
 msgctxt "Main window"
 msgid "Tap"
 msgstr "Klopfen"
 
-#: src/resources/ui/MainWindow.glade:760
+#: src/resources/ui/MainWindow.glade:784
 msgctxt "Main window"
 msgid "Tempo"
 msgstr "Tempo"
 
-#: src/resources/ui/MainWindow.glade:810
+#: src/resources/ui/MainWindow.glade:834
 msgctxt "Main window"
 msgid "Beats"
 msgstr "Schläge"
 
-#: src/resources/ui/MainWindow.glade:856
+#: src/resources/ui/MainWindow.glade:880
 msgctxt "Main window"
 msgid "Meter"
 msgstr "Metrum"
 
-#: src/resources/ui/MainWindow.glade:873
+#: src/resources/ui/MainWindow.glade:897
 msgctxt "Main window"
 msgid "2/4"
 msgstr "2/4"
 
-#: src/resources/ui/MainWindow.glade:874
+#: src/resources/ui/MainWindow.glade:898
 msgctxt "Main window"
 msgid "3/4"
 msgstr "3/4"
 
-#: src/resources/ui/MainWindow.glade:875
+#: src/resources/ui/MainWindow.glade:899
 msgctxt "Main window"
 msgid "4/4"
 msgstr "4/4"
 
-#: src/resources/ui/MainWindow.glade:877
+#: src/resources/ui/MainWindow.glade:901
 msgctxt "Main window"
 msgid "6/8"
 msgstr "6/8"
 
-#: src/resources/ui/MainWindow.glade:878
+#: src/resources/ui/MainWindow.glade:902
 msgctxt "Main window"
 msgid "9/8"
 msgstr "9/8"
 
-#: src/resources/ui/MainWindow.glade:879
+#: src/resources/ui/MainWindow.glade:903
 msgctxt "Main window"
 msgid "12/8"
 msgstr "12/8"
 
-#: src/resources/ui/MainWindow.glade:881
+#: src/resources/ui/MainWindow.glade:905
 msgctxt "Main window"
 msgid "Custom"
 msgstr "Eigenes"
 
-#: src/resources/ui/MainWindow.glade:910
+#: src/resources/ui/MainWindow.glade:934
 msgctxt "Main window"
 msgid "Division"
 msgstr "Teilung"
 
-#: src/resources/ui/MainWindow.glade:1044
+#: src/resources/ui/MainWindow.glade:1068
 msgctxt "Main window"
 msgid "Accents"
 msgstr "Betonung"
 
-#: src/resources/ui/MainWindow.glade:1089
+#: src/resources/ui/MainWindow.glade:1113
 msgctxt "Main window"
 msgid "Target"
 msgstr "Ziel"
 
-#: src/resources/ui/MainWindow.glade:1136
+#: src/resources/ui/MainWindow.glade:1160
 msgctxt "Main window"
 msgid "Start"
 msgstr "Start"
 
-#: src/resources/ui/MainWindow.glade:1183
+#: src/resources/ui/MainWindow.glade:1207
 msgctxt "Main window"
 msgid "Acceleration"
 msgstr "Beschleunigung"
 
-#: src/resources/ui/MainWindow.glade:1225
+#: src/resources/ui/MainWindow.glade:1249
 msgctxt "Main window"
 msgid "Trainer"
 msgstr "Trainer"
 
-#: src/resources/ui/MainWindow.glade:1244
+#: src/resources/ui/MainWindow.glade:1268
 msgctxt "Main window"
 msgid "_Start"
 msgstr "_Start"
@@ -531,16 +540,19 @@ msgstr "Eigenes"
 
 #. default title for new sound themes
 #: src/SoundTheme.h:36
+msgctxt "Sound theme"
 msgid "New Sound Theme"
 msgstr "Neues Sound Thema"
 
 #. placeholder title for untitled sound themes
 #: src/SoundTheme.h:39
+msgctxt "Sound theme"
 msgid "Untitled"
 msgstr "Unbenannt"
 
 #. title of duplicated sound themes, %1 will be replaced by the old title
 #: src/SoundTheme.h:42
+msgctxt "Sound theme"
 msgid "%1 (copy)"
 msgstr "%1 (Kopie)"
 
@@ -963,6 +975,10 @@ msgstr "Ausgewähltes Profil"
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:898
 msgid "Whether to show the animated pendulum"
 msgstr "Ob die Pendelanimation angezeigt werden soll"
+
+#~ msgctxt "Profiles menu"
+#~ msgid "List of profiles"
+#~ msgstr "Profilliste"
 
 #~ msgid "B_ell:"
 #~ msgstr "_Glocke:"
