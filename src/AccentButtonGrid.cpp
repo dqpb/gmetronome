@@ -20,7 +20,6 @@
 #include "AccentButtonGrid.h"
 #include <algorithm>
 #include <iostream>
-#include <cmath>
 
 AccentButtonGrid::AccentButtonGrid(std::size_t size, std::size_t grouping)
 {
@@ -139,7 +138,7 @@ void AccentButtonGrid::numRowsForWidth(int width,
                                        int& num_rows_min,
                                        int& num_rows_nat) const
 {
-  std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
+  std::size_t num_groups = groups();
   std::size_t max_groups_per_row_min = ( width / group_width_min_ );
   std::size_t max_groups_per_row_nat = ( width / group_width_nat_ );
 
@@ -160,7 +159,7 @@ void AccentButtonGrid::numGroupsPerRowForHeight(int height,
                                                 int& groups_per_row_min,
                                                 int& groups_per_row_nat) const
 {
-  std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
+  std::size_t num_groups = groups();
 
   std::size_t num_rows_min = ( height / cell_height_min_ );
   std::size_t num_rows_nat = ( height / cell_height_nat_ );
@@ -227,7 +226,7 @@ void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
 {
   updateCellDimensions();
 
-  std::size_t num_groups = std::ceil( (double) buttons_.size() / grouping_ );
+  std::size_t num_groups = groups();
 
   int num_rows_min;
   int num_rows_nat;
