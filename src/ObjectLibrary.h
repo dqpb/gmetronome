@@ -198,7 +198,7 @@ void ObjectLibrary<KeyType, ObjectType, BuilderType>::apply()
 {
   // TODO: parallelize
   std::for_each(meta_map_.begin(), meta_map_.end(),
-                [&] (auto& map_pair) { apply(map_pair.first); });
+                [&] (const auto& map_pair) { apply(map_pair.first); });
 }
 
 template<typename KeyType, typename ObjectType, typename BuilderType>

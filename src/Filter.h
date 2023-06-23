@@ -310,7 +310,7 @@ namespace filter {
           {
             float sum = 0.0f;
             auto s = it;
-            for (auto& k : kernel_)
+            for (const auto& k : kernel_)
             {
               sum += k * (*s);
               if (++s == channel.rend())
@@ -652,7 +652,7 @@ namespace filter {
           (freq + detune) * frame_tm
         };
         tbl_page.lookup(frames.begin(), frames.end(), start, step,
-                        [&] (auto& frame, auto& values)
+                        [&] (auto& frame, const auto& values)
                           {
                             frame += {
                               amp * (values[0] + values[1]),
@@ -711,7 +711,7 @@ namespace filter {
 
         auto frames = viewFrames<Format>(buffer);
         float max = 0.0f;
-        for (auto& frame : frames)
+        for (const auto& frame : frames)
           max = std::max(max, std::max(std::abs(frame[0]), std::abs(frame[1])));
 
         if (max != 0.0f)
