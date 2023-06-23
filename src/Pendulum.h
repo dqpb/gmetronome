@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The GMetronome Team
+ * Copyright (C) 2021-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -23,8 +23,8 @@
 #include <gtkmm.h>
 #include <array>
 #include <chrono>
-#include "Meter.h"
 #include "Ticker.h"
+#include "Physics.h"
 
 class Pendulum : public Gtk::Widget {
 public:
@@ -43,24 +43,20 @@ public:
 
 public:
   Pendulum();
-  virtual ~Pendulum();
+  ~Pendulum() override = default;
 
-  void setMeter(const Meter& meter);
   void setAction(ActionAngle angle);
   void setPhaseMode(PhaseMode mode);
 
   void synchronize(const audio::Ticker::Statistics& stats,
                    const std::chrono::microseconds& sync);
 private:
+  physics::PendulumKinematics k_;
   Meter meter_{kMeterSimple4};
   double action_angle_{0.0};
   double phase_mode_shift_{0.0};
   bool animation_running_{false};
-  double theta_{0.0};
-  double alpha_{0.0};
-  double omega_{0.0};
-  double target_omega_{0.0};
-  double target_theta_{0.0};
+  bool shutdown_{true};
   std::chrono::microseconds last_frame_time_{0};
   double needle_amplitude_{0.0};
   double needle_theta_{0.0};

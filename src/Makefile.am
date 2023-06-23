@@ -11,6 +11,7 @@ gmetronome_SOURCES = \
 	AudioBackend.cpp \
 	AudioBackendDummy.cpp \
 	AudioBuffer.cpp \
+	Auxiliary.cpp \
 	Error.cpp \
 	Filter.cpp \
 	Generator.cpp \
@@ -19,6 +20,7 @@ gmetronome_SOURCES = \
 	Message.cpp \
 	Meter.cpp \
 	Pendulum.cpp \
+	Physics.cpp \
 	Profile.cpp \
 	ProfileIOBase.cpp \
 	ProfileIOLocalXml.cpp \
@@ -56,6 +58,7 @@ noinst_HEADERS = \
 	AudioBackend.h \
 	AudioBackendDummy.h \
 	AudioBuffer.h \
+	Auxiliary.h \
 	Error.h \
 	Filter.h \
 	Generator.h \
@@ -65,6 +68,7 @@ noinst_HEADERS = \
 	ObjectLibrary.h \
 	Oss.h \
 	Pendulum.h \
+	Physics.h \
 	Profile.h \
 	ProfileIOBase.h \
 	ProfileIOLocalXml.h \

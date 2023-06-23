@@ -22,7 +22,7 @@
 #endif
 
 #include "Ticker.h"
-#include <array>
+#include <algorithm>
 #include <cassert>
 
 #ifndef NDEBUG
@@ -31,48 +31,15 @@
 
 namespace audio {
 
-  namespace
-  {
+  namespace {
+
     constexpr microseconds  kSwapBackendTimeout = 1s;
-
-    template<class T>
-    using Range = std::array<T,2>;
-
-    const std::size_t kRangeMinIndex = 0;
-    const std::size_t kRangeMaxIndex = 1;
-
-    /** Clamp values to the inclusive range of min and max. */
-    template<class T>
-    T clamp(T val, const Range<T>& range)
-    { return std::min( std::max(val, range[kRangeMinIndex]), range[kRangeMaxIndex] ); }
-
-    constexpr Range<double> kTempoRange  = {30.0, 250.0};
-    constexpr Range<double> kAccelRange  = {0.0, 1000.0};
 
   }//unnamed namespace
 
   // Ticker
   Ticker::Ticker()
-    : backend_ {createBackend(settings::kAudioBackendNone)},
-      dummy_ {nullptr},
-      actual_device_config_ {kDefaultConfig},
-      state_ {0},
-      in_tempo_ {0},
-      in_target_tempo_ {0},
-      in_accel_ {0},
-      in_meter_ {},
-      in_beat_ {0.0},
-      in_sound_strong_ {},
-      in_sound_mid_ {},
-      in_sound_weak_ {},
-      out_stats_ {0us, 0.0, 0.0, 0.0, 0, 0us, 0us},
-      stop_audio_thread_flag_ {true},
-      audio_thread_finished_flag_ {false},
-      audio_thread_error_ {nullptr},
-      audio_thread_error_flag_ {false},
-      using_dummy_ {true},
-      ready_to_swap_ {false},
-      backend_swapped_ {false}
+    : backend_ {createBackend(settings::kAudioBackendNone)}
   {
     tempo_imported_flag_.test_and_set();
     target_tempo_imported_flag_.test_and_set();
@@ -158,19 +125,19 @@ namespace audio {
 
   void Ticker::setTempo(double tempo)
   {
-    in_tempo_.store( clamp(tempo, kTempoRange) );
+    in_tempo_.store(std::clamp(tempo, kMinTempo, kMaxTempo));
     tempo_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setTargetTempo(double target_tempo)
   {
-    in_target_tempo_.store( clamp(target_tempo, kTempoRange) );
+    in_target_tempo_.store(std::clamp(target_tempo, kMinTempo, kMaxTempo));
     target_tempo_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setAccel(double accel)
   {
-    in_accel_.store( clamp(accel, kAccelRange) );
+    in_accel_.store(std::clamp(accel, kMinAcceleration, kMaxAcceleration));
     accel_imported_flag_.clear(std::memory_order_release);
   }
 
@@ -183,9 +150,13 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setBeatPosition(double beat)
+  void Ticker::synchronize(double beat_dev, double tempo_dev)
   {
-    in_beat_.store(beat);
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_beat_dev_ = beat_dev;
+      in_tempo_dev_ = tempo_dev;
+    }
     beat_imported_flag_.clear(std::memory_order_release);
   }
 
@@ -340,19 +311,19 @@ namespace audio {
 
   bool Ticker::importTempo()
   {
-    generator_.setTempo(in_tempo_.load());
+    stream_ctrl_.setTempo(in_tempo_.load());
     return true;
   }
 
   bool Ticker::importTargetTempo()
   {
-    generator_.setTargetTempo(in_target_tempo_.load());
+    stream_ctrl_.setTargetTempo(in_target_tempo_.load());
     return true;
   }
 
   bool Ticker::importAccel()
   {
-    generator_.setAccel(in_accel_.load());
+    stream_ctrl_.setAcceleration(in_accel_.load());
     return true;
   }
 
@@ -361,7 +332,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.swapMeter(in_meter_);
+      stream_ctrl_.swapMeter(in_meter_);
       return true;
     }
     else {
@@ -371,8 +342,15 @@ namespace audio {
 
   bool Ticker::importBeat()
   {
-    generator_.setBeatPosition(in_beat_.load());
-    return true;
+    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      stream_ctrl_.synchronize(in_beat_dev_, in_tempo_dev_);
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 
   bool Ticker::importSoundStrong()
@@ -380,7 +358,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.setSound(Accent::kAccentStrong, in_sound_strong_);
+      stream_ctrl_.setSound(Accent::kAccentStrong, in_sound_strong_);
       return true;
     }
     else {
@@ -393,7 +371,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.setSound(Accent::kAccentMid, in_sound_mid_);
+      stream_ctrl_.setSound(Accent::kAccentMid, in_sound_mid_);
       return true;
     }
     else {
@@ -406,7 +384,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      generator_.setSound(Accent::kAccentWeak, in_sound_weak_);
+      stream_ctrl_.setSound(Accent::kAccentWeak, in_sound_weak_);
       return true;
     }
     else {
@@ -511,13 +489,15 @@ namespace audio {
     {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
 
-      const auto& gen_stats = generator_.getStatistics();
+      const auto& gen_stats = stream_ctrl_.status();
 
-      out_stats_.current_tempo = gen_stats.current_tempo;
-      out_stats_.current_accel = gen_stats.current_accel;
-      out_stats_.current_beat = gen_stats.current_beat;
+      out_stats_.position = gen_stats.position;
+      out_stats_.tempo = gen_stats.tempo;
+      out_stats_.acceleration = gen_stats.acceleration;
+      out_stats_.module = gen_stats.module;
       out_stats_.next_accent = gen_stats.next_accent;
       out_stats_.next_accent_delay = gen_stats.next_accent_delay;
+      out_stats_.generator_state = gen_stats.state;
 
       if (backend_)
         out_stats_.backend_latency = backend_->latency();
@@ -618,12 +598,11 @@ namespace audio {
 
     try {
       openBackend(); // sets actual_device_config_
-      generator_.prepare(actual_device_config_.spec);
+      stream_ctrl_.prepare(actual_device_config_.spec);
       importGeneratorSettings();
-      generator_.start(data, bytes);
-      startBackend();
+      stream_ctrl_.start(kFillBufferGenerator);
       exportStatistics();
-      writeBackend(data, bytes);
+      startBackend();
 
       // enter the main loop
       while ( ! stop_audio_thread_flag_ )
@@ -631,17 +610,16 @@ namespace audio {
         if (importBackend())
         {
           openBackend(); // updates actual_device_config_
-          generator_.prepare(actual_device_config_.spec);
+          stream_ctrl_.prepare(actual_device_config_.spec);
           startBackend();
         }
         importGeneratorSettings();
-        generator_.cycle(data, bytes);
+        stream_ctrl_.cycle(data, bytes);
         writeBackend(data, bytes);
         exportStatistics();
       }
 
-      generator_.stop(data, bytes);
-      writeBackend(data, bytes);
+      stream_ctrl_.stop();
       exportStatistics();
       stopBackend();
     }

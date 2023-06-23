@@ -46,15 +46,22 @@ namespace audio {
 
   class Ticker {
   public:
+    static constexpr double kMinTempo = 30.0;
+    static constexpr double kMaxTempo = 250.0;
+    static constexpr double kMinAcceleration = 0.0;
+    static constexpr double kMaxAcceleration = 1000.0;
+
     struct Statistics
     {
-      microseconds  timestamp;
-      double        current_tempo;
-      double        current_accel;
-      double        current_beat;
-      int           next_accent;
-      microseconds  next_accent_delay;
-      microseconds  backend_latency;
+      microseconds  timestamp {0us};
+      double        position {0.0};
+      double        tempo {0.0};
+      double        acceleration {0.0};
+      double        module {0.0};
+      int           next_accent {-1};
+      microseconds  next_accent_delay {0us};
+      int           generator_state {-1};
+      microseconds  backend_latency {0us};
     };
 
   public:
@@ -80,7 +87,7 @@ namespace audio {
     void setAccel(double accel);
     void setMeter(Meter meter);
 
-    void setBeatPosition(double beat);
+    void synchronize(double beat_dev, double tempo_dev);
 
     void setSoundStrong(const SoundParameters& params);
     void setSoundMid(const SoundParameters& params);
@@ -89,22 +96,23 @@ namespace audio {
     Ticker::Statistics getStatistics() const;
 
   private:
-    Generator generator_;
+    BeatStreamController stream_ctrl_;
 
     std::unique_ptr<Backend> backend_;
-    std::unique_ptr<Backend> dummy_;
-    DeviceConfig actual_device_config_;
+    std::unique_ptr<Backend> dummy_{nullptr};
+    DeviceConfig actual_device_config_{kDefaultConfig};
 
-    TickerState state_;
+    TickerState state_{0};
 
-    std::atomic<double> in_tempo_;
-    std::atomic<double> in_target_tempo_;
-    std::atomic<double> in_accel_;
-    Meter in_meter_;
-    std::atomic<double> in_beat_;
-    SoundParameters in_sound_strong_;
-    SoundParameters in_sound_mid_;
-    SoundParameters in_sound_weak_;
+    std::atomic<double> in_tempo_{0.0};
+    std::atomic<double> in_target_tempo_{0.0};
+    std::atomic<double> in_accel_{0.0};
+    Meter in_meter_{};
+    double in_beat_dev_{0.0};
+    double in_tempo_dev_{0.0};
+    SoundParameters in_sound_strong_{};
+    SoundParameters in_sound_mid_{};
+    SoundParameters in_sound_weak_{};
 
     Ticker::Statistics out_stats_;
 
@@ -144,15 +152,15 @@ namespace audio {
     void stopBackend();
     void writeBackend(const void* data, size_t bytes);
 
-    std::unique_ptr<std::thread> audio_thread_;
-    std::atomic<bool> stop_audio_thread_flag_;
-    std::atomic<bool> audio_thread_finished_flag_;
-    std::exception_ptr audio_thread_error_;
-    std::atomic<bool> audio_thread_error_flag_;
+    std::unique_ptr<std::thread> audio_thread_{nullptr};
+    std::atomic<bool> stop_audio_thread_flag_{true};
+    std::atomic<bool> audio_thread_finished_flag_{false};
+    std::exception_ptr audio_thread_error_{nullptr};
+    std::atomic<bool> audio_thread_error_flag_{false};
     std::condition_variable_any cond_var_;
-    bool using_dummy_;
-    bool ready_to_swap_;
-    bool backend_swapped_;
+    bool using_dummy_{true};
+    bool ready_to_swap_{false};
+    bool backend_swapped_{false};
 
     void startAudioThread();
     void stopAudioThread(bool join = false, const milliseconds& join_timeout = 2s);

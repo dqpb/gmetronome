@@ -233,15 +233,13 @@ void MainWindow::initActions()
 
 void MainWindow::initUI()
 {
-  using std::literals::chrono_literals::operator""us;
-
   // initialize title bar
   titlebar_bin_.add(*header_bar_);
   set_titlebar(titlebar_bin_);
   titlebar_bin_.show();
 
   // initialize header bar
-  updateCurrentTempo( { 0us, 0.0, 0.0, -1.0, -1, 0us, 0us } );
+  updateCurrentTempo(audio::Ticker::Statistics{});
 
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
@@ -959,8 +957,6 @@ void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::mem_fn(&sigc::connection::unblock));
-
-  pendulum_.setMeter(meter);
 }
 
 void MainWindow::updateAccentButtons(const Meter& meter)
@@ -1087,7 +1083,7 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 
 void MainWindow::updateTempo(double tempo)
 {
-  cancelButtonAnimations();
+  //cancelButtonAnimations();
 }
 
 void MainWindow::updateStart(bool running)
@@ -1128,7 +1124,7 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   double tempo_integral;
   double tempo_fraction;
 
-  tempo_fraction = std::modf(stats.current_tempo, &tempo_integral);
+  tempo_fraction = std::modf(stats.tempo, &tempo_integral);
 
   int tempo_integral_int = tempo_integral;
   int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
@@ -1148,9 +1144,9 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
   if (text != tempo_fraction_label_->get_text())
     tempo_fraction_label_->set_text(text);
 
-  if (stats.current_accel == 0)
+  if (stats.acceleration == 0)
     text = kAccelStableSymbol;
-  else if (stats.current_accel > 0)
+  else if (stats.acceleration > 0)
     text = kAccelUpSymbol;
   else
     text = kAccelDownSymbol;
