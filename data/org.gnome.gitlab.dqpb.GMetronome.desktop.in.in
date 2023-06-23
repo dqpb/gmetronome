@@ -2,7 +2,7 @@
 Version=1.0
 Encoding=UTF-8
 Name=GMetronome
-Comment=Maintain tempo while practicing your instrument
+Comment=Play a steady rhythm
 Exec=gmetronome
 Icon=@PACKAGE_ID@
 Terminal=false

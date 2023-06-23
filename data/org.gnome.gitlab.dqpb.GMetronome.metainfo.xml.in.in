@@ -8,7 +8,7 @@
   <developer_name>The GMetronome Team</developer_name>
   <summary>A tempo measurement tool for composers and musicians</summary>
   <description>
-    <p>GMetronome is a free and open source software metronome for GNU/Linux and other Unix-like operating systems.</p>
+    <p>GMetronome is a free software metronome and tempo measurement tool for GNU/Linux and other Unix-like operating systems.</p>
     <p>Features:</p>
     <ul>
       <li>Tempo range from 30 to 250 beats per minute</li>
