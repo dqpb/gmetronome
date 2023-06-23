@@ -35,9 +35,9 @@ struct Profile
   static constexpr std::size_t kDescriptionMaxLength = 1024;
 
   // default title for new profiles
-  static inline const std::string kDefaultTitle            = N_("New Profile");
+  static inline const std::string kDefaultTitle            = C_("Profile", "New Profile");
   // placeholder title for untitled profiles
-  static inline const std::string kDefaultTitlePlaceholder = N_("Untitled Profile");
+  static inline const std::string kDefaultTitlePlaceholder = C_("Profile", "Untitled Profile");
   // default description for new profiles
   static inline const std::string kDefaultDescription      = "";
 
