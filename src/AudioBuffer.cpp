@@ -75,7 +75,9 @@ namespace audio {
 
   void resample(const ByteBuffer& src_buf, ByteBuffer& tgt_buf, const ChannelMap& map)
   {
+#ifndef NDEBUG
     const auto& src_spec = src_buf.spec();
+#endif
     const auto& tgt_spec = tgt_buf.spec();
 
     // TODO: support rate resampling
