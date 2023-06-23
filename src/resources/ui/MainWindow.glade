@@ -301,7 +301,6 @@
               <object class="GtkTreeView" id="profileTreeView">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="tooltip-text" translatable="yes" context="Profiles menu" comments="Tooltip">List of profiles</property>
                 <property name="headers-visible">False</property>
                 <property name="headers-clickable">False</property>
                 <property name="search-column">1</property>
