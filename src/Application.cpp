@@ -35,11 +35,6 @@
 
 namespace {
 
-  const std::bitset<3> kAccentMaskAll    {"111"};
-  const std::bitset<3> kAccentMaskStrong {"001"};
-  const std::bitset<3> kAccentMaskMid    {"010"};
-  const std::bitset<3> kAccentMaskWeak   {"100"};
-
   std::string getErrorDetails(std::exception_ptr eptr)
   {
     std::string details;

@@ -85,6 +85,11 @@ private:
 
   using AccentMask = std::bitset<3>; // strong, mid, weak
 
+  static constexpr std::bitset<3> kAccentMaskAll    {0b111};
+  static constexpr std::bitset<3> kAccentMaskStrong {0b100};
+  static constexpr std::bitset<3> kAccentMaskMid    {0b010};
+  static constexpr std::bitset<3> kAccentMaskWeak   {0b001};
+
   void loadSelectedSoundTheme();
   void updateTickerSound(const AccentMask& accents, double volume);
   void configureAudioBackend();
