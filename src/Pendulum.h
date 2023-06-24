@@ -57,14 +57,15 @@ private:
   double phase_mode_shift_{0.0};
   bool animation_running_{false};
   bool shutdown_{true};
+  double target_omega_{0.0};
   std::chrono::microseconds last_frame_time_{0};
   double needle_amplitude_{0.0};
   double needle_theta_{0.0};
   double needle_length_{0.9};
   std::array<double,2> needle_base_{0.5, 1.0};
   std::array<double,2> needle_tip_{0.5, 0.0};
-  double marking_radius_{1.0};
-  double marking_amplitude_{0.0};
+  double dial_radius_{1.0};
+  double dial_amplitude_{0.0};
 
   void startAnimation();
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);

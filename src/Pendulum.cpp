@@ -55,12 +55,12 @@ namespace {
   constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
   constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
   constexpr double kNeedleAmplitudeChangeRate  = 1.0 * M_PI;    // rad/s
-  constexpr double kMarkingAmplitudeChangeRate = 1.5 * M_PI;    // rad/s
+  constexpr double kDialAmplitudeChangeRate    = 1.5 * M_PI;    // rad/s
 
   // element appearance
   constexpr double kNeedleWidth        = 3.0;   // pixel
   constexpr double kNeedleShadowOffset = 6.0;   // pixel
-  constexpr double kNeedleLength       = 92.0;  // percent of markings height
+  constexpr double kNeedleLength       = 92.0;  // percent of dial radius
   constexpr double kKnobRadius         = 10.0;  // pixel
 
   // widget dimensions
@@ -75,7 +75,7 @@ Pendulum::Pendulum()
     Gtk::Widget(),
     action_angle_{kActionAngleReal},
     phase_mode_shift_{kPhaseModeShiftLeft},
-    marking_amplitude_{kMaxNeedleAmplitude}
+    dial_amplitude_{kMaxNeedleAmplitude}
 {}
 
 void Pendulum::setAction(ActionAngle action)
@@ -122,24 +122,25 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
   if (!shutdown_ && stats.generator_state < 0)
   {
     k_.shutdown(kShutdownTime);
+    target_omega_ = 0.0;
     shutdown_ = true;
   }
   else
   {
-    double target_omega = stats.tempo / 60.0 * M_PI;
+    target_omega_ = stats.tempo / 60.0 * M_PI;
 
     if (shutdown_) // init phase
     {
-      // We prevent syncing backwards in the boundary case, that occurs, when the
+      // We prevent syncing backwards that occurs in the boundary case, when the
       // phase shift equals M_PI / 2.0 (edge mode) by adding a small value.
-      k_.reset(phase_mode_shift_ + 0.0001, target_omega);
+      k_.reset(phase_mode_shift_ + 0.0001, target_omega_);
       shutdown_ = false;
     }
 
     double omega_dev = 0.0;
     double theta_dev = 0.0;
 
-    omega_dev = target_omega - k_.omega();
+    omega_dev = target_omega_ - k_.omega();
 
     double tmp;
     double target_theta = M_PI * std::modf(stats.position, &tmp);
@@ -148,7 +149,7 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     microseconds click_time = stats.timestamp + stats.backend_latency + sync;
     seconds_dbl time_delta = now - click_time;
 
-    target_theta += target_omega * time_delta.count();
+    target_theta += target_omega_ * time_delta.count();
     target_theta += action_angle_;
 
     double theta_dist = std::remainder(target_theta - k_.theta(), M_PI);
@@ -206,19 +207,19 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     k_.step(frame_time_delta);
 
-    bool redraw_marking = false;
+    bool redraw_dial = false;
 
-    double marking_target_amplitude
-      = (shutdown_) ? needleAmplitude(0.0) : needleAmplitude(k_.omega());
+    double dial_target_amplitude
+      = (shutdown_) ? needleAmplitude(0.0) : needleAmplitude(target_omega_);
 
-    if (std::abs(marking_target_amplitude - marking_amplitude_) > 0.001)
+    if (std::abs(dial_target_amplitude - dial_amplitude_) > 0.001)
     {
-      marking_amplitude_ += kMarkingAmplitudeChangeRate
-        * std::tanh(marking_target_amplitude - marking_amplitude_) * frame_time_delta.count();
-      redraw_marking = true;
+      dial_amplitude_ += kDialAmplitudeChangeRate
+        * std::tanh(dial_target_amplitude - dial_amplitude_) * frame_time_delta.count();
+      redraw_dial = true;
     }
 
-    double needle_target_amplitude = marking_target_amplitude;
+    double needle_target_amplitude = dial_target_amplitude;
 
     if (shutdown_)
       needle_target_amplitude = 0.0;
@@ -234,7 +235,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     int x, y, w, h;
 
-    if(redraw_marking)
+    if(redraw_dial)
     {
       x = needle_base_[0] - needle_length_;
       y = 0;
@@ -285,50 +286,50 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   static const Gdk::RGBA shadow_color("rgba(0,0,0,.1)");
   static const Gdk::RGBA highlight_color("rgb(255,255,255,.6)");
 
-  Gdk::RGBA marking_color = primary_color;
-  marking_color.set_alpha(0.5);
+  Gdk::RGBA dial_color = primary_color;
+  dial_color.set_alpha(0.5);
 
   static const double three_pi_half = 3.0 * M_PI / 2.0;
-  const double sin_marking_amplitude = std::sin(marking_amplitude_);
-  const double cos_marking_amplitude = std::cos(marking_amplitude_);
+  const double sin_dial_amplitude = std::sin(dial_amplitude_);
+  const double cos_dial_amplitude = std::cos(dial_amplitude_);
   const double needle_length_half = needle_length_ / 2.0;
 
-  // draw markings
+  // draw dial
   cr->save();
-  cr->move_to(needle_base_[0] - (needle_length_half) * sin_marking_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_marking_amplitude);
+  cr->move_to(needle_base_[0] - (needle_length_half) * sin_dial_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_dial_amplitude);
 
-  cr->line_to(needle_base_[0] - marking_radius_ * sin_marking_amplitude,
-              needle_base_[1] - marking_radius_ * cos_marking_amplitude);
+  cr->line_to(needle_base_[0] - dial_radius_ * sin_dial_amplitude,
+              needle_base_[1] - dial_radius_ * cos_dial_amplitude);
 
   cr->arc(needle_base_[0],
           needle_base_[1],
-          marking_radius_,
-          three_pi_half - marking_amplitude_,
-          three_pi_half + marking_amplitude_);
+          dial_radius_,
+          three_pi_half - dial_amplitude_,
+          three_pi_half + dial_amplitude_);
 
-  cr->line_to(needle_base_[0] + (needle_length_half) * sin_marking_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_marking_amplitude);
+  cr->line_to(needle_base_[0] + (needle_length_half) * sin_dial_amplitude,
+              needle_base_[1] - (needle_length_half) * cos_dial_amplitude);
 
   cr->arc_negative(needle_base_[0],
                    needle_base_[1],
                    needle_length_half,
-                   three_pi_half + marking_amplitude_,
-                   three_pi_half - marking_amplitude_);
+                   three_pi_half + dial_amplitude_,
+                   three_pi_half - dial_amplitude_);
 
-  cr->set_source_rgba(marking_color.get_red(),
-                      marking_color.get_green(),
-                      marking_color.get_blue(),
+  cr->set_source_rgba(dial_color.get_red(),
+                      dial_color.get_green(),
+                      dial_color.get_blue(),
                       0.05);
   cr->fill_preserve();
 
-  Gdk::Cairo::set_source_rgba(cr, marking_color);
+  Gdk::Cairo::set_source_rgba(cr, dial_color);
   cr->set_line_width(1.0);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->stroke();
 
   cr->move_to(needle_base_[0], needle_base_[1]);
-  cr->line_to(needle_base_[0], needle_base_[1] - marking_radius_);
+  cr->line_to(needle_base_[0], needle_base_[1] - dial_radius_);
   cr->set_dash(std::vector<double>({4.0, 4.0}), 0);
   cr->stroke();
   cr->restore();
@@ -405,12 +406,12 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
   if(gdk_window_)
     gdk_window_->move_resize(x, y, width, height);
 
-  marking_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
-  marking_radius_ = std::floor(marking_radius_ - 1.0) + 0.5;
+  dial_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
+  dial_radius_ = std::floor(dial_radius_ - 1.0) + 0.5;
 
-  needle_length_ = std::round(marking_radius_ / 100.0 * kNeedleLength);
+  needle_length_ = std::round(dial_radius_ / 100.0 * kNeedleLength);
   needle_base_[0] = std::floor(width / 2.0) + 0.5; // prevent blurred middle line
-  needle_base_[1] = std::floor((height + marking_radius_) / 2.0) + 1.5;
+  needle_base_[1] = std::floor((height + dial_radius_) / 2.0) + 1.5;
   needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
   needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
 }
