@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -20,15 +20,14 @@
 #include "AccentButtonGrid.h"
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
-AccentButtonGrid::AccentButtonGrid(std::size_t size, std::size_t grouping)
+AccentButtonGrid::AccentButtonGrid()
 {
   set_has_window(false);
   set_redraw_on_allocate(false);
 
-  resizeButtonsVector(size);
-
-  setGrouping(grouping);
+  updateAccentButtons(meter_);
 }
 
 AccentButtonGrid::~AccentButtonGrid()
@@ -36,12 +35,52 @@ AccentButtonGrid::~AccentButtonGrid()
   resizeButtonsVector(0);
 }
 
-void AccentButtonGrid::onAccentChanged(std::size_t index)
+void AccentButtonGrid::setMeter(const Meter& meter)
 {
-  signal_accent_changed_.emit(index);
+  updateAccentButtons(meter);
+  meter_ = meter;
 }
 
-bool AccentButtonGrid::resizeButtonsVector(std::size_t new_size)
+void AccentButtonGrid::updateAccentButtons(const Meter& meter)
+{
+  const auto& new_accents = meter.accents();
+
+  std::size_t new_size = new_accents.size();
+  std::size_t old_size = buttons_.size();
+
+  int old_division = meter_.division();
+  int new_division = meter.division();
+
+  bool need_relabel = false;
+
+  if (new_size > old_size || new_division != old_division)
+    need_relabel = true;
+
+  if (new_size != old_size)
+  {
+    resizeButtonsVector(new_size);
+    queue_resize();
+  }
+
+  if (need_relabel)
+  {
+    for (std::size_t index = 0; index < buttons_.size(); ++index)
+    {
+      Glib::ustring label = ( index % new_division == 0 ) ?
+        Glib::ustring::format( index / new_division + 1 ) : "";
+
+      buttons_[index]->setLabel(label);
+      buttons_[index]->setAccentState( new_accents[index] );
+    }
+  }
+  else
+  {
+    for (std::size_t index = 0; index < buttons_.size(); ++index)
+      buttons_[index]->setAccentState( new_accents[index] );
+  }
+}
+
+void AccentButtonGrid::resizeButtonsVector(std::size_t new_size)
 {
   std::size_t old_size = buttons_.size();
 
@@ -63,35 +102,12 @@ bool AccentButtonGrid::resizeButtonsVector(std::size_t new_size)
     buttons_[index]->signal_accent_state_changed()
       .connect(sigc::bind( sigc::mem_fun(*this, &AccentButtonGrid::onAccentChanged), index));
   }
-
-  if (buttons_.size() != old_size)
-    return true;
-  else
-    return false;
 }
 
-bool AccentButtonGrid::setGrouping(std::size_t grouping)
+void AccentButtonGrid::onAccentChanged(std::size_t index)
 {
-  if (grouping < 1)
-    grouping = 1;
-
-  bool ret = ( grouping != grouping_ );
-
-  grouping_ = grouping;
-
-  return ret;
-}
-
-void AccentButtonGrid::resize(std::size_t new_size)
-{
-  if ( resizeButtonsVector(new_size) )
-    queue_resize();
-}
-
-void AccentButtonGrid::regroup(std::size_t grouping)
-{
-  if ( setGrouping(grouping) )
-    queue_resize();
+  meter_.setAccent(index, buttons_[index]->getAccentState());
+  signal_accent_changed_.emit(index);
 }
 
 Gtk::SizeRequestMode AccentButtonGrid::get_request_mode_vfunc() const
@@ -128,7 +144,7 @@ void AccentButtonGrid::updateCellDimensions() const
   cell_height_nat_ = result_height_nat;
 
   std::size_t min_cells_per_row =
-    std::max( (std::size_t) 1, std::min(buttons_.size(), grouping_) );
+    std::max<std::size_t>(1, std::min<std::size_t>(buttons_.size(), meter_.division()));
 
   group_width_min_ = min_cells_per_row * cell_width_min_;
   group_width_nat_ = min_cells_per_row * cell_width_nat_;
@@ -138,7 +154,7 @@ void AccentButtonGrid::numRowsForWidth(int width,
                                        int& num_rows_min,
                                        int& num_rows_nat) const
 {
-  std::size_t num_groups = groups();
+  std::size_t num_groups = meter_.beats();
   std::size_t max_groups_per_row_min = ( width / group_width_min_ );
   std::size_t max_groups_per_row_nat = ( width / group_width_nat_ );
 
@@ -159,7 +175,7 @@ void AccentButtonGrid::numGroupsPerRowForHeight(int height,
                                                 int& groups_per_row_min,
                                                 int& groups_per_row_nat) const
 {
-  std::size_t num_groups = groups();
+  std::size_t num_groups = meter_.beats();
 
   std::size_t num_rows_min = ( height / cell_height_min_ );
   std::size_t num_rows_nat = ( height / cell_height_nat_ );
@@ -226,7 +242,7 @@ void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
 {
   updateCellDimensions();
 
-  std::size_t num_groups = groups();
+  std::size_t num_groups = meter_.beats();
 
   int num_rows_min;
   int num_rows_nat;
@@ -238,7 +254,7 @@ void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
     //int groups_per_row_min = std::ceil( (double) num_groups / num_rows_min );
     int groups_per_row_nat = std::ceil( (double) num_groups / num_rows_nat );
 
-    int cells_per_row_nat = groups_per_row_nat * grouping_;
+    int cells_per_row_nat = groups_per_row_nat * meter_.division();
 
     int left_offset_nat = ( alloc.get_width() - ( cells_per_row_nat * cell_width_nat_ ) ) / 2;
     int top_offset_nat = ( alloc.get_height() - ( num_rows_nat * cell_height_nat_ ) ) / 2;

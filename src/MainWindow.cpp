@@ -737,26 +737,7 @@ void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
 
 void MainWindow::onAccentChanged(std::size_t button_index)
 {
-  std::size_t beats = std::lround(beats_adjustment_->get_value());
-
-  std::size_t division = 1;
-  if (subdiv_2_radio_button_->get_active())
-    division = 2;
-  else if (subdiv_3_radio_button_->get_active())
-    division = 3;
-  else if (subdiv_4_radio_button_->get_active())
-    division = 4;
-
-  std::size_t pattern_size = std::min(beats * division, accent_button_grid_.size());
-
-  AccentPattern pattern(pattern_size);
-
-  for (std::size_t index = 0; index < pattern_size; ++index)
-  {
-    pattern[index] = accent_button_grid_[index].getAccentState();
-  }
-
-  Meter meter(division, beats, pattern);
+  const Meter& meter = accent_button_grid_.meter();
 
   auto state = Glib::Variant<Meter>::create(meter);
 
@@ -963,39 +944,7 @@ void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
 
 void MainWindow::updateAccentButtons(const Meter& meter)
 {
-  std::size_t new_grouping = meter.division();
-  std::size_t new_size = meter.beats() * new_grouping;
-  auto& new_accents = meter.accents();
-
-  bool need_relabel = false;
-
-  if (new_size > accent_button_grid_.size()
-      || new_grouping != accent_button_grid_.grouping())
-  {
-    need_relabel = true;
-  }
-
-  accent_button_grid_.resize(new_size);
-  accent_button_grid_.regroup(meter.division());
-
-  if (need_relabel)
-  {
-    for (std::size_t index = 0; index < accent_button_grid_.size(); ++index)
-    {
-      Glib::ustring label = ( index % new_grouping == 0 ) ?
-        Glib::ustring::format( index / new_grouping + 1 ) : "";
-
-      accent_button_grid_[index].setLabel(label);
-      accent_button_grid_[index].setAccentState( new_accents[index] );
-    }
-  }
-  else
-  {
-    for (std::size_t index = 0; index < accent_button_grid_.size(); ++index)
-    {
-      accent_button_grid_[index].setAccentState( new_accents[index] );
-    }
-  }
+  accent_button_grid_.setMeter(meter);
 }
 
 void MainWindow::updateProfileList(const ProfileList& list)
@@ -1102,19 +1051,18 @@ void MainWindow::cancelButtonAnimations()
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
 {
-  const int n_beats = accent_button_grid_.groups();
-  const int n_accents = n_beats * accent_button_grid_.grouping();
+  const int n_beats = accent_button_grid_.meter().beats();
+  const int n_accents = n_beats * accent_button_grid_.meter().division();
 
   if (stats.n_beats == n_beats && stats.n_accents == n_accents)
   {
     std::size_t next_accent = stats.next_accent;
-    if ( next_accent < accent_button_grid_.size() )
+    if ( next_accent < accent_button_grid_.buttons().size() )
     {
       std::chrono::microseconds time = stats.timestamp
         + stats.backend_latency
-        + stats.next_accent_delay;
-
-      time += animation_sync_;
+        + stats.next_accent_delay
+        + animation_sync_;
 
       accent_button_grid_[next_accent].scheduleAnimation(time.count());
     }

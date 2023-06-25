@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, 2021 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -21,31 +21,20 @@
 #define GMetronome_AccentButtonGrid_h
 
 #include "AccentButton.h"
-
 #include <gtkmm/container.h>
 #include <sigc++/sigc++.h>
 #include <vector>
-#include <cmath>
 
 class AccentButtonGrid : public Gtk::Container {
-
 public:
-  AccentButtonGrid(std::size_t size = 0, std::size_t grouping = 0);
+  AccentButtonGrid();
 
-  virtual ~AccentButtonGrid();
+  virtual ~AccentButtonGrid() override;
 
-  void resize(std::size_t size);
+  void setMeter(const Meter& meter);
 
-  std::size_t size() const
-    { return buttons_.size(); }
-
-  void regroup(std::size_t grouping);
-
-  std::size_t grouping() const
-    { return grouping_; }
-
-  std::size_t groups() const
-    { return (grouping_ != 0) ? std::ceil((double) size() / grouping_) : 0; }
+  const Meter& meter() const
+    { return meter_; }
 
   const std::vector<AccentButton*>& buttons() const
     { return buttons_; }
@@ -58,6 +47,34 @@ public:
 
   sigc::signal<void(std::size_t index)> signal_accent_changed()
     { return signal_accent_changed_; }
+
+private:
+  std::vector<AccentButton*> buttons_;
+  Meter meter_;
+
+  // cache
+  mutable int cell_width_min_;
+  mutable int cell_height_min_;
+  mutable int cell_width_nat_;
+  mutable int cell_height_nat_;
+  mutable int group_width_min_;
+  mutable int group_width_nat_;
+
+  sigc::signal<void(std::size_t index)> signal_accent_changed_;
+
+  void updateAccentButtons(const Meter& meter);
+  void resizeButtonsVector(std::size_t size);
+  void onAccentChanged(std::size_t index);
+
+  void updateCellDimensions() const;
+
+  void numRowsForWidth(int width,
+                       int& num_rows_min,
+                       int& num_rows_nat) const;
+
+  void numGroupsPerRowForHeight(int height,
+                                int& groups_per_row_min,
+                                int& groups_per_row_nat) const;
 
 private:
   Gtk::SizeRequestMode get_request_mode_vfunc() const override;
@@ -87,33 +104,6 @@ private:
   void on_remove(Gtk::Widget* child) override;
 
   GType child_type_vfunc() const override;
-
-private:
-  std::vector<AccentButton*> buttons_;
-  std::size_t grouping_;
-
-  // cache
-  mutable int cell_width_min_;
-  mutable int cell_height_min_;
-  mutable int cell_width_nat_;
-  mutable int cell_height_nat_;
-  mutable int group_width_min_;
-  mutable int group_width_nat_;
-
-  sigc::signal<void(std::size_t index)> signal_accent_changed_;
-
-  void onAccentChanged(std::size_t index);
-  bool resizeButtonsVector(std::size_t size);
-  bool setGrouping(std::size_t grouping);
-  void updateCellDimensions() const;
-
-  void numRowsForWidth(int width,
-                       int& num_rows_min,
-                       int& num_rows_nat) const;
-
-  void numGroupsPerRowForHeight(int height,
-                                int& groups_per_row_min,
-                                int& groups_per_row_nat) const;
 };
 
 #endif//GMetronome_AccentButtonGrid_h
