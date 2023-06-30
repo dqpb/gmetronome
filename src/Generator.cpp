@@ -35,7 +35,7 @@ namespace audio {
   namespace {
     constexpr microseconds kMaxChunkDuration = 80ms;
     constexpr microseconds kAvgChunkDuration = 50ms;
-    constexpr microseconds kFillBufferDuration = 250ms;
+    constexpr microseconds kFillBufferDuration = 200ms;
     constexpr microseconds kKinematicsSyncTime = 1000ms;
 
     // not implemented yet
@@ -90,16 +90,13 @@ namespace audio {
   {
     size_t frames_left = frames_total_ - frames_done_;
 
-    status.position = -1.0;
-    status.tempo = 0.0;
+    physics::seconds_dbl time_left {(double)frames_left / ctrl.spec().rate};
+
+    status.position = - ctrl.tempo() * time_left.count() / 60.0;
+    status.tempo = ctrl.tempo();
     status.acceleration = 0.0;
     status.next_accent = 0;
-
-    const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
-
-    status.next_accent_delay
-      = microseconds((microseconds::rep) (frames_left * kMicrosecondsFramesRatio));
-
+    status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
     status.state = kFillBufferGenerator;
   }
 
