@@ -286,7 +286,7 @@ namespace physics {
   std::pair<Force, seconds_dbl>
   computeAccelForce(double v_dev, double a)
   {
-    std::pair<Force, seconds_dbl> r {{0.0}, kZeroTime};
+    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, kZeroTime};
     auto& [r_force, r_time] = r;
 
     if (v_dev != 0.0)
@@ -318,7 +318,7 @@ namespace physics {
   std::pair<Force, seconds_dbl>
   computeAccelForce(double v_dev, const seconds_dbl& time)
   {
-    std::pair<Force, seconds_dbl> r {{0.0}, time};
+    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
     auto& [r_force, r_time] = r;
 
     if (time != kZeroTime)
@@ -369,7 +369,10 @@ namespace physics {
 
   void PendulumKinematics::step(seconds_dbl time)
   {
-    while( osc_.step(time) > kZeroTime );
+    do {
+      time = osc_.step(time);
+    }
+    while( time > kZeroTime );
   }
 
 }//namespace physics
