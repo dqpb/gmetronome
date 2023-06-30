@@ -154,6 +154,7 @@ private:
   void onShowHelp(const Glib::VariantBase& value);
   void onShowAbout(const Glib::VariantBase& value);
   void onToggleFullScreen(const Glib::VariantBase& value);
+  void onPendulumTogglePhase(const Glib::VariantBase& value);
 
   // UI handler
   bool onTempoTap(GdkEventButton* button_event);

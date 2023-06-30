@@ -41,30 +41,33 @@ const std::vector<ShortcutEntry>& ShortcutList()
       { settings::kKeyShortcutsStart,                  C_("Shortcut title", "Start / Stop") },
 
       { {}, C_("Shortcut group title", "Volume") },
-      { settings::kKeyShortcutsVolumeIncrease1,         C_("Shortcut title", "Volume +1 Percent") },
-      { settings::kKeyShortcutsVolumeDecrease1,         C_("Shortcut title", "Volume -1 Percent") },
-      { settings::kKeyShortcutsVolumeIncrease10,        C_("Shortcut title", "Volume +10 Percent") },
-      { settings::kKeyShortcutsVolumeDecrease10,        C_("Shortcut title", "Volume -10 Percent") },
+      { settings::kKeyShortcutsVolumeIncrease1,       C_("Shortcut title", "Volume +1 Percent") },
+      { settings::kKeyShortcutsVolumeDecrease1,       C_("Shortcut title", "Volume -1 Percent") },
+      { settings::kKeyShortcutsVolumeIncrease10,      C_("Shortcut title", "Volume +10 Percent") },
+      { settings::kKeyShortcutsVolumeDecrease10,      C_("Shortcut title", "Volume -10 Percent") },
+
+      { {}, C_("Shortcut group title", "Pendulum") },
+      { settings::kKeyShortcutsPendulumTogglePhase,  C_("Shortcut title", "Toggle Pendulum Phase") },
 
       { {}, C_("Shortcut group title", "Tempo") },
-      { settings::kKeyShortcutsTempoIncrease1,         C_("Shortcut title", "Tempo +1 Bpm") },
-      { settings::kKeyShortcutsTempoDecrease1,         C_("Shortcut title", "Tempo -1 Bpm") },
-      { settings::kKeyShortcutsTempoIncrease10,        C_("Shortcut title", "Tempo +10 Bpm") },
-      { settings::kKeyShortcutsTempoDecrease10,        C_("Shortcut title", "Tempo -10 Bpm") },
-      { settings::kKeyShortcutsTempoTap,               C_("Shortcut title", "Tempo Tap") },
+      { settings::kKeyShortcutsTempoIncrease1,        C_("Shortcut title", "Tempo +1 Bpm") },
+      { settings::kKeyShortcutsTempoDecrease1,        C_("Shortcut title", "Tempo -1 Bpm") },
+      { settings::kKeyShortcutsTempoIncrease10,       C_("Shortcut title", "Tempo +10 Bpm") },
+      { settings::kKeyShortcutsTempoDecrease10,       C_("Shortcut title", "Tempo -10 Bpm") },
+      { settings::kKeyShortcutsTempoTap,              C_("Shortcut title", "Tempo Tap") },
 
       { {}, C_("Shortcut group title", "Accents") },
-      { settings::kKeyShortcutsMeterEnabled,           C_("Shortcut title", "Enable / Disable Accentuation") },
-      { settings::kKeyShortcutsMeterSelectSimple2,     C_("Shortcut title", "Select 2/4 Meter") },
-      { settings::kKeyShortcutsMeterSelectSimple3,     C_("Shortcut title", "Select 3/4 Meter") },
-      { settings::kKeyShortcutsMeterSelectSimple4,     C_("Shortcut title", "Select 4/4 Meter") },
-      { settings::kKeyShortcutsMeterSelectCompound2,   C_("Shortcut title", "Select 6/8 Meter") },
-      { settings::kKeyShortcutsMeterSelectCompound3,   C_("Shortcut title", "Select 9/8 Meter") },
-      { settings::kKeyShortcutsMeterSelectCompound4,   C_("Shortcut title", "Select 12/8 Meter") },
-      { settings::kKeyShortcutsMeterSelectCustom,      C_("Shortcut title", "Select Custom Meter") },
+      { settings::kKeyShortcutsMeterEnabled,          C_("Shortcut title", "Enable / Disable Accentuation") },
+      { settings::kKeyShortcutsMeterSelectSimple2,    C_("Shortcut title", "Select 2/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectSimple3,    C_("Shortcut title", "Select 3/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectSimple4,    C_("Shortcut title", "Select 4/4 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound2,  C_("Shortcut title", "Select 6/8 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound3,  C_("Shortcut title", "Select 9/8 Meter") },
+      { settings::kKeyShortcutsMeterSelectCompound4,  C_("Shortcut title", "Select 12/8 Meter") },
+      { settings::kKeyShortcutsMeterSelectCustom,     C_("Shortcut title", "Select Custom Meter") },
 
       { {}, C_("Shortcut group title", "Trainer") },
-      { settings::kKeyShortcutsTrainerEnabled,         C_("Shortcut title", "Enable / Disable Trainer") }
+      { settings::kKeyShortcutsTrainerEnabled,       C_("Shortcut title", "Enable / Disable Trainer") }
     };
 
   return kShortcutList;
@@ -155,5 +158,8 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   },
   { settings::kKeyShortcutsMeterSelectCustom,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCustom) }
+  },
+  { settings::kKeyShortcutsPendulumTogglePhase,
+    { kActionPendulumTogglePhase, {} }
   }
 };

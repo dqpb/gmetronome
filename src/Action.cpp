@@ -661,6 +661,16 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionPendulumTogglePhase
+   * Scope          : Window
+   * Parameter type : -
+   * State type     : -
+   * State value    : -
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionPendulumTogglePhase, { ActionScope::kWin, {}, {}, {}, true } },
+
   /* Action         : kActionAudioDeviceList
    * Scope          : Application
    * Parameter type :

@@ -74,6 +74,7 @@ inline const Glib::ustring kActionShowHelp              {"show-help"};
 inline const Glib::ustring kActionShowAbout             {"show-about"};
 inline const Glib::ustring kActionShowPendulum          {"show-pendulum"};
 inline const Glib::ustring kActionFullScreen            {"full-screen"};
+inline const Glib::ustring kActionPendulumTogglePhase   {"pendulum-toggle-phase"};
 
 enum class ActionScope
 {

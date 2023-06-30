@@ -805,6 +805,10 @@
       <default>'&lt;Primary&gt;t'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
+    <key name="pendulum-toggle-phase" type="s">
+      <default>'disabled'</default>
+      <summary>Keyboard shortcut to toggle the pendulum phase</summary>
+    </key>
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences"

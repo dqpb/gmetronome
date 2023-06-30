@@ -225,7 +225,8 @@ void MainWindow::initActions()
       {kActionShowHelp,                sigc::mem_fun(*this, &MainWindow::onShowHelp)},
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowPendulum,            settings::state()},
-      {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)}
+      {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)},
+      {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)}
     };
 
   install_actions(*this, kActionDescriptions, kWinActionHandler);
@@ -653,6 +654,11 @@ void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
     fullscreen();
   else
     unfullscreen();
+}
+
+void MainWindow::onPendulumTogglePhase(const Glib::VariantBase& value)
+{
+  pendulum_.togglePhase();
 }
 
 void MainWindow::activateMeterAction(const Glib::ustring& action,
