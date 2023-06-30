@@ -47,15 +47,15 @@ namespace {
   constexpr double kPhaseModeShiftLeft  = 0.0;         // rad
   constexpr double kPhaseModeShiftRight = M_PI;        // rad
 
-  constexpr seconds_dbl kSyncTime       = 500ms;
-  constexpr seconds_dbl kShutdownTime   = 3000ms;
+  constexpr seconds_dbl kSyncTime       = 750ms;
+  constexpr seconds_dbl kShutdownTime   = 2000ms;
 
   // dynamics
   constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
   constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
   constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
-  constexpr double kNeedleAmplitudeChangeRate  = 1.0 * M_PI;    // rad/s
-  constexpr double kDialAmplitudeChangeRate    = 1.5 * M_PI;    // rad/s
+  constexpr double kNeedleAmplitudeChangeRate  = 0.8 * M_PI;    // rad/s
+  constexpr double kDialAmplitudeChangeRate    = 2.0 * M_PI;    // rad/s
 
   // element appearance
   constexpr double kNeedleWidth        = 3.0;   // pixel
@@ -67,6 +67,13 @@ namespace {
   const double kWidgetWidthHeightRatio = 2.0 * std::sin(kMaxNeedleAmplitude);
   const int    kWidgetHeight           = 150;
   const int    kWidgetWidth            = kWidgetWidthHeightRatio * kWidgetHeight;
+
+  //helper to compute the maximum needle amplitude for a given angular velocity
+  constexpr double needleAmplitude(double velocity)
+  {
+    constexpr double kRatio = - (kMaxNeedleAmplitude - kMinNeedleAmplitude) / kMaxOmega;
+    return kRatio * velocity + kMaxNeedleAmplitude;
+  }
 
 }//unnamed namespace
 
@@ -85,12 +92,11 @@ void Pendulum::setAction(ActionAngle action)
   case ActionAngle::kCenter:
     action_angle_ = kActionAngleCenter;
     break;
-  case ActionAngle::kReal:
-    action_angle_ = kActionAngleReal;
-    break;
   case ActionAngle::kEdge:
     action_angle_ = kActionAngleEdge;
     break;
+  case ActionAngle::kReal:
+    [[fallthrough]];
   default:
     action_angle_ = kActionAngleReal;
     break;
@@ -99,51 +105,98 @@ void Pendulum::setAction(ActionAngle action)
 
 void Pendulum::setPhaseMode(PhaseMode mode)
 {
-  switch (mode)
-  {
-  case PhaseMode::kLeft:
+  phase_mode_ = mode;
+}
+
+void Pendulum::togglePhase()
+{
+  if (phase_mode_shift_ == kPhaseModeShiftLeft)
+    phase_mode_shift_ = kPhaseModeShiftRight;
+  else
     phase_mode_shift_ = kPhaseModeShiftLeft;
-    break;
+}
+
+void Pendulum::start()
+{
+  switch (phase_mode_)
+  {
   case PhaseMode::kRight:
     phase_mode_shift_ = kPhaseModeShiftRight;
     break;
+  case PhaseMode::kLeft:
+    [[fallthrough]];
   default:
     phase_mode_shift_ = kPhaseModeShiftLeft;
     break;
+  };
+
+  beat_pos_ = 0.0;
+
+  if (state_ == kStop)
+  {
+    k_.reset(phase_mode_shift_, 0.0);
+    startAnimation();
   }
+  state_ = kStartup;
+}
+
+void Pendulum::stop()
+{
+  k_.shutdown(kShutdownTime);
+  target_omega_ = 0.0;
+  state_ = kShutdown;
 }
 
 void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
                            const std::chrono::microseconds& sync)
 {
-  if (!animation_running_)
-    startAnimation();
+  if (state_ == kStop || state_ == kShutdown)
+    return;
 
-  if (!shutdown_ && stats.generator_state < 0)
+  if (stats.generator_state == audio::kFillBufferGenerator)
   {
-    k_.shutdown(kShutdownTime);
-    target_omega_ = 0.0;
-    shutdown_ = true;
-  }
-  else
-  {
-    target_omega_ = stats.tempo / 60.0 * M_PI;
-
-    if (shutdown_) // init phase
+    if (state_ != kFillBuffer)
     {
-      // We prevent syncing backwards that occurs in the boundary case, when the
-      // phase shift equals M_PI / 2.0 (edge mode) by adding a small value.
-      k_.reset(phase_mode_shift_ + 0.0001, target_omega_);
-      shutdown_ = false;
+      state_ = kFillBuffer;
     }
+  }
+  else if (stats.generator_state == audio::kRegularGenerator)
+  {
+    if (state_ != kRegular) // init kinematics
+    {
+      double amplitude = std::max(needle_amplitude_, kMinNeedleAmplitude);
+
+      double new_theta = std::asin(needle_theta_ / amplitude);
+      needle_amplitude_ = amplitude;
+
+      double start_theta = phase_mode_shift_;
+      double alt_theta = M_PI - new_theta;
+
+      double dist = std::abs(std::remainder(start_theta - new_theta, 2.0 * M_PI));
+      double alt_dist = std::abs(std::remainder(start_theta - alt_theta, 2.0 * M_PI));
+
+      if (alt_dist < dist)
+        k_.reset(alt_theta, k_.omega());
+      else
+        k_.reset(new_theta, k_.omega());
+
+      state_ = kRegular;
+    }
+
+    target_omega_ = stats.tempo / 60.0 * M_PI;
 
     double omega_dev = 0.0;
     double theta_dev = 0.0;
 
     omega_dev = target_omega_ - k_.omega();
 
-    double tmp;
-    double target_theta = M_PI * std::modf(stats.position, &tmp);
+    double old_beat_pos = beat_pos_;
+    beat_pos_ = stats.position;
+
+    double displacement = aux::math::modulo(beat_pos_ - old_beat_pos, 1.0);
+    beat_pos_ = std::fmod(old_beat_pos + displacement, 2.0);
+
+    double target_theta = M_PI * beat_pos_;
 
     microseconds now(g_get_monotonic_time());
     microseconds click_time = stats.timestamp + stats.backend_latency + sync;
@@ -151,8 +204,9 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
 
     target_theta += target_omega_ * time_delta.count();
     target_theta += action_angle_;
+    target_theta += phase_mode_shift_;
 
-    double theta_dist = std::remainder(target_theta - k_.theta(), M_PI);
+    double theta_dist = std::remainder(target_theta - k_.theta(), 2.0 * M_PI);
 
     theta_dev = omega_dev * kSyncTime.count() + theta_dist;
 
@@ -164,13 +218,6 @@ void Pendulum::startAnimation()
 {
   last_frame_time_ = 0us;
   add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
-}
-
-//helper to compute the maximum needle amplitude for a given angular velocity
-constexpr double needleAmplitude(double velocity)
-{
-  constexpr double kRatio = - (kMaxNeedleAmplitude - kMinNeedleAmplitude) / kMaxOmega;
-  return kRatio * velocity + kMaxNeedleAmplitude;
 }
 
 bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
@@ -210,7 +257,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     bool redraw_dial = false;
 
     double dial_target_amplitude
-      = (shutdown_) ? needleAmplitude(0.0) : needleAmplitude(target_omega_);
+      = (state_ != kRegular) ? needleAmplitude(0.0) : needleAmplitude(target_omega_);
 
     if (std::abs(dial_target_amplitude - dial_amplitude_) > 0.001)
     {
@@ -221,7 +268,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     double needle_target_amplitude = dial_target_amplitude;
 
-    if (shutdown_)
+    if (state_ != kRegular)
       needle_target_amplitude = 0.0;
 
     needle_amplitude_ += kNeedleAmplitudeChangeRate
@@ -254,9 +301,14 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
   }
 
   double center_deviation = std::abs(std::remainder(needle_theta_, M_PI));
-  animation_running_ = !shutdown_ || std::abs(k_.omega()) > 0.0001 || center_deviation > 0.0001;
 
-  return animation_running_;
+  bool continue_animation =
+    state_ >= kStartup || std::abs(k_.omega()) > 0.0001 || center_deviation > 0.0001;
+
+  if (!continue_animation)
+    state_ = kStop;
+
+  return continue_animation;
 }
 
 Gdk::RGBA Pendulum::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const

@@ -45,19 +45,26 @@ public:
   Pendulum();
   ~Pendulum() override = default;
 
-  void setAction(ActionAngle angle);
-  void setPhaseMode(PhaseMode mode);
+  void start();
+  void stop();
 
   void synchronize(const audio::Ticker::Statistics& stats,
                    const std::chrono::microseconds& sync);
+
+  void setAction(ActionAngle angle);
+
+  void setPhaseMode(PhaseMode mode);
+
+  void togglePhase();
+
 private:
   physics::PendulumKinematics k_;
   Meter meter_{kMeterSimple4};
   double action_angle_{0.0};
+  PhaseMode phase_mode_{PhaseMode::kLeft};
   double phase_mode_shift_{0.0};
-  bool animation_running_{false};
-  bool shutdown_{true};
   double target_omega_{0.0};
+  double beat_pos_{0.0};
   std::chrono::microseconds last_frame_time_{0};
   double needle_amplitude_{0.0};
   double needle_theta_{0.0};
@@ -66,6 +73,16 @@ private:
   std::array<double,2> needle_tip_{0.5, 0.0};
   double dial_radius_{1.0};
   double dial_amplitude_{0.0};
+
+  enum State {
+    kShutdown   = 0,
+    kStop       = 1,
+    kStartup    = 2,
+    kFillBuffer = 3,
+    kRegular    = 4
+  };
+
+  State state_{kStop};
 
   void startAnimation();
   bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);

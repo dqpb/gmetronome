@@ -1039,8 +1039,15 @@ void MainWindow::updateTempo(double tempo)
 
 void MainWindow::updateStart(bool running)
 {
-  if (!running)
+  if (running)
+  {
+    pendulum_.start();
+  }
+  else
+  {
+    pendulum_.stop();
     cancelButtonAnimations();
+  }
 }
 
 void MainWindow::cancelButtonAnimations()
