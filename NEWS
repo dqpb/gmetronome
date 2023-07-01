@@ -1,3 +1,12 @@
+2023-06-01  0.3.0
+
+	* Add Tap confidence indicator
+	* Improved Tap / Audio synchronization
+	* New pendulum physics
+	* Audio stream generation revised
+	* Add shortcut to toggle pendulum phase
+	* Some minor fixes and improvements
+
 2023-05-27  0.2.2
 
 	*  Auto-adjust volume when tapping a tempo

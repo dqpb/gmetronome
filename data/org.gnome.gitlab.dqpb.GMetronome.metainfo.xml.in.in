@@ -45,6 +45,18 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.3.0" date="2023-06-01">
+      <description>
+	<ul>
+	  <li>Add Tap confidence indicator</li>
+	  <li>Improved Tap / Audio synchronization</li>
+	  <li>New pendulum physics</li>
+	  <li>Audio stream generation revised</li>
+	  <li>Add shortcut to toggle pendulum phase</li>
+	  <li>Some minor fixes and improvements</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.2.2" date="2023-05-27">
       <description>
 	<ul>
