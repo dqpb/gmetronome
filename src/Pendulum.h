@@ -59,7 +59,6 @@ public:
 
 private:
   physics::PendulumKinematics k_;
-  Meter meter_{kMeterSimple4};
   double action_angle_{0.0};
   PhaseMode phase_mode_{PhaseMode::kLeft};
   double phase_mode_shift_{0.0};
