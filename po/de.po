@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.2.2\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-06-23 16:01+0200\n"
-"PO-Revision-Date: 2023-06-23 16:06+0200\n"
+"POT-Creation-Date: 2023-07-01 10:05+0200\n"
+"PO-Revision-Date: 2023-07-01 10:12+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.3.1\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
@@ -727,85 +727,95 @@ msgstr "Lautstärke -10 Prozent"
 
 #: src/Shortcut.cpp:49
 msgctxt "Shortcut group title"
+msgid "Pendulum"
+msgstr "Pendel"
+
+#: src/Shortcut.cpp:50
+msgctxt "Shortcut title"
+msgid "Toggle Pendulum Phase"
+msgstr "Pendelphase umschalten"
+
+#: src/Shortcut.cpp:52
+msgctxt "Shortcut group title"
 msgid "Tempo"
 msgstr "Tempo"
 
-#: src/Shortcut.cpp:50
+#: src/Shortcut.cpp:53
 msgctxt "Shortcut title"
 msgid "Tempo +1 Bpm"
 msgstr "Tempo +1 Bpm"
 
-#: src/Shortcut.cpp:51
+#: src/Shortcut.cpp:54
 msgctxt "Shortcut title"
 msgid "Tempo -1 Bpm"
 msgstr "Tempo -1 Bpm"
 
-#: src/Shortcut.cpp:52
+#: src/Shortcut.cpp:55
 msgctxt "Shortcut title"
 msgid "Tempo +10 Bpm"
 msgstr "Tempo +10 Bpm"
 
-#: src/Shortcut.cpp:53
+#: src/Shortcut.cpp:56
 msgctxt "Shortcut title"
 msgid "Tempo -10 Bpm"
 msgstr "Tempo -10 Bpm"
 
-#: src/Shortcut.cpp:54
+#: src/Shortcut.cpp:57
 msgctxt "Shortcut title"
 msgid "Tempo Tap"
 msgstr "Tempo Klopfen"
 
-#: src/Shortcut.cpp:56
+#: src/Shortcut.cpp:59
 msgctxt "Shortcut group title"
 msgid "Accents"
 msgstr "Betonung"
 
-#: src/Shortcut.cpp:57
+#: src/Shortcut.cpp:60
 msgctxt "Shortcut title"
 msgid "Enable / Disable Accentuation"
 msgstr "Betonung Ein / Aus"
 
-#: src/Shortcut.cpp:58
+#: src/Shortcut.cpp:61
 msgctxt "Shortcut title"
 msgid "Select 2/4 Meter"
 msgstr "Metrum 2/4"
 
-#: src/Shortcut.cpp:59
+#: src/Shortcut.cpp:62
 msgctxt "Shortcut title"
 msgid "Select 3/4 Meter"
 msgstr "Metrum 3/4"
 
-#: src/Shortcut.cpp:60
+#: src/Shortcut.cpp:63
 msgctxt "Shortcut title"
 msgid "Select 4/4 Meter"
 msgstr "Metrum 4/4"
 
-#: src/Shortcut.cpp:61
+#: src/Shortcut.cpp:64
 msgctxt "Shortcut title"
 msgid "Select 6/8 Meter"
 msgstr "Metrum 6/8"
 
-#: src/Shortcut.cpp:62
+#: src/Shortcut.cpp:65
 msgctxt "Shortcut title"
 msgid "Select 9/8 Meter"
 msgstr "Metrum 9/8"
 
-#: src/Shortcut.cpp:63
+#: src/Shortcut.cpp:66
 msgctxt "Shortcut title"
 msgid "Select 12/8 Meter"
 msgstr "Metrum 12/8"
 
-#: src/Shortcut.cpp:64
+#: src/Shortcut.cpp:67
 msgctxt "Shortcut title"
 msgid "Select Custom Meter"
 msgstr "Eigenes Metrum"
 
-#: src/Shortcut.cpp:66
+#: src/Shortcut.cpp:69
 msgctxt "Shortcut group title"
 msgid "Trainer"
 msgstr "Trainer"
 
-#: src/Shortcut.cpp:67
+#: src/Shortcut.cpp:70
 msgctxt "Shortcut title"
 msgid "Enable / Disable Trainer"
 msgstr "Trainer Ein / Aus"
@@ -930,15 +940,19 @@ msgstr "Tastenkürzel zur Auswahl des benutzerdefinierten Takts"
 msgid "Keyboard shortcut to toggle tempo trainer"
 msgstr "Tastenkürzel zum Ein- oder Ausschalten des Tempo-Trainers"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:814
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:810
+msgid "Keyboard shortcut to toggle the pendulum phase"
+msgstr "Tastenkürzel zum Umschalten der Pendelphase"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:818
 msgid "Whether to load the last profile used on startup"
 msgstr "Ob das zuletzt verwendete Profil beim Start geladen werden soll"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:819
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:823
 msgid "Wheter to link profiles and sound themes"
 msgstr "Ob das Profil mit dem Soundthema verknüft werden soll"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:820
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:824
 msgid ""
 "If true, switching profiles also restores the previous sound theme. If the "
 "desired sound theme does not exist anymore, the default will be loaded "
@@ -948,31 +962,31 @@ msgstr ""
 "das Soundthema wiederhergestellt. Falls das gewünschte Soundthema nicht mehr "
 "existiert, wird die Voreinstellung geladen."
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:854
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:858
 msgid "Which audio backend to use"
 msgstr "Welches Audio-Backend verwendet werden soll"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:860
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:864
 msgid "Audio device for the ALSA backend"
 msgstr "Welches Audiogerät für das ALSA-Backend verwendet werden soll"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:861
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:865
 msgid "ALSA compliant string representation for names of pcm devices"
 msgstr "ALSA-konforme Zeichenkette für den Namen des PCM-Geräts"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:869
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:873
 msgid "Audio device for the OSS backend"
 msgstr "Audiogerät für das OSS-Backend"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:876
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:880
 msgid "Name of a sink for the pulseaudio backend"
 msgstr "Name einer Senke für das Pulseaudio-Backend"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:893
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:897
 msgid "Selected profile"
 msgstr "Ausgewähltes Profil"
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:898
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:902
 msgid "Whether to show the animated pendulum"
 msgstr "Ob die Pendelanimation angezeigt werden soll"
 
