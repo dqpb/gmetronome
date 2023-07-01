@@ -349,7 +349,7 @@ void Application::updateTickerSound(const AccentMask& accents, double volume)
   if (accents.none())
     return;
 
-  if (accents[0]) {
+  if ((accents & kAccentMaskStrong).any()) {
     audio::SoundParameters params;
 
     if (settings_sound_params_[0])
@@ -358,7 +358,7 @@ void Application::updateTickerSound(const AccentMask& accents, double volume)
     params.volume *= volume / 100.0;
     ticker_.setSoundStrong(params);
   }
-  if (accents[1]) {
+  if ((accents & kAccentMaskMid).any()) {
     audio::SoundParameters params;
 
     if (settings_sound_params_[0])
@@ -367,7 +367,7 @@ void Application::updateTickerSound(const AccentMask& accents, double volume)
     params.volume *= volume / 100.0;
     ticker_.setSoundMid(params);
   }
-  if (accents[2]) {
+  if ((accents & kAccentMaskWeak).any()) {
     audio::SoundParameters params;
 
     if (settings_sound_params_[0])
