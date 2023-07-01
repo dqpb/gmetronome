@@ -1,6 +1,6 @@
 GMetronome
 ==========
-A tempo measurement tool for composers and musicians.
+A free software metronome and tempo measurement tool for composers and musicians.
 
 ![Screenshot](data/screenshots/screenshot.png)
 
