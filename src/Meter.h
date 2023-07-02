@@ -21,6 +21,7 @@
 #define GMetronome_Meter_h
 
 #include <vector>
+#include <bitset>
 
 enum Accent
 {
@@ -30,8 +31,19 @@ enum Accent
   kAccentStrong = 3
 };
 
+constexpr int kNumAccents = 4;
+
+using AccentFlags = std::bitset<kNumAccents>;
+
+constexpr AccentFlags kAccentMaskOff    {0b0001};
+constexpr AccentFlags kAccentMaskWeak   {0b0010};
+constexpr AccentFlags kAccentMaskMid    {0b0100};
+constexpr AccentFlags kAccentMaskStrong {0b1000};
+constexpr AccentFlags kAccentMaskAll    {0b1111};
+
 using AccentPattern = std::vector<Accent>;
 
+// TODO: make constexpr when switching to c++20
 inline const AccentPattern kAccentPattern1 = {
   kAccentMid
 };
