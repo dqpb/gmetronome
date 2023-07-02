@@ -37,8 +37,44 @@ AccentButtonGrid::~AccentButtonGrid()
 
 void AccentButtonGrid::setMeter(const Meter& meter)
 {
+  cancelButtonAnimations();
   updateAccentButtons(meter);
   meter_ = meter;
+}
+
+void AccentButtonGrid::start()
+{ }
+
+void AccentButtonGrid::stop()
+{
+  cancelButtonAnimations();
+}
+
+void AccentButtonGrid::synchronize(const audio::Ticker::Statistics& stats,
+                                   const std::chrono::microseconds& sync)
+{
+  const int n_beats = meter_.beats();
+  const int n_accents = n_beats * meter_.division();
+
+  if (stats.n_beats == n_beats && stats.n_accents == n_accents)
+  {
+    std::size_t next_accent = stats.next_accent;
+    if ( next_accent < buttons_.size() )
+    {
+      std::chrono::microseconds time = stats.timestamp
+        + stats.backend_latency
+        + stats.next_accent_delay
+        + sync;
+
+      buttons_[next_accent]->scheduleAnimation(time.count());
+    }
+  }
+}
+
+void AccentButtonGrid::cancelButtonAnimations()
+{
+  for (auto& button : buttons_)
+    button->cancelAnimation();
 }
 
 void AccentButtonGrid::updateAccentButtons(const Meter& meter)

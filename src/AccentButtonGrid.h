@@ -21,9 +21,11 @@
 #define GMetronome_AccentButtonGrid_h
 
 #include "AccentButton.h"
+#include "Ticker.h"
 #include <gtkmm/container.h>
 #include <sigc++/sigc++.h>
 #include <vector>
+#include <chrono>
 
 class AccentButtonGrid : public Gtk::Container {
 public:
@@ -45,6 +47,13 @@ public:
   AccentButton& operator[](std::size_t index)
     { return *buttons_[index]; }
 
+  void start();
+
+  void stop();
+
+  void synchronize(const audio::Ticker::Statistics& stats,
+                   const std::chrono::microseconds& sync);
+  // signals
   sigc::signal<void(std::size_t index)> signal_accent_changed()
     { return signal_accent_changed_; }
 
@@ -62,6 +71,7 @@ private:
 
   sigc::signal<void(std::size_t index)> signal_accent_changed_;
 
+  void cancelButtonAnimations();
   void updateAccentButtons(const Meter& meter);
   void resizeButtonsVector(std::size_t size);
   void onAccentChanged(std::size_t index);

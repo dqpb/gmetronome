@@ -940,17 +940,10 @@ void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
     break;
   };
 
-  cancelButtonAnimations();
-
-  updateAccentButtons(meter);
+  accent_button_grid_.setMeter(meter);
 
   std::for_each(meter_connections_.begin(), meter_connections_.end(),
                 std::mem_fn(&sigc::connection::unblock));
-}
-
-void MainWindow::updateAccentButtons(const Meter& meter)
-{
-  accent_button_grid_.setMeter(meter);
 }
 
 void MainWindow::updateProfileList(const ProfileList& list)
@@ -1040,7 +1033,7 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 
 void MainWindow::updateTempo(double tempo)
 {
-  //cancelButtonAnimations();
+  // nothing
 }
 
 void MainWindow::updateStart(bool running)
@@ -1048,37 +1041,12 @@ void MainWindow::updateStart(bool running)
   if (running)
   {
     pendulum_.start();
+    accent_button_grid_.start();
   }
   else
   {
     pendulum_.stop();
-    cancelButtonAnimations();
-  }
-}
-
-void MainWindow::cancelButtonAnimations()
-{
-  for (auto button : accent_button_grid_.buttons())
-    button->cancelAnimation();
-}
-
-void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
-{
-  const int n_beats = accent_button_grid_.meter().beats();
-  const int n_accents = n_beats * accent_button_grid_.meter().division();
-
-  if (stats.n_beats == n_beats && stats.n_accents == n_accents)
-  {
-    std::size_t next_accent = stats.next_accent;
-    if ( next_accent < accent_button_grid_.buttons().size() )
-    {
-      std::chrono::microseconds time = stats.timestamp
-        + stats.backend_latency
-        + stats.next_accent_delay
-        + animation_sync_;
-
-      accent_button_grid_[next_accent].scheduleAnimation(time.count());
-    }
+    accent_button_grid_.stop();
   }
 }
 
@@ -1122,6 +1090,11 @@ void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 
   if (text != tempo_divider_label_->get_text())
     tempo_divider_label_->set_text(text);
+}
+
+void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
+{
+  accent_button_grid_.synchronize(stats, animation_sync_);
 }
 
 void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)

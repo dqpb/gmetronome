@@ -179,18 +179,14 @@ private:
 
   void updateMeter(const Glib::ustring& slot, const Meter& meter);
 
-  void updateAccentButtons(const Meter& meter);
-
   void updateProfileList(const ProfileList& list);
   void updateProfileSelect(const Glib::ustring& id);
   void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
   void updateStart(bool running);
 
-  void cancelButtonAnimations();
-
-  void updateAccentAnimation(const audio::Ticker::Statistics& stats);
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
+  void updateAccentAnimation(const audio::Ticker::Statistics& stats);
   void updatePendulum(const audio::Ticker::Statistics& stats);
   void onTickerStatistics(const audio::Ticker::Statistics& stats);
   void onTap(double confidence);
