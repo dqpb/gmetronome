@@ -158,6 +158,9 @@ void AccentButtonDrawingArea::setAccentState(Accent state)
 
 void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
 {
+  if (button_state_ == kAccentOff)
+    return;
+
   // we merge overlapping animations by erasing the previously
   // scheduled animations in question
 
@@ -232,12 +235,11 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
     if (frame_time == 0)
       frame_time = clock->get_frame_time();
 
-    // Remember: scheduled_animations_ contains the start times in descending order,
-    //           so the lower bound w.r.t. greater<T> predicate gives us the first
-    //           element not greater than frame_time
-    auto it = scheduled_animations_.lower_bound(frame_time);
-
-    if (it != scheduled_animations_.end())
+    // scheduled_animations_ contains the start times in descending order,
+    // so the lower bound w.r.t. greater<T> predicate gives the first
+    // element not greater than frame_time
+    if (auto it = scheduled_animations_.lower_bound(frame_time);
+        it != scheduled_animations_.end())
     {
       gint64 animation_start_time = *it;
       gint64 animation_end_time = animation_start_time + kAnimationDuration;
@@ -276,8 +278,13 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
       animation_running_ = false;
     }
   }
-  else //!clock
+  else //!clock || button_state_ == kAccentOff
   {
+    if (animation_alpha_ != 0)
+    {
+      animation_alpha_ = 0;
+      need_redraw = true;
+    }
     animation_running_ = false;
   }
 
