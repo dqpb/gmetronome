@@ -31,6 +31,7 @@
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
+#include <array>
 #include <bitset>
 
 namespace audio {
@@ -87,12 +88,9 @@ namespace audio {
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void setMeter(Meter meter);
+    void setSound(Accent accent, const SoundParameters& params);
 
     void synchronize(double beat_dev, double tempo_dev);
-
-    void setSoundStrong(const SoundParameters& params);
-    void setSoundMid(const SoundParameters& params);
-    void setSoundWeak(const SoundParameters& params);
 
     Ticker::Statistics getStatistics() const;
 
@@ -111,9 +109,7 @@ namespace audio {
     Meter in_meter_{};
     double in_beat_dev_{0.0};
     double in_tempo_dev_{0.0};
-    SoundParameters in_sound_strong_{};
-    SoundParameters in_sound_mid_{};
-    SoundParameters in_sound_weak_{};
+    std::array<SoundParameters, kNumAccents> in_sounds_;
 
     Ticker::Statistics out_stats_;
 
@@ -122,9 +118,7 @@ namespace audio {
     std::atomic_flag accel_imported_flag_;
     std::atomic_flag meter_imported_flag_;
     std::atomic_flag beat_imported_flag_;
-    std::atomic_flag sound_strong_imported_flag_;
-    std::atomic_flag sound_mid_imported_flag_;
-    std::atomic_flag sound_weak_imported_flag_;
+    std::array<std::atomic_flag, kNumAccents> sound_imported_flags_;
     std::atomic_flag sync_swap_backend_flag_;
 
     mutable std::mutex std_mutex_;
@@ -135,9 +129,7 @@ namespace audio {
     bool importAccel();
     bool importMeter();
     bool importBeat();
-    bool importSoundStrong();
-    bool importSoundMid();
-    bool importSoundWeak();
+    bool importSound(Accent accent);
     bool syncSwapBackend();
     void hardSwapBackend(std::unique_ptr<Backend>& backend);
 

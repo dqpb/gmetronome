@@ -46,9 +46,10 @@ namespace audio {
     accel_imported_flag_.test_and_set();
     meter_imported_flag_.test_and_set();
     beat_imported_flag_.test_and_set();
-    sound_strong_imported_flag_.test_and_set();
-    sound_mid_imported_flag_.test_and_set();
-    sound_weak_imported_flag_.test_and_set();
+
+    for (auto& flag : sound_imported_flags_)
+      flag.test_and_set();
+
     sync_swap_backend_flag_.test_and_set();
   }
 
@@ -150,6 +151,15 @@ namespace audio {
     meter_imported_flag_.clear(std::memory_order_release);
   }
 
+  void Ticker::setSound(Accent accent, const SoundParameters& params)
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_sounds_[accent] = params;
+    }
+    sound_imported_flags_[accent].clear(std::memory_order_release);
+  }
+
   void Ticker::synchronize(double beat_dev, double tempo_dev)
   {
     {
@@ -158,33 +168,6 @@ namespace audio {
       in_tempo_dev_ = tempo_dev;
     }
     beat_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setSoundStrong(const SoundParameters& params)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_strong_ = params;
-    }
-    sound_strong_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setSoundMid(const SoundParameters& params)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_mid_ = params;
-    }
-    sound_mid_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setSoundWeak(const SoundParameters& params)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sound_weak_ = params;
-    }
-    sound_weak_imported_flag_.clear(std::memory_order_release);
   }
 
   Ticker::Statistics Ticker::getStatistics() const
@@ -353,38 +336,12 @@ namespace audio {
     }
   }
 
-  bool Ticker::importSoundStrong()
+  bool Ticker::importSound(Accent accent)
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      stream_ctrl_.setSound(Accent::kAccentStrong, in_sound_strong_);
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  bool Ticker::importSoundMid()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      stream_ctrl_.setSound(Accent::kAccentMid, in_sound_mid_);
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  bool Ticker::importSoundWeak()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      stream_ctrl_.setSound(Accent::kAccentWeak, in_sound_weak_);
+      stream_ctrl_.setSound(accent, in_sounds_[accent]);
       return true;
     }
     else {
@@ -462,14 +419,9 @@ namespace audio {
     if (!beat_imported_flag_.test_and_set(std::memory_order_acquire))
       if (!importBeat()) beat_imported_flag_.clear();
 
-    if (!sound_strong_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importSoundStrong()) sound_strong_imported_flag_.clear();
-
-    if (!sound_mid_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importSoundMid()) sound_mid_imported_flag_.clear();
-
-    if (!sound_weak_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importSoundWeak()) sound_weak_imported_flag_.clear();
+    for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
+      if (!sound_imported_flags_[accent].test_and_set(std::memory_order_acquire))
+        if (!importSound(accent)) sound_imported_flags_[accent].clear();
   }
 
   bool Ticker::importBackend()

@@ -25,6 +25,7 @@
 #include "Ticker.h"
 #include "TapAnalyser.h"
 #include "Message.h"
+#include "Meter.h"
 
 #include <gtkmm.h>
 #include <bitset>
@@ -61,13 +62,13 @@ private:
   double volume_drop_{0.0};
 
   // Current sound theme parameter settings
-  std::array<Glib::RefPtr<Gio::Settings>,3> settings_sound_params_;
+  std::array<Glib::RefPtr<Gio::Settings>, kNumAccents> settings_sound_params_;
 
   // Connections
   sigc::connection settings_state_connection_;
   sigc::connection stats_timer_connection_;
   sigc::connection volume_timer_connection_;
-  std::array<sigc::connection,3> settings_sound_params_connections_;
+  std::array<sigc::connection, kNumAccents> settings_sound_params_connections_;
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;
@@ -83,15 +84,9 @@ private:
   void initUI();
   void initTicker();
 
-  using AccentMask = std::bitset<3>; // strong, mid, weak
-
-  static constexpr std::bitset<3> kAccentMaskAll    {0b111};
-  static constexpr std::bitset<3> kAccentMaskStrong {0b100};
-  static constexpr std::bitset<3> kAccentMaskMid    {0b010};
-  static constexpr std::bitset<3> kAccentMaskWeak   {0b001};
-
   void loadSelectedSoundTheme();
-  void updateTickerSound(const AccentMask& accents, double volume);
+  void updateTickerSound(Accent accent, double volume);
+  void updateTickerSound(const AccentFlags& flags, double volume);
   void configureAudioBackend();
   void configureAudioDevice();
 

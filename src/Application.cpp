@@ -285,43 +285,20 @@ void Application::loadSelectedSoundTheme()
     try {
       auto& theme_settings = settings::soundThemes()->settings(theme_id);
 
-      settings_sound_params_[0] =
-        theme_settings.children.at(settings::kSchemaPathSoundThemeStrongParamsBasename).settings;
-
-      if (settings_sound_params_[0])
+      for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
       {
-        settings_sound_params_connections_[0] =
-          settings_sound_params_[0]->signal_changed().connect(
-            [&] (const Glib::ustring& key) {
+        const auto& path = settings::kSchemaPathSoundThemeParamsBasenameMap.at(accent);
+        settings_sound_params_[accent] = theme_settings.children.at(path).settings;
+
+        if (settings_sound_params_[accent])
+        {
+          settings_sound_params_connections_[accent] =
+            settings_sound_params_[accent]->signal_changed().connect(
+              [accent, this] (const Glib::ustring& key) {
                 double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-                updateTickerSound(kAccentMaskStrong, volume);
-            });
-      }
-
-      settings_sound_params_[1] =
-        theme_settings.children.at(settings::kSchemaPathSoundThemeMidParamsBasename).settings;
-
-      if (settings_sound_params_[1])
-      {
-        settings_sound_params_connections_[1] =
-          settings_sound_params_[1]->signal_changed().connect(
-            [&] (const Glib::ustring& key) {
-              double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-              updateTickerSound(kAccentMaskMid, volume);
-            });
-      }
-
-      settings_sound_params_[2] =
-        theme_settings.children.at(settings::kSchemaPathSoundThemeWeakParamsBasename).settings;
-
-      if (settings_sound_params_[2])
-      {
-        settings_sound_params_connections_[2] =
-          settings_sound_params_[2]->signal_changed().connect(
-            [&] (const Glib::ustring& key) {
-              double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-              updateTickerSound(kAccentMaskWeak, volume);
-            });
+                updateTickerSound(accent, volume);
+              });
+        }
       }
     }
     catch(...) {
@@ -344,38 +321,28 @@ void Application::loadSelectedSoundTheme()
   updateTickerSound(kAccentMaskAll, volume);
 }
 
-void Application::updateTickerSound(const AccentMask& accents, double volume)
+void Application::updateTickerSound(Accent accent, double volume)
 {
-  if (accents.none())
+  if (accent == kAccentOff)
     return;
 
-  if ((accents & kAccentMaskStrong).any()) {
-    audio::SoundParameters params;
+  audio::SoundParameters params;
 
-    if (settings_sound_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[0], params);
+  if (settings_sound_params_[accent])
+    SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[accent], params);
 
-    params.volume *= volume / 100.0;
-    ticker_.setSoundStrong(params);
-  }
-  if ((accents & kAccentMaskMid).any()) {
-    audio::SoundParameters params;
+  params.volume *= volume / 100.0;
+  ticker_.setSound(accent, params);
+}
 
-    if (settings_sound_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[1], params);
+void Application::updateTickerSound(const AccentFlags& flags, double volume)
+{
+  if (flags.none())
+    return;
 
-    params.volume *= volume / 100.0;
-    ticker_.setSoundMid(params);
-  }
-  if ((accents & kAccentMaskWeak).any()) {
-    audio::SoundParameters params;
-
-    if (settings_sound_params_[0])
-      SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[2], params);
-
-    params.volume *= volume / 100.0;
-    ticker_.setSoundWeak(params);
-  }
+  for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
+    if (flags[accent])
+      updateTickerSound(accent, volume);
 }
 
 void Application::configureAudioBackend()
