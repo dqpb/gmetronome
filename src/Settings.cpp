@@ -21,6 +21,14 @@
 
 namespace settings {
 
+  const std::map<Accent, Glib::ustring> kSchemaPathSoundThemeParamsBasenameMap =
+  {
+    { kAccentOff, "" },
+    { kAccentWeak, kSchemaPathSoundThemeWeakParamsBasename },
+    { kAccentMid, kSchemaPathSoundThemeMidParamsBasename },
+    { kAccentStrong, kSchemaPathSoundThemeStrongParamsBasename }
+  };
+
   const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap
   {
 #if HAVE_ALSA

@@ -24,6 +24,8 @@
 # include "config.h"
 #endif
 
+#include "Meter.h"
+
 #include <glibmm/ustring.h>
 #include <glibmm/refptr.h>
 #include <giomm/settings.h>
@@ -76,6 +78,9 @@ namespace settings {
   inline const Glib::ustring kSchemaPathSoundThemeStrongParamsBasename {"strong-params"};
   inline const Glib::ustring kSchemaPathSoundThemeMidParamsBasename    {"mid-params"};
   inline const Glib::ustring kSchemaPathSoundThemeWeakParamsBasename   {"weak-params"};
+
+  // map accent to sound theme parameters basename
+  extern const std::map<Accent, Glib::ustring> kSchemaPathSoundThemeParamsBasenameMap;
 
   inline const Glib::ustring kSchemaPathPrefs {
     kSchemaPath + kSchemaPathPrefsBasename + "/"
