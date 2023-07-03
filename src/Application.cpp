@@ -1318,10 +1318,15 @@ void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
   }
 }
 
+namespace {
+  constexpr milliseconds kUpdateStatsTimerInterval = 60ms;
+}
+
 void Application::startStatsTimer()
 {
   stats_timer_connection_ = Glib::signal_timeout()
-    .connect(sigc::mem_fun(*this, &Application::onStatsTimer), 70);
+    .connect(sigc::mem_fun(*this, &Application::onStatsTimer),
+             kUpdateStatsTimerInterval.count());
 }
 
 void Application::stopStatsTimer()
