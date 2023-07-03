@@ -78,6 +78,7 @@ namespace
   constexpr gint64 kAnimationDuration = 75000; // usecs
   constexpr gushort kAnimationAlphaPeak = 65535; //max: 65535
   constexpr gushort kAnimationMaxFrames = 3;
+  constexpr gint64 kAnimationClusterTime = 200000; //usecs
 }
 
 //
@@ -161,27 +162,17 @@ void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
   if (button_state_ == kAccentOff)
     return;
 
-  // we merge overlapping animations by erasing the previously
-  // scheduled animations in question
+  // erase overlapping animations and animations scheduled later than frame_time
 
   auto has_overlap = [&frame_time] (const auto& time) -> bool {
-    return abs( time - frame_time ) < ( kAnimationDuration );
+    return (time > frame_time) || abs( time - frame_time ) < ( kAnimationClusterTime );
   };
 
-  auto erase_begin = std::find_if(
-    scheduled_animations_.begin(),
-    scheduled_animations_.end(),
-    has_overlap);
+  auto erase_rend = std::find_if(scheduled_animations_.rbegin(),
+                                 scheduled_animations_.rend(),
+                                 has_overlap);
 
-  if (erase_begin != scheduled_animations_.end())
-  {
-    auto erase_end = std::find_if_not(
-      erase_begin,
-      scheduled_animations_.end(),
-      has_overlap);
-
-    scheduled_animations_.erase(erase_begin, erase_end);
-  }
+  scheduled_animations_.erase(scheduled_animations_.begin(), erase_rend.base());
 
   scheduled_animations_.insert( frame_time );
 

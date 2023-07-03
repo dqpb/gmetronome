@@ -22,6 +22,18 @@
 #include <iostream>
 #include <cmath>
 
+namespace {
+
+  using std::chrono::microseconds;
+  using std::chrono::milliseconds;
+
+  using std::literals::chrono_literals::operator""us;
+  using std::literals::chrono_literals::operator""ms;
+
+  constexpr microseconds kAnimationScheduleTimeFrame = 350ms;
+
+}//unnamed namespace
+
 AccentButtonGrid::AccentButtonGrid()
 {
   set_has_window(false);
@@ -61,12 +73,15 @@ void AccentButtonGrid::synchronize(const audio::Ticker::Statistics& stats,
     std::size_t next_accent = stats.next_accent;
     if ( next_accent < buttons_.size() )
     {
-      std::chrono::microseconds time = stats.timestamp
+      microseconds time = stats.timestamp
         + stats.backend_latency
         + stats.next_accent_delay
         + sync;
 
-      buttons_[next_accent]->scheduleAnimation(time.count());
+      microseconds now {g_get_monotonic_time()};
+
+      if ( (time - now) < kAnimationScheduleTimeFrame)
+        buttons_[next_accent]->scheduleAnimation(time.count());
     }
   }
 }
