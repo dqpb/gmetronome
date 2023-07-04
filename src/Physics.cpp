@@ -50,8 +50,27 @@ namespace physics {
 
   void BeatKinematics::reset()
   {
+    tempo_ = 0.0;
+    target_tempo_ = 0.0;
+    accel_ = 0.0;
+
     osc_.reset();
     switchForceMode(ForceMode::kNoForce);
+  }
+
+  void BeatKinematics::setBeats(double beats, bool turnover)
+  {
+    osc_.remodule(beats);
+
+    if (turnover)
+    {
+      double integral;
+      double fractional = std::modf(osc_.position(), &integral);
+
+      double new_position = osc_.module() - 1.0 + fractional;
+
+      osc_.resetPosition(new_position);
+    }
   }
 
   void BeatKinematics::setTempo(double tempo)

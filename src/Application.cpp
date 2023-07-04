@@ -534,7 +534,7 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
   }
   else
   {
-    ticker_.setMeter( kMeter1 );
+    ticker_.resetMeter();
   }
 
   lookupSimpleAction(kActionMeterEnabled)->set_state(new_state);

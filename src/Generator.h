@@ -56,7 +56,7 @@ namespace audio {
     virtual void onTargetTempoChanged(Controller& ctrl) {}
     virtual void onAccelerationChanged(Controller& ctrl) {}
     virtual void onSynchronize(Controller& ctrl, double beat_dev, double tempo_dev) {}
-    virtual void onMeterChanged(Controller& ctrl) {}
+    virtual void onMeterChanged(Controller& ctrl, bool meter_enabled_changed) {}
     virtual void onSoundChanged(Controller& ctrl, Accent a) {}
     virtual void onStart(Controller& ctrl) {}
     virtual void onStop(Controller& ctrl) {}
@@ -95,6 +95,7 @@ namespace audio {
     void setAcceleration(double accel);
     void synchronize(double beat_dev, double tempo_dev);
     void swapMeter(Meter& meter);
+    void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
     double tempo() const
@@ -107,6 +108,8 @@ namespace audio {
       { return spec_; }
     const Meter& meter() const
       { return meter_; }
+    const bool isMeterEnabled() const
+      { return meter_enabled_; }
     const ByteBuffer& sound(Accent a)
       { return sounds_[a]; }
 
@@ -124,7 +127,9 @@ namespace audio {
     double tempo_{0.0};
     double target_tempo_{0.0};
     double accel_{0.0};
+    Meter default_meter_{kMeter1};
     Meter meter_{kMeter1};
+    bool meter_enabled_{false};
     SoundLibrary sounds_;
     StreamStatus stream_status_;
     StreamGeneratorBase* g_{nullptr};
@@ -214,8 +219,25 @@ namespace audio {
   template<typename...Gs>
   void StreamController<Gs...>::swapMeter(Meter& meter)
   {
+    bool meter_enabled_changed = !meter_enabled_;
+    if (!meter_enabled_)
+    {
+      std::swap(default_meter_, meter_);
+      meter_enabled_ = true;
+    }
     std::swap(meter_, meter);
-    if (g_) g_->onMeterChanged(*this);
+    if (g_) g_->onMeterChanged(*this, meter_enabled_changed);
+  }
+
+  template<typename...Gs>
+  void StreamController<Gs...>::resetMeter()
+  {
+    if (meter_enabled_)
+    {
+      std::swap(meter_, default_meter_);
+      meter_enabled_ = false;
+      if (g_) g_->onMeterChanged(*this, true);
+    }
   }
 
   template<typename...Gs>
@@ -348,7 +370,7 @@ namespace audio {
     void onTargetTempoChanged(BeatStreamController& ctrl) override;
     void onAccelerationChanged(BeatStreamController& ctrl) override;
     void onSynchronize(BeatStreamController& ctrl, double beat_dev, double tempo_dev) override;
-    void onMeterChanged(BeatStreamController& ctrl) override;
+    void onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed) override;
     void onSoundChanged(BeatStreamController& ctrl, Accent a) override;
     void onStart(BeatStreamController& ctrl) override;
     void onStop(BeatStreamController& ctrl) override;

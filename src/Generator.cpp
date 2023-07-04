@@ -137,13 +137,14 @@ namespace audio {
     updateFramesLeft(ctrl);
   }
 
-  void RegularGenerator::onMeterChanged(BeatStreamController& ctrl)
+  void RegularGenerator::onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed)
   {
     const Meter& meter = ctrl.meter();
     //const AccentPattern& accents = meter.accents();
 
-    k_.setBeats(meter.beats());
+    bool turnover = meter_enabled_changed && ctrl.isMeterEnabled();
 
+    k_.setBeats(meter.beats(), turnover);
     accent_ = std::trunc(k_.position() * meter.division());
     accent_point_ = false;
     updateFramesLeft(ctrl);
@@ -197,7 +198,7 @@ namespace audio {
     const AccentPattern& accents = meter.accents();
 
     size_t frames_chunk = 0;
-    if (accent_point_)
+    if (accent_point_) // play sound
     {
       const auto& sound_buffer = ctrl.sound(accents[accent_]);
 
@@ -221,7 +222,7 @@ namespace audio {
       bytes = frames_chunk * frameSize(ctrl.spec());
     }
 
-    // update physics, frames_total_ and frames_done_
+    // update k_, frames_left_, ...
     step(ctrl, frames_chunk);
   }
 

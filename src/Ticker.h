@@ -88,6 +88,7 @@ namespace audio {
     void setTargetTempo(double target_tempo);
     void setAccel(double accel);
     void setMeter(Meter meter);
+    void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
     void synchronize(double beat_dev, double tempo_dev);
@@ -109,6 +110,7 @@ namespace audio {
     Meter in_meter_{};
     double in_beat_dev_{0.0};
     double in_tempo_dev_{0.0};
+    bool reset_meter_{false};
     std::array<SoundParameters, kNumAccents> in_sounds_;
 
     Ticker::Statistics out_stats_;
@@ -117,7 +119,7 @@ namespace audio {
     std::atomic_flag target_tempo_imported_flag_;
     std::atomic_flag accel_imported_flag_;
     std::atomic_flag meter_imported_flag_;
-    std::atomic_flag beat_imported_flag_;
+    std::atomic_flag sync_imported_flag_;
     std::array<std::atomic_flag, kNumAccents> sound_imported_flags_;
     std::atomic_flag sync_swap_backend_flag_;
 
@@ -128,7 +130,7 @@ namespace audio {
     bool importTargetTempo();
     bool importAccel();
     bool importMeter();
-    bool importBeat();
+    bool importSync();
     bool importSound(Accent accent);
     bool syncSwapBackend();
     void hardSwapBackend(std::unique_ptr<Backend>& backend);

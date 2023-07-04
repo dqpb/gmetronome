@@ -45,7 +45,7 @@ namespace audio {
     target_tempo_imported_flag_.test_and_set();
     accel_imported_flag_.test_and_set();
     meter_imported_flag_.test_and_set();
-    beat_imported_flag_.test_and_set();
+    sync_imported_flag_.test_and_set();
 
     for (auto& flag : sound_imported_flags_)
       flag.test_and_set();
@@ -146,9 +146,21 @@ namespace audio {
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_meter_ = std::move(meter);
+      std::swap(in_meter_, meter);
+      reset_meter_ = false;
+
+      meter_imported_flag_.clear(std::memory_order_release);
     }
-    meter_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::resetMeter()
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      reset_meter_ = true;
+
+      meter_imported_flag_.clear(std::memory_order_release);
+    }
   }
 
   void Ticker::setSound(Accent accent, const SoundParameters& params)
@@ -167,7 +179,7 @@ namespace audio {
       in_beat_dev_ = beat_dev;
       in_tempo_dev_ = tempo_dev;
     }
-    beat_imported_flag_.clear(std::memory_order_release);
+    sync_imported_flag_.clear(std::memory_order_release);
   }
 
   Ticker::Statistics Ticker::getStatistics() const
@@ -315,15 +327,19 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      stream_ctrl_.swapMeter(in_meter_);
+      if (reset_meter_)
+        stream_ctrl_.resetMeter();
+      else
+        stream_ctrl_.swapMeter(in_meter_);
+
+      meter_imported_flag_.test_and_set(std::memory_order_acquire);
       return true;
     }
-    else {
+    else
       return false;
-    }
   }
 
-  bool Ticker::importBeat()
+  bool Ticker::importSync()
   {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
@@ -416,8 +432,8 @@ namespace audio {
     if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
       if (!importMeter()) meter_imported_flag_.clear();
 
-    if (!beat_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importBeat()) beat_imported_flag_.clear();
+    if (!sync_imported_flag_.test_and_set(std::memory_order_acquire))
+      if (!importSync()) sync_imported_flag_.clear();
 
     for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
       if (!sound_imported_flags_[accent].test_and_set(std::memory_order_acquire))

@@ -98,12 +98,14 @@ namespace physics {
       { return v_; }
 
     void resetPosition(double p = 0.0)
-      { p_ = p; }
+      { p_ = aux::math::modulo(p, m_); }
     void resetVelocity(double v = 0.0)
       { v_ = v; }
     void reset(double p = 0.0, double v = 0.0)
-      { p_ = p; v_ = v; }
-
+      {
+        resetPosition(p);
+        resetVelocity(v);
+      }
     double module() const
       { return m_; }
 
@@ -176,9 +178,6 @@ namespace physics {
    */
   class BeatKinematics {
   public:
-    // ctor
-    explicit BeatKinematics(double beats = 4.0) : osc_(beats) {}
-
     /**
      * @function reset
      */
@@ -187,8 +186,7 @@ namespace physics {
     /**
      * @function setBeats
      */
-    void setBeats(double beats)
-      { osc_.remodule(beats); }
+    void setBeats(double beats, bool turnover = false);
 
     /**
      * @function setTempo
@@ -232,7 +230,7 @@ namespace physics {
     seconds_dbl arrival(double p_dev) const;
 
   private:
-    Oscillator osc_{4.0};
+    Oscillator osc_;
 
     double tempo_{0.0};           // beats / s
     double target_tempo_{0.0};    // beats / s
