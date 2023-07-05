@@ -140,14 +140,27 @@ namespace audio {
   void RegularGenerator::onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed)
   {
     const Meter& meter = ctrl.meter();
-    //const AccentPattern& accents = meter.accents();
 
+    // play the accent pattern from the beginning, when accentuation was enabled
     bool turnover = meter_enabled_changed && ctrl.isMeterEnabled();
-
     k_.setBeats(meter.beats(), turnover);
-    accent_ = std::trunc(k_.position() * meter.division());
-    accent_point_ = false;
+
+    // If accent_point_ == true (i.e. we are about to play an accent), we check
+    // if there is a matching accent in the new meter and set the current accent
+    // accordingly
+    bool accent_match = (accent_ * meter.division()) % division_saved_ == 0;
+    if (accent_point_ && accent_match)
+    {
+      accent_ = std::fmod(std::round(k_.position() * meter.division()),
+                          meter.division() * meter.beats());
+    }
+    else
+    {
+      accent_ = std::trunc(k_.position() * meter.division());
+      accent_point_ = false;
+    }
     updateFramesLeft(ctrl);
+    division_saved_ = ctrl.meter().division();
   }
 
   void RegularGenerator::onSoundChanged(BeatStreamController& ctrl, Accent a)
@@ -185,6 +198,7 @@ namespace audio {
 
     accent_ = 0;
     accent_point_ = true;
+    division_saved_ = ctrl.meter().division();
     updateFramesLeft(ctrl);
   }
 

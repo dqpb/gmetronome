@@ -390,6 +390,7 @@ namespace audio {
     size_t accent_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
+    size_t division_saved_{0};
 
     void updateFramesLeft(BeatStreamController& ctrl);
     void step(BeatStreamController& ctrl, size_t frames_chunk);
