@@ -49,7 +49,11 @@ AccentButtonGrid::~AccentButtonGrid()
 
 void AccentButtonGrid::setMeter(const Meter& meter)
 {
-  cancelButtonAnimations();
+  if (meter.division() != meter_.division() ||
+      meter.beats() < meter_.beats())
+  {
+    cancelButtonAnimations();
+  }
   updateAccentButtons(meter);
   meter_ = meter;
 }
