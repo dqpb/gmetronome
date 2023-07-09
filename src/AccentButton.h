@@ -107,9 +107,9 @@ protected:
   Accent button_state_;
   Glib::ustring label_;
 
-  inline static const int kIconWidth = 16;
-  inline static const int kIconHeight = 20;
-  inline static const int kPadding = 1;
+  static constexpr int kIconWidth = 16;
+  static constexpr int kIconHeight = 20;
+  static constexpr int kPadding = 1;
 
   // cache
   mutable int icon_width_;
