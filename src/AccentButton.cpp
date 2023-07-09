@@ -737,15 +737,10 @@ void AccentButton::cancelAnimation()
 
 void AccentButton::on_clicked()
 {
-  switch (getAccentState()) {
-  case kAccentStrong: setAccentState(kAccentOff); break;
-  case kAccentMid: setAccentState(kAccentStrong); break;
-  case kAccentWeak: setAccentState(kAccentMid); break;
-  case kAccentOff: setAccentState(kAccentWeak); break;
-  default: break;
-  }
-  signal_accent_state_changed_.emit();
-  Button::on_clicked();
+  if (setNextAccentState(true))
+    signal_accent_state_changed_.emit();
+
+  Gtk::Button::on_clicked();
 }
 
 bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
@@ -756,49 +751,16 @@ bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
 
   case GDK_SCROLL_UP:
   case GDK_SCROLL_RIGHT:
-
-    switch (getAccentState()) {
-    case kAccentOff:
-      setAccentState(kAccentWeak);
-      state_changed = true;
-      break;
-    case kAccentWeak:
-      setAccentState(kAccentMid);
-      state_changed = true;
-      break;
-    case kAccentMid:
-      setAccentState(kAccentStrong);
-      state_changed = true;
-      break;
-    default:
-      break;
-    };
-
+    state_changed = setNextAccentState(false);
     break;
 
   case GDK_SCROLL_DOWN:
   case GDK_SCROLL_LEFT:
-
-    switch (getAccentState()) {
-    case kAccentStrong:
-      setAccentState(kAccentMid);
-      state_changed = true;
-      break;
-    case kAccentMid:
-      setAccentState(kAccentWeak);
-      state_changed = true;
-      break;
-    case kAccentWeak:
-      setAccentState(kAccentOff);
-      state_changed = true;
-      break;
-    default:
-      break;
-    };
-
+    state_changed = setPrevAccentState(false);
     break;
 
   default:
+    // nothing
     break;
   };
 
@@ -806,4 +768,89 @@ bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
     signal_accent_state_changed_.emit();
 
   return Gtk::Button::on_scroll_event(scroll_event);
+}
+
+
+bool AccentButton::on_button_press_event(GdkEventButton * button_event)
+{
+  if (button_event->button == GDK_BUTTON_SECONDARY)
+    Gtk::Widget::set_state_flags(Gtk::STATE_FLAG_ACTIVE, false);
+
+  return Gtk::Button::on_button_press_event(button_event);
+}
+
+bool AccentButton::on_button_release_event(GdkEventButton * button_event)
+{
+  if (button_event->button == GDK_BUTTON_SECONDARY)
+  {
+    if (auto flags = Gtk::Widget::get_state_flags();
+        flags & Gtk::STATE_FLAG_ACTIVE)
+    {
+      if (setPrevAccentState(true))
+          signal_accent_state_changed_.emit();
+
+      Gtk::Widget::unset_state_flags(Gtk::STATE_FLAG_ACTIVE);
+    }
+  }
+  return Gtk::Button::on_button_release_event(button_event);
+}
+
+bool AccentButton::setNextAccentState(bool cycle)
+{
+  bool state_changed = false;
+
+  switch (getAccentState()) {
+  case kAccentOff:
+    setAccentState(kAccentWeak);
+    state_changed = true;
+    break;
+  case kAccentWeak:
+    setAccentState(kAccentMid);
+    state_changed = true;
+    break;
+  case kAccentMid:
+    setAccentState(kAccentStrong);
+    state_changed = true;
+    break;
+  case kAccentStrong:
+    if (cycle)
+      setAccentState(kAccentOff);
+    state_changed = true;
+    break;
+  default:
+    // nothing
+    break;
+  };
+
+  return state_changed;
+}
+
+bool AccentButton::setPrevAccentState(bool cycle)
+{
+  bool state_changed = false;
+
+  switch (getAccentState()) {
+  case kAccentStrong:
+    setAccentState(kAccentMid);
+    state_changed = true;
+    break;
+  case kAccentMid:
+    setAccentState(kAccentWeak);
+    state_changed = true;
+    break;
+  case kAccentWeak:
+    setAccentState(kAccentOff);
+    state_changed = true;
+    break;
+  case kAccentOff:
+    if (cycle)
+      setAccentState(kAccentStrong);
+    state_changed = true;
+    break;
+  default:
+    // nothing
+    break;
+  };
+
+  return state_changed;
 }

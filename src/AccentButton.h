@@ -151,6 +151,7 @@ protected:
   void get_preferred_width_for_height_vfunc(int height,
                                             int& minimum_width,
                                             int& natural_width) const override;
+
   void recalculateDimensions() const;
 
   void onFontChanged();
@@ -233,6 +234,11 @@ public:
 protected:
   void on_clicked() override;
   bool on_scroll_event(GdkEventScroll *scroll_event) override;
+  bool on_button_press_event(GdkEventButton * button_event) override;
+  bool on_button_release_event(GdkEventButton * button_event) override;
+
+  bool setNextAccentState(bool cycle = false);
+  bool setPrevAccentState(bool cycle = false);
 
 private:
   AccentButtonDrawingArea drawing_area_;
