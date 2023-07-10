@@ -148,13 +148,15 @@ void AccentButtonDrawingArea::setLabel(const Glib::ustring& label)
   }
 }
 
-void AccentButtonDrawingArea::setAccentState(Accent state)
+bool AccentButtonDrawingArea::setAccentState(Accent state)
 {
   if (state != button_state_)
   {
     button_state_ = state;
     queue_draw();
+    return true;
   }
+  else return false;
 }
 
 void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
@@ -715,9 +717,9 @@ AccentButton::AccentButton(AccentButton&& src)
 AccentButton::~AccentButton()
 {}
 
-void AccentButton::setAccentState(Accent state)
+bool AccentButton::setAccentState(Accent state)
 {
-  drawing_area_.setAccentState(state);
+  return drawing_area_.setAccentState(state);
 }
 
 void AccentButton::setLabel(const Glib::ustring& label)
@@ -770,24 +772,32 @@ bool AccentButton::on_scroll_event(GdkEventScroll *scroll_event)
   return Gtk::Button::on_scroll_event(scroll_event);
 }
 
-
 bool AccentButton::on_button_press_event(GdkEventButton * button_event)
 {
-  if (button_event->button == GDK_BUTTON_SECONDARY)
+  if (button_event->button == GDK_BUTTON_SECONDARY
+    || button_event->button == GDK_BUTTON_MIDDLE)
+  {
     Gtk::Widget::set_state_flags(Gtk::STATE_FLAG_ACTIVE, false);
-
+  }
   return Gtk::Button::on_button_press_event(button_event);
 }
 
 bool AccentButton::on_button_release_event(GdkEventButton * button_event)
 {
-  if (button_event->button == GDK_BUTTON_SECONDARY)
+  if (auto flags = Gtk::Widget::get_state_flags();
+      flags & Gtk::STATE_FLAG_ACTIVE)
   {
-    if (auto flags = Gtk::Widget::get_state_flags();
-        flags & Gtk::STATE_FLAG_ACTIVE)
+    if (button_event->button == GDK_BUTTON_SECONDARY)
     {
       if (setPrevAccentState(true))
-          signal_accent_state_changed_.emit();
+        signal_accent_state_changed_.emit();
+
+      Gtk::Widget::unset_state_flags(Gtk::STATE_FLAG_ACTIVE);
+    }
+    else if (button_event->button == GDK_BUTTON_MIDDLE)
+    {
+      if (setAccentState(kAccentOff))
+        signal_accent_state_changed_.emit();
 
       Gtk::Widget::unset_state_flags(Gtk::STATE_FLAG_ACTIVE);
     }
@@ -801,21 +811,17 @@ bool AccentButton::setNextAccentState(bool cycle)
 
   switch (getAccentState()) {
   case kAccentOff:
-    setAccentState(kAccentWeak);
-    state_changed = true;
+    state_changed = setAccentState(kAccentWeak);
     break;
   case kAccentWeak:
-    setAccentState(kAccentMid);
-    state_changed = true;
+    state_changed = setAccentState(kAccentMid);
     break;
   case kAccentMid:
-    setAccentState(kAccentStrong);
-    state_changed = true;
+    state_changed = setAccentState(kAccentStrong);
     break;
   case kAccentStrong:
     if (cycle)
-      setAccentState(kAccentOff);
-    state_changed = true;
+      state_changed = setAccentState(kAccentOff);
     break;
   default:
     // nothing
@@ -831,21 +837,17 @@ bool AccentButton::setPrevAccentState(bool cycle)
 
   switch (getAccentState()) {
   case kAccentStrong:
-    setAccentState(kAccentMid);
-    state_changed = true;
+    state_changed = setAccentState(kAccentMid);
     break;
   case kAccentMid:
-    setAccentState(kAccentWeak);
-    state_changed = true;
+    state_changed = setAccentState(kAccentWeak);
     break;
   case kAccentWeak:
-    setAccentState(kAccentOff);
-    state_changed = true;
+    state_changed = setAccentState(kAccentOff);
     break;
   case kAccentOff:
     if (cycle)
-      setAccentState(kAccentStrong);
-    state_changed = true;
+      state_changed = setAccentState(kAccentStrong);
     break;
   default:
     // nothing

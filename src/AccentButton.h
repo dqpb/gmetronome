@@ -89,7 +89,7 @@ public:
 
   virtual ~AccentButtonDrawingArea();
 
-  void setAccentState(Accent state);
+  bool setAccentState(Accent state);
 
   Accent getAccentState() const
     { return button_state_; }
@@ -151,7 +151,6 @@ protected:
   void get_preferred_width_for_height_vfunc(int height,
                                             int& minimum_width,
                                             int& natural_width) const override;
-
   void recalculateDimensions() const;
 
   void onFontChanged();
@@ -208,7 +207,7 @@ public:
 
   virtual ~AccentButton();
 
-  void setAccentState(Accent state);
+  bool setAccentState(Accent state);
 
   Accent getAccentState() const
     { return drawing_area_.getAccentState(); }
