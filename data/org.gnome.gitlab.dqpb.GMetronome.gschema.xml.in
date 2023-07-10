@@ -171,7 +171,6 @@
   <schema id="@PACKAGE_ID@.preferences.sound.theme" >
     <key name="title" type="s">
       <default>'Untitled'</default>
-      <summary>Title of the sound theme</summary>
       <description></description>
     </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme.parameters"/>
@@ -694,27 +693,38 @@
   <schema id="@PACKAGE_ID@.preferences.shortcuts"
 	  path="@PACKAGE_ID_PATH@/preferences/shortcuts/">
     <key name="quit" type="s">
-      <default>'&lt;Primary&gt;q'</default>
+      <!-- Default shortcut to quit the application -->
+      <!--
+	  Translators: Please keep the regular single quotes around the shortcut strings as-is.
+	   If you need to change a default shortcut, please keep in mind, that they have to be
+	   valid accelerator strings parsable by the gtk_accelerator_parse function.
+      -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;q'</default>
       <summary>Keyboard shortcut to quit the application</summary>
     </key>
     <key name="show-primary-menu" type="s">
-      <default>'F10'</default>
+      <!-- Default shortcut to show the primary menu -->
+      <default l10n="messages" context="Default shortcut">'F10'</default>
       <summary>Keyboard shortcut to show the primary menu</summary>
     </key>
     <key name="show-profiles" type="s">
-      <default>'F9'</default>
+      <!-- Default shortcut to show the profiles menu -->
+      <default l10n="messages" context="Default shortcut">'F9'</default>
       <summary>Keyboard shortcut to show the profiles menu</summary>
     </key>
     <key name="show-preferences" type="s">
-      <default>'&lt;Primary&gt;comma'</default>
+      <!-- Default shortcut to show the preferences dialog -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;comma'</default>
       <summary>Keyboard shortcut to show the preferences dialog</summary>
     </key>
     <key name="show-shortcuts" type="s">
-      <default>'&lt;Primary&gt;question'</default>
+      <!-- Default shortcut to show the help for keyboard shortcuts -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;question'</default>
       <summary>Keyboard shortcut to show the help for keyboard shortcuts</summary>
     </key>
     <key name="show-help" type="s">
-      <default>'F1'</default>
+      <!-- Default shortcut to show the help -->
+      <default l10n="messages" context="Default shortcut">'F1'</default>
       <summary>Keyboard shortcut to show the help</summary>
     </key>
     <key name="show-about" type="s">
@@ -722,15 +732,18 @@
       <summary>Keyboard shortcut to show the about dialog</summary>
     </key>
     <key name="show-pendulum" type="s">
-      <default>'&lt;Primary&gt;p'</default>
+      <!-- Default shortcut to toggle the pendulum display -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;p'</default>
       <summary>Keyboard shortcut to toggle pendulum display</summary>
     </key>
     <key name="full-screen" type="s">
-      <default>'F11'</default>
+      <!-- Default shortcut to toogle full screen mode -->
+      <default l10n="messages" context="Default shortcut">'F11'</default>
       <summary>Keyboard shortcut to toggle full screen mode</summary>
     </key>
     <key name="start" type="s">
-      <default>'&lt;Primary&gt;s'</default>
+      <!-- Default shortcut to start or stop the metronome -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;s'</default>
       <summary>Keyboard shortcut to start or stop the metronome</summary>
     </key>
     <key name="volume-increase-1" type="s">
@@ -750,19 +763,23 @@
       <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
     </key>
     <key name="tempo-increase-1" type="s">
-      <default>'&lt;Primary&gt;Up'</default>
+      <!-- Default shortcut to increase the tempo by 1 bpm -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Up'</default>
       <summary>Keyboard shortcut to increase the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-decrease-1" type="s">
-      <default>'&lt;Primary&gt;Down'</default>
+      <!-- Default shortcut to decrease the tempo by 1 bpm -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Down'</default>
       <summary>Keyboard shortcut to decrease the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-increase-10" type="s">
-      <default>'&lt;Primary&gt;Page_Up'</default>
+      <!-- Default shortcut to increase the thempo by 10 bpm -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Page_Up'</default>
       <summary>Keyboard shortcut to increase the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-decrease-10" type="s">
-      <default>'&lt;Primary&gt;Page_Down'</default>
+      <!-- Default shortcut to decrease the tempo by 10 bpm -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Page_Down'</default>
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-tap" type="s">
@@ -770,39 +787,48 @@
       <summary>Keyboard shortcut to tap the tempo</summary>
     </key>
     <key name="meter-enabled" type="s">
-      <default>'&lt;Primary&gt;a'</default>
+      <!-- Default shortcut to toggle accentuation -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;a'</default>
       <summary>Keyboard shortcut to toggle metric accentuation</summary>
     </key>
     <key name="meter-select-simple-2" type="s">
-      <default>'&lt;Primary&gt;2'</default>
+      <!-- Default shortcut to select the simple duple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;2'</default>
       <summary>Keyboard shortcut to select the simple duple meter</summary>
     </key>
     <key name="meter-select-simple-3" type="s">
-      <default>'&lt;Primary&gt;3'</default>
+      <!-- Default shortcut to select the simple triple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;3'</default>
       <summary>Keyboard shortcut to select the simple triple meter</summary>
     </key>
     <key name="meter-select-simple-4" type="s">
-      <default>'&lt;Primary&gt;4'</default>
+      <!-- Default shortcut to select the simple quadruple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;4'</default>
       <summary>Keyboard shortcut to select the simple quadruple meter</summary>
     </key>
     <key name="meter-select-compound-2" type="s">
-      <default>'&lt;Primary&gt;6'</default>
+      <!-- Default shortcut to select the compound duple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;6'</default>
       <summary>Keyboard shortcut to select the compound duple meter</summary>
     </key>
     <key name="meter-select-compound-3" type="s">
-      <default>'&lt;Primary&gt;7'</default>
+      <!-- Default shortcut to select the compound triple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;7'</default>
       <summary>Keyboard shortcut to select the compound triple meter</summary>
     </key>
     <key name="meter-select-compound-4" type="s">
-      <default>'&lt;Primary&gt;8'</default>
+      <!-- Default shortcut to select the compound quadruple meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;8'</default>
       <summary>Keyboard shortcut to select the compound quadruple meter</summary>
     </key>
     <key name="meter-select-custom" type="s">
-      <default>'&lt;Primary&gt;0'</default>
+      <!-- Default shortcut to select the custom meter -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;0'</default>
       <summary>Keyboard shortcut to select the custom meter</summary>
     </key>
     <key name="trainer-enabled" type="s">
-      <default>'&lt;Primary&gt;t'</default>
+      <!-- Default shortcut to toggle the tempo trainer -->
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;t'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
     <key name="pendulum-toggle-phase" type="s">
