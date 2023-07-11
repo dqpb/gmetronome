@@ -333,15 +333,20 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   // draw the foreground
   Gdk::RGBA primary_color = getPrimaryColor(style_context);
   Gdk::RGBA secondary_color = getSecondaryColor(style_context);
-  Gdk::RGBA needle_color = primary_color;
 
-  static const Gdk::RGBA shadow_color("rgba(0,0,0,.1)");
-  static const Gdk::RGBA highlight_color("rgb(255,255,255,.6)");
+  draw_dial(cr, primary_color);
+  draw_needle(cr, primary_color);
+  draw_knob(cr, primary_color);
 
-  Gdk::RGBA dial_color = primary_color;
+  return true;
+}
+
+void Pendulum::draw_dial(const Cairo::RefPtr<Cairo::Context>& cr,
+                         Gdk::RGBA dial_color)
+{
   dial_color.set_alpha(0.5);
 
-  static const double three_pi_half = 3.0 * M_PI / 2.0;
+  static constexpr double three_pi_half = 3.0 * M_PI / 2.0;
   const double sin_dial_amplitude = std::sin(dial_amplitude_);
   const double cos_dial_amplitude = std::cos(dial_amplitude_);
   const double needle_length_half = needle_length_ / 2.0;
@@ -382,9 +387,17 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
   cr->move_to(needle_base_[0], needle_base_[1]);
   cr->line_to(needle_base_[0], needle_base_[1] - dial_radius_);
-  cr->set_dash(std::vector<double>({4.0, 4.0}), 0);
+
+  static const std::vector<double> dash_pattern({4.0, 4.0});
+  cr->set_dash(dash_pattern, 0);
   cr->stroke();
   cr->restore();
+}
+
+void Pendulum::draw_needle(const Cairo::RefPtr<Cairo::Context>& cr,
+                           const Gdk::RGBA& needle_color)
+{
+  static const Gdk::RGBA shadow_color("rgba(0,0,0,.1)");
 
   // draw needle shadow
   Gdk::Cairo::set_source_rgba(cr, shadow_color);
@@ -402,12 +415,15 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   cr->line_to(needle_tip_[0], needle_tip_[1]);
   cr->stroke();
 
+}
+
+void Pendulum::draw_knob(const Cairo::RefPtr<Cairo::Context>& cr,
+                         const Gdk::RGBA& knob_color)
+{
   // draw knob
-  Gdk::Cairo::set_source_rgba(cr, needle_color);
+  Gdk::Cairo::set_source_rgba(cr, knob_color);
   cr->arc(needle_base_[0], needle_base_[1], kKnobRadius, 0.0, 2.0 * M_PI);
   cr->fill_preserve();
-
-  return true;
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const

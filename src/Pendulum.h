@@ -91,6 +91,10 @@ private:
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
+  void draw_dial(const Cairo::RefPtr<Cairo::Context>& cr, Gdk::RGBA color);
+  void draw_needle(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+  void draw_knob(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;
 
