@@ -85,7 +85,7 @@ Pendulum::Pendulum()
     phase_mode_shift_{kPhaseModeShiftLeft},
     dial_amplitude_{kMaxNeedleAmplitude}
 {
-  Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK);
+  Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
 }
 
 void Pendulum::setAction(ActionAngle action)
@@ -513,10 +513,8 @@ bool Pendulum::on_button_press_event(GdkEventButton* button_event)
       || button_event->button == GDK_BUTTON_SECONDARY)
   {
     togglePhase();
-    return true;
   }
-  else
-    return Gtk::Widget::on_button_press_event(button_event);
+  return Gtk::Widget::on_button_press_event(button_event);
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
