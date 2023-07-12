@@ -84,7 +84,9 @@ Pendulum::Pendulum()
     action_angle_{kActionAngleReal},
     phase_mode_shift_{kPhaseModeShiftLeft},
     dial_amplitude_{kMaxNeedleAmplitude}
-{}
+{
+  Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK);
+}
 
 void Pendulum::setAction(ActionAngle action)
 {
@@ -485,7 +487,7 @@ void Pendulum::drawTogglePhaseOverlay(const Cairo::RefPtr<Cairo::Context>& cr,
 
   const double base_alpha = 2.0 * toggle_phase_overlay_value_ -
     toggle_phase_overlay_value_ * toggle_phase_overlay_value_;
-  const double stroke_alpha = base_alpha * 0.3;
+  const double stroke_alpha = base_alpha * 0.4;
   const double fill_alpha = std::clamp(stroke_alpha * 0.3, 0.0, 1.0);
 
   cr->set_source_rgba(overlay_color.get_red(),
@@ -503,6 +505,18 @@ void Pendulum::drawTogglePhaseOverlay(const Cairo::RefPtr<Cairo::Context>& cr,
   cr->stroke();
 
   cr->restore();
+}
+
+bool Pendulum::on_button_press_event(GdkEventButton* button_event)
+{
+  if (button_event->button == GDK_BUTTON_PRIMARY
+      || button_event->button == GDK_BUTTON_SECONDARY)
+  {
+    togglePhase();
+    return true;
+  }
+  else
+    return Gtk::Widget::on_button_press_event(button_event);
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
