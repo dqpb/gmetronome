@@ -54,8 +54,9 @@ namespace {
   constexpr double kMaxOmega           = 250.0 / 60.0 * M_PI;   // 250 bpm in rad/s
   constexpr double kMinNeedleAmplitude = M_PI / 6.0;            // rad
   constexpr double kMaxNeedleAmplitude = M_PI / 4.0;            // rad
-  constexpr double kNeedleAmplitudeChangeRate  = 0.8 * M_PI;    // rad/s
-  constexpr double kDialAmplitudeChangeRate    = 2.0 * M_PI;    // rad/s
+  constexpr double kNeedleAmplitudeChangeRate    = 0.8 * M_PI;  // rad/s
+  constexpr double kDialAmplitudeChangeRate      = 2.0 * M_PI;  // rad/s
+  constexpr double kTogglePhaseOverlayChangeRate = 1.5;         // units/s
 
   // element appearance
   constexpr double kNeedleWidth        = 3.0;   // pixel
@@ -114,6 +115,9 @@ void Pendulum::togglePhase()
     phase_mode_shift_ = kPhaseModeShiftRight;
   else
     phase_mode_shift_ = kPhaseModeShiftLeft;
+
+  if (state_ == kRegular)
+    toggle_phase_overlay_value_ = 1.0;
 }
 
 void Pendulum::start()
@@ -254,11 +258,22 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 
     k_.step(frame_time_delta);
 
-    bool redraw_dial = false;
+    bool redraw_toggle_phase_overlay = false;
+    if (toggle_phase_overlay_value_ > 0.0)
+    {
+      toggle_phase_overlay_value_ -= kTogglePhaseOverlayChangeRate * frame_time_delta.count();
+      toggle_phase_overlay_value_ = std::clamp(toggle_phase_overlay_value_, 0.0, 1.0);
+      redraw_toggle_phase_overlay = true;
+    }
+    else
+    {
+      toggle_phase_overlay_value_ = -1.0;
+    }
 
     double dial_target_amplitude
       = (state_ != kRegular) ? needleAmplitude(0.0) : needleAmplitude(target_omega_);
 
+    bool redraw_dial = false;
     if (std::abs(dial_target_amplitude - dial_amplitude_) > 0.001)
     {
       dial_amplitude_ += kDialAmplitudeChangeRate
@@ -280,30 +295,41 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
     needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
 
-    int x, y, w, h;
+    // compute region to redraw
+    auto region = Cairo::Region::create();
+
+    if (redraw_toggle_phase_overlay)
+      region->do_union(toggle_phase_overlay_rect_);
 
     if(redraw_dial)
     {
-      x = needle_base_[0] - needle_length_;
-      y = 0;
-      w = 2.0 * needle_length_;
-      h = get_allocated_height();
+      region->do_union({
+          static_cast<int>(needle_base_[0] - needle_length_),
+          0,
+          static_cast<int>(2.0 * needle_length_),
+          get_allocated_height()
+        });
     }
     else
     {
+      int x, y, w, h;
       x = std::min(needle_base_[0], std::min(old_needle_tip[0], needle_tip_[0])) - kNeedleWidth;
       y = std::min(old_needle_tip[1], needle_tip_[1]) - kNeedleWidth;
       w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
       h = needle_base_[1] - y + kNeedleWidth;
-    };
 
-    queue_draw_area(x,y,w,h);
+      region->do_union({x,y,w,h});
+    }
+
+    queue_draw_region(region);
   }
 
   double center_deviation = std::abs(std::remainder(needle_theta_, M_PI));
 
-  bool continue_animation =
-    state_ >= kStartup || std::abs(k_.omega()) > 0.0001 || center_deviation > 0.0001;
+  bool continue_animation = toggle_phase_overlay_value_ >= 0.0
+    || state_ >= kStartup
+    || std::abs(k_.omega()) > 0.0001
+    || center_deviation > 0.0001;
 
   if (!continue_animation)
     state_ = kStop;
@@ -334,27 +360,30 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   Gdk::RGBA primary_color = getPrimaryColor(style_context);
   Gdk::RGBA secondary_color = getSecondaryColor(style_context);
 
-  draw_dial(cr, primary_color);
-  draw_needle(cr, primary_color);
-  draw_knob(cr, primary_color);
+  drawDial(cr, primary_color);
+
+  if (toggle_phase_overlay_value_ >= 0.0)
+    drawTogglePhaseOverlay(cr, primary_color);
+
+  drawNeedle(cr, primary_color);
+
+  drawKnob(cr, primary_color);
 
   return true;
 }
 
-void Pendulum::draw_dial(const Cairo::RefPtr<Cairo::Context>& cr,
-                         Gdk::RGBA dial_color)
+void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
+                        const Gdk::RGBA& dial_color)
 {
-  dial_color.set_alpha(0.5);
-
   static constexpr double three_pi_half = 3.0 * M_PI / 2.0;
   const double sin_dial_amplitude = std::sin(dial_amplitude_);
   const double cos_dial_amplitude = std::cos(dial_amplitude_);
-  const double needle_length_half = needle_length_ / 2.0;
+  const double inner_dial_radius = needle_length_ / 2.0;
 
   // draw dial
   cr->save();
-  cr->move_to(needle_base_[0] - (needle_length_half) * sin_dial_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_dial_amplitude);
+  cr->move_to(needle_base_[0] - inner_dial_radius * sin_dial_amplitude,
+              needle_base_[1] - inner_dial_radius * cos_dial_amplitude);
 
   cr->line_to(needle_base_[0] - dial_radius_ * sin_dial_amplitude,
               needle_base_[1] - dial_radius_ * cos_dial_amplitude);
@@ -365,12 +394,12 @@ void Pendulum::draw_dial(const Cairo::RefPtr<Cairo::Context>& cr,
           three_pi_half - dial_amplitude_,
           three_pi_half + dial_amplitude_);
 
-  cr->line_to(needle_base_[0] + (needle_length_half) * sin_dial_amplitude,
-              needle_base_[1] - (needle_length_half) * cos_dial_amplitude);
+  cr->line_to(needle_base_[0] + inner_dial_radius * sin_dial_amplitude,
+              needle_base_[1] - inner_dial_radius * cos_dial_amplitude);
 
   cr->arc_negative(needle_base_[0],
                    needle_base_[1],
-                   needle_length_half,
+                   inner_dial_radius,
                    three_pi_half + dial_amplitude_,
                    three_pi_half - dial_amplitude_);
 
@@ -380,7 +409,11 @@ void Pendulum::draw_dial(const Cairo::RefPtr<Cairo::Context>& cr,
                       0.05);
   cr->fill_preserve();
 
-  Gdk::Cairo::set_source_rgba(cr, dial_color);
+  cr->set_source_rgba(dial_color.get_red(),
+                      dial_color.get_green(),
+                      dial_color.get_blue(),
+                      0.5);
+
   cr->set_line_width(1.0);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
   cr->stroke();
@@ -394,7 +427,7 @@ void Pendulum::draw_dial(const Cairo::RefPtr<Cairo::Context>& cr,
   cr->restore();
 }
 
-void Pendulum::draw_needle(const Cairo::RefPtr<Cairo::Context>& cr,
+void Pendulum::drawNeedle(const Cairo::RefPtr<Cairo::Context>& cr,
                            const Gdk::RGBA& needle_color)
 {
   static const Gdk::RGBA shadow_color("rgba(0,0,0,.1)");
@@ -414,16 +447,62 @@ void Pendulum::draw_needle(const Cairo::RefPtr<Cairo::Context>& cr,
   cr->move_to(needle_base_[0], needle_base_[1]);
   cr->line_to(needle_tip_[0], needle_tip_[1]);
   cr->stroke();
-
 }
 
-void Pendulum::draw_knob(const Cairo::RefPtr<Cairo::Context>& cr,
+void Pendulum::drawKnob(const Cairo::RefPtr<Cairo::Context>& cr,
                          const Gdk::RGBA& knob_color)
 {
-  // draw knob
   Gdk::Cairo::set_source_rgba(cr, knob_color);
   cr->arc(needle_base_[0], needle_base_[1], kKnobRadius, 0.0, 2.0 * M_PI);
   cr->fill_preserve();
+}
+
+void Pendulum::drawTogglePhaseOverlay(const Cairo::RefPtr<Cairo::Context>& cr,
+                                      const Gdk::RGBA& overlay_color)
+{
+  const double overlay_x = toggle_phase_overlay_rect_.x;
+  const double overlay_y = toggle_phase_overlay_rect_.y;
+  const double overlay_width = toggle_phase_overlay_rect_.width;
+  const double overlay_width_third = std::floor(overlay_width / 3.0) + 0.5;
+  const double overlay_width_two_third = std::floor(2.0 * overlay_width / 3.0) + 0.5;
+  const double overlay_height = toggle_phase_overlay_rect_.height;
+  const double overlay_height_half = overlay_height / 2.0;
+  const double overlay_height_third = std::floor(overlay_height / 3.0) + 0.5;
+  const double overlay_height_two_third = std::floor(2.0 * overlay_height / 3.0) + 0.5;
+
+  cr->save();
+  cr->move_to(overlay_x, overlay_y + overlay_height_half);
+  cr->line_to(overlay_x + overlay_width_third, overlay_y);
+  cr->line_to(overlay_x + overlay_width_third, overlay_y + overlay_height_third);
+  cr->line_to(overlay_x + overlay_width_two_third, overlay_y + overlay_height_third);
+  cr->line_to(overlay_x + overlay_width_two_third, overlay_y);
+  cr->line_to(overlay_x + overlay_width, overlay_y + overlay_height_half);
+  cr->line_to(overlay_x + overlay_width_two_third, overlay_y + overlay_height);
+  cr->line_to(overlay_x + overlay_width_two_third, overlay_y + overlay_height_two_third);
+  cr->line_to(overlay_x + overlay_width_third, overlay_y + overlay_height_two_third);
+  cr->line_to(overlay_x + overlay_width_third, overlay_y + overlay_height);
+  cr->line_to(overlay_x, overlay_y + overlay_height_half);
+
+  const double base_alpha = 2.0 * toggle_phase_overlay_value_ -
+    toggle_phase_overlay_value_ * toggle_phase_overlay_value_;
+  const double stroke_alpha = base_alpha * 0.3;
+  const double fill_alpha = std::clamp(stroke_alpha * 0.3, 0.0, 1.0);
+
+  cr->set_source_rgba(overlay_color.get_red(),
+                      overlay_color.get_green(),
+                      overlay_color.get_blue(),
+                      fill_alpha);
+  cr->fill_preserve();
+
+  cr->set_source_rgba(overlay_color.get_red(),
+                      overlay_color.get_green(),
+                      overlay_color.get_blue(),
+                      stroke_alpha);
+  cr->set_line_width(1.0);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
+  cr->stroke();
+
+  cr->restore();
 }
 
 Gtk::SizeRequestMode Pendulum::get_request_mode_vfunc() const
@@ -474,14 +553,36 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
   if(gdk_window_)
     gdk_window_->move_resize(x, y, width, height);
 
+  // update dial dimensions
   dial_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
   dial_radius_ = std::floor(dial_radius_ - 1.0) + 0.5;
 
+  // update needle dimensions
   needle_length_ = std::round(dial_radius_ / 100.0 * kNeedleLength);
   needle_base_[0] = std::floor(width / 2.0) + 0.5; // prevent blurred middle line
   needle_base_[1] = std::floor((height + dial_radius_) / 2.0) + 1.5;
   needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
   needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
+
+  // update overlay dimensions
+  const double inner_dial_radius = needle_length_ / 2.0;
+
+  // 30 percent of the dial height
+  const double overlay_height = ((dial_radius_ - inner_dial_radius) / 100.0) * 30.0;
+  const double overlay_width = 2.0 * overlay_height;
+  const std::array<double,2> overlay_mid =
+    {
+      needle_base_[0],
+      needle_base_[1] - (inner_dial_radius + dial_radius_) / 2.0
+    };
+
+  toggle_phase_overlay_rect_ =
+    {
+      static_cast<int>(overlay_mid[0] - overlay_width / 2.0),
+      static_cast<int>(overlay_mid[1] - overlay_height / 2.0),
+      static_cast<int>(overlay_width),
+      static_cast<int>(overlay_height)
+    };
 }
 
 void Pendulum::on_map()

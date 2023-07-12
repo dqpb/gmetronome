@@ -73,6 +73,9 @@ private:
   double dial_radius_{1.0};
   double dial_amplitude_{0.0};
 
+  Cairo::RectangleInt toggle_phase_overlay_rect_{0, 0, 0, 0};
+  double toggle_phase_overlay_value_{-1.0};
+
   enum State {
     kShutdown   = 0,
     kStop       = 1,
@@ -91,9 +94,10 @@ private:
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
-  void draw_dial(const Cairo::RefPtr<Cairo::Context>& cr, Gdk::RGBA color);
-  void draw_needle(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
-  void draw_knob(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+  void drawDial(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+  void drawNeedle(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+  void drawKnob(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
+  void drawTogglePhaseOverlay(const Cairo::RefPtr<Cairo::Context>& cr, const Gdk::RGBA& color);
 
 private:
   Glib::RefPtr<Gdk::Window> gdk_window_;
