@@ -99,7 +99,7 @@ public:
   const Glib::ustring& getLabel() const
     { return label_; }
 
-  void scheduleAnimation(gint64 frame_time);
+  void scheduleAnimation(gint64 frame_time, bool clear = false);
 
   void cancelAnimation();
 
@@ -124,7 +124,8 @@ protected:
   static AccentButtonCache surface_cache_;
 
   // animation start times in reverse order
-  std::set<gint64, std::greater<gint64>> scheduled_animations_;
+  using TimeSet = std::set<gint64, std::greater<gint64>>;
+  TimeSet scheduled_animations_;
 
   bool animation_running_;
   guint animation_tick_callback_id_;
@@ -217,7 +218,7 @@ public:
   const Glib::ustring& getLabel() const
     { return drawing_area_.getLabel(); }
 
-  void scheduleAnimation(gint64 frame_time);
+  void scheduleAnimation(gint64 frame_time, bool clear = false);
 
   void cancelAnimation();
 

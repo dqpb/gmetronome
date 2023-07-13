@@ -159,21 +159,27 @@ bool AccentButtonDrawingArea::setAccentState(Accent state)
   else return false;
 }
 
-void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time)
+void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time, bool clear)
 {
   if (button_state_ == kAccentOff)
     return;
 
   // erase overlapping animations and animations scheduled later than frame_time
-
   auto has_overlap = [&frame_time] (const auto& time) -> bool {
     return (time > frame_time) || abs( time - frame_time ) < ( kAnimationClusterTime );
   };
 
-  auto erase_rend = std::find_if(scheduled_animations_.rbegin(),
-                                 scheduled_animations_.rend(),
-                                 has_overlap);
-
+  TimeSet::reverse_iterator erase_rend;
+  if (clear)
+  {
+    erase_rend = scheduled_animations_.rbegin();
+  }
+  else
+  {
+    erase_rend = std::find_if(scheduled_animations_.rbegin(),
+                              scheduled_animations_.rend(),
+                              has_overlap);
+  }
   scheduled_animations_.erase(scheduled_animations_.begin(), erase_rend.base());
 
   scheduled_animations_.insert( frame_time );
@@ -727,9 +733,9 @@ void AccentButton::setLabel(const Glib::ustring& label)
   drawing_area_.setLabel(label);
 }
 
-void AccentButton::scheduleAnimation(gint64 frame_time)
+void AccentButton::scheduleAnimation(gint64 frame_time, bool clear)
 {
-  drawing_area_.scheduleAnimation(frame_time);
+  drawing_area_.scheduleAnimation(frame_time, clear);
 }
 
 void AccentButton::cancelAnimation()
