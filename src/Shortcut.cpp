@@ -106,28 +106,28 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
     { kActionStart, {} }
   },
   { settings::kKeyShortcutsVolumeIncrease1,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(1) }
+    { kActionVolumeIncrease, Glib::Variant<double>::create(1.0) }
   },
   { settings::kKeyShortcutsVolumeDecrease1,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(1) }
+    { kActionVolumeDecrease, Glib::Variant<double>::create(1.0) }
   },
   { settings::kKeyShortcutsVolumeIncrease10,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(10) }
+    { kActionVolumeIncrease, Glib::Variant<double>::create(10.0) }
   },
   { settings::kKeyShortcutsVolumeDecrease10,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(10) }
+    { kActionVolumeDecrease, Glib::Variant<double>::create(10.0) }
   },
   { settings::kKeyShortcutsTempoIncrease1,
-    { kActionTempoIncrease, Glib::Variant<double>::create(1.) }
+    { kActionTempoChange, Glib::Variant<double>::create(1.0) }
   },
   { settings::kKeyShortcutsTempoDecrease1,
-    { kActionTempoDecrease, Glib::Variant<double>::create(1.) }
+    { kActionTempoChange, Glib::Variant<double>::create(-1.0) }
   },
   { settings::kKeyShortcutsTempoIncrease10,
-    { kActionTempoIncrease, Glib::Variant<double>::create(10.) }
+    { kActionTempoChange, Glib::Variant<double>::create(10.0) }
   },
   { settings::kKeyShortcutsTempoDecrease10,
-    { kActionTempoDecrease, Glib::Variant<double>::create(10.) }
+    { kActionTempoChange, Glib::Variant<double>::create(-10.0) }
   },
   { settings::kKeyShortcutsTempoTap,
     { kActionTempoTap, {} }

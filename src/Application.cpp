@@ -125,8 +125,7 @@ void Application::initActions()
 
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
-      {kActionTempoIncrease,   sigc::mem_fun(*this, &Application::onTempoIncrease)},
-      {kActionTempoDecrease,   sigc::mem_fun(*this, &Application::onTempoDecrease)},
+      {kActionTempoChange,     sigc::mem_fun(*this, &Application::onTempoChange)},
       {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
       {kActionTrainerEnabled,  sigc::mem_fun(*this, &Application::onTrainerEnabled)},
       {kActionTrainerStart,    sigc::mem_fun(*this, &Application::onTrainerStart)},
@@ -686,31 +685,30 @@ void Application::onTempo(const Glib::VariantBase& value)
   lookupSimpleAction(kActionTempo)->set_state(new_state);
 }
 
-void Application::onTempoIncrease(const Glib::VariantBase& value)
+void Application::onTempoChange(const Glib::VariantBase& value)
 {
   double delta_tempo
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  double tempo_state;
-  get_action_state(kActionTempo, tempo_state);
-
-  tempo_state += delta_tempo;
-
-  Glib::Variant<double> new_tempo_state
-    = Glib::Variant<double>::create(tempo_state);
-
-  activate_action(kActionTempo, new_tempo_state);
-}
-
-void Application::onTempoDecrease(const Glib::VariantBase& value)
-{
-  double delta_tempo
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  if (delta_tempo == 0.0)
+    return;
 
   double tempo_state;
   get_action_state(kActionTempo, tempo_state);
 
-  tempo_state -= delta_tempo;
+  double integral;
+  double fractional = std::modf(tempo_state, &integral);
+
+  // we just round up/down if the change value is one/minus one respectively
+  if (std::abs(delta_tempo) == 1.0 && fractional != 0.0)
+  {
+    if (delta_tempo < 0.0)
+      tempo_state = integral;
+    else
+      tempo_state = integral + 1.0;
+  }
+  else
+    tempo_state += delta_tempo;
 
   Glib::Variant<double> new_tempo_state
     = Glib::Variant<double>::create(tempo_state);

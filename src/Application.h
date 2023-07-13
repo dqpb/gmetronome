@@ -109,8 +109,7 @@ private:
 
   // Tempo
   void onTempo(const Glib::VariantBase& value);
-  void onTempoIncrease(const Glib::VariantBase& value);
-  void onTempoDecrease(const Glib::VariantBase& value);
+  void onTempoChange(const Glib::VariantBase& value);
   void onTempoTap(const Glib::VariantBase& value);
 
   // Meter

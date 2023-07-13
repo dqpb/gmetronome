@@ -117,7 +117,7 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : kActionTempoIncrease
+  /* Action         : kActionTempoChange
    * Scope          : Application
    * Parameter type : double
    * State type     : -
@@ -125,25 +125,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionTempoIncrease,
-    {
-      ActionScope::kApp,
-      Glib::Variant<double>::variant_type(),
-      {},
-      {},
-      true
-    }
-  },
-
-  /* Action         : kActionTempoDecrease
-   * Scope          : Application
-   * Parameter type : double
-   * State type     : -
-   * State value    : -
-   * State hint     : -
-   * Enabled        : true
-   */
-  { kActionTempoDecrease,
+  { kActionTempoChange,
     {
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
