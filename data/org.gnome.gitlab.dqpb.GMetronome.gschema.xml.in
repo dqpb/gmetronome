@@ -764,22 +764,22 @@
     </key>
     <key name="tempo-increase-1" type="s">
       <!-- Default shortcut to increase the tempo by 1 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Up'</default>
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;x'</default>
       <summary>Keyboard shortcut to increase the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-decrease-1" type="s">
       <!-- Default shortcut to decrease the tempo by 1 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Down'</default>
+      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;z'</default>
       <summary>Keyboard shortcut to decrease the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-increase-10" type="s">
       <!-- Default shortcut to increase the thempo by 10 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Page_Up'</default>
+      <default l10n="messages" context="Default shortcut">'&lt;Shift&gt;x'</default>
       <summary>Keyboard shortcut to increase the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-decrease-10" type="s">
       <!-- Default shortcut to decrease the tempo by 10 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;Page_Down'</default>
+      <default l10n="messages" context="Default shortcut">'&lt;Shift&gt;z'</default>
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-tap" type="s">
