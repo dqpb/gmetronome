@@ -93,7 +93,9 @@ namespace audio {
 
     void synchronize(double beat_dev, double tempo_dev);
 
-    Ticker::Statistics getStatistics() const;
+    Ticker::Statistics getStatistics();
+
+    bool hasStatistics() const;
 
   private:
     BeatStreamController stream_ctrl_;
@@ -114,6 +116,7 @@ namespace audio {
     std::array<SoundParameters, kNumAccents> in_sounds_;
 
     Ticker::Statistics out_stats_;
+    bool has_stats_{false};
 
     std::atomic_flag tempo_imported_flag_;
     std::atomic_flag target_tempo_imported_flag_;

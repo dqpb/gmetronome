@@ -182,11 +182,20 @@ namespace audio {
     sync_imported_flag_.clear(std::memory_order_release);
   }
 
-  Ticker::Statistics Ticker::getStatistics() const
+  Ticker::Statistics Ticker::getStatistics()
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
+      has_stats_ = false;
       return out_stats_;
+    }
+  }
+
+  bool Ticker::hasStatistics() const
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      return has_stats_;
     }
   }
 
@@ -202,6 +211,8 @@ namespace audio {
 
     if (current_state.test(TickerStateFlag::kRunning))
       stopAudioThread(true); // join
+
+    has_stats_ = false;
 
     startAudioThread();
 
@@ -473,6 +484,8 @@ namespace audio {
         out_stats_.backend_latency = backend_->latency();
       else
         out_stats_.backend_latency = 0us;
+
+      has_stats_ = true;
     }
   }
 
@@ -571,7 +584,6 @@ namespace audio {
       stream_ctrl_.prepare(actual_device_config_.spec);
       importGeneratorSettings();
       stream_ctrl_.start(kFillBufferGenerator);
-      exportStatistics();
       startBackend();
 
       // enter the main loop
