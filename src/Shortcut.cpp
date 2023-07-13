@@ -151,15 +151,15 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
     { kActionPendulumTogglePhase, {} }
   },
   { settings::kKeyShortcutsVolumeIncrease1,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(1.0) }
+    { kActionVolumeChange, Glib::Variant<double>::create(1.0) }
   },
   { settings::kKeyShortcutsVolumeDecrease1,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(1.0) }
+    { kActionVolumeChange, Glib::Variant<double>::create(-1.0) }
   },
   { settings::kKeyShortcutsVolumeIncrease10,
-    { kActionVolumeIncrease, Glib::Variant<double>::create(10.0) }
+    { kActionVolumeChange, Glib::Variant<double>::create(10.0) }
   },
   { settings::kKeyShortcutsVolumeDecrease10,
-    { kActionVolumeDecrease, Glib::Variant<double>::create(10.0) }
+    { kActionVolumeChange, Glib::Variant<double>::create(-10.0) }
   }
 };

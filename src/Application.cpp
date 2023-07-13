@@ -120,8 +120,7 @@ void Application::initActions()
       {kActionQuit,            sigc::mem_fun(*this, &Application::onQuit)},
 
       {kActionVolume,          settings::sound()},
-      {kActionVolumeIncrease,  sigc::mem_fun(*this, &Application::onVolumeIncrease)},
-      {kActionVolumeDecrease,  sigc::mem_fun(*this, &Application::onVolumeDecrease)},
+      {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
 
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
@@ -647,7 +646,7 @@ void Application::onMeterSeek(const Glib::VariantBase& value)
   // not implemented yet
 }
 
-void Application::onVolumeIncrease(const Glib::VariantBase& value)
+void Application::onVolumeChange(const Glib::VariantBase& value)
 {
   double delta_volume
     = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
@@ -655,18 +654,6 @@ void Application::onVolumeIncrease(const Glib::VariantBase& value)
   double current_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
   auto [new_volume, valid] = validateVolume(current_volume + delta_volume);
-
-  settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
-}
-
-void Application::onVolumeDecrease(const Glib::VariantBase& value)
-{
-  double delta_volume
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-
-  double current_volume = settings::sound()->get_double(settings::kKeySoundVolume);
-
-  auto [new_volume, valid] = validateVolume(current_volume - delta_volume);
 
   settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
 }

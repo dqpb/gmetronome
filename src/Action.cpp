@@ -41,7 +41,7 @@ const ActionDescriptionMap kActionDescriptions =
    */
   { kActionVolume, { ActionScope::kApp, {}, {}, {}, {} } },
 
-  /* Action         : kActionVolumeIncrease
+  /* Action         : kActionVolumeChange
    * Scope          : Application
    * Parameter type : double
    * State type     : -
@@ -49,25 +49,7 @@ const ActionDescriptionMap kActionDescriptions =
    * State hint     : -
    * Enabled        : true
    */
-  { kActionVolumeIncrease,
-    {
-      ActionScope::kApp,
-      Glib::Variant<double>::variant_type(),
-      {},
-      {},
-      true
-    }
-  },
-
-  /* Action         : kActionVolumeDecrease
-   * Scope          : Application
-   * Parameter type : double
-   * State type     : -
-   * State value    : -
-   * State hint     : -
-   * Enabled        : true
-   */
-  { kActionVolumeDecrease,
+  { kActionVolumeChange,
     {
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),

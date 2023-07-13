@@ -104,8 +104,7 @@ private:
   void onQuit(const Glib::VariantBase& parameter);
 
   // Volume
-  void onVolumeIncrease(const Glib::VariantBase& value);
-  void onVolumeDecrease(const Glib::VariantBase& value);
+  void onVolumeChange(const Glib::VariantBase& value);
 
   // Tempo
   void onTempo(const Glib::VariantBase& value);
