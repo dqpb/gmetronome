@@ -1331,11 +1331,9 @@ bool Application::onStatsTimer()
   }
   else
   {
-    audio::Ticker::Statistics stats = ticker_.getStatistics();
-    static audio::microseconds last_timestamp {-1};
-    if (last_timestamp != stats.timestamp)
+    if (ticker_.hasStatistics())
     {
-      last_timestamp = stats.timestamp;
+      audio::Ticker::Statistics stats = ticker_.getStatistics();
       signal_ticker_statistics_.emit(stats);
     }
     return true;
