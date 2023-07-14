@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16.0px"
+   height="16.0px"
+   viewBox="0 0 16.0 16.0"
+   version="1.1"
+   id="SVGRoot"
+   sodipodi:docname="access-trainer-symbolic.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xml:space="preserve"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"><sodipodi:namedview
+     id="namedview12644"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="50.470098"
+     inkscape:cx="7.9948329"
+     inkscape:cy="8.7675677"
+     inkscape:window-width="1920"
+     inkscape:window-height="1147"
+     inkscape:window-x="0"
+     inkscape:window-y="29"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRoot"><inkscape:grid
+       type="xygrid"
+       id="grid13130" /></sodipodi:namedview><defs
+     id="defs12639" /><path
+     id="path2760"
+     style="opacity:0.95;fill:#000000;stroke:#000000;stroke-width:1.24696;stroke-dasharray:none"
+     d="M 20.72574 -58.07899 A 69.760002 69.760002 0 0 0 -49.034259 11.681009 A 69.760002 69.760002 0 0 0 -28.596759 61.003509 L -16.266134 48.672884 A 52.32 52.32 0 0 1 -31.594259 11.681009 A 52.32 52.32 0 0 1 20.72574 -40.63899 A 52.32 52.32 0 0 1 73.04574 11.681009 A 52.32 52.32 0 0 1 55.145896 50.39304 L 66.607927 63.302728 A 69.760002 69.760002 0 0 0 90.48574 11.681009 A 69.760002 69.760002 0 0 0 20.72574 -58.07899 z "
+     inkscape:label="dial-path"
+     transform="matrix(0.1146789,0,0,0.1146789,5.6231949,6.6604347)" /><path
+     style="opacity:0.95;fill:#000000;stroke:#000000;stroke-width:1.24696;stroke-dasharray:none"
+     d="M 30.000416,20.960305 C 30.591788,20.439962 55.60574,-23.19899 55.60574,-23.19899 c 0,0 -42.453953,26.1989526 -43.045324,26.7192949 -9.2746756,8.1607041 8.165324,25.6007041 17.44,17.4400001 z"
+     id="path2772"
+     sodipodi:nodetypes="scss"
+     inkscape:label="pointer-path"
+     transform="matrix(0.1146789,0,0,0.1146789,5.6231949,6.6604347)" /><metadata
+     id="metadata1152"><rdf:RDF><cc:Work
+         rdf:about=""><dc:creator><cc:Agent><dc:title>dqpb &lt;dqpb@mailbox.org&gt;</dc:title></cc:Agent></dc:creator><dc:rights><cc:Agent><dc:title>Copyright (C) 2023 The GMetronome Team</dc:title></cc:Agent></dc:rights><dc:publisher><cc:Agent><dc:title>The GMetronome Team</dc:title></cc:Agent></dc:publisher><dc:source>https://gitlab.gnome.org/dqpb/gmetronome</dc:source></cc:Work></rdf:RDF></metadata></svg>

@@ -321,15 +321,22 @@
           <object class="GtkButtonBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout-style">expand</property>
             <child>
               <object class="GtkButton" id="profileNewButton">
-                <property name="label" translatable="yes" context="Profiles menu">_New</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="tooltip-text" translatable="yes" context="Profiles menu" comments="Tooltip">Create a new profile</property>
                 <property name="use-underline">True</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">list-add-symbolic</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -339,13 +346,19 @@
             </child>
             <child>
               <object class="GtkButton" id="profileDeleteButton">
-                <property name="label" translatable="yes" context="Profiles menu">_Delete</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="tooltip-text" translatable="yes" context="Profiles menu" comments="Tooltip">Delete selected profile</property>
                 <property name="action-name">app.profile-delete</property>
                 <property name="use-underline">True</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">list-remove-symbolic</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -355,13 +368,19 @@
             </child>
             <child>
               <object class="GtkButton" id="profileResetButton">
-                <property name="label" translatable="yes" context="Profiles menu">_Reset</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="tooltip-text" translatable="yes" context="Profiles menu" comments="Tooltip">Reset the metronome</property>
                 <property name="action-name">app.profile-reset</property>
                 <property name="use-underline">True</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">edit-clear-symbolic</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -475,45 +494,20 @@
       </object>
     </child>
     <child>
-      <object class="GtkButtonBox">
+      <object class="GtkMenuButton" id="profileMenuButton">
         <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="layout-style">expand</property>
+        <property name="can-focus">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles menu</property>
+        <property name="valign">center</property>
+        <property name="popover">profilePopover</property>
         <child>
-          <object class="GtkToggleButton" id="accentToggleButton">
-            <property name="label" translatable="yes" context="Main window">_Accents</property>
+          <object class="GtkImage">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="focus-on-click">False</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle accentuation</property>
-            <property name="valign">center</property>
-            <property name="action-name">app.meter-enabled</property>
-            <property name="use-underline">True</property>
+            <property name="can-focus">False</property>
+            <property name="icon-name">view-list-symbolic</property>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkToggleButton" id="trainerToggleButton">
-            <property name="label" translatable="yes" context="Main window">_Trainer</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="focus-on-click">False</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle tempo trainer</property>
-            <property name="valign">center</property>
-            <property name="action-name">app.trainer-enabled</property>
-            <property name="use-underline">True</property>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
     </child>
@@ -539,6 +533,64 @@
       </packing>
     </child>
     <child>
+      <object class="GtkButtonBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="layout-style">expand</property>
+        <child>
+          <object class="GtkToggleButton" id="accentToggleButton">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle accentuation</property>
+            <property name="valign">center</property>
+            <property name="action-name">app.meter-enabled</property>
+            <property name="use-underline">True</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">access-accent-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkToggleButton" id="trainerToggleButton">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Toggle tempo trainer</property>
+            <property name="valign">center</property>
+            <property name="action-name">app.trainer-enabled</property>
+            <property name="use-underline">True</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">access-trainer-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
       <object class="GtkMenuButton" id="mainMenuButton">
         <property name="visible">True</property>
         <property name="can-focus">True</property>
@@ -558,28 +610,6 @@
       <packing>
         <property name="pack-type">end</property>
         <property name="position">3</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkMenuButton" id="profileMenuButton">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="focus-on-click">False</property>
-        <property name="receives-default">True</property>
-        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Profiles menu</property>
-        <property name="valign">center</property>
-        <property name="popover">profilePopover</property>
-        <child>
-          <object class="GtkImage">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="icon-name">profile-access-symbolic</property>
-          </object>
-        </child>
-      </object>
-      <packing>
-        <property name="pack-type">end</property>
-        <property name="position">4</property>
       </packing>
     </child>
   </object>
@@ -1295,18 +1325,6 @@
 audio-volume-high-symbolic
 audio-volume-low-symbolic
 audio-volume-medium-symbolic</property>
-                        <child internal-child="plus_button">
-                          <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
-                          </object>
-                        </child>
-                        <child internal-child="minus_button">
-                          <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
-                          </object>
-                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>

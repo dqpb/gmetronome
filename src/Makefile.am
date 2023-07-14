@@ -96,11 +96,13 @@ resources = \
 	$(resourcesdir)/ui/MainWindow.glade \
 	$(resourcesdir)/ui/SettingsDialog.glade \
 	$(resourcesdir)/ui/SoundThemeEditor.glade \
+	$(resourcesdir)/icons/access-profile-symbolic.svg \
+	$(resourcesdir)/icons/access-accent-symbolic.svg \
+	$(resourcesdir)/icons/access-trainer-symbolic.svg \
 	$(resourcesdir)/icons/note-quarter-symbolic.svg \
 	$(resourcesdir)/icons/note-eighth-symbolic.svg \
 	$(resourcesdir)/icons/note-triplet-symbolic.svg \
 	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
-	$(resourcesdir)/icons/profile-access-symbolic.svg \
 	$(resourcesdir)/icons/sound-classic-symbolic.svg \
 	$(resourcesdir)/icons/sound-modern-symbolic.svg \
 	$(resourcesdir)/icons/sound-bell-symbolic.svg \
