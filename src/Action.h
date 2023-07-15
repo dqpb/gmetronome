@@ -92,8 +92,8 @@ struct ActionDescription
 template<class T>
 using ActionStateHintRange = std::tuple<T,T>;
 
-inline constexpr std::size_t kActionStateHintRangeMinimum = 0;
-inline constexpr std::size_t kActionStateHintRangeMaximum = 1;
+constexpr std::size_t kActionStateHintRangeMinimum = 0;
+constexpr std::size_t kActionStateHintRangeMaximum = 1;
 
 // helper to clamp values to the inclusive range of min and max
 template<class T>
@@ -106,9 +106,9 @@ T clampActionStateValue(T value, const ActionStateHintRange<T>& range)
 
 using ProfileListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
 
-inline constexpr int kProfileListEntryIdentifier = 0;
-inline constexpr int kProfileListEntryTitle = 1;
-inline constexpr int kProfileListEntryDescription = 2;
+constexpr int kProfileListEntryIdentifier = 0;
+constexpr int kProfileListEntryTitle = 1;
+constexpr int kProfileListEntryDescription = 2;
 
 using ProfileList = std::vector<ProfileListEntry>;
 using ProfileIdentifierList = std::vector<Glib::ustring>;
