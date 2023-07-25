@@ -24,7 +24,7 @@
 
 class GMetronomeAboutDialog : public Gtk::AboutDialog {
 public:
-  GMetronomeAboutDialog(bool use_header_bar = true);
+  GMetronomeAboutDialog();
 };
 
 #endif//GMetronome_About_h

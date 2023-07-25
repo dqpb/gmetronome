@@ -24,8 +24,7 @@
 #include "About.h"
 #include <glibmm/i18n.h>
 
-GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
-  : AboutDialog(use_header_bar)
+GMetronomeAboutDialog::GMetronomeAboutDialog()
 {
   set_icon_name(PACKAGE_ID);
 
@@ -52,4 +51,19 @@ GMetronomeAboutDialog::GMetronomeAboutDialog(bool use_header_bar)
   set_website(PACKAGE_URL);
   set_website_label( C_("About dialog", "Website") );
   set_logo_icon_name(PACKAGE_ID);
+
+  Gtk::Dialog::signal_response().connect(
+    [this] (int response_id) {
+      switch (response_id)
+      {
+      case Gtk::RESPONSE_CLOSE:
+      case Gtk::RESPONSE_CANCEL:
+      case Gtk::RESPONSE_DELETE_EVENT:
+        hide();
+        break;
+      default:
+        // ignore unexpected response
+        break;
+      }
+    });
 }
