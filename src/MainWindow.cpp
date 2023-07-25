@@ -246,6 +246,9 @@ void MainWindow::initUI()
   info_overlay_->add_overlay(*info_revealer_);
   info_revealer_->set_reveal_child(false);
 
+  // initialize about dialog
+  about_dialog_.set_transient_for(*this);
+
   // initialize pendulum
   pendulum_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
   pendulum_.set_halign(Gtk::ALIGN_CENTER);
@@ -642,6 +645,7 @@ void MainWindow::onShowHelp(const Glib::VariantBase& parameter)
 
 void MainWindow::onShowAbout(const Glib::VariantBase& parameter)
 {
+  about_dialog_.show();
   about_dialog_.present();
 }
 
