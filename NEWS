@@ -1,3 +1,11 @@
+2023-08-02  0.3.2
+
+	* Change headerbar layout
+	* Use left click to toggle pendulum phase
+	* Use right click to decrease accent level, middle click to clear
+	* Fix unsynchronized initial accent animation on some devices
+	* Internationalize and revise default shortcuts
+
 2023-07-06  0.3.1
 
 	* Fixes a problem with the sound theme editor not passing changes

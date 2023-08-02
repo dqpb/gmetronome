@@ -45,6 +45,17 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.3.2" date="2023-08-02">
+      <description>
+	<ul>
+	  <li>Change headerbar layout</li>
+	  <li>Use left click to toggle pendulum phase</li>
+	  <li>Use right click to decrease accent level, middle click to clear</li>
+	  <li>Fix unsynchronized initial accent animation on some devices</li>
+	  <li>Internationalize and revise default shortcuts</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.3.1" date="2023-07-06">
       <description>
 	<ul>
