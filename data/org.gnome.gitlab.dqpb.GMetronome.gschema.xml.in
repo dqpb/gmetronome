@@ -783,7 +783,8 @@
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-tap" type="s">
-      <default>'t'</default>
+      <!-- Default shortcut to tap the tempo -->
+      <default l10n="messages" context="Default shortcut">'t'</default>
       <summary>Keyboard shortcut to tap the tempo</summary>
     </key>
     <key name="meter-enabled" type="s">
@@ -832,7 +833,8 @@
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
     <key name="pendulum-toggle-phase" type="s">
-      <default>'p'</default>
+      <!-- Default shortcut to toggle the pendulum phase -->
+      <default l10n="messages" context="Default shortcut">'p'</default>
       <summary>Keyboard shortcut to toggle the pendulum phase</summary>
     </key>
   </schema>
