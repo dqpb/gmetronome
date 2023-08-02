@@ -126,5 +126,5 @@ the description above.
 
 How to report bugs
 ------------------
-If you encounter a bug or have any suggestions please file an issue on our
-project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues).
+Please visit our project's [issues page](https://gitlab.gnome.org/dqpb/gmetronome/issues)
+to view currently open issues or submit new bug reports.
