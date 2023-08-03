@@ -38,9 +38,12 @@ struct Message
   Glib::ustring details;
 };
 
-extern const Message kGenericErrorMessage;
-extern const Message kAudioErrorMessage;
-extern const Message kAudioBackendErrorMessage;
-extern const Message kSoundThemeLoadingErrorMessage;
+enum class MessageIdentifier
+{
+  kGenericError,
+  kAudioError
+};
+
+const Message& getDefaultMessage(MessageIdentifier id);
 
 #endif//GMetronome_Message_h

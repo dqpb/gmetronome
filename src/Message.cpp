@@ -22,24 +22,42 @@
 #endif
 
 #include "Message.h"
+#include <glibmm.h>
 #include <glibmm/i18n.h>
+#include <map>
 
-const Message kGenericErrorMessage
+const Message& getDefaultMessage(MessageIdentifier id)
 {
-  MessageCategory::kError,
-  "Oops! Something went wrong.",
-  PACKAGE_NAME " has encountered an unknown error. Please check the "
-  "details below. Since this error might be due to a bug in the software "
-  "package, you can help us to improve " PACKAGE_NAME " and file a bug "
-  "report on the <a href=\"" PACKAGE_URL "\">project page</a>.",
-  ""
-};
+  static const std::map<MessageIdentifier, Message> msg_map = {
+    {
+      MessageIdentifier::kGenericError,
+      {
+        MessageCategory::kError,
+        C_("Message", "Oops! Something went wrong."),
 
-const Message kAudioErrorMessage
-{
-  MessageCategory::kError,
-  "Audio problem",
-  "An audio related error occured. "
-  "Please check the audio configuration in the preferences dialog and try again.",
-  ""
-};
+        Glib::ustring::compose(
+          //The following parameters will be replaced:
+          // %1 - localized application name
+          // %2 - URL of the project's issues page
+          C_("Message", "%1 has encountered an unknown error. Please check the details below. "
+             "Since this error might be due to a bug in the software package, you can help us to "
+             "improve %1 and file a bug report on the project's <a href=\"%2\">issues page</a>."),
+          Glib::get_application_name(),
+          PACKAGE_BUGREPORT),
+        ""
+      }
+    },
+    {
+      MessageIdentifier::kAudioError,
+      {
+        MessageCategory::kError,
+        C_("Message", "Audio problem"),
+        C_("Message", "An audio related error occured. "
+           "Please check the audio configuration in the preferences dialog and try again."),
+        ""
+      }
+    }
+  };
+
+  return msg_map.at(id);
+}

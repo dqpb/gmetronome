@@ -381,13 +381,13 @@ void Application::configureAudioBackend()
   catch(const audio::BackendError& e)
   {
     error = true;
-    error_message = kAudioErrorMessage;
+    error_message = getDefaultMessage(MessageIdentifier::kAudioError);
     error_message.details = getErrorDetails(std::current_exception());
   }
   catch(...)
   {
     error = true;
-    error_message = kAudioErrorMessage;
+    error_message = getDefaultMessage(MessageIdentifier::kAudioError);
     error_message.details = getErrorDetails(std::current_exception());
   }
 
@@ -412,7 +412,7 @@ void Application::configureAudioDevice()
   }
   catch(...)
   {
-    Message error_message = kAudioErrorMessage;
+    Message error_message = getDefaultMessage(MessageIdentifier::kAudioError);
     error_message.details = getErrorDetails(std::current_exception());
     signal_message_.emit(error_message);
   }
@@ -1154,19 +1154,19 @@ void Application::onStart(const Glib::VariantBase& value)
   catch(const audio::BackendError& e)
   {
     error = true;
-    error_message = kAudioErrorMessage;
+    error_message = getDefaultMessage(MessageIdentifier::kAudioError);
     error_message.details = getErrorDetails(std::current_exception());
   }
   catch(const GMetronomeError& e)
   {
     error = true;
-    error_message = kAudioErrorMessage;
+    error_message = getDefaultMessage(MessageIdentifier::kAudioError);
     error_message.details = getErrorDetails(std::current_exception());
   }
   catch(...)
   {
     error = true;
-    error_message = kGenericErrorMessage;
+    error_message = getDefaultMessage(MessageIdentifier::kGenericError);
     error_message.details = getErrorDetails(std::current_exception());
   }
 
