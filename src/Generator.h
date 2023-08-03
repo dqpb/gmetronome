@@ -371,9 +371,6 @@ namespace audio {
     void onAccelerationChanged(BeatStreamController& ctrl) override;
     void onSynchronize(BeatStreamController& ctrl, double beat_dev, double tempo_dev) override;
     void onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed) override;
-    void onSoundChanged(BeatStreamController& ctrl, Accent a) override;
-    void onStart(BeatStreamController& ctrl) override;
-    void onStop(BeatStreamController& ctrl) override;
 
     void prepare(BeatStreamController& ctrl) override;
 

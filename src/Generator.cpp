@@ -163,21 +163,6 @@ namespace audio {
     division_saved_ = ctrl.meter().division();
   }
 
-  void RegularGenerator::onSoundChanged(BeatStreamController& ctrl, Accent a)
-  {
-    //not implemented yet
-  }
-
-  void RegularGenerator::onStart(BeatStreamController& ctrl)
-  {
-    //not implemented yet
-  }
-
-  void RegularGenerator::onStop(BeatStreamController& ctrl)
-  {
-    //not implemented yet
-  }
-
   void RegularGenerator::prepare(BeatStreamController& ctrl)
   {
     max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
