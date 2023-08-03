@@ -1295,7 +1295,7 @@
                     <property name="margin-top">20</property>
                     <child type="center">
                       <object class="GtkToggleButton" id="startButton">
-                        <property name="label" translatable="yes" context="Main window">_Start</property>
+                        <property name="label">(Start)</property>
                         <property name="width-request">200</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
@@ -1325,6 +1325,18 @@
 audio-volume-high-symbolic
 audio-volume-low-symbolic
 audio-volume-medium-symbolic</property>
+                        <child internal-child="plus_button">
+                          <object class="GtkButton">
+                            <property name="can-focus">False</property>
+                            <property name="receives-default">False</property>
+                          </object>
+                        </child>
+                        <child internal-child="minus_button">
+                          <object class="GtkButton">
+                            <property name="can-focus">False</property>
+                            <property name="receives-default">False</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>

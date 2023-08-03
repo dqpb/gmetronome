@@ -184,6 +184,7 @@ private:
   void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
   void updateStart(bool running);
+  void updateStartButtonLabel(bool running);
 
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
   void updateAccentAnimation(const audio::Ticker::Statistics& stats);

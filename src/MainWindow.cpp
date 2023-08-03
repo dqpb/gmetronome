@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -284,6 +284,9 @@ void MainWindow::initUI()
   Meter meter;
   app->get_action_state(meter_slot, meter);
   updateMeter(meter_slot, meter);
+
+  // initialize transport interface
+  updateStartButtonLabel(false);
 
   // initialize profile list
   ProfileList list;
@@ -1052,6 +1055,15 @@ void MainWindow::updateStart(bool running)
     pendulum_.stop();
     accent_button_grid_.stop();
   }
+  updateStartButtonLabel(running);
+}
+
+void MainWindow::updateStartButtonLabel(bool running)
+{
+  if (running)
+    start_button_->set_label(C_("Main window", "_Stop"));
+  else
+    start_button_->set_label(C_("Main window", "_Start"));
 }
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
