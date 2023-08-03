@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.2.2\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-08-02 11:34+0200\n"
-"PO-Revision-Date: 2023-08-02 11:35+0200\n"
+"POT-Creation-Date: 2023-08-03 13:53+0200\n"
+"PO-Revision-Date: 2023-08-03 13:57+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -298,7 +298,12 @@ msgctxt "Main window"
 msgid "Trainer"
 msgstr "Trainer"
 
-#: src/resources/ui/MainWindow.glade:1298
+#: src/MainWindow.cpp:1064
+msgctxt "Main window"
+msgid "_Stop"
+msgstr "_Stop"
+
+#: src/MainWindow.cpp:1066
 msgctxt "Main window"
 msgid "_Start"
 msgstr "_Start"
@@ -1108,23 +1113,3 @@ msgstr "Ausgewähltes Profil"
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:930
 msgid "Whether to show the animated pendulum"
 msgstr "Ob die Pendelanimation angezeigt werden soll"
-
-#~ msgctxt "Profiles menu"
-#~ msgid "_New"
-#~ msgstr "_Neu"
-
-#~ msgctxt "Profiles menu"
-#~ msgid "_Delete"
-#~ msgstr "_Löschen"
-
-#~ msgctxt "Profiles menu"
-#~ msgid "_Reset"
-#~ msgstr "_Zurücksetzen"
-
-#~ msgctxt "Main window"
-#~ msgid "_Accents"
-#~ msgstr "_Betonung"
-
-#~ msgctxt "Main window"
-#~ msgid "_Trainer"
-#~ msgstr "_Trainer"
