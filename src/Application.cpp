@@ -303,10 +303,6 @@ void Application::loadSelectedSoundTheme()
 #ifndef NDEBUG
       std::cerr << "Application: failed to load sound theme '" << theme_id << "'" << std::endl;
 #endif
-      // Message error_message;
-      // error_message = kSoundThemeLoadingErrorMessage;
-      // error_message.details = getErrorDetails(std::current_exception());
-      // signal_message_.emit(error_message);
     }
   }
   else {
@@ -385,7 +381,7 @@ void Application::configureAudioBackend()
   catch(const audio::BackendError& e)
   {
     error = true;
-    error_message = kAudioBackendErrorMessage;
+    error_message = kAudioErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
   }
   catch(...)
@@ -416,7 +412,7 @@ void Application::configureAudioDevice()
   }
   catch(...)
   {
-    Message error_message = kAudioBackendErrorMessage;
+    Message error_message = kAudioErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
     signal_message_.emit(error_message);
   }
@@ -1158,7 +1154,7 @@ void Application::onStart(const Glib::VariantBase& value)
   catch(const audio::BackendError& e)
   {
     error = true;
-    error_message = kAudioBackendErrorMessage;
+    error_message = kAudioErrorMessage;
     error_message.details = getErrorDetails(std::current_exception());
   }
   catch(const GMetronomeError& e)

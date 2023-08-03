@@ -22,6 +22,7 @@
 #endif
 
 #include "Message.h"
+#include <glibmm/i18n.h>
 
 const Message kGenericErrorMessage
 {
@@ -38,26 +39,7 @@ const Message kAudioErrorMessage
 {
   MessageCategory::kError,
   "Audio problem",
-  "An audio related error occured. For further information see the details below. "
+  "An audio related error occured. "
   "Please check the audio configuration in the preferences dialog and try again.",
-  ""
-};
-
-const Message kAudioBackendErrorMessage
-{
-  MessageCategory::kError,
-  "Audio backend error",
-  "An error occured in the audio backend. Please try again or "
-  "check the audio configuration in the preferences dialog.",
-  ""
-};
-
-const Message kSoundThemeLoadingErrorMessage
-{
-  MessageCategory::kWarning,
-  "Sound Theme",
-  "Some problems occured loading the selected sound theme. "
-  "The sound theme may have been removed or is otherwise inaccessible. "
-  "Please check the sound configuration in the preferences dialog.",
   ""
 };
