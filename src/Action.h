@@ -90,18 +90,18 @@ struct ActionDescription
 };
 
 template<class T>
-using ActionStateHintRange = std::tuple<T,T>;
+using ActionValueRange = std::tuple<T,T>;
 
-constexpr std::size_t kActionStateHintRangeMinimum = 0;
-constexpr std::size_t kActionStateHintRangeMaximum = 1;
+constexpr std::size_t kActionValueRangeMin = 0;
+constexpr std::size_t kActionValueRangeMax = 1;
 
 // helper to clamp values to the inclusive range of min and max
 template<class T>
-T clampActionStateValue(T value, const ActionStateHintRange<T>& range)
+T clampActionStateValue(T value, const ActionValueRange<T>& range)
 {
   return std::clamp( value,
-                     std::get<kActionStateHintRangeMinimum>(range),
-                     std::get<kActionStateHintRangeMaximum>(range) );
+                     std::get<kActionValueRangeMin>(range),
+                     std::get<kActionValueRangeMax>(range) );
 }
 
 using ProfileListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;

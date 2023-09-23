@@ -1383,7 +1383,7 @@ void Application::dropVolume(double drop)
 
 // helper
 template<class T>
-std::pair<T,bool> validateRange(T value, const ActionStateHintRange<T>& range)
+std::pair<T,bool> validateRange(T value, const ActionValueRange<T>& range)
 {
   T ret = clampActionStateValue(value, range);
   return { ret, value == ret };
@@ -1398,28 +1398,28 @@ std::pair<T,bool> validateRange(T value, const T& min, const T& max)
 
 std::pair<double,bool> Application::validateTempo(double value)
 {
-  ActionStateHintRange<double> range;
+  ActionValueRange<double> range;
   get_action_state_hint(kActionTempo, range);
   return validateRange(value, range);
 }
 
 std::pair<double,bool> Application::validateTrainerStart(double value)
 {
-  ActionStateHintRange<double> range;
+  ActionValueRange<double> range;
   get_action_state_hint(kActionTrainerStart, range);
   return validateRange(value, range);
 }
 
 std::pair<double,bool> Application::validateTrainerTarget(double value)
 {
-  ActionStateHintRange<double> range;
+  ActionValueRange<double> range;
   get_action_state_hint(kActionTrainerTarget, range);
   return validateRange(value, range);
 }
 
 std::pair<double,bool> Application::validateTrainerAccel(double value)
 {
-  ActionStateHintRange<double> range;
+  ActionValueRange<double> range;
   get_action_state_hint(kActionTrainerAccel, range);
   return validateRange(value, range);
 }

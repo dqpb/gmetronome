@@ -90,7 +90,7 @@ const ActionDescriptionMap kActionDescriptions =
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
       Glib::Variant<double>::create(kDefaultProfile.content.tempo),
-      Glib::Variant<ActionStateHintRange<double>>::create(
+      Glib::Variant<ActionValueRange<double>>::create(
         {
           Profile::kMinTempo,
           Profile::kMaxTempo
@@ -158,7 +158,7 @@ const ActionDescriptionMap kActionDescriptions =
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_start),
-      Glib::Variant<ActionStateHintRange<double>>::create(
+      Glib::Variant<ActionValueRange<double>>::create(
         {
           Profile::kMinTempo,
           Profile::kMaxTempo
@@ -180,7 +180,7 @@ const ActionDescriptionMap kActionDescriptions =
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_target),
-      Glib::Variant<ActionStateHintRange<double>>::create(
+      Glib::Variant<ActionValueRange<double>>::create(
         {
           Profile::kMinTempo,
           Profile::kMaxTempo
@@ -202,7 +202,7 @@ const ActionDescriptionMap kActionDescriptions =
       ActionScope::kApp,
       Glib::Variant<double>::variant_type(),
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_accel),
-      Glib::Variant<ActionStateHintRange<double>>::create(
+      Glib::Variant<ActionValueRange<double>>::create(
         {
           Profile::kMinTrainerAccel,
           Profile::kMaxTrainerAccel
