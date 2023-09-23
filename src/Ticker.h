@@ -47,8 +47,8 @@ namespace audio {
 
   class Ticker {
   public:
-    static constexpr double kMinTempo = 30.0;
-    static constexpr double kMaxTempo = 250.0;
+    static constexpr double kMinTempo = 1.0;
+    static constexpr double kMaxTempo = 1000.0;
     static constexpr double kMinAcceleration = 0.0;
     static constexpr double kMaxAcceleration = 1000.0;
 
