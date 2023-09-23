@@ -77,6 +77,28 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionTempoRange
+   * Scope          : Application
+   * Parameter type : ActionValueRange<double>
+   * State type     : ActionValueRange<double>
+   * State value    : {...}
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionTempoRange,
+    {
+      ActionScope::kApp,
+      Glib::Variant<ActionValueRange<double>>::variant_type(),
+      Glib::Variant<ActionValueRange<double>>::create(
+        {
+          kDefaultProfile.content.tempo_min,
+          kDefaultProfile.content.tempo_max
+        }),
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionTempo
    * Scope          : Application
    * Parameter type : double
