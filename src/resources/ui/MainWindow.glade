@@ -797,7 +797,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="margin-end">5</property>
                                     <property name="margin-top">5</property>
                                     <property name="margin-bottom">5</property>
-                                    <property name="label" translatable="yes" context="Main window">Tap</property>
+                                    <property name="label" translatable="yes" context="Main window - Tempo">Tap</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -833,7 +833,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes" context="Main window">Tempo</property>
+                        <property name="label" translatable="yes" context="Main window - Tempo">Tempo</property>
                       </object>
                     </child>
                   </object>
@@ -883,7 +883,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="can-focus">False</property>
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
-                                        <property name="label" translatable="yes" context="Main window">Beats</property>
+                                        <property name="label" translatable="yes" context="Main window - Accents">Beats</property>
                                         <attributes>
                                           <attribute name="scale" value="0.80000000000000004"/>
                                         </attributes>
@@ -929,7 +929,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="can-focus">False</property>
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
-                                        <property name="label" translatable="yes" context="Main window">Meter</property>
+                                        <property name="label" translatable="yes" context="Main window - Accents">Meter</property>
                                         <attributes>
                                           <attribute name="scale" value="0.80000000000000004"/>
                                         </attributes>
@@ -946,15 +946,15 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="can-focus">False</property>
                                         <property name="active-id">meter-4-simple</property>
                                         <items>
-                                          <item id="meter-simple-2" translatable="yes" context="Main window">2/4</item>
-                                          <item id="meter-simple-3" translatable="yes" context="Main window">3/4</item>
-                                          <item id="meter-simple-4" translatable="yes" context="Main window">4/4</item>
+                                          <item id="meter-simple-2" translatable="yes" context="Main window - Accents">2/4</item>
+                                          <item id="meter-simple-3" translatable="yes" context="Main window - Accents">3/4</item>
+                                          <item id="meter-simple-4" translatable="yes" context="Main window - Accents">4/4</item>
                                           <item id="separator">-</item>
-                                          <item id="meter-compound-2" translatable="yes" context="Main window">6/8</item>
-                                          <item id="meter-compound-3" translatable="yes" context="Main window">9/8</item>
-                                          <item id="meter-compound-4" translatable="yes" context="Main window">12/8</item>
+                                          <item id="meter-compound-2" translatable="yes" context="Main window - Accents">6/8</item>
+                                          <item id="meter-compound-3" translatable="yes" context="Main window - Accents">9/8</item>
+                                          <item id="meter-compound-4" translatable="yes" context="Main window - Accents">12/8</item>
                                           <item id="separator">-</item>
-                                          <item id="meter-custom" translatable="yes" context="Main window">Custom</item>
+                                          <item id="meter-custom" translatable="yes" context="Main window - Accents">Custom</item>
                                         </items>
                                       </object>
                                       <packing>
@@ -983,7 +983,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="can-focus">False</property>
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
-                                        <property name="label" translatable="yes" context="Main window">Division</property>
+                                        <property name="label" translatable="yes" context="Main window - Accents">Division</property>
                                         <attributes>
                                           <attribute name="scale" value="0.80000000000000004"/>
                                         </attributes>
@@ -1117,7 +1117,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes" context="Main window">Accents</property>
+                            <property name="label" translatable="yes" context="Main window - Accents">Accents</property>
                           </object>
                         </child>
                       </object>
@@ -1162,7 +1162,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="can-focus">False</property>
                                     <property name="opacity">0.80</property>
                                     <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window">Target</property>
+                                    <property name="label" translatable="yes" context="Main window - Trainer">Target</property>
                                     <property name="justify">fill</property>
                                     <attributes>
                                       <attribute name="scale" value="0.80000000000000004"/>
@@ -1209,7 +1209,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="can-focus">False</property>
                                     <property name="opacity">0.80</property>
                                     <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window">Start</property>
+                                    <property name="label" translatable="yes" context="Main window - Trainer">Start</property>
                                     <property name="justify">fill</property>
                                     <attributes>
                                       <attribute name="scale" value="0.80000000000000004"/>
@@ -1256,7 +1256,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="can-focus">False</property>
                                     <property name="opacity">0.80</property>
                                     <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window">Acceleration</property>
+                                    <property name="label" translatable="yes" context="Main window - Trainer">Acceleration</property>
                                     <property name="justify">fill</property>
                                     <attributes>
                                       <attribute name="scale" value="0.80000000000000004"/>
@@ -1298,7 +1298,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes" context="Main window">Trainer</property>
+                            <property name="label" translatable="yes" context="Main window - Trainer">Trainer</property>
                           </object>
                         </child>
                       </object>
