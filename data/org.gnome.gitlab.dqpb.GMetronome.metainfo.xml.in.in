@@ -46,7 +46,7 @@
   <content_rating type="oars-1.1" />
   <releases>
     <release version="0.3.2" date="2023-08-02">
-      <description>
+      <description translate="no">
 	<ul>
 	  <li>Change headerbar layout</li>
 	  <li>Use left click to toggle pendulum phase</li>
@@ -57,7 +57,7 @@
       </description>
     </release>
     <release version="0.3.1" date="2023-07-06">
-      <description>
+      <description translate="no">
 	<ul>
 	  <li>Fixes a problem with the sound theme editor not passing changes to
 	  the audio thread correctly</li>
@@ -67,7 +67,7 @@
       </description>
     </release>
     <release version="0.3.0" date="2023-07-01">
-      <description>
+      <description translate="no">
 	<ul>
 	  <li>Add Tap confidence indicator</li>
 	  <li>Improved Tap / Audio synchronization</li>
@@ -79,7 +79,7 @@
       </description>
     </release>
     <release version="0.2.2" date="2023-05-27">
-      <description>
+      <description translate="no">
 	<ul>
 	  <li>Auto-adjust volume when tapping a tempo</li>
 	  <li>Better sound synchronization when tapping</li>
@@ -88,7 +88,7 @@
       </description>
     </release>
     <release version="0.2.1" date="2023-04-26">
-      <description>
+      <description translate="no">
 	<ul>
 	  <li>Fix crash when changing division on a custom meter</li>
 	  <li>Update app description</li>
