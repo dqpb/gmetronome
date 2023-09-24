@@ -183,6 +183,7 @@ private:
   void updateProfileSelect(const Glib::ustring& id);
   void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
+  void updateTempoRange(const ActionValueRange<double>& range);
   void updateStart(bool running);
   void updateStartButtonLabel(bool running);
 

@@ -874,6 +874,12 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     app->get_action_state(kActionStart, running);
     updateStart(running);
   }
+  else if (action_name.compare(kActionTempoRange) == 0)
+  {
+    ActionValueRange<double> range;
+    app->get_action_state(kActionTempoRange, range);
+    updateTempoRange(range);
+  }
   else if (action_name.compare(kActionProfileList) == 0)
   {
     ProfileList list;
@@ -1041,6 +1047,18 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 void MainWindow::updateTempo(double tempo)
 {
   // nothing
+}
+
+void MainWindow::updateTempoRange(const ActionValueRange<double>& range)
+{
+  tempo_adjustment_->set_lower(std::get<kActionValueRangeMin>(range));
+  tempo_adjustment_->set_upper(std::get<kActionValueRangeMax>(range));
+
+  trainer_start_adjustment_->set_lower(std::get<kActionValueRangeMin>(range));
+  trainer_start_adjustment_->set_upper(std::get<kActionValueRangeMax>(range));
+
+  trainer_target_adjustment_->set_lower(std::get<kActionValueRangeMin>(range));
+  trainer_target_adjustment_->set_upper(std::get<kActionValueRangeMax>(range));
 }
 
 void MainWindow::updateStart(bool running)
