@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2023 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -319,6 +319,23 @@ namespace {
               current_profile_ = nullptr;
             }
           }
+          else if (element_name_lowercase == "tempo")
+          {
+            if (current_block_.top() == "content" && current_profile_)
+            {
+              auto it = std::find_if(attributes.begin(), attributes.end(),
+                                     [] (auto& pair) { return pair.first.lowercase() == "min"; });
+
+              if (it != attributes.end())
+                current_profile_->content.tempo_min = stringToDouble(it->second);
+
+              it = std::find_if(attributes.begin(), attributes.end(),
+                                [] (auto& pair) { return pair.first.lowercase() == "max"; });
+
+              if (it != attributes.end())
+                current_profile_->content.tempo_max = stringToDouble(it->second);
+            }
+          }
           else if (element_name_lowercase == "meter")
           {
             current_block_.push(element_name_lowercase);
@@ -614,7 +631,11 @@ namespace {
     ostream->write(Glib::Markup::escape_text(content.sound_theme_id));
     ostream->write("</ref-id>\n");
     ostream->write("      </sound-theme>\n");
-    ostream->write("      <tempo>");
+    ostream->write("      <tempo min=\"");
+    ostream->write(doubleToString(content.tempo_min));
+    ostream->write("\" max=\"");
+    ostream->write(doubleToString(content.tempo_max));
+    ostream->write("\">");
     ostream->write(doubleToString(content.tempo));
     ostream->write("</tempo>\n");
     ostream->write("      <meter-section>\n");
