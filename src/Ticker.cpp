@@ -182,11 +182,11 @@ namespace audio {
     sync_imported_flag_.clear(std::memory_order_release);
   }
 
-  Ticker::Statistics Ticker::getStatistics()
+  Ticker::Statistics Ticker::getStatistics(bool consume_flag)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      has_stats_ = false;
+      if (consume_flag) has_stats_ = false;
       return out_stats_;
     }
   }

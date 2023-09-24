@@ -93,7 +93,7 @@ namespace audio {
 
     void synchronize(double beat_dev, double tempo_dev);
 
-    Ticker::Statistics getStatistics();
+    Ticker::Statistics getStatistics(bool consume_flag = false);
 
     bool hasStatistics() const;
 
