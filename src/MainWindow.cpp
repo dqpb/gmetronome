@@ -1061,9 +1061,9 @@ void MainWindow::updateStart(bool running)
 void MainWindow::updateStartButtonLabel(bool running)
 {
   if (running)
-    start_button_->set_label(C_("Main window", "_Stop"));
+    start_button_->set_label(C_("Main window", "Stop"));
   else
-    start_button_->set_label(C_("Main window", "_Start"));
+    start_button_->set_label(C_("Main window", "Start"));
 }
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
