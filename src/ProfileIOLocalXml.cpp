@@ -290,6 +290,7 @@ namespace {
           if (element_name_lowercase == "header"
               || element_name_lowercase == "content"
               || element_name_lowercase == "sound-theme"
+              || element_name_lowercase == "tempo-section"
               || element_name_lowercase == "trainer-section"
               || element_name_lowercase == "meter-section")
           {
@@ -317,23 +318,6 @@ namespace {
             else
             {
               current_profile_ = nullptr;
-            }
-          }
-          else if (element_name_lowercase == "tempo")
-          {
-            if (current_block_.top() == "content" && current_profile_)
-            {
-              auto it = std::find_if(attributes.begin(), attributes.end(),
-                                     [] (auto& pair) { return pair.first.lowercase() == "min"; });
-
-              if (it != attributes.end())
-                current_profile_->content.tempo_min = stringToDouble(it->second);
-
-              it = std::find_if(attributes.begin(), attributes.end(),
-                                [] (auto& pair) { return pair.first.lowercase() == "max"; });
-
-              if (it != attributes.end())
-                current_profile_->content.tempo_max = stringToDouble(it->second);
             }
           }
           else if (element_name_lowercase == "meter")
@@ -395,6 +379,7 @@ namespace {
         if (element_name_lowercase == "header"
             || element_name_lowercase == "content"
             || element_name_lowercase == "sound-theme"
+            || element_name_lowercase == "tempo-section"
             || element_name_lowercase == "trainer-section"
             || element_name_lowercase == "meter-section")
         {
@@ -437,6 +422,7 @@ namespace {
             }
             else if (current_block_.top() == "content")
             {
+              // for compatibility reasons (version <= 0.3.2)
               if (element_name_lowercase == "tempo")
                 current_profile_->content.tempo = stringToDouble(text);
             }
@@ -444,6 +430,15 @@ namespace {
             {
               if (element_name_lowercase == "ref-id")
                 current_profile_->content.sound_theme_id = text;
+            }
+            else if (current_block_.top() == "tempo-section")
+            {
+              if (element_name_lowercase == "tempo")
+                current_profile_->content.tempo = stringToDouble(text);
+              else if (element_name_lowercase == "minimum")
+                current_profile_->content.tempo_min = stringToDouble(text);
+              else if (element_name_lowercase == "maximum")
+                current_profile_->content.tempo_max = stringToDouble(text);
             }
             else if (current_block_.top() == "meter-section")
             {
@@ -631,13 +626,19 @@ namespace {
     ostream->write(Glib::Markup::escape_text(content.sound_theme_id));
     ostream->write("</ref-id>\n");
     ostream->write("      </sound-theme>\n");
-    ostream->write("      <tempo min=\"");
-    ostream->write(doubleToString(content.tempo_min));
-    ostream->write("\" max=\"");
-    ostream->write(doubleToString(content.tempo_max));
-    ostream->write("\">");
+    ostream->write("      <tempo-section>\n");
+    ostream->write("        <tempo>");
     ostream->write(doubleToString(content.tempo));
     ostream->write("</tempo>\n");
+    ostream->write("        <range>\n");
+    ostream->write("          <minimum>");
+    ostream->write(doubleToString(content.tempo_min));
+    ostream->write("</minimum>\n");
+    ostream->write("          <maximum>");
+    ostream->write(doubleToString(content.tempo_max));
+    ostream->write("</maximum>\n");
+    ostream->write("        </range>\n");
+    ostream->write("      </tempo-section>\n");
     ostream->write("      <meter-section>\n");
     ostream->write("        <enabled>");
     ostream->write(boolToString(content.meter_enabled));
