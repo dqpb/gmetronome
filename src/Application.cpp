@@ -966,6 +966,10 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
 
 void Application::convertActionToProfile(Profile::Content& content)
 {
+  ActionValueRange<double> range;
+  get_action_state(kActionTempoRange, range);
+  std::tie(content.tempo_min, content.tempo_max) = range;
+
   get_action_state(kActionTempo, content.tempo);
   get_action_state(kActionMeterEnabled, content.meter_enabled);
 
@@ -991,6 +995,9 @@ void Application::convertActionToProfile(Profile::Content& content)
 
 void Application::convertProfileToAction(const Profile::Content& content)
 {
+  activate_action(kActionTempoRange,
+                  Glib::Variant<ActionValueRange<double>>::create(
+                    {content.tempo_min, content.tempo_max}) );
   activate_action(kActionTempo,
                   Glib::Variant<double>::create(content.tempo) );
   change_action_state(kActionMeterEnabled,
