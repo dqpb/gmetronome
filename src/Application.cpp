@@ -123,6 +123,7 @@ void Application::initActions()
       {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
 
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
+      {kActionTempoRange,      sigc::mem_fun(*this, &Application::onTempoRange)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
       {kActionTempoChange,     sigc::mem_fun(*this, &Application::onTempoChange)},
       {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
@@ -652,6 +653,65 @@ void Application::onVolumeChange(const Glib::VariantBase& value)
   auto [new_volume, valid] = validateVolume(current_volume + delta_volume);
 
   settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
+}
+
+void Application::onTempoRange(const Glib::VariantBase& value)
+{
+  ActionValueRange<double> in_range =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<ActionValueRange<double>>>(value).get();
+
+  auto [out_range,_] = validateTempoRange(in_range);
+
+  auto new_state = Glib::Variant<ActionValueRange<double>>::create(out_range);
+
+  // set up new state hints
+  lookupSimpleAction(kActionTempo)->set_state_hint(new_state);
+  lookupSimpleAction(kActionTrainerStart)->set_state_hint(new_state);
+  lookupSimpleAction(kActionTrainerTarget)->set_state_hint(new_state);
+
+  lookupSimpleAction(kActionTempoRange)->set_state(new_state);
+
+  double tmp = 0.0;
+
+  lookupSimpleAction(kActionTempo)->get_state(tmp);
+  auto [valid_tempo, valid] = validateTempo(tmp);
+  if (!valid)
+  {
+    Glib::Variant<double> new_tempo_state
+      = Glib::Variant<double>::create(valid_tempo);
+
+    lookupSimpleAction(kActionTempo)->set_state(new_tempo_state);
+  }
+
+  if (audio::TickerState state = ticker_.state();
+      state.test(audio::TickerStateFlag::kRunning) && !state.test(audio::TickerStateFlag::kError))
+  {
+    auto ticker_stats = ticker_.getStatistics();
+    if (auto [valid_ticker_tempo, valid] = validateTempo(ticker_stats.tempo); !valid)
+    {
+      ticker_.setTempo(valid_ticker_tempo);
+    }
+  }
+  else
+    ticker_.setTempo(valid_tempo);
+
+  lookupSimpleAction(kActionTrainerStart)->get_state(tmp);
+  if (auto [valid_trainer_start, valid] = validateTrainerStart(tmp); !valid)
+  {
+    Glib::Variant<double> new_state
+      = Glib::Variant<double>::create(valid_trainer_start);
+
+    activate_action(kActionTrainerStart, new_state);
+  }
+
+  lookupSimpleAction(kActionTrainerTarget)->get_state(tmp);
+  if (auto [valid_trainer_target, valid] = validateTrainerTarget(tmp); !valid)
+  {
+    Glib::Variant<double> new_state
+      = Glib::Variant<double>::create(valid_trainer_target);
+
+    activate_action(kActionTrainerTarget, new_state);
+  }
 }
 
 void Application::onTempo(const Glib::VariantBase& value)
@@ -1329,7 +1389,7 @@ bool Application::onStatsTimer()
   {
     if (ticker_.hasStatistics())
     {
-      audio::Ticker::Statistics stats = ticker_.getStatistics();
+      audio::Ticker::Statistics stats = ticker_.getStatistics(true);
       signal_ticker_statistics_.emit(stats);
     }
     return true;
@@ -1394,6 +1454,18 @@ std::pair<T,bool> validateRange(T value, const T& min, const T& max)
 {
   T ret = std::clamp(value, min, max);
   return { ret, value == ret };
+}
+
+std::pair<ActionValueRange<double>,bool>
+Application::validateTempoRange(ActionValueRange<double> value)
+{
+  double min_in = std::get<kActionValueRangeMin>(value);
+  double max_in = std::get<kActionValueRangeMax>(value);
+
+  double min_out = std::clamp(min_in, Profile::kMinTempo, Profile::kMaxTempo);
+  double max_out = std::clamp(max_in, min_out, Profile::kMaxTempo);
+
+  return {{min_out, max_out}, (min_in == min_out && max_in == max_out)};
 }
 
 std::pair<double,bool> Application::validateTempo(double value)

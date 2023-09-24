@@ -107,6 +107,7 @@ private:
   void onVolumeChange(const Glib::VariantBase& value);
 
   // Tempo
+  void onTempoRange(const Glib::VariantBase& value);
   void onTempo(const Glib::VariantBase& value);
   void onTempoChange(const Glib::VariantBase& value);
   void onTempoTap(const Glib::VariantBase& value);
@@ -176,6 +177,7 @@ private:
   void dropVolume(double drop);
 
   // Input validation
+  std::pair<ActionValueRange<double>,bool> validateTempoRange(ActionValueRange<double> value);
   std::pair<double,bool> validateTempo(double value);
   std::pair<double,bool> validateTrainerStart(double value);
   std::pair<double,bool> validateTrainerTarget(double value);
