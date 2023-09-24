@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gmetronome 0.2.2\n"
+"Project-Id-Version: gmetronome 0.3.3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-08-03 18:26+0200\n"
-"PO-Revision-Date: 2023-08-03 20:15+0200\n"
+"POT-Creation-Date: 2023-09-24 21:52+0200\n"
+"PO-Revision-Date: 2023-09-24 22:09+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -30,7 +30,7 @@ msgstr "Das GMetronome Team"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:9
 msgid "A tempo measurement tool for composers and musicians"
-msgstr "Ein praktischer Taktmesser für Komponisten und Musiker"
+msgstr "Ein Taktmesser für Komponisten und Musiker"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
 msgid ""
@@ -83,6 +83,14 @@ msgstr "Einstellbare Tastenkürzel"
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:29
 msgid "The main window"
 msgstr "Das Hauptfenster"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:34
+msgid "Metronome"
+msgstr "Metronom"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:35
+msgid "Music"
+msgstr "Musik"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
 msgid "Play a steady rhythm"
@@ -214,99 +222,99 @@ msgid "Application menu"
 msgstr "Hauptmenü"
 
 #: src/resources/ui/MainWindow.glade:800
-msgctxt "Main window"
+msgctxt "Main window - Tempo"
 msgid "Tap"
 msgstr "Klopfen"
 
 #: src/resources/ui/MainWindow.glade:836
-msgctxt "Main window"
+msgctxt "Main window - Tempo"
 msgid "Tempo"
 msgstr "Tempo"
 
 #: src/resources/ui/MainWindow.glade:886
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "Beats"
 msgstr "Schläge"
 
 #: src/resources/ui/MainWindow.glade:932
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "Meter"
 msgstr "Metrum"
 
 #: src/resources/ui/MainWindow.glade:949
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "2/4"
 msgstr "2/4"
 
 #: src/resources/ui/MainWindow.glade:950
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "3/4"
 msgstr "3/4"
 
 #: src/resources/ui/MainWindow.glade:951
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "4/4"
 msgstr "4/4"
 
 #: src/resources/ui/MainWindow.glade:953
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "6/8"
 msgstr "6/8"
 
 #: src/resources/ui/MainWindow.glade:954
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "9/8"
 msgstr "9/8"
 
 #: src/resources/ui/MainWindow.glade:955
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "12/8"
 msgstr "12/8"
 
 #: src/resources/ui/MainWindow.glade:957
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "Custom"
 msgstr "Eigenes"
 
 #: src/resources/ui/MainWindow.glade:986
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "Division"
 msgstr "Teilung"
 
 #: src/resources/ui/MainWindow.glade:1120
-msgctxt "Main window"
+msgctxt "Main window - Accents"
 msgid "Accents"
 msgstr "Betonung"
 
 #: src/resources/ui/MainWindow.glade:1165
-msgctxt "Main window"
+msgctxt "Main window - Trainer"
 msgid "Target"
 msgstr "Ziel"
 
 #: src/resources/ui/MainWindow.glade:1212
-msgctxt "Main window"
+msgctxt "Main window - Trainer"
 msgid "Start"
 msgstr "Start"
 
 #: src/resources/ui/MainWindow.glade:1259
-msgctxt "Main window"
+msgctxt "Main window - Trainer"
 msgid "Acceleration"
 msgstr "Beschleunigung"
 
 #: src/resources/ui/MainWindow.glade:1301
-msgctxt "Main window"
+msgctxt "Main window - Trainer"
 msgid "Trainer"
 msgstr "Trainer"
 
 #: src/MainWindow.cpp:1064
 msgctxt "Main window"
-msgid "_Stop"
-msgstr "_Stop"
+msgid "Stop"
+msgstr "Stop"
 
 #: src/MainWindow.cpp:1066
 msgctxt "Main window"
-msgid "_Start"
-msgstr "_Start"
+msgid "Start"
+msgstr "Start"
 
 #: src/resources/ui/SettingsDialog.glade:62
 msgctxt "Preferences dialog"
