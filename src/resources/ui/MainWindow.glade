@@ -738,7 +738,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="margin-top">10</property>
                     <property name="label-xalign">0.019999999552965164</property>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="tempoBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="margin-start">10</property>
@@ -747,95 +747,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                         <property name="margin-bottom">10</property>
                         <property name="spacing">10</property>
                         <child>
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="valign">center</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkScale" id="tempoScale">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="valign">start</property>
-                                <property name="adjustment">tempoAdjustment</property>
-                                <property name="restrict-to-fill-level">False</property>
-                                <property name="fill-level">120</property>
-                                <property name="round-digits">0</property>
-                                <property name="digits">0</property>
-                                <property name="draw-value">False</property>
-                                <property name="has-origin">False</property>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="pack-type">end</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="tempoScaleBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="baseline-position">bottom</property>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">30</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">250</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="pack-type">end</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="tempoSpinButton">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="max-length">9</property>
-                            <property name="input-purpose">number</property>
-                            <property name="adjustment">tempoAdjustment</property>
-                            <property name="digits">2</property>
-                            <property name="numeric">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
                           <object class="GtkEventBox" id="tapEventBox">
@@ -881,6 +793,24 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="tempoSpinButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="max-length">9</property>
+                            <property name="input-purpose">number</property>
+                            <property name="adjustment">tempoAdjustment</property>
+                            <property name="digits">2</property>
+                            <property name="numeric">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
                             <property name="position">2</property>
                           </packing>
                         </child>

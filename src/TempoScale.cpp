@@ -17,7 +17,7 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TempoMarkings.h"
+#include "TempoScale.h"
 #include "Error.h"
 
 #include <cmath>
@@ -43,7 +43,12 @@ bool TempoRange::validate(double min, double max)
      && max >= min;
 }
 
-Gdk::RGBA TempoMarkings::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
+TempoScale::TempoScale() : Gtk::Scale(Gtk::ORIENTATION_HORIZONTAL)
+{
+  // nothing
+}
+
+Gdk::RGBA TempoScale::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
 {
   Gtk::StateFlags widget_state = context->get_state();
   Gdk::RGBA color = context->get_color(widget_state);
@@ -51,7 +56,7 @@ Gdk::RGBA TempoMarkings::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context
   return color;
 }
 
-Gdk::RGBA TempoMarkings::getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
+Gdk::RGBA TempoScale::getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
 {
   Gtk::StateFlags widget_state = context->get_state();
   Gdk::RGBA color = context->get_color(widget_state | Gtk::STATE_FLAG_LINK);
@@ -62,7 +67,7 @@ Cairo::RefPtr<Cairo::ImageSurface> createScaleSurface()
 {
   int surface_width = 300;
   int surface_height = 20;
-    
+
   auto surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
                                              surface_width,
                                              surface_height);
@@ -76,7 +81,7 @@ Cairo::RefPtr<Cairo::ImageSurface> createScaleSurface()
   cr->stroke();
 
   int m = 2.0;
-  
+
   std::vector<double> dash5 = {1.0, 4.0 * m + m - 1};
   std::vector<double> dash10 = {1.0, 9.0 * m + m - 1};
   std::vector<double> dash50 = {1.0, 49.0 * m + m - 1};
@@ -105,7 +110,7 @@ Cairo::RefPtr<Cairo::ImageSurface> createScaleSurface()
 }
 
 
-bool TempoMarkings::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
+bool TempoScale::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
   auto style_context = get_style_context();
 
@@ -122,29 +127,29 @@ bool TempoMarkings::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   front_pattern->add_color_stop_rgba(1.0, 0.0, 0.0, 0.0, 0.0);
 
   auto source_surface = createScaleSurface();
-  
+
   cr->set_source(source_surface, 0.0, 0.0);
 
   cr->mask(front_pattern);
 
-  return true;
+  return Gtk::Scale::on_draw(cr);
 }
 
-
-Gtk::SizeRequestMode TempoMarkings::get_request_mode_vfunc() const
+/*
+Gtk::SizeRequestMode TempoScale::get_request_mode_vfunc() const
 {
   //Accept the default value supplied by the base class.
   return Gtk::Widget::get_request_mode_vfunc();
 }
 
-void TempoMarkings::get_preferred_width_vfunc(int& minimum_width,
+void TempoScale::get_preferred_width_vfunc(int& minimum_width,
                                               int& natural_width) const
 {
   minimum_width = 60;
   natural_width = 100;
 }
 
-void TempoMarkings::get_preferred_height_for_width_vfunc(int width,
+void TempoScale::get_preferred_height_for_width_vfunc(int width,
                                                          int& minimum_height,
                                                          int& natural_height) const
 {
@@ -152,14 +157,14 @@ void TempoMarkings::get_preferred_height_for_width_vfunc(int width,
   natural_height = 20;
 }
 
-void TempoMarkings::get_preferred_height_vfunc(int& minimum_height,
+void TempoScale::get_preferred_height_vfunc(int& minimum_height,
                                                int& natural_height) const
 {
   minimum_height = 20;
   natural_height = 20;
 }
 
-void TempoMarkings::get_preferred_width_for_height_vfunc(int height,
+void TempoScale::get_preferred_width_for_height_vfunc(int height,
                                                          int& minimum_width,
                                                          int& natural_width) const
 {
@@ -167,7 +172,7 @@ void TempoMarkings::get_preferred_width_for_height_vfunc(int height,
   natural_width = 100;
 }
 
-void TempoMarkings::on_size_allocate(Gtk::Allocation& allocation)
+void TempoScale::on_size_allocate(Gtk::Allocation& allocation)
 {
   //Do something with the space that we have actually been given:
   //(We will not be given heights or widths less than we have requested, though
@@ -183,19 +188,19 @@ void TempoMarkings::on_size_allocate(Gtk::Allocation& allocation)
   }
 }
 
-void TempoMarkings::on_map()
+void TempoScale::on_map()
 {
   // call base class:
   Gtk::Widget::on_map();
 }
 
-void TempoMarkings::on_unmap()
+void TempoScale::on_unmap()
 {
   // call base class:
   Gtk::Widget::on_unmap();
 }
 
-void TempoMarkings::on_realize()
+void TempoScale::on_realize()
 {
   //Do not call base class Gtk::Widget::on_realize().
   //It's intended only for widgets that set_has_window(false).
@@ -235,10 +240,11 @@ void TempoMarkings::on_realize()
   }
 }
 
-void TempoMarkings::on_unrealize()
+void TempoScale::on_unrealize()
 {
   gdk_window_.reset();
 
   // call base class:
   Gtk::Widget::on_unrealize();
 }
+*/

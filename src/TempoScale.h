@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_TempoMarkings_h
-#define GMetronome_TempoMarkings_h
+#ifndef GMetronome_TempoScale_h
+#define GMetronome_TempoScale_h
 
 #include <gtkmm.h>
 #include <tuple>
@@ -74,11 +74,13 @@ private:
 };
 
 /**
- * @class TempoMarkings
+ * @class TempoScale
  *
  */
-class TempoMarkings : public Gtk::Widget {
+class TempoScale : public Gtk::Scale {
 public:
+  // ctor
+  TempoScale();
 
   void setMarkings(std::vector<Marking> markings);
 
@@ -92,31 +94,31 @@ private:
   Gdk::RGBA getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
 
 private:
-  Glib::RefPtr<Gdk::Window> gdk_window_;
+  // Glib::RefPtr<Gdk::Window> gdk_window_;
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
-  Gtk::SizeRequestMode get_request_mode_vfunc() const override;
+  // Gtk::SizeRequestMode get_request_mode_vfunc() const override;
 
-  void get_preferred_width_vfunc(int& minimum_width,
-                                 int& natural_width) const override;
+  // void get_preferred_width_vfunc(int& minimum_width,
+  //                                int& natural_width) const override;
 
-  void get_preferred_height_for_width_vfunc(int width,
-                                            int& minimum_height,
-                                            int& natural_height) const  override;
+  // void get_preferred_height_for_width_vfunc(int width,
+  //                                           int& minimum_height,
+  //                                           int& natural_height) const  override;
 
-  void get_preferred_height_vfunc(int& minimum_height,
-                                  int& natural_height) const override;
+  // void get_preferred_height_vfunc(int& minimum_height,
+  //                                 int& natural_height) const override;
 
-  void get_preferred_width_for_height_vfunc(int height,
-                                            int& minimum_width,
-                                            int& natural_width) const override;
+  // void get_preferred_width_for_height_vfunc(int height,
+  //                                           int& minimum_width,
+  //                                           int& natural_width) const override;
 
-  void on_size_allocate(Gtk::Allocation& allocation) override;
-  void on_map() override;
-  void on_unmap() override;
-  void on_realize() override;
-  void on_unrealize() override;
+  // void on_size_allocate(Gtk::Allocation& allocation) override;
+  // void on_map() override;
+  // void on_unmap() override;
+  // void on_realize() override;
+  // void on_unrealize() override;
 };
 
-#endif//GMetronome_TempoMarkings_h
+#endif//GMetronome_TempoScale_h
