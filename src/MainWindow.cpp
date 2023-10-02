@@ -162,6 +162,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("trainerFrame", trainer_frame_);
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
+  builder_->get_widget("tempoScaleBox", tempo_scale_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
   builder_->get_widget("tapEventBox", tap_event_box_);
   builder_->get_widget("tapLevelBar", tap_level_bar_);
@@ -255,13 +256,18 @@ void MainWindow::initUI()
   pendulum_.show();
 
   // initialize tempo interface
-  Glib::ustring mark_30 = Glib::ustring::format(30);
-  Glib::ustring mark_120= Glib::ustring::format(120);
-  Glib::ustring mark_250 = Glib::ustring::format(250);
+  tempo_scale_box_->pack_end(tempo_markings_, Gtk::PACK_EXPAND_WIDGET);
+  tempo_markings_.set_valign(Gtk::ALIGN_END);
+  tempo_markings_.set_halign(Gtk::ALIGN_FILL);
+  tempo_markings_.show();
+  
+  // Glib::ustring mark_30 = Glib::ustring::format(30);
+  // Glib::ustring mark_120= Glib::ustring::format(120);
+  // Glib::ustring mark_250 = Glib::ustring::format(250);
 
-  tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, mark_30);
-  tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, mark_120);
-  tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, mark_250);
+  // tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, mark_30);
+  // tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, mark_120);
+  // tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, mark_250);
 
   tempo_scale_->set_round_digits(0);
 

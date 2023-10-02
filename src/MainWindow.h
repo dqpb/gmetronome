@@ -25,6 +25,7 @@
 #include "Message.h"
 #include "Pendulum.h"
 #include "AccentButtonGrid.h"
+#include "TempoMarkings.h"
 #include "About.h"
 
 #include <gtkmm.h>
@@ -104,6 +105,7 @@ private:
   Gtk::Frame* trainer_frame_;
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
+  Gtk::Box* tempo_scale_box_;
   Gtk::Scale* tempo_scale_;
   Gtk::EventBox* tap_event_box_;
   Gtk::LevelBar* tap_level_bar_;
@@ -116,6 +118,7 @@ private:
   Gtk::RadioButton* subdiv_3_radio_button_;
   Gtk::RadioButton* subdiv_4_radio_button_;
   Gtk::Label* subdiv_label_;
+  TempoMarkings tempo_markings_;
   AccentButtonGrid accent_button_grid_;
   Pendulum pendulum_;
 
