@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.3.3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2023-09-24 21:52+0200\n"
-"PO-Revision-Date: 2023-09-24 22:09+0200\n"
+"POT-Creation-Date: 2024-01-22 17:38+0100\n"
+"PO-Revision-Date: 2024-01-22 17:41+0100\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
@@ -132,6 +132,12 @@ msgstr "Neues Profil"
 msgctxt "Profile"
 msgid "Untitled Profile"
 msgstr "Unbenanntes Profil"
+
+#. title of duplicated profiles, %1 will be replaced by the old title
+#: src/Profile.h:42
+msgctxt "Profile"
+msgid "%1 (copy)"
+msgstr "%1 (Kopie)"
 
 #: src/resources/ui/MainWindow.glade:147
 msgctxt "Message bar"
@@ -306,12 +312,12 @@ msgctxt "Main window - Trainer"
 msgid "Trainer"
 msgstr "Trainer"
 
-#: src/MainWindow.cpp:1064
+#: src/MainWindow.cpp:1116
 msgctxt "Main window"
 msgid "Stop"
 msgstr "Stop"
 
-#: src/MainWindow.cpp:1066
+#: src/MainWindow.cpp:1118
 msgctxt "Main window"
 msgid "Start"
 msgstr "Start"
@@ -505,23 +511,23 @@ msgid "Preferences"
 msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:193
+#: src/SettingsDialog.cpp:194
 msgctxt "Preferences dialog"
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:199
+#: src/SettingsDialog.cpp:200
 msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr "Tastenkürzel"
 
-#: src/SettingsDialog.cpp:608
+#: src/SettingsDialog.cpp:595
 msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr "Voreinstellungen"
 
-#: src/SettingsDialog.cpp:623
+#: src/SettingsDialog.cpp:610
 msgctxt "Preferences dialog"
 msgid "Custom"
 msgstr "Eigenes"
