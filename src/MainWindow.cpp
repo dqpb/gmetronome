@@ -1060,7 +1060,16 @@ void MainWindow::updateProfileSelect(const Glib::ustring& id)
   profile_selection_changed_connection_.block();
   {
     if (it!=rows.end())
-      profile_tree_view_->get_selection()->select(it);
+    {
+      auto selection = profile_tree_view_->get_selection();
+      selection->select(it);
+
+      if (auto selected_rows = selection->get_selected_rows();
+          !selected_rows.empty())
+      {
+        profile_tree_view_->scroll_to_row(selected_rows.front());
+      }
+    }
     else
       profile_tree_view_->get_selection()->unselect_all();
   }
