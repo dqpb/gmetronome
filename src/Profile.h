@@ -38,6 +38,8 @@ struct Profile
   static inline const std::string kDefaultTitle            = C_("Profile", "New Profile");
   // placeholder title for untitled profiles
   static inline const std::string kDefaultTitlePlaceholder = C_("Profile", "Untitled Profile");
+  // title of duplicated profiles, %1 will be replaced by the old title
+  static inline const std::string kDefaultTitleDuplicate   = C_("Profile", "%1 (copy)");
   // default description for new profiles
   static inline const std::string kDefaultDescription      = "";
 

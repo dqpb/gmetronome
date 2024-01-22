@@ -113,6 +113,38 @@ MainWindow* MainWindow::create()
   return window;
 }
 
+//static
+Glib::ustring MainWindow::duplicateDocumentTitle(const Glib::ustring& title_old,
+                                                 const Glib::ustring& title_duplicate_fmt,
+                                                 const Glib::ustring& title_placeholder)
+{
+  Glib::ustring title_new;
+
+  if (!title_old.empty())
+  {
+    // compose a new title from the old title;
+    // if the current title is itself a composition we don't change it
+    const auto regex = Glib::Regex::create("%1");
+    const auto pattern
+      = Glib::ustring("\\A")
+      + regex->replace(Glib::Regex::escape_string(title_duplicate_fmt), 0,
+                       ".*", static_cast<Glib::RegexMatchFlags>(0))
+      + Glib::ustring("\\Z");
+
+    if (!Glib::Regex::match_simple(pattern, title_old))
+      title_new = Glib::ustring::compose(title_duplicate_fmt, title_old);
+    else
+      title_new = title_old;
+  }
+  else // old title is empty
+  {
+    // compose the duplicate from the placeholder title
+    title_new = Glib::ustring::compose(title_duplicate_fmt,
+                                       title_placeholder);
+  }
+  return title_new;
+}
+
 MainWindow::MainWindow(BaseObjectType* cobject,
                        const Glib::RefPtr<Gtk::Builder>& builder)
   : Gtk::ApplicationWindow(cobject),
@@ -193,7 +225,8 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   accent_button_grid_.show();
   accent_box_->pack_start(accent_button_grid_);
 
-  profile_title_new_ = gettext(Profile::kDefaultTitle.c_str());
+  profile_title_default_ = gettext(Profile::kDefaultTitle.c_str());
+  profile_title_duplicate_ = gettext(Profile::kDefaultTitleDuplicate.c_str());
   profile_title_placeholder_ = gettext(Profile::kDefaultTitlePlaceholder.c_str());
 
   profile_list_store_ = ProfileListStore::create();
@@ -839,9 +872,28 @@ void MainWindow::onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
 
 void MainWindow::onProfileNew()
 {
-  static const auto title = Glib::Variant<Glib::ustring>::create(profile_title_new_);
-  Gtk::Application::get_default()
-    ->activate_action(kActionProfileNew, title);
+  auto app = Gtk::Application::get_default();
+
+  Glib::ustring id;
+  app->get_action_state(kActionProfileSelect, id);
+
+  bool has_selected_profile = !id.empty();
+
+  Glib::ustring new_title;
+  if (has_selected_profile) {
+
+    Glib::ustring old_title;
+    app->get_action_state(kActionProfileTitle, old_title);
+
+    new_title = duplicateDocumentTitle(old_title,
+                                       profile_title_duplicate_,
+                                       profile_title_placeholder_);
+  }
+  else // no selected profile
+    new_title = profile_title_default_;
+
+  const auto new_title_variant = Glib::Variant<Glib::ustring>::create(new_title);
+  app->activate_action(kActionProfileNew, new_title_variant);
 }
 
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,

@@ -45,6 +45,9 @@ public:
 
   static MainWindow* create();
 
+  static Glib::ustring duplicateDocumentTitle(const Glib::ustring& title_old,
+                                              const Glib::ustring& title_duplicate_fmt,
+                                              const Glib::ustring& title_placeholder);
 private:
   Glib::RefPtr<Gtk::Builder> builder_;
 
@@ -127,7 +130,8 @@ private:
 
   Glib::RefPtr<ProfileListStore> profile_list_store_;
 
-  Glib::ustring profile_title_new_;
+  Glib::ustring profile_title_default_;
+  Glib::ustring profile_title_duplicate_;
   Glib::ustring profile_title_placeholder_;
 
   // cached preferences
