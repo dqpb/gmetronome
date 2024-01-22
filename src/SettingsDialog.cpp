@@ -27,6 +27,7 @@
 #include "Shortcut.h"
 #include "AudioBackend.h"
 #include "SoundThemeEditor.h"
+#include "MainWindow.h"
 
 #include <glibmm/i18n.h>
 #include <cassert>
@@ -413,23 +414,9 @@ void SettingsDialog::onSoundThemeAdd()
       // duplicate the selected sound theme
       auto theme = settings::soundThemes()->get(theme_id);
 
-      if (!theme.title.empty())
-      {
-        // compose a new title from the old title;
-        // if the current title is itself a composition we don't change it
-        static const auto regex = Glib::Regex::create("%1");
-        static const auto pattern
-          = Glib::ustring("\\A")
-          + regex->replace(Glib::Regex::escape_string(sound_theme_title_duplicate_), 0,
-                           ".*", static_cast<Glib::RegexMatchFlags>(0))
-          + Glib::ustring("\\Z");
-
-        if (!Glib::Regex::match_simple(pattern, theme.title))
-          theme.title = Glib::ustring::compose(sound_theme_title_duplicate_, theme.title);
-      }
-      else
-        theme.title = Glib::ustring::compose(sound_theme_title_duplicate_,
-                                             sound_theme_title_placeholder_);
+      theme.title = MainWindow::duplicateDocumentTitle(theme.title,
+                                                       sound_theme_title_duplicate_,
+                                                       sound_theme_title_placeholder_);
 
       theme_id = settings::soundThemes()->append(theme);
     }
