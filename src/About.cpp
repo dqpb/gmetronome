@@ -34,7 +34,7 @@ GMetronomeAboutDialog::GMetronomeAboutDialog()
   set_program_name(Glib::get_application_name());
   set_version(VERSION);
   set_license_type(Gtk::LICENSE_GPL_3_0);
-  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2023"});
+  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2024"});
 
   //Put one translator per line, in the form
   //NAME <EMAIL>, YEAR1, YEAR2
