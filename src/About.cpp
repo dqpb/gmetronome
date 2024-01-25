@@ -29,7 +29,7 @@ GMetronomeAboutDialog::GMetronomeAboutDialog()
   set_icon_name(PACKAGE_ID);
 
   // year of last commit
-  static const int year = 2023;
+  static const int year = 2024;
 
   set_program_name(Glib::get_application_name());
   set_version(VERSION);
