@@ -167,6 +167,9 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("popoverMenu", popover_menu_);
   builder_->get_widget("profileMenuButton", profile_menu_button_);
   builder_->get_widget("profilePopover", profile_popover_);
+  builder_->get_widget("profileMainBox", profile_main_box_);
+  builder_->get_widget("profileHeaderBox", profile_header_box_);
+  builder_->get_widget("profileScrolledWindow", profile_scrolled_window_);
   builder_->get_widget("profileTreeView", profile_tree_view_);
   builder_->get_widget("profileNewButton", profile_new_button_);
   builder_->get_widget("profileDeleteButton", profile_delete_button_);
@@ -232,6 +235,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   profile_list_store_ = ProfileListStore::create();
   profile_tree_view_->set_model(profile_list_store_);
   profile_tree_view_->append_column_editable("Title", profile_list_store_->columns_.title_);
+  profile_tree_view_->get_column(0)->set_sizing(Gtk::TREE_VIEW_COLUMN_AUTOSIZE);
   profile_tree_view_->enable_model_drag_source();
   profile_tree_view_->enable_model_drag_dest();
 
@@ -521,6 +525,70 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
   return true;
 }
 
+bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
+{
+  Gtk::Window::on_configure_event(configure_event);
+
+  if (profile_popover_->is_visible())
+    resizeProfilePopover();
+
+  return false;
+}
+
+int MainWindow::estimateProfileTreeViewRowHeight() const
+{
+  Gtk::TreeViewColumn* col = profile_tree_view_->get_column(0);
+
+  Gdk::Rectangle rect(0,0,0,0);
+  int cell_x_offset, cell_y_offset, cell_width, cell_height;
+
+  col->cell_get_size(rect, cell_x_offset, cell_y_offset, cell_width, cell_height);
+
+  int xpad, ypad;
+  Gtk::CellRenderer* renderer = col->get_first_cell();
+  renderer->get_padding(xpad, ypad);
+
+  int row_height = cell_height + ypad;
+
+  return row_height;
+}
+
+void MainWindow::resizeProfilePopover(bool process_pending)
+{
+  static const Gtk::Requisition kPopoverPreferredMinSize {220, 260};
+
+  if (process_pending)
+  {
+    // under certain circumstances this may be necessary to update
+    // widget sizes, especially the natural size of the tree view
+    while (gtk_events_pending ())
+      gtk_main_iteration ();
+  }
+
+  Gtk::Requisition win_size;
+  Gtk::Window::get_size(win_size.width, win_size.height);
+
+  Gtk::Requisition header_min_size, header_nat_size;
+  profile_header_box_->get_preferred_size(header_min_size, header_nat_size);
+
+  Gtk::Requisition tv_min_size, tv_nat_size;
+  profile_tree_view_->get_preferred_size(tv_min_size, tv_nat_size);
+
+  int tv_row_height = estimateProfileTreeViewRowHeight();
+
+  int po_height =
+    std::min(win_size.height, std::max(kPopoverPreferredMinSize.height,
+                                       header_nat_size.height
+                                       + tv_nat_size.height
+                                       + tv_row_height
+                                       + 50));
+  int po_width =
+    std::min(win_size.width, std::max(kPopoverPreferredMinSize.width,
+                                      tv_nat_size.width + 50));
+
+  profile_popover_->set_size_request(po_width, po_height);
+}
+
 bool MainWindow::onTempoTap(GdkEventButton* button_event)
 {
   if (button_event->type != GDK_2BUTTON_PRESS
@@ -546,6 +614,8 @@ void MainWindow::onProfileShow()
     profile_tree_view_->property_has_focus() = true;
   else
     profile_new_button_->property_has_focus() = true;
+
+  resizeProfilePopover();
 }
 
 void MainWindow::onProfileHide()
@@ -935,6 +1005,9 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     Glib::ustring id;
     app->get_action_state(kActionProfileSelect, id);
     updateProfileSelect(id);
+
+    if (profile_popover_->is_visible())
+      resizeProfilePopover(true);
   }
   else if (action_name.compare(kActionProfileSelect) == 0)
   {

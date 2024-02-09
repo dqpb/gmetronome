@@ -79,7 +79,10 @@ private:
   Gtk::MenuButton* main_menu_button_;
   Gtk::PopoverMenu* popover_menu_;
   Gtk::MenuButton* profile_menu_button_;
+  Gtk::Box* profile_main_box_;
+  Gtk::Box* profile_header_box_;
   Gtk::Popover* profile_popover_;
+  Gtk::ScrolledWindow* profile_scrolled_window_;
   Gtk::TreeView* profile_tree_view_;
   Gtk::Button* profile_new_button_;
   Gtk::Button* profile_delete_button_;
@@ -149,6 +152,10 @@ private:
 
   // Override window signal handler
   bool on_window_state_event(GdkEventWindowState* window_state_event) override;
+  bool on_configure_event(GdkEventConfigure* configure_event) override;
+
+  int estimateProfileTreeViewRowHeight() const;
+  void resizeProfilePopover(bool process_pending = false);
 
   // Window actions
   void onShowPrimaryMenu(const Glib::VariantBase& value);
