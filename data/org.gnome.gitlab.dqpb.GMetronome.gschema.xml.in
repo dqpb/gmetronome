@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (C) 2020-2023 The GMetronome Team
+ Copyright (C) 2020-2024 The GMetronome Team
 
  This file is part of GMetronome.
 
@@ -836,6 +836,13 @@
       <!-- Default shortcut to toggle the pendulum phase -->
       <default l10n="messages" context="Default shortcut">'p'</default>
       <summary>Keyboard shortcut to toggle the pendulum phase</summary>
+    </key>
+    <key name="tempo-quick-set-mode" type="b">
+      <default>true</default>
+      <summary>Wheather tempo quick set mode is enabled</summary>
+      <description>
+	If true, just pressing a numeric key can be used to set the tempo.
+      </description>
     </key>
   </schema>
 

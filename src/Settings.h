@@ -236,6 +236,7 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsMeterSelectCustom      {"meter-select-custom"};
   inline const Glib::ustring  kKeyShortcutsTrainerEnabled         {"trainer-enabled"};
   inline const Glib::ustring  kKeyShortcutsPendulumTogglePhase    {"pendulum-toggle-phase"};
+  inline const Glib::ustring  kKeyShortcutsTempoQuickSetMode      {"tempo-quick-set-mode"};
 
   /*
    * .state keys
