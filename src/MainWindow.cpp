@@ -198,6 +198,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
+  builder_->get_widget("tempoSpinButton", tempo_spin_button_);
   builder_->get_widget("tapEventBox", tap_event_box_);
   builder_->get_widget("tapLevelBar", tap_level_bar_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
@@ -533,6 +534,86 @@ bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
     resizeProfilePopover();
 
   return false;
+}
+
+bool MainWindow::on_key_press_event(GdkEventKey * key_event)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  static bool qt_mode = false;
+
+  if (Gtk::Window::get_focus() == tempo_spin_button_)
+  {
+    qt_mode = false;
+    return Gtk::Widget::on_key_press_event(key_event);
+  }
+
+  if (!qt_mode)
+  {
+    if (key_event->keyval == GDK_KEY_1
+      || key_event->keyval == GDK_KEY_2
+      || key_event->keyval == GDK_KEY_3
+      || key_event->keyval == GDK_KEY_4
+      || key_event->keyval == GDK_KEY_5
+      || key_event->keyval == GDK_KEY_6
+      || key_event->keyval == GDK_KEY_7
+      || key_event->keyval == GDK_KEY_8
+      || key_event->keyval == GDK_KEY_9)
+    {
+      if (Gtk::Window::get_focus() != tempo_spin_button_)
+      {
+        std::cout << "Start QT mode" << std::endl;
+
+        //tempo_spin_button_->grab_focus();
+
+        //tempo_spin_button_->set_text("");
+        tempo_spin_button_->delete_text(0,-1);
+        tempo_spin_button_->reset_im_context();
+
+        bool r = tempo_spin_button_->im_context_filter_keypress(key_event);
+        tempo_spin_button_->set_position(-1);
+
+        if (r)
+          std::cout << "t" << std::endl;
+        else
+          std::cout << "f" << std::endl;
+
+        // Glib::ustring num_text(1, gdk_keyval_to_unicode(key_event->keyval));
+        // tempo_spin_button_->set_text(num_text);
+        // tempo_spin_button_->set_position(-1);
+
+        // GdkEvent ev;
+        // ev.type = key_event->type;
+        // ev.key = *key_event;
+        // tempo_spin_button_->start_editing(&ev);
+        // tempo_spin_button_->activate();
+
+        qt_mode = true;
+
+        return true;
+      }
+    }
+  }
+  else
+  {
+    bool r = tempo_spin_button_->im_context_filter_keypress(key_event);
+    tempo_spin_button_->set_position(-1);
+
+    if (r)
+      std::cout << "t" << std::endl;
+    else
+    {
+      std::cout << "f" << std::endl;
+      qt_mode = false;
+
+      std::cout << "Activate" << std::endl;
+      tempo_spin_button_->activate();
+    }
+
+    return true;
+  }
+
+  return Gtk::Widget::on_key_press_event(key_event);
 }
 
 int MainWindow::estimateProfileTreeViewRowHeight() const

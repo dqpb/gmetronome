@@ -111,6 +111,7 @@ private:
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
   Gtk::Scale* tempo_scale_;
+  Gtk::SpinButton* tempo_spin_button_;
   Gtk::EventBox* tap_event_box_;
   Gtk::LevelBar* tap_level_bar_;
   Gtk::ComboBoxText* meter_combo_box_;
@@ -153,6 +154,7 @@ private:
   // Override window signal handler
   bool on_window_state_event(GdkEventWindowState* window_state_event) override;
   bool on_configure_event(GdkEventConfigure* configure_event) override;
+  bool on_key_press_event(GdkEventKey* key_event) override;
 
   int estimateProfileTreeViewRowHeight() const;
   void resizeProfilePopover(bool process_pending = false);
