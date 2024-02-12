@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 The GMetronome Team
+ * Copyright (C) 2020-2024 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -536,84 +536,121 @@ bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
   return false;
 }
 
-bool MainWindow::on_key_press_event(GdkEventKey * key_event)
+bool MainWindow::handleQuickTempoKeyEvent(GdkEventKey* key_event)
 {
   std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-  static bool qt_mode = false;
-
-  if (Gtk::Window::get_focus() == tempo_spin_button_)
+  if (isQuickTempoEditing())
   {
-    qt_mode = false;
-    return Gtk::Widget::on_key_press_event(key_event);
+    if (handleQuickTempoEditingKeyEvent(key_event))
+      return true;
+  }
+  else if (settings::shortcuts()->get_boolean(settings::kKeyShortcutsTempoQuickSetMode))
+  {
+    if (startQuickTempoEditing(key_event))
+      return true;
   }
 
-  if (!qt_mode)
+  return false;
+}
+
+bool MainWindow::startQuickTempoEditing(GdkEventKey* key_event)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (isQuickTempoEditing())
   {
-    if (key_event->keyval == GDK_KEY_1
-      || key_event->keyval == GDK_KEY_2
-      || key_event->keyval == GDK_KEY_3
-      || key_event->keyval == GDK_KEY_4
-      || key_event->keyval == GDK_KEY_5
-      || key_event->keyval == GDK_KEY_6
-      || key_event->keyval == GDK_KEY_7
-      || key_event->keyval == GDK_KEY_8
-      || key_event->keyval == GDK_KEY_9)
-    {
-      if (Gtk::Window::get_focus() != tempo_spin_button_)
-      {
-        std::cout << "Start QT mode" << std::endl;
+    std::cout << "QTM not started. (already running)" << std::endl;
+    return false;
+  }
 
-        //tempo_spin_button_->grab_focus();
+  if (dynamic_cast<Gtk::SpinButton*>(Gtk::Window::get_focus()) != nullptr)
+  {
+    std::cout << "QTM not started. (SpinButton focused)" << std::endl;
+    return false;
+  }
 
-        //tempo_spin_button_->set_text("");
-        tempo_spin_button_->delete_text(0,-1);
-        tempo_spin_button_->reset_im_context();
+  if ( ! ((key_event->keyval >= GDK_KEY_1 && key_event->keyval <= GDK_KEY_9)
+          || (key_event->keyval >= GDK_KEY_KP_1 && key_event->keyval <= GDK_KEY_KP_9)))
+  {
+    std::cout << "QTM not started. (not a numeric key)" << std::endl;
+    return false;
+  }
 
-        bool r = tempo_spin_button_->im_context_filter_keypress(key_event);
-        tempo_spin_button_->set_position(-1);
+  quick_tempo_restore_text_ = tempo_spin_button_->get_text();
+  tempo_spin_button_->delete_text(0,-1);
+  tempo_spin_button_->reset_im_context();
 
-        if (r)
-          std::cout << "t" << std::endl;
-        else
-          std::cout << "f" << std::endl;
+  quick_tempo_editing_ = true;
 
-        // Glib::ustring num_text(1, gdk_keyval_to_unicode(key_event->keyval));
-        // tempo_spin_button_->set_text(num_text);
-        // tempo_spin_button_->set_position(-1);
+  std::cout << "QTM started." << std::endl;
 
-        // GdkEvent ev;
-        // ev.type = key_event->type;
-        // ev.key = *key_event;
-        // tempo_spin_button_->start_editing(&ev);
-        // tempo_spin_button_->activate();
+  handleQuickTempoEditingKeyEvent(key_event);
 
-        qt_mode = true;
+  return true;
+}
 
-        return true;
-      }
-    }
+void MainWindow::finishQuickTempoEditing()
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (!isQuickTempoEditing())
+    return;
+
+  tempo_spin_button_->activate();
+  quick_tempo_editing_ = false;
+}
+
+void MainWindow::abortQuickTempoEditing()
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (!isQuickTempoEditing())
+    return;
+
+  tempo_spin_button_->set_text(quick_tempo_restore_text_);
+  quick_tempo_editing_ = false;
+}
+
+bool MainWindow::isQuickTempoEditing() const
+{
+  return (quick_tempo_editing_ == true);
+}
+
+bool MainWindow::handleQuickTempoEditingKeyEvent(GdkEventKey* key_event)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (!isQuickTempoEditing())
+    return false;
+
+  if (key_event->keyval == GDK_KEY_Escape)
+  {
+    abortQuickTempoEditing();
   }
   else
   {
     bool r = tempo_spin_button_->im_context_filter_keypress(key_event);
     tempo_spin_button_->set_position(-1);
 
-    if (r)
-      std::cout << "t" << std::endl;
-    else
+    if (!r)
     {
-      std::cout << "f" << std::endl;
-      qt_mode = false;
-
-      std::cout << "Activate" << std::endl;
-      tempo_spin_button_->activate();
+      std::cout << "QTM activate and stop." << std::endl;
+      finishQuickTempoEditing();
     }
-
-    return true;
   }
 
-  return Gtk::Widget::on_key_press_event(key_event);
+  return true;
+}
+
+bool MainWindow::on_key_press_event(GdkEventKey* key_event)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (handleQuickTempoKeyEvent(key_event))
+    return true;
+  else
+    return Gtk::Widget::on_key_press_event(key_event);
 }
 
 int MainWindow::estimateProfileTreeViewRowHeight() const
@@ -753,61 +790,54 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
     "          </object>\n"
     "        </child>\n";
 
-  static const Glib::ustring ui_shortcut_header =
+  static const Glib::ustring ui_shortcut =
     "            <child>\n"
     "              <object class=\"GtkShortcutsShortcut\">\n"
     "                <property name=\"visible\">1</property>\n"
     "                <property name=\"accelerator\">%1</property>\n"
-    "                <property name=\"title\">%2</property>\n";
-
-  static const Glib::ustring ui_shortcut_footer =
+    "                <property name=\"title\">%2</property>\n"
     "              </object>\n"
     "            </child>\n";
 
   Glib::ustring ui = ui_header + ui_section_header;
 
-  Glib::ustring group_title;
-  bool group_open = false;
-
-  for (const auto& [key, title] : ShortcutList())
+  for (const auto& [group_id, group_title, group_shortcuts] : ShortcutList())
   {
-    if (key.empty())
+    bool group_open = false;
+
+    if (group_id == ShortcutGroupIdentifier::Tempo
+        && settings::shortcuts()->get_boolean(settings::kKeyShortcutsTempoQuickSetMode))
     {
-      if (group_open)
-      {
-        ui += ui_group_footer;
-        group_open = false;
-      }
-      group_title = title;
+      ui += Glib::ustring::compose(ui_group_header, Glib::Markup::escape_text(group_title));
+      group_open = true;
+
+      ui += Glib::ustring::compose(ui_shortcut, "1...9", C_("Shortcut title", "Set tempo"));
     }
-    else
+
+    for (const auto& [shortcut_key, shortcut_title] : group_shortcuts)
     {
-      auto accel = settings::shortcuts()->get_string(key);
+      auto accel = settings::shortcuts()->get_string(shortcut_key);
 
       // validate accelerator
       guint accel_key;
       GdkModifierType accel_mods;
-
       gtk_accelerator_parse(accel.c_str(), &accel_key, &accel_mods);
 
       if (accel_key != 0 || accel_mods != 0)
       {
         if (!group_open)
         {
-          ui += Glib::ustring::compose(ui_group_header,
-                                       Glib::Markup::escape_text(group_title));
+          ui += Glib::ustring::compose(ui_group_header, Glib::Markup::escape_text(group_title));
           group_open = true;
         }
-        ui += Glib::ustring::compose(ui_shortcut_header,
-                                     Glib::Markup::escape_text(accel),
-                                     Glib::Markup::escape_text(title));
-        ui += ui_shortcut_footer;
+        ui += Glib::ustring::compose( ui_shortcut,
+                                      Glib::Markup::escape_text(accel),
+                                      Glib::Markup::escape_text(shortcut_title));
       }
     }
+    if (group_open)
+      ui += ui_group_footer;
   }
-
-  if (group_open)
-    ui += ui_group_footer;
 
   ui += ui_section_footer;
   ui += ui_footer;

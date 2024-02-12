@@ -142,6 +142,8 @@ private:
   bool meter_animation_;
   std::chrono::microseconds animation_sync_;
 
+  bool quick_tempo_editing_{false};
+  Glib::ustring quick_tempo_restore_text_{};
   bool bottom_resizable_;
   gint64 last_meter_action_;
 
@@ -156,6 +158,15 @@ private:
   bool on_configure_event(GdkEventConfigure* configure_event) override;
   bool on_key_press_event(GdkEventKey* key_event) override;
 
+  // Tempo 'quick-set' mode handler
+  bool handleQuickTempoKeyEvent(GdkEventKey* key_event);
+  bool startQuickTempoEditing(GdkEventKey* key_event);
+  void finishQuickTempoEditing();
+  void abortQuickTempoEditing();
+  bool isQuickTempoEditing() const;
+  bool handleQuickTempoEditingKeyEvent(GdkEventKey* key_event);
+
+  // Profile popover size
   int estimateProfileTreeViewRowHeight() const;
   void resizeProfilePopover(bool process_pending = false);
 
