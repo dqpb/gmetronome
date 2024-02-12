@@ -780,7 +780,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           <object class="GtkSpinButton" id="tempoSpinButton">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <property name="max-length">9</property>
+                            <property name="max-length">6</property>
                             <property name="input-purpose">number</property>
                             <property name="adjustment">tempoAdjustment</property>
                             <property name="digits">2</property>
@@ -911,7 +911,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can-focus">True</property>
-                                        <property name="max-length">6</property>
+                                        <property name="max-length">2</property>
                                         <property name="input-purpose">number</property>
                                         <property name="adjustment">beatsAdjustment</property>
                                         <property name="numeric">True</property>
@@ -1191,7 +1191,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="halign">start</property>
-                                    <property name="max-length">9</property>
+                                    <property name="max-length">3</property>
                                     <property name="input-purpose">number</property>
                                     <property name="adjustment">trainerTargetAdjustment</property>
                                     <property name="numeric">True</property>
@@ -1238,7 +1238,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="halign">start</property>
-                                    <property name="max-length">9</property>
+                                    <property name="max-length">3</property>
                                     <property name="input-purpose">number</property>
                                     <property name="adjustment">trainerStartAdjustment</property>
                                     <property name="numeric">True</property>
@@ -1285,7 +1285,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="halign">start</property>
-                                    <property name="max-length">9</property>
+                                    <property name="max-length">3</property>
                                     <property name="input-purpose">number</property>
                                     <property name="adjustment">trainerAccelAdjustment</property>
                                     <property name="numeric">True</property>
