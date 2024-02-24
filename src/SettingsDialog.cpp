@@ -171,24 +171,21 @@ void SettingsDialog::initUI()
   //
   shortcuts_tree_store_ = Gtk::TreeStore::create(shortcuts_model_columns_);
 
-  Gtk::TreeIter top_iter;
-  for (const auto& entry : ShortcutList())
+  for (const auto& group : ShortcutList())
   {
-    Gtk::TreeIter iter;
+    Gtk::TreeIter group_iter = shortcuts_tree_store_->append();
 
-    if (entry.key.empty())
-      top_iter = iter = shortcuts_tree_store_->append();
-    else if (top_iter)
-      iter = shortcuts_tree_store_->append(top_iter->children());
-    else
-      continue;
+    (*group_iter)[shortcuts_model_columns_.action_name] = group.title;
+    (*group_iter)[shortcuts_model_columns_.key] = "";
 
-    auto row = *iter;
+    for (const auto& entry : group.shortcuts)
+    {
+      Gtk::TreeIter entry_iter = shortcuts_tree_store_->append(group_iter->children());
 
-    row[shortcuts_model_columns_.action_name] = entry.title;
-    row[shortcuts_model_columns_.key] = entry.key;
+      (*entry_iter)[shortcuts_model_columns_.action_name] = entry.title;
+      (*entry_iter)[shortcuts_model_columns_.key] = entry.key;
+    }
   }
-
   shortcuts_tree_view_->append_column(
     // Shortcuts table header title (first column)
     C_("Preferences dialog", "Action"),
@@ -818,8 +815,8 @@ void SettingsDialog::onAccelEdited(const Glib::ustring& path_string,
 
 void SettingsDialog::onResetShortcuts()
 {
-  for (const auto& entry  : ShortcutList())
-    if (!entry.key.empty())
+  for (const auto& group  : ShortcutList())
+    for (const auto& entry  : group.shortcuts)
       settings::shortcuts()->reset(entry.key);
 }
 

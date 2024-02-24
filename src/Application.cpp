@@ -704,7 +704,7 @@ namespace {
   using std::chrono::milliseconds;
   using std::literals::chrono_literals::operator""ms;
 
-  constexpr double  kMaxVolumeDrop = 75.0; // percent
+  constexpr double  kMaxVolumeDrop = 85.0; // percent
   constexpr milliseconds  kDropVolumeTimerInterval = 250ms;
   constexpr double kDropVolumeRecoverSpeed = 30.0; // percent/s
 

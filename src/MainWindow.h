@@ -60,6 +60,7 @@ private:
   sigc::connection profile_selection_changed_connection_;
   sigc::connection profile_popover_show_connection_;
   sigc::connection pendulum_restore_connection_;
+  sigc::connection tempo_quick_set_timer_connection_;
   sigc::connection tap_animation_timer_connection_;
 
   // Dialogs
@@ -111,6 +112,7 @@ private:
   Gtk::Frame* accent_frame_;
   Gtk::Box* accent_box_;
   Gtk::Scale* tempo_scale_;
+  Gtk::SpinButton* tempo_spin_button_;
   Gtk::EventBox* tap_event_box_;
   Gtk::LevelBar* tap_level_bar_;
   Gtk::ComboBoxText* meter_combo_box_;
@@ -141,6 +143,9 @@ private:
   bool meter_animation_;
   std::chrono::microseconds animation_sync_;
 
+  bool tempo_quick_set_editing_{false};
+  Glib::ustring tempo_quick_set_restore_text_{};
+  int tempo_quick_set_timer_timeout_{0};
   bool bottom_resizable_;
   gint64 last_meter_action_;
 
@@ -153,7 +158,21 @@ private:
   // Override window signal handler
   bool on_window_state_event(GdkEventWindowState* window_state_event) override;
   bool on_configure_event(GdkEventConfigure* configure_event) override;
+  bool on_key_press_event(GdkEventKey* key_event) override;
 
+  // Tempo 'quick-set' mode handler
+  void startTempoQuickSetTimer();
+  void stopTempoQuickSetTimer(bool accept = false);
+  void resetTempoQuickSetTimerTimeout();
+  bool isTempoQuickSetTimerRunning();
+  bool onTempoQuickSetTimer();
+  bool handleTempoQuickSetKeyEvent(GdkEventKey* key_event);
+  bool startTempoQuickSetEditing();
+  void acceptTempoQuickSetEditing();
+  void abortTempoQuickSetEditing();
+  bool isTempoQuickSetEditing() const;
+
+  // Profile popover size
   int estimateProfileTreeViewRowHeight() const;
   void resizeProfilePopover(bool process_pending = false);
 
@@ -166,6 +185,7 @@ private:
   void onShowAbout(const Glib::VariantBase& value);
   void onToggleFullScreen(const Glib::VariantBase& value);
   void onPendulumTogglePhase(const Glib::VariantBase& value);
+  void onTempoQuickSet(const Glib::VariantBase& value);
 
   // UI handler
   bool onTempoTap(GdkEventButton* button_event);

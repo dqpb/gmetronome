@@ -26,13 +26,32 @@
 // map a shortcut settings key to a title
 struct ShortcutEntry
 {
-  Glib::ustring key;
+  Glib::ustring key;   // settings key
   Glib::ustring title; // translated shortcut title
 };
 
+enum class ShortcutGroupIdentifier
+{
+  Application = 1,
+  View        = 2,
+  Transport   = 3,
+  Tempo       = 4,
+  Accents     = 5,
+  Trainer     = 6,
+  Pendulum    = 7,
+  Volume      = 8
+};
+
+struct ShortcutGroup
+{
+  ShortcutGroupIdentifier group_id;        // group identifier
+  Glib::ustring title;                     // translated group title
+  std::vector<ShortcutEntry> shortcuts;    // list of shortcuts in the group
+};
+
 // Returns a list of grouped shortcut entries as they appear in the shortcuts
-// tree view in the settings dialog. The group titles have an empty key.
-const std::vector<ShortcutEntry>& ShortcutList();
+// tree view in the settings dialog or in the Gtk::ShortcutsWindow.
+const std::vector<ShortcutGroup>& ShortcutList();
 
 struct ShortcutAction
 {

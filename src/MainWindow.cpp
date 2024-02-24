@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 The GMetronome Team
+ * Copyright (C) 2020-2024 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -198,6 +198,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("accentFrame", accent_frame_);
   builder_->get_widget("accentBox", accent_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
+  builder_->get_widget("tempoSpinButton", tempo_spin_button_);
   builder_->get_widget("tapEventBox", tap_event_box_);
   builder_->get_widget("tapLevelBar", tap_level_bar_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
@@ -263,7 +264,8 @@ void MainWindow::initActions()
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowPendulum,            settings::state()},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)},
-      {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)}
+      {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)},
+      {kActionTempoQuickSet,           sigc::mem_fun(*this, &MainWindow::onTempoQuickSet)}
     };
 
   install_actions(*this, kActionDescriptions, kWinActionHandler);
@@ -535,6 +537,173 @@ bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
   return false;
 }
 
+namespace {
+  constexpr unsigned int kTempoQuickSetTimerTimeout  = 1600; // ms
+  constexpr unsigned int kTempoQuickSetTimerInterval = 70;
+}//unnamed namespace
+
+void MainWindow::startTempoQuickSetTimer()
+{
+  if (!isTempoQuickSetTimerRunning())
+  {
+    resetTempoQuickSetTimerTimeout();
+
+    tempo_quick_set_timer_connection_ = Glib::signal_timeout()
+      .connect(sigc::mem_fun(*this, &MainWindow::onTempoQuickSetTimer),
+               kTempoQuickSetTimerInterval);
+  }
+}
+
+void MainWindow::stopTempoQuickSetTimer(bool accept)
+{
+  if (isTempoQuickSetTimerRunning())
+  {
+    tempo_spin_button_->set_progress_fraction(0.0);
+    tempo_quick_set_timer_connection_.disconnect();
+  }
+}
+
+void MainWindow::resetTempoQuickSetTimerTimeout()
+{
+  tempo_quick_set_timer_timeout_ = kTempoQuickSetTimerTimeout;
+}
+
+bool MainWindow::isTempoQuickSetTimerRunning()
+{
+  return tempo_quick_set_timer_connection_.connected();
+}
+
+bool MainWindow::onTempoQuickSetTimer()
+{
+  tempo_quick_set_timer_timeout_ -= kTempoQuickSetTimerInterval;
+
+  if (tempo_quick_set_timer_timeout_ > 0)
+  {
+    tempo_spin_button_->set_progress_fraction(
+      (double)tempo_quick_set_timer_timeout_ / kTempoQuickSetTimerTimeout );
+
+    return true;
+  }
+  else
+  {
+    acceptTempoQuickSetEditing();
+    return false;
+  }
+}
+
+bool MainWindow::handleTempoQuickSetKeyEvent(GdkEventKey* key_event)
+{
+  bool event_handled = false;
+
+  if (isTempoQuickSetEditing())
+  {
+    if (key_event->keyval == GDK_KEY_Escape)
+    {
+      abortTempoQuickSetEditing();
+      event_handled = true;
+    }
+    else if (key_event->keyval == GDK_KEY_BackSpace
+             || key_event->keyval == GDK_KEY_Delete)
+    {
+      if (int start_pos = tempo_spin_button_->get_position(); start_pos > 0)
+        tempo_spin_button_->delete_text(start_pos - 1, -1);
+
+      event_handled = true;
+    }
+    else if (key_event->keyval == GDK_KEY_Return
+             || key_event->keyval == GDK_KEY_ISO_Enter
+             || key_event->keyval == GDK_KEY_KP_Enter)
+    {
+      acceptTempoQuickSetEditing();
+      event_handled = true;
+    }
+    else if (tempo_spin_button_->im_context_filter_keypress(key_event))
+    {
+      tempo_spin_button_->set_position(-1);
+      event_handled = true;
+    }
+    else
+    {
+      gchar* accel_name =
+        gtk_accelerator_name(key_event->keyval, (GdkModifierType)key_event->state);
+
+      if (auto actions = Gtk::Window::get_application()->get_actions_for_accel(accel_name);
+          actions.empty())
+      {
+        event_handled = true;
+      }
+
+      delete [] accel_name;
+    }
+  }
+
+  if (event_handled)
+    resetTempoQuickSetTimerTimeout();
+
+  return event_handled;
+}
+
+bool MainWindow::startTempoQuickSetEditing()
+{
+  if (isTempoQuickSetEditing())
+    return false;
+
+  tempo_quick_set_restore_text_ = tempo_spin_button_->get_text();
+  tempo_spin_button_->delete_text(0,-1);
+  tempo_spin_button_->reset_im_context();
+  tempo_spin_button_->set_placeholder_text(tempo_quick_set_restore_text_);
+
+  tempo_quick_set_editing_ = true;
+
+  startTempoQuickSetTimer();
+
+  return true;
+}
+
+void MainWindow::acceptTempoQuickSetEditing()
+{
+  if (!isTempoQuickSetEditing())
+    return;
+
+  if (tempo_spin_button_->get_position() > 0)
+  {
+    tempo_quick_set_editing_ = false;
+
+    tempo_spin_button_->activate();
+    tempo_spin_button_->set_placeholder_text("");
+
+    stopTempoQuickSetTimer(true);
+  }
+  else
+    abortTempoQuickSetEditing();
+}
+
+void MainWindow::abortTempoQuickSetEditing()
+{
+  if (!isTempoQuickSetEditing())
+    return;
+
+  tempo_spin_button_->set_text(tempo_quick_set_restore_text_);
+  tempo_spin_button_->set_placeholder_text("");
+
+  tempo_quick_set_editing_ = false;
+
+  stopTempoQuickSetTimer(false);
+}
+
+bool MainWindow::isTempoQuickSetEditing() const
+{
+  return (tempo_quick_set_editing_ == true);
+}
+
+bool MainWindow::on_key_press_event(GdkEventKey* key_event)
+{
+  if (handleTempoQuickSetKeyEvent(key_event))
+    return true;
+  else
+    return Gtk::Widget::on_key_press_event(key_event);
+}
+
 int MainWindow::estimateProfileTreeViewRowHeight() const
 {
   Gtk::TreeViewColumn* col = profile_tree_view_->get_column(0);
@@ -672,61 +841,45 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
     "          </object>\n"
     "        </child>\n";
 
-  static const Glib::ustring ui_shortcut_header =
+  static const Glib::ustring ui_shortcut =
     "            <child>\n"
     "              <object class=\"GtkShortcutsShortcut\">\n"
     "                <property name=\"visible\">1</property>\n"
     "                <property name=\"accelerator\">%1</property>\n"
-    "                <property name=\"title\">%2</property>\n";
-
-  static const Glib::ustring ui_shortcut_footer =
+    "                <property name=\"title\">%2</property>\n"
     "              </object>\n"
     "            </child>\n";
 
   Glib::ustring ui = ui_header + ui_section_header;
 
-  Glib::ustring group_title;
-  bool group_open = false;
-
-  for (const auto& [key, title] : ShortcutList())
+  for (const auto& [group_id, group_title, group_shortcuts] : ShortcutList())
   {
-    if (key.empty())
+    bool group_open = false;
+
+    for (const auto& [shortcut_key, shortcut_title] : group_shortcuts)
     {
-      if (group_open)
-      {
-        ui += ui_group_footer;
-        group_open = false;
-      }
-      group_title = title;
-    }
-    else
-    {
-      auto accel = settings::shortcuts()->get_string(key);
+      auto accel = settings::shortcuts()->get_string(shortcut_key);
 
       // validate accelerator
       guint accel_key;
       GdkModifierType accel_mods;
-
       gtk_accelerator_parse(accel.c_str(), &accel_key, &accel_mods);
 
       if (accel_key != 0 || accel_mods != 0)
       {
         if (!group_open)
         {
-          ui += Glib::ustring::compose(ui_group_header,
-                                       Glib::Markup::escape_text(group_title));
+          ui += Glib::ustring::compose(ui_group_header, Glib::Markup::escape_text(group_title));
           group_open = true;
         }
-        ui += Glib::ustring::compose(ui_shortcut_header,
-                                     Glib::Markup::escape_text(accel),
-                                     Glib::Markup::escape_text(title));
-        ui += ui_shortcut_footer;
+        ui += Glib::ustring::compose( ui_shortcut,
+                                      Glib::Markup::escape_text(accel),
+                                      Glib::Markup::escape_text(shortcut_title));
       }
     }
+    if (group_open)
+      ui += ui_group_footer;
   }
-
-  if (group_open)
-    ui += ui_group_footer;
 
   ui += ui_section_footer;
   ui += ui_footer;
@@ -769,6 +922,11 @@ void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
 void MainWindow::onPendulumTogglePhase(const Glib::VariantBase& value)
 {
   pendulum_.togglePhase();
+}
+
+void MainWindow::onTempoQuickSet(const Glib::VariantBase& value)
+{
+  startTempoQuickSetEditing();
 }
 
 void MainWindow::activateMeterAction(const Glib::ustring& action,
@@ -970,6 +1128,9 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
   auto app = Gtk::Application::get_default();
+
+  if (isTempoQuickSetEditing())
+    abortTempoQuickSetEditing();
 
   if (action_name.compare(0,6,"meter-") == 0)
   {
