@@ -762,6 +762,11 @@
       <default>'disabled'</default>
       <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
     </key>
+    <key name="tempo-quick-set" type="s">
+      <!-- Default shortcut to enter tempo quick set mode -->
+      <default l10n="messages" context="Default shortcut">'q'</default>
+      <summary>Keyboard shortcut to enter tempo quick set mode</summary>
+    </key>
     <key name="tempo-increase-1" type="s">
       <!-- Default shortcut to increase the tempo by 1 bpm -->
       <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;x'</default>
@@ -836,13 +841,6 @@
       <!-- Default shortcut to toggle the pendulum phase -->
       <default l10n="messages" context="Default shortcut">'p'</default>
       <summary>Keyboard shortcut to toggle the pendulum phase</summary>
-    </key>
-    <key name="tempo-quick-set-mode" type="b">
-      <default>true</default>
-      <summary>Wheather tempo quick set mode is enabled</summary>
-      <description>
-	If true, just pressing a numeric key can be used to set the tempo.
-      </description>
     </key>
   </schema>
 
