@@ -52,6 +52,7 @@ const std::vector<ShortcutGroup>& ShortcutList()
       ShortcutGroupIdentifier::Tempo,
       C_("Shortcut group title", "Tempo"),
       {
+        { settings::kKeyShortcutsTempoQuickSet,   C_("Shortcut title", "Tempo Quick Set") },
         { settings::kKeyShortcutsTempoIncrease1,  C_("Shortcut title", "Tempo +1 Bpm") },
         { settings::kKeyShortcutsTempoDecrease1,  C_("Shortcut title", "Tempo -1 Bpm") },
         { settings::kKeyShortcutsTempoIncrease10, C_("Shortcut title", "Tempo +10 Bpm") },
@@ -174,6 +175,9 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   },
   { settings::kKeyShortcutsPendulumTogglePhase,
     { kActionPendulumTogglePhase, {} }
+  },
+  { settings::kKeyShortcutsTempoQuickSet,
+    { kActionTempoQuickSet, {} }
   },
   { settings::kKeyShortcutsVolumeIncrease1,
     { kActionVolumeChange, Glib::Variant<double>::create(1.0) }
