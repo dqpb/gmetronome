@@ -144,7 +144,6 @@ private:
   std::chrono::microseconds animation_sync_;
 
   bool tempo_quick_set_editing_{false};
-  Glib::ustring tempo_quick_set_restore_text_{};
   int tempo_quick_set_timer_timeout_{0};
   bool bottom_resizable_;
   gint64 last_meter_action_;

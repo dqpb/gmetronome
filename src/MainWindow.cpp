@@ -648,10 +648,9 @@ bool MainWindow::startTempoQuickSetEditing()
   if (isTempoQuickSetEditing())
     return false;
 
-  tempo_quick_set_restore_text_ = tempo_spin_button_->get_text();
+  tempo_spin_button_->set_placeholder_text(tempo_spin_button_->get_text());
   tempo_spin_button_->delete_text(0,-1);
   tempo_spin_button_->reset_im_context();
-  tempo_spin_button_->set_placeholder_text(tempo_quick_set_restore_text_);
 
   tempo_quick_set_editing_ = true;
 
@@ -683,7 +682,8 @@ void MainWindow::abortTempoQuickSetEditing()
   if (!isTempoQuickSetEditing())
     return;
 
-  tempo_spin_button_->set_text(tempo_quick_set_restore_text_);
+  // force reload number from adjustment
+  tempo_spin_button_->set_adjustment(tempo_adjustment_);
   tempo_spin_button_->set_placeholder_text("");
 
   tempo_quick_set_editing_ = false;
