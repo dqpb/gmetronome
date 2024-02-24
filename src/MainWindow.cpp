@@ -264,7 +264,8 @@ void MainWindow::initActions()
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
       {kActionShowPendulum,            settings::state()},
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)},
-      {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)}
+      {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)},
+      {kActionTempoQuickSet,           sigc::mem_fun(*this, &MainWindow::onTempoQuickSet)}
     };
 
   install_actions(*this, kActionDescriptions, kWinActionHandler);
@@ -536,118 +537,168 @@ bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
   return false;
 }
 
-bool MainWindow::handleQuickTempoKeyEvent(GdkEventKey* key_event)
+namespace {
+  constexpr unsigned int kTempoQuickSetTimerTimeout  = 1600; // ms
+  constexpr unsigned int kTempoQuickSetTimerInterval = 70;
+}//unnamed namespace
+
+void MainWindow::startTempoQuickSetTimer()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (isQuickTempoEditing())
+  if (!isTempoQuickSetTimerRunning())
   {
-    if (handleQuickTempoEditingKeyEvent(key_event))
-      return true;
-  }
-  else if (settings::shortcuts()->get_boolean(settings::kKeyShortcutsTempoQuickSetMode))
-  {
-    if (startQuickTempoEditing(key_event))
-      return true;
-  }
+    resetTempoQuickSetTimerTimeout();
 
-  return false;
+    tempo_quick_set_timer_connection_ = Glib::signal_timeout()
+      .connect(sigc::mem_fun(*this, &MainWindow::onTempoQuickSetTimer),
+               kTempoQuickSetTimerInterval);
+  }
 }
 
-bool MainWindow::startQuickTempoEditing(GdkEventKey* key_event)
+void MainWindow::stopTempoQuickSetTimer(bool accept)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (isQuickTempoEditing())
+  if (isTempoQuickSetTimerRunning())
   {
-    std::cout << "QTM not started. (already running)" << std::endl;
-    return false;
+    tempo_spin_button_->set_progress_fraction(0.0);
+    tempo_quick_set_timer_connection_.disconnect();
   }
+}
 
-  if (dynamic_cast<Gtk::SpinButton*>(Gtk::Window::get_focus()) != nullptr)
+void MainWindow::resetTempoQuickSetTimerTimeout()
+{
+  tempo_quick_set_timer_timeout_ = kTempoQuickSetTimerTimeout;
+}
+
+bool MainWindow::isTempoQuickSetTimerRunning()
+{
+  return tempo_quick_set_timer_connection_.connected();
+}
+
+bool MainWindow::onTempoQuickSetTimer()
+{
+  tempo_quick_set_timer_timeout_ -= kTempoQuickSetTimerInterval;
+
+  if (tempo_quick_set_timer_timeout_ > 0)
   {
-    std::cout << "QTM not started. (SpinButton focused)" << std::endl;
-    return false;
-  }
+    tempo_spin_button_->set_progress_fraction(
+      (double)tempo_quick_set_timer_timeout_ / kTempoQuickSetTimerTimeout );
 
-  if ( ! ((key_event->keyval >= GDK_KEY_1 && key_event->keyval <= GDK_KEY_9)
-          || (key_event->keyval >= GDK_KEY_KP_1 && key_event->keyval <= GDK_KEY_KP_9)))
-  {
-    std::cout << "QTM not started. (not a numeric key)" << std::endl;
-    return false;
-  }
-
-  quick_tempo_restore_text_ = tempo_spin_button_->get_text();
-  tempo_spin_button_->delete_text(0,-1);
-  tempo_spin_button_->reset_im_context();
-
-  quick_tempo_editing_ = true;
-
-  std::cout << "QTM started." << std::endl;
-
-  handleQuickTempoEditingKeyEvent(key_event);
-
-  return true;
-}
-
-void MainWindow::finishQuickTempoEditing()
-{
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (!isQuickTempoEditing())
-    return;
-
-  tempo_spin_button_->activate();
-  quick_tempo_editing_ = false;
-}
-
-void MainWindow::abortQuickTempoEditing()
-{
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (!isQuickTempoEditing())
-    return;
-
-  tempo_spin_button_->set_text(quick_tempo_restore_text_);
-  quick_tempo_editing_ = false;
-}
-
-bool MainWindow::isQuickTempoEditing() const
-{
-  return (quick_tempo_editing_ == true);
-}
-
-bool MainWindow::handleQuickTempoEditingKeyEvent(GdkEventKey* key_event)
-{
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (!isQuickTempoEditing())
-    return false;
-
-  if (key_event->keyval == GDK_KEY_Escape)
-  {
-    abortQuickTempoEditing();
+    return true;
   }
   else
   {
-    bool r = tempo_spin_button_->im_context_filter_keypress(key_event);
-    tempo_spin_button_->set_position(-1);
+    acceptTempoQuickSetEditing();
+    return false;
+  }
+}
 
-    if (!r)
+bool MainWindow::handleTempoQuickSetKeyEvent(GdkEventKey* key_event)
+{
+  bool event_handled = false;
+
+  if (isTempoQuickSetEditing())
+  {
+    if (key_event->keyval == GDK_KEY_Escape)
     {
-      std::cout << "QTM activate and stop." << std::endl;
-      finishQuickTempoEditing();
+      abortTempoQuickSetEditing();
+      event_handled = true;
+    }
+    else if (key_event->keyval == GDK_KEY_BackSpace
+             || key_event->keyval == GDK_KEY_Delete)
+    {
+      if (int start_pos = tempo_spin_button_->get_position(); start_pos > 0)
+        tempo_spin_button_->delete_text(start_pos - 1, -1);
+
+      event_handled = true;
+    }
+    else if (key_event->keyval == GDK_KEY_Return
+             || key_event->keyval == GDK_KEY_ISO_Enter
+             || key_event->keyval == GDK_KEY_KP_Enter)
+    {
+      acceptTempoQuickSetEditing();
+      event_handled = true;
+    }
+    else if (tempo_spin_button_->im_context_filter_keypress(key_event))
+    {
+      tempo_spin_button_->set_position(-1);
+      event_handled = true;
+    }
+    else
+    {
+      gchar* accel_name =
+        gtk_accelerator_name(key_event->keyval, (GdkModifierType)key_event->state);
+
+      if (auto actions = Gtk::Window::get_application()->get_actions_for_accel(accel_name);
+          actions.empty())
+      {
+        event_handled = true;
+      }
+
+      delete [] accel_name;
     }
   }
 
+  if (event_handled)
+    resetTempoQuickSetTimerTimeout();
+
+  return event_handled;
+}
+
+bool MainWindow::startTempoQuickSetEditing()
+{
+  if (isTempoQuickSetEditing())
+    return false;
+
+  tempo_quick_set_restore_text_ = tempo_spin_button_->get_text();
+  tempo_spin_button_->delete_text(0,-1);
+  tempo_spin_button_->reset_im_context();
+  tempo_spin_button_->set_placeholder_text(tempo_quick_set_restore_text_);
+
+  tempo_quick_set_editing_ = true;
+
+  startTempoQuickSetTimer();
+
   return true;
+}
+
+void MainWindow::acceptTempoQuickSetEditing()
+{
+  if (!isTempoQuickSetEditing())
+    return;
+
+  if (tempo_spin_button_->get_position() > 0)
+  {
+    tempo_quick_set_editing_ = false;
+
+    tempo_spin_button_->activate();
+    tempo_spin_button_->set_placeholder_text("");
+
+    stopTempoQuickSetTimer(true);
+  }
+  else
+    abortTempoQuickSetEditing();
+}
+
+void MainWindow::abortTempoQuickSetEditing()
+{
+  if (!isTempoQuickSetEditing())
+    return;
+
+  tempo_spin_button_->set_text(tempo_quick_set_restore_text_);
+  tempo_spin_button_->set_placeholder_text("");
+
+  tempo_quick_set_editing_ = false;
+
+  stopTempoQuickSetTimer(false);
+}
+
+bool MainWindow::isTempoQuickSetEditing() const
+{
+  return (tempo_quick_set_editing_ == true);
 }
 
 bool MainWindow::on_key_press_event(GdkEventKey* key_event)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-  if (handleQuickTempoKeyEvent(key_event))
+  if (handleTempoQuickSetKeyEvent(key_event))
     return true;
   else
     return Gtk::Widget::on_key_press_event(key_event);
@@ -805,15 +856,6 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
   {
     bool group_open = false;
 
-    if (group_id == ShortcutGroupIdentifier::Tempo
-        && settings::shortcuts()->get_boolean(settings::kKeyShortcutsTempoQuickSetMode))
-    {
-      ui += Glib::ustring::compose(ui_group_header, Glib::Markup::escape_text(group_title));
-      group_open = true;
-
-      ui += Glib::ustring::compose(ui_shortcut, "1...9", C_("Shortcut title", "Set tempo"));
-    }
-
     for (const auto& [shortcut_key, shortcut_title] : group_shortcuts)
     {
       auto accel = settings::shortcuts()->get_string(shortcut_key);
@@ -880,6 +922,11 @@ void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
 void MainWindow::onPendulumTogglePhase(const Glib::VariantBase& value)
 {
   pendulum_.togglePhase();
+}
+
+void MainWindow::onTempoQuickSet(const Glib::VariantBase& value)
+{
+  startTempoQuickSetEditing();
 }
 
 void MainWindow::activateMeterAction(const Glib::ustring& action,
@@ -1081,6 +1128,9 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
   auto app = Gtk::Application::get_default();
+
+  if (isTempoQuickSetEditing())
+    abortTempoQuickSetEditing();
 
   if (action_name.compare(0,6,"meter-") == 0)
   {

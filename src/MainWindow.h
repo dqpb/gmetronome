@@ -60,6 +60,7 @@ private:
   sigc::connection profile_selection_changed_connection_;
   sigc::connection profile_popover_show_connection_;
   sigc::connection pendulum_restore_connection_;
+  sigc::connection tempo_quick_set_timer_connection_;
   sigc::connection tap_animation_timer_connection_;
 
   // Dialogs
@@ -142,8 +143,9 @@ private:
   bool meter_animation_;
   std::chrono::microseconds animation_sync_;
 
-  bool quick_tempo_editing_{false};
-  Glib::ustring quick_tempo_restore_text_{};
+  bool tempo_quick_set_editing_{false};
+  Glib::ustring tempo_quick_set_restore_text_{};
+  int tempo_quick_set_timer_timeout_{0};
   bool bottom_resizable_;
   gint64 last_meter_action_;
 
@@ -159,12 +161,16 @@ private:
   bool on_key_press_event(GdkEventKey* key_event) override;
 
   // Tempo 'quick-set' mode handler
-  bool handleQuickTempoKeyEvent(GdkEventKey* key_event);
-  bool startQuickTempoEditing(GdkEventKey* key_event);
-  void finishQuickTempoEditing();
-  void abortQuickTempoEditing();
-  bool isQuickTempoEditing() const;
-  bool handleQuickTempoEditingKeyEvent(GdkEventKey* key_event);
+  void startTempoQuickSetTimer();
+  void stopTempoQuickSetTimer(bool accept = false);
+  void resetTempoQuickSetTimerTimeout();
+  bool isTempoQuickSetTimerRunning();
+  bool onTempoQuickSetTimer();
+  bool handleTempoQuickSetKeyEvent(GdkEventKey* key_event);
+  bool startTempoQuickSetEditing();
+  void acceptTempoQuickSetEditing();
+  void abortTempoQuickSetEditing();
+  bool isTempoQuickSetEditing() const;
 
   // Profile popover size
   int estimateProfileTreeViewRowHeight() const;
@@ -179,6 +185,7 @@ private:
   void onShowAbout(const Glib::VariantBase& value);
   void onToggleFullScreen(const Glib::VariantBase& value);
   void onPendulumTogglePhase(const Glib::VariantBase& value);
+  void onTempoQuickSet(const Glib::VariantBase& value);
 
   // UI handler
   bool onTempoTap(GdkEventButton* button_event);
