@@ -221,6 +221,7 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsVolumeDecrease1        {"volume-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsVolumeIncrease10       {"volume-increase-10"};
   inline const Glib::ustring  kKeyShortcutsVolumeDecrease10       {"volume-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoQuickSet          {"tempo-quick-set"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease1         {"tempo-increase-1"};
   inline const Glib::ustring  kKeyShortcutsTempoDecrease1         {"tempo-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease10        {"tempo-increase-10"};
@@ -236,7 +237,6 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsMeterSelectCustom      {"meter-select-custom"};
   inline const Glib::ustring  kKeyShortcutsTrainerEnabled         {"trainer-enabled"};
   inline const Glib::ustring  kKeyShortcutsPendulumTogglePhase    {"pendulum-toggle-phase"};
-  inline const Glib::ustring  kKeyShortcutsTempoQuickSetMode      {"tempo-quick-set-mode"};
 
   /*
    * .state keys
