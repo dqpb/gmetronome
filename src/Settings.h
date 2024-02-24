@@ -221,11 +221,11 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsVolumeDecrease1        {"volume-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsVolumeIncrease10       {"volume-increase-10"};
   inline const Glib::ustring  kKeyShortcutsVolumeDecrease10       {"volume-decrease-10"};
-  inline const Glib::ustring  kKeyShortcutsTempoQuickSet          {"tempo-quick-set"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease1         {"tempo-increase-1"};
   inline const Glib::ustring  kKeyShortcutsTempoDecrease1         {"tempo-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease10        {"tempo-increase-10"};
   inline const Glib::ustring  kKeyShortcutsTempoDecrease10        {"tempo-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoQuickSet          {"tempo-quick-set"};
   inline const Glib::ustring  kKeyShortcutsTempoTap               {"tempo-tap"};
   inline const Glib::ustring  kKeyShortcutsMeterEnabled           {"meter-enabled"};
   inline const Glib::ustring  kKeyShortcutsMeterSelectSimple2     {"meter-select-simple-2"};
