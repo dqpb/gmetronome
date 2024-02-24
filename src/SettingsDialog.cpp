@@ -57,7 +57,6 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("audioDeviceSpinner", audio_device_spinner_);
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
-  builder_->get_widget("shortcutsTempoQuickSetModeSwitch", shortcuts_tempo_quick_set_mode_switch_);
 
   animation_sync_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("animationSyncAdjustment"));
@@ -314,8 +313,6 @@ void SettingsDialog::initBindings()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelCleared));
   accel_cell_renderer_.signal_accel_edited()
     .connect(sigc::mem_fun(*this, &SettingsDialog::onAccelEdited));
-  settings::shortcuts()->bind(settings::kKeyShortcutsTempoQuickSetMode,
-                              shortcuts_tempo_quick_set_mode_switch_->property_state());
 }
 
 bool SettingsDialog::onKeyPressEvent(GdkEventKey* event)
@@ -821,8 +818,6 @@ void SettingsDialog::onResetShortcuts()
   for (const auto& group  : ShortcutList())
     for (const auto& entry  : group.shortcuts)
       settings::shortcuts()->reset(entry.key);
-
-  settings::shortcuts()->reset(settings::kKeyShortcutsTempoQuickSetMode);
 }
 
 void SettingsDialog::onSettingsPrefsChanged(const Glib::ustring& key)

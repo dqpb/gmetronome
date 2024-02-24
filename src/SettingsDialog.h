@@ -108,7 +108,6 @@ private:
   Gtk::Button* shortcuts_reset_button_;
   Glib::RefPtr<Gtk::TreeStore> shortcuts_tree_store_;
   Gtk::CellRendererAccel accel_cell_renderer_;
-  Gtk::Switch* shortcuts_tempo_quick_set_mode_switch_;
 
   // Connections
   sigc::connection sound_theme_settings_list_connection_;

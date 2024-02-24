@@ -794,7 +794,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                 <property name="spacing">10</property>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="height-request">200</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="shadow-type">in</property>
@@ -812,43 +811,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">10</property>
-                    <child>
-                      <object class="GtkSwitch" id="shortcutsTempoQuickSetModeSwitch">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes" context="Preferences dialog">_Numeric keys set the tempo directly</property>
-                        <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">shortcutsTempoQuickSetModeSwitch</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
