@@ -742,8 +742,7 @@
       <summary>Keyboard shortcut to toggle full screen mode</summary>
     </key>
     <key name="start" type="s">
-      <!-- Default shortcut to start or stop the metronome -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;s'</default>
+      <default>'space'</default>
       <summary>Keyboard shortcut to start or stop the metronome</summary>
     </key>
     <key name="volume-increase-1" type="s">
@@ -764,12 +763,12 @@
     </key>
     <key name="tempo-increase-1" type="s">
       <!-- Default shortcut to increase the tempo by 1 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;x'</default>
+      <default l10n="messages" context="Default shortcut">'x'</default>
       <summary>Keyboard shortcut to increase the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-decrease-1" type="s">
       <!-- Default shortcut to decrease the tempo by 1 bpm -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;z'</default>
+      <default l10n="messages" context="Default shortcut">'z'</default>
       <summary>Keyboard shortcut to decrease the tempo by 1 bpm</summary>
     </key>
     <key name="tempo-increase-10" type="s">
@@ -794,7 +793,7 @@
     </key>
     <key name="meter-enabled" type="s">
       <!-- Default shortcut to toggle accentuation -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;a'</default>
+      <default l10n="messages" context="Default shortcut">'a'</default>
       <summary>Keyboard shortcut to toggle metric accentuation</summary>
     </key>
     <key name="meter-select-simple-2" type="s">
@@ -834,7 +833,7 @@
     </key>
     <key name="trainer-enabled" type="s">
       <!-- Default shortcut to toggle the tempo trainer -->
-      <default l10n="messages" context="Default shortcut">'&lt;Primary&gt;t'</default>
+      <default l10n="messages" context="Default shortcut">'s'</default>
       <summary>Keyboard shortcut to toggle tempo trainer</summary>
     </key>
     <key name="pendulum-toggle-phase" type="s">
