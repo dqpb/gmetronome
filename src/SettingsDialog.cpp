@@ -96,9 +96,12 @@ void SettingsDialog::initUI()
   //
   // Sound tab
   //
-  sound_theme_title_new_ = gettext(SoundTheme::kDefaultTitle.c_str());
-  sound_theme_title_placeholder_ = gettext(SoundTheme::kDefaultTitlePlaceholder.c_str());
-  sound_theme_title_duplicate_ = gettext(SoundTheme::kDefaultTitleDuplicate.c_str());
+  sound_theme_title_new_ =
+    g_dpgettext2(NULL, "Sound theme", SoundTheme::kDefaultTitle.c_str());
+  sound_theme_title_placeholder_ =
+    g_dpgettext2(NULL, "Sound theme", SoundTheme::kDefaultTitlePlaceholder.c_str());
+  sound_theme_title_duplicate_ =
+    g_dpgettext2(NULL, "Sound theme", SoundTheme::kDefaultTitleDuplicate.c_str());
 
   sound_theme_tree_store_ = Gtk::TreeStore::create(sound_theme_model_columns_);
   sound_theme_tree_view_->set_model(sound_theme_tree_store_);

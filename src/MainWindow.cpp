@@ -229,9 +229,12 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   accent_button_grid_.show();
   accent_box_->pack_start(accent_button_grid_);
 
-  profile_title_default_ = gettext(Profile::kDefaultTitle.c_str());
-  profile_title_duplicate_ = gettext(Profile::kDefaultTitleDuplicate.c_str());
-  profile_title_placeholder_ = gettext(Profile::kDefaultTitlePlaceholder.c_str());
+  profile_title_default_ =
+    g_dpgettext2(NULL, "Profile", Profile::kDefaultTitle.c_str());
+  profile_title_duplicate_ =
+    g_dpgettext2(NULL, "Profile", Profile::kDefaultTitleDuplicate.c_str());
+  profile_title_placeholder_ =
+    g_dpgettext2(NULL, "Profile", Profile::kDefaultTitlePlaceholder.c_str());
 
   profile_list_store_ = ProfileListStore::create();
   profile_tree_view_->set_model(profile_list_store_);
