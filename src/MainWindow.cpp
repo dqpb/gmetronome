@@ -606,8 +606,11 @@ bool MainWindow::handleTempoQuickSetKeyEvent(GdkEventKey* key_event)
              || key_event->keyval == GDK_KEY_Delete)
     {
       if (int start_pos = tempo_spin_button_->get_position(); start_pos > 0)
+      {
+        tempo_spin_button_->set_editable(true);
         tempo_spin_button_->delete_text(start_pos - 1, -1);
-
+        tempo_spin_button_->set_editable(false);
+      }
       event_handled = true;
     }
     else if (key_event->keyval == GDK_KEY_Return
@@ -617,23 +620,26 @@ bool MainWindow::handleTempoQuickSetKeyEvent(GdkEventKey* key_event)
       acceptTempoQuickSetEditing();
       event_handled = true;
     }
-    else if (tempo_spin_button_->im_context_filter_keypress(key_event))
-    {
-      tempo_spin_button_->set_position(-1);
-      event_handled = true;
-    }
     else
     {
-      gchar* accel_name =
-        gtk_accelerator_name(key_event->keyval, (GdkModifierType)key_event->state);
-
-      if (auto actions = Gtk::Window::get_application()->get_actions_for_accel(accel_name);
-          actions.empty())
+      tempo_spin_button_->set_editable(true);
+      if (tempo_spin_button_->im_context_filter_keypress(key_event))
       {
+        tempo_spin_button_->set_position(-1);
         event_handled = true;
       }
+      else
+      {
+        gchar* accel_name =
+          gtk_accelerator_name(key_event->keyval, (GdkModifierType)key_event->state);
 
-      delete [] accel_name;
+        if (auto actions = Gtk::Window::get_application()->get_actions_for_accel(accel_name);
+            actions.empty())
+          event_handled = true;
+
+        delete [] accel_name;
+      }
+      tempo_spin_button_->set_editable(false);
     }
   }
 
@@ -652,6 +658,18 @@ bool MainWindow::startTempoQuickSetEditing()
   tempo_spin_button_->delete_text(0,-1);
   tempo_spin_button_->reset_im_context();
 
+  // During a tempo 'quick set' session, the spin button is not 'editable'.
+  // This prevents some unwanted side effects, like changing the value, if
+  // the spinbutton loses the focus etc.
+  tempo_spin_button_->set_editable(false);
+
+  // After changing the value of 'editable', GTK does not redraw the buttons
+  // of the spinbutton immediately to indicate the changed sensitivity. Even
+  // calling queue_redraw() does not have the desired effect. To force an
+  // update nevertheless, we reset the range of the spinbutton.
+  tempo_spin_button_->set_range(tempo_adjustment_->get_lower(),
+                                tempo_adjustment_->get_upper());
+
   tempo_quick_set_editing_ = true;
 
   startTempoQuickSetTimer();
@@ -668,6 +686,10 @@ void MainWindow::acceptTempoQuickSetEditing()
   {
     tempo_quick_set_editing_ = false;
 
+    tempo_spin_button_->set_editable(true);
+    tempo_spin_button_->set_range(tempo_adjustment_->get_lower(),
+                                  tempo_adjustment_->get_upper());
+
     tempo_spin_button_->activate();
     tempo_spin_button_->set_placeholder_text("");
 
@@ -681,6 +703,10 @@ void MainWindow::abortTempoQuickSetEditing()
 {
   if (!isTempoQuickSetEditing())
     return;
+
+  tempo_spin_button_->set_editable(true);
+  tempo_spin_button_->set_range(tempo_adjustment_->get_lower(),
+                                tempo_adjustment_->get_upper());
 
   // force reload number from adjustment
   tempo_spin_button_->set_adjustment(tempo_adjustment_);
