@@ -99,7 +99,7 @@ private:
   Gtk::Label* info_text_label_;
   Gtk::Label* info_details_label_;
   Gtk::Expander* info_details_expander_;
-  Gtk::Box* content_box_;
+  Gtk::Box* main_content_box_;
   Gtk::ScaleButton* volume_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::ToggleButton* trainer_toggle_button_;

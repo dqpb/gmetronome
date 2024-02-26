@@ -185,7 +185,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("infoTextLabel", info_text_label_);
   builder_->get_widget("infoDetailsLabel", info_details_label_);
   builder_->get_widget("infoDetailsExpander", info_details_expander_);
-  builder_->get_widget("contentBox", content_box_);
+  builder_->get_widget("mainContentBox", main_content_box_);
   builder_->get_widget("volumeButton", volume_button_);
   builder_->get_widget("startButton", start_button_);
   builder_->get_widget("trainerToggleButton", trainer_toggle_button_);
@@ -1338,13 +1338,18 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 {
   if (has_profile)
   {
-    static const double default_opacity = 0.7;
-    static const double reduced_opacity = 0.4;
+    bool is_placeholder = title.empty() ? true : false;
+    const Glib::ustring& profile_title = is_placeholder ? profile_title_placeholder_ : title;
 
-    double opacity = title.empty() ? reduced_opacity : default_opacity;
-    const Glib::ustring& profile_title = title.empty() ? profile_title_placeholder_ : title;
+    auto style_context = current_profile_label_->get_style_context();
+    if (is_placeholder)
+    {
+      if (!style_context->has_class("placeholder"))
+        style_context->add_class("placeholder");
+    }
+    else if (style_context->has_class("placeholder"))
+      style_context->remove_class("placeholder");
 
-    current_profile_label_->set_opacity(opacity);
     current_profile_label_->set_text(profile_title);
     current_profile_label_->show();
     Gtk::Window::set_title(Glib::get_application_name() + " - " + profile_title);
