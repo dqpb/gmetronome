@@ -451,6 +451,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             <property name="valign">center</property>
             <child type="center">
               <object class="GtkLabel" id="tempoDividerLabel">
+                <property name="name">tempoDividerLabel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="valign">center</property>
@@ -466,17 +467,18 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             </child>
             <child>
               <object class="GtkLabel" id="tempoIntegralLabel">
+                <property name="name">tempoIntegralLabel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">end</property>
                 <property name="valign">center</property>
                 <property name="hexpand">True</property>
-                <property name="label">120</property>
+                <property name="label">0</property>
+                <property name="width-chars">3</property>
+                <property name="single-line-mode">True</property>
+                <property name="max-width-chars">3</property>
                 <property name="track-visited-links">False</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                  <attribute name="scale" value="1.3999999999999999"/>
-                </attributes>
+                <property name="xalign">1</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -486,16 +488,21 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             </child>
             <child>
               <object class="GtkLabel" id="tempoFractionLabel">
+                <property name="name">tempoFractionLabel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="valign">center</property>
-                <property name="hexpand">False</property>
+                <property name="hexpand">True</property>
                 <property name="label">00</property>
+                <property name="width-chars">2</property>
+                <property name="single-line-mode">True</property>
+                <property name="max-width-chars">2</property>
                 <property name="track-visited-links">False</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack-type">end</property>
                 <property name="position">2</property>
@@ -510,13 +517,14 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
         </child>
         <child>
           <object class="GtkLabel" id="currentProfileLabel">
+            <property name="name">currentProfileLabel</property>
             <property name="can-focus">False</property>
             <property name="label">Default</property>
             <property name="ellipsize">end</property>
             <property name="max-width-chars">30</property>
-            <attributes>
-              <attribute name="scale" value="0.90000000000000002"/>
-            </attributes>
+            <style>
+              <class name="smaller"/>
+            </style>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -682,12 +690,14 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="page-increment">10</property>
   </object>
   <object class="GtkApplicationWindow" id="mainWindow">
+    <property name="name">mainWindow</property>
     <property name="can-focus">False</property>
     <property name="window-position">center</property>
     <property name="icon-name">org.gnome.gitlab.dqpb.GMetronome</property>
     <property name="show-menubar">False</property>
     <child>
       <object class="GtkBox" id="mainBox">
+        <property name="name">mainBox</property>
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
@@ -699,7 +709,8 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
-              <object class="GtkBox" id="contentBox">
+              <object class="GtkBox" id="mainContentBox">
+                <property name="name">mainContentBox</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-start">10</property>
@@ -898,9 +909,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
                                         <property name="label" translatable="yes" context="Main window - Accents">Beats</property>
-                                        <attributes>
-                                          <attribute name="scale" value="0.80000000000000004"/>
-                                        </attributes>
+                                        <style>
+                                          <class name="top-label"/>
+                                        </style>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -946,9 +957,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
                                         <property name="label" translatable="yes" context="Main window - Accents">Meter</property>
-                                        <attributes>
-                                          <attribute name="scale" value="0.80000000000000004"/>
-                                        </attributes>
+                                        <style>
+                                          <class name="top-label"/>
+                                        </style>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1000,9 +1011,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="opacity">0.80</property>
                                         <property name="halign">start</property>
                                         <property name="label" translatable="yes" context="Main window - Accents">Division</property>
-                                        <attributes>
-                                          <attribute name="scale" value="0.80000000000000004"/>
-                                        </attributes>
+                                        <style>
+                                          <class name="top-label"/>
+                                        </style>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1180,9 +1191,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes" context="Main window - Trainer">Target</property>
                                     <property name="justify">fill</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
+                                    <style>
+                                      <class name="top-label"/>
+                                    </style>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1229,9 +1240,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes" context="Main window - Trainer">Start</property>
                                     <property name="justify">fill</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
+                                    <style>
+                                      <class name="top-label"/>
+                                    </style>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1278,9 +1289,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes" context="Main window - Trainer">Acceleration</property>
                                     <property name="justify">fill</property>
-                                    <attributes>
-                                      <attribute name="scale" value="0.80000000000000004"/>
-                                    </attributes>
+                                    <style>
+                                      <class name="top-label"/>
+                                    </style>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
