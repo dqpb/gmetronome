@@ -30,8 +30,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/mm-common/1.0/mm-common-1.0.5.tar.xz",
-                    "sha256": "705c6d29f4116a29bde4e36cfc1b046c92b6ef8c6dae4eaec85018747e6da5aa"
+                    "url": "https://download.gnome.org/sources/mm-common/1.0/mm-common-1.0.6.tar.xz",
+                    "sha256": "b55c46037dbcdabc5cee3b389ea11cc3910adb68ebe883e9477847aa660862e7"
                 }
             ],
             "cleanup": [
@@ -49,8 +49,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/libsigc++/2.12/libsigc++-2.12.0.tar.xz",
-                    "sha256": "1c466d2e64b34f9b118976eb21b138c37ed124d0f61497df2a90ce6c3d9fa3b5"
+                    "url": "https://download.gnome.org/sources/libsigc++/2.12/libsigc++-2.12.1.tar.xz",
+                    "sha256": "a9dbee323351d109b7aee074a9cb89ca3e7bcf8ad8edef1851f4cf359bd50843"
                 }
             ]
         },
@@ -65,8 +65,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://www.cairographics.org/releases/cairomm-1.14.3.tar.xz",
-                    "sha256": "0d37e067c5c4ca7808b7ceddabfe1932c5bd2a750ad64fb321e1213536297e78"
+                    "url": "https://www.cairographics.org/releases/cairomm-1.14.5.tar.xz",
+                    "sha256": "70136203540c884e89ce1c9edfb6369b9953937f6cd596d97c78c9758a5d48db"
                 }
             ]
         },
@@ -101,8 +101,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.3.tar.xz",
-                    "sha256": "410fe04d471a608f3f0273d3a17d840241d911ed0ff2c758a9859c66c6f24379"
+                    "url": "https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.4.tar.xz",
+                    "sha256": "b92016661526424de4b9377f1512f59781f41fb16c9c0267d6133ba1cd68db22"
                 }
             ]
         },
@@ -118,8 +118,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.3.tar.xz",
-                    "sha256": "7c2088b486a909be8da2b18304e56c5f90884d1343c8da7367ea5cd3258b9969"
+                    "url": "https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.4.tar.xz",
+                    "sha256": "0a142a8128f83c001efb8014ee463e9a766054ef84686af953135e04d28fdab3"
                 }
             ]
         },
@@ -138,12 +138,11 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.7.tar.xz",
-                    "sha256" : "1d7a35af9c5ceccacb244ee3c2deb9b245720d8510ac5c7e6f4b6f9947e6789c"
+                    "url" : "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.8.tar.xz",
+                    "sha256" : "d2940c64922e5b958554b23d4c41d1839ea9e43e0d2e5b3819cfb46824a098c"
                 }
             ]
-        }
-        ,
+        },
         {
             "name": "gmetronome",
             "buildsystem": "autotools",
