@@ -7,15 +7,18 @@ levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
 
 label#tempoIntegralLabel
 {
+    font-family: monospace;
     font-size: 1.45em;
     font-weight: bold;
 }
 label#tempoFractionLabel
 {
+    font-family: monospace;
     font-size: 0.9em;
 }
 label#tempoDividerLabel
 {
+    font-family: monospace;
     font-weight: bold;
 }
 label#currentProfileLabel
