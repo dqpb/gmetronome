@@ -5,21 +5,23 @@
 */
 levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
 
-label#tempoIntegralLabel
+#tempoIntegralLabel label
 {
-    font-family: monospace;
-    font-size: 1.45em;
+    font-size: 1.4em;
     font-weight: bold;
+    margin: 0px;
+    padding: 0px;
 }
-label#tempoFractionLabel
+#tempoFractionLabel label
 {
-    font-family: monospace;
     font-size: 0.9em;
+    margin: 0px;
+    padding: 0px;
 }
-label#tempoDividerLabel
+#tempoDividerLabel
 {
-    font-family: monospace;
     font-weight: bold;
+    margin: 0px 5px;
 }
 label#currentProfileLabel
 {
