@@ -4,3 +4,30 @@
 * 32px area when the levelbar value in continuous mode is greater than zero.
 */
 levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
+
+label#tempoIntegralLabel
+{
+    font-size: 1.45em;
+    font-weight: bold;
+}
+label#tempoFractionLabel
+{
+    font-size: 0.9em;
+}
+label#tempoDividerLabel
+{
+    font-weight: bold;
+}
+label#currentProfileLabel
+{
+    font-size: 0.9em;
+    opacity: 0.75;
+}
+label#currentProfileLabel.placeholder
+{
+    opacity: 0.4;
+}
+.top-label
+{
+    font-size: smaller;
+}
