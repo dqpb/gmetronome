@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2022-2023 The GMetronome Team -->
+<!-- Copyright (C) 2022-2024 The GMetronome Team -->
 <component type="desktop-application">
   <id>@PACKAGE_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
@@ -45,6 +45,15 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.3.3" date="2024-02-26">
+      <description translate="no">
+	<ul>
+	  <li>Add shortcut to set tempo quickly</li>
+	  <li>Fix some UX/UI issues with the profiles menu</li>
+	  <li>Revise default shortcuts</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.3.2" date="2023-08-02">
       <description translate="no">
 	<ul>
