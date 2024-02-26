@@ -24,6 +24,7 @@
 #include "Ticker.h"
 #include "Message.h"
 #include "Pendulum.h"
+#include "TempoDisplay.h"
 #include "AccentButtonGrid.h"
 #include "About.h"
 
@@ -71,9 +72,8 @@ private:
   // UI elements
   class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
-  Gtk::Label* tempo_integral_label_;
-  Gtk::Label* tempo_fraction_label_;
-  Gtk::Label* tempo_divider_label_;
+  Gtk::Box* header_bar_title_box_;
+  TempoDisplay tempo_display_;
   Gtk::Label* current_profile_label_;
   Gtk::Button* full_screen_button_;
   Gtk::Image* full_screen_image_;

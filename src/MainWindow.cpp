@@ -157,9 +157,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   registerGlobalCssProvider();
 
   builder_->get_widget("headerBar", header_bar_);
-  builder_->get_widget("tempoIntegralLabel", tempo_integral_label_);
-  builder_->get_widget("tempoFractionLabel", tempo_fraction_label_);
-  builder_->get_widget("tempoDividerLabel", tempo_divider_label_);
+  builder_->get_widget("headerBarTitleBox", header_bar_title_box_);
   builder_->get_widget("currentProfileLabel", current_profile_label_);
   builder_->get_widget("fullScreenButton", full_screen_button_);
   builder_->get_widget("fullScreenImage", full_screen_image_);
@@ -282,6 +280,8 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
+  header_bar_title_box_->pack_start(tempo_display_, Gtk::PACK_EXPAND_WIDGET);
+  tempo_display_.show();
   updateCurrentTempo(audio::Ticker::Statistics{});
 
   // initialize info bar
@@ -475,7 +475,7 @@ void MainWindow::initBindings()
   app->signalTap()
     .connect(sigc::mem_fun(*this, &MainWindow::onTap));
 
-  tempo_integral_label_->signal_size_allocate()
+  tempo_display_.signal_size_allocate()
     .connect(sigc::mem_fun(*this, &MainWindow::onTempoLabelAllocate));
 }
 
@@ -1392,44 +1392,7 @@ void MainWindow::updateStartButtonLabel(bool running)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  static const Glib::ustring kAccelUpSymbol     = "\xe2\x96\xb4"; // "▴"
-  static const Glib::ustring kAccelDownSymbol   = "\xe2\x96\xbe"; // "▾"
-  static const Glib::ustring kAccelStableSymbol = "\xe2\x80\xa2"; // "•"
-
-  static const int precision = 2;
-
-  double tempo_integral;
-  double tempo_fraction;
-
-  tempo_fraction = std::modf(stats.tempo, &tempo_integral);
-
-  int tempo_integral_int = tempo_integral;
-  int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
-
-  if (tempo_fraction_int == 100)
-  {
-    tempo_fraction_int = 0;
-    tempo_integral_int += 1;
-  }
-  auto text = Glib::ustring::format(tempo_integral_int);
-
-  if (text != tempo_integral_label_->get_text())
-    tempo_integral_label_->set_text(text);
-
-  text = Glib::ustring::format(std::setfill(L'0'), std::setw(precision), tempo_fraction_int);
-
-  if (text != tempo_fraction_label_->get_text())
-    tempo_fraction_label_->set_text(text);
-
-  if (stats.acceleration == 0)
-    text = kAccelStableSymbol;
-  else if (stats.acceleration > 0)
-    text = kAccelUpSymbol;
-  else
-    text = kAccelDownSymbol;
-
-  if (text != tempo_divider_label_->get_text())
-    tempo_divider_label_->set_text(text);
+  tempo_display_.setTempo(stats.tempo, stats.acceleration);
 }
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
