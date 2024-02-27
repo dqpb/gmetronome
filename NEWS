@@ -1,8 +1,8 @@
-2024-02-26  0.3.3
+2024-02-27  0.3.3
 
 	* Add shortcut to set tempo quickly
 	* Fix some UX/UI issues with the profiles menu
-	* Revise default shortcuts
+	* Revise and simplify default shortcuts
 
 2023-08-02  0.3.2
 

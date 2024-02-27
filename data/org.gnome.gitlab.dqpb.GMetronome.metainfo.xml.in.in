@@ -45,12 +45,12 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
-    <release version="0.3.3" date="2024-02-26">
+    <release version="0.3.3" date="2024-02-27">
       <description translate="no">
 	<ul>
 	  <li>Add shortcut to set tempo quickly</li>
 	  <li>Fix some UX/UI issues with the profiles menu</li>
-	  <li>Revise default shortcuts</li>
+	  <li>Revise and simplify default shortcuts</li>
 	</ul>
       </description>
     </release>
