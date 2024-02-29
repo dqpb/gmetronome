@@ -1,0 +1,1182 @@
+# Brazilian Portuguese translation file for GMetronome.
+#
+# Copyright (C) 2021 The GMetronome Team
+# This file is distributed under the same license as the GMetronome package.
+# dqpb <dqpb@mailbox.org>, 2021-2023.
+# Filipe Motta <luizfilipemotta@gmail.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gmetronome 0.3.3\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
+"POT-Creation-Date: 2024-02-25 17:45+0100\n"
+"PO-Revision-Date: 2024-02-28 10:34-0300\n"
+"Last-Translator: Filipe Motta <luizfilipemotta@gmail.com>\n"
+"Language-Team: Brazilian Portuguese <>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"X-Generator: Gtranslator 45.3\n"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
+msgid "GMetronome"
+msgstr "GMetronome"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:8
+msgid "The GMetronome Team"
+msgstr "A Equipe do GMetronome"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:9
+msgid "A tempo measurement tool for composers and musicians"
+msgstr ""
+"Uma ferramenta de medição de tempo rítmico para compositores e musicistas"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
+msgid ""
+"GMetronome is a free software metronome and tempo measurement tool for GNU/"
+"Linux and other Unix-like operating systems."
+msgstr ""
+"GMetronome é um metrônomo e ferramenta de medição de tempo rítmico de "
+"software livre para GNU/Linux e outros sistemas operacionais do tipo Unix."
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:12
+msgid "Features:"
+msgstr "Recursos:"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:14
+msgid "Tempo range from 30 to 250 beats per minute"
+msgstr "Variação de andamento de 30 a 250 batidas por minuto"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
+msgid "Custom accentuation patterns"
+msgstr "Padrões de acentuação personalizados"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
+msgid "Divisible beats for simple and compound meters"
+msgstr "Batidas divisíveis por métricas simples e compostas"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:17
+msgid "Three accentuation levels for strong, middle and weak accents"
+msgstr "Três níveis de acentuação para acentos fortes, médios e fracos"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
+msgid "Pre defined patterns for widely used meters and time signatures"
+msgstr ""
+"Padrões predefinidos para métricas e fórmulas de compasso amplamente "
+"utilizadas"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
+msgid "Integrated synthesizer to customize click sounds"
+msgstr "Sintetizador integrado para personalizar sons de clique"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:20
+msgid "Trainer function to smoothly raise or lower tempo"
+msgstr "Função de treinador para suavemente aumentar ou diminuir o andamento"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:21
+msgid "Profiles to save and restore metronome settings"
+msgstr "Perfis para salvar e restaurar configurações de metrônomo"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:22
+msgid "Customizable keyboard shortcuts"
+msgstr "Atalhos de teclado personalizáveis"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:29
+msgid "The main window"
+msgstr "A janela principal"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:34
+msgid "Metronome"
+msgstr "Metrônomo"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:35
+msgid "Music"
+msgstr "Música"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
+msgid "Play a steady rhythm"
+msgstr "Toque um ritmo constante"
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:14
+msgid "Bar;Beats;BPM;Measure;Metronome;Minute;Practice;Rhythm;Tap;Tempo;Time;"
+msgstr ""
+"Compasso;Batidas;BPM;Metrônomo;Minuto;Prática;Ensaio;Treino;Ritmo;Toque;"
+"Andamento;Tempo;"
+
+#. Put one translator per line, in the form
+#. NAME <EMAIL>, YEAR1, YEAR2
+#: src/About.cpp:41
+msgctxt "About dialog"
+msgid "translator-credits"
+msgstr "Filipe Motta <luizfilipemotta@gmail.com>, 2024"
+
+#. The following parameters will be replaced:
+#. %1 - year of the last commit
+#. %2 - localized application name
+#: src/About.cpp:47
+msgctxt "About dialog"
+msgid "Copyright © 2020-%1 The %2 Team"
+msgstr "Copyright © 2020-%1 A Equipe do %2"
+
+#: src/About.cpp:52
+msgctxt "About dialog"
+msgid "Website"
+msgstr "Página web"
+
+#. default title for new profiles
+#: src/Profile.h:38
+msgctxt "Profile"
+msgid "New Profile"
+msgstr "Novo perfil"
+
+#. placeholder title for untitled profiles
+#: src/Profile.h:40
+msgctxt "Profile"
+msgid "Untitled Profile"
+msgstr "Perfil sem nome"
+
+#. title of duplicated profiles, %1 will be replaced by the old title
+#: src/Profile.h:42
+msgctxt "Profile"
+msgid "%1 (copy)"
+msgstr "%1 (cópia)"
+
+#: src/resources/ui/MainWindow.glade:147
+msgctxt "Message bar"
+msgid "Details"
+msgstr "Detalhes"
+
+#: src/resources/ui/MainWindow.glade:191
+msgctxt "Primary menu"
+msgid "Show _Pendulum"
+msgstr "_Mostrar Pêndulo"
+
+#: src/resources/ui/MainWindow.glade:205
+msgctxt "Primary menu"
+msgid "_Full Screen"
+msgstr "_Tela inteira"
+
+#: src/resources/ui/MainWindow.glade:231
+msgctxt "Primary menu"
+msgid "P_references"
+msgstr "_Preferências"
+
+#: src/resources/ui/MainWindow.glade:245
+msgctxt "Primary menu"
+msgid "_Keyboard Shortcuts"
+msgstr "_Atalhos de teclado"
+
+#: src/resources/ui/MainWindow.glade:259
+msgctxt "Primary menu"
+msgid "_Help"
+msgstr "Ajuda"
+
+#: src/resources/ui/MainWindow.glade:273
+msgctxt "Primary menu"
+msgid "A_bout GMetronome"
+msgstr "_Sobre o GMetronome"
+
+#: src/resources/ui/MainWindow.glade:309
+msgctxt "Profiles menu"
+msgid "Profiles"
+msgstr "Perfis"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:329
+msgctxt "Profiles menu"
+msgid "Create a new profile"
+msgstr "Criar um novo perfil"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:351
+msgctxt "Profiles menu"
+msgid "Delete selected profile"
+msgstr "Excluir perfil selecionado"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:381
+msgctxt "Profiles menu"
+msgid "Reset the metronome"
+msgstr "Redefinir o metrônomo"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:536
+msgctxt "Main window"
+msgid "Profiles menu"
+msgstr "Menu de perfis"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:552
+msgctxt "Main window"
+msgid "Toggle Full Screen"
+msgstr "Ativar/Desativar tela inteira"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:580
+msgctxt "Main window"
+msgid "Toggle accentuation"
+msgstr "Ativar/Desativar acentuação"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:604
+msgctxt "Main window"
+msgid "Toggle tempo trainer"
+msgstr "Ativar/Desativar treinador de andamento"
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:633
+msgctxt "Main window"
+msgid "Application menu"
+msgstr "Menu do aplicativo"
+
+#: src/resources/ui/MainWindow.glade:814
+msgctxt "Main window - Tempo"
+msgid "Tap"
+msgstr "Toque"
+
+#: src/resources/ui/MainWindow.glade:850
+msgctxt "Main window - Tempo"
+msgid "Tempo"
+msgstr "Andamento"
+
+#: src/resources/ui/MainWindow.glade:900
+msgctxt "Main window - Accents"
+msgid "Beats"
+msgstr "Batidas"
+
+#: src/resources/ui/MainWindow.glade:948
+msgctxt "Main window - Accents"
+msgid "Meter"
+msgstr "Métrica"
+
+#: src/resources/ui/MainWindow.glade:965
+msgctxt "Main window - Accents"
+msgid "2/4"
+msgstr "2/4"
+
+#: src/resources/ui/MainWindow.glade:966
+msgctxt "Main window - Accents"
+msgid "3/4"
+msgstr "3/4"
+
+#: src/resources/ui/MainWindow.glade:967
+msgctxt "Main window - Accents"
+msgid "4/4"
+msgstr "4/4"
+
+#: src/resources/ui/MainWindow.glade:969
+msgctxt "Main window - Accents"
+msgid "6/8"
+msgstr "6/8"
+
+#: src/resources/ui/MainWindow.glade:970
+msgctxt "Main window - Accents"
+msgid "9/8"
+msgstr "9/8"
+
+#: src/resources/ui/MainWindow.glade:971
+msgctxt "Main window - Accents"
+msgid "12/8"
+msgstr "12/8"
+
+#: src/resources/ui/MainWindow.glade:973
+msgctxt "Main window - Accents"
+msgid "Custom"
+msgstr "Personalizado"
+
+#: src/resources/ui/MainWindow.glade:1002
+msgctxt "Main window - Accents"
+msgid "Division"
+msgstr "Divisão"
+
+#: src/resources/ui/MainWindow.glade:1136
+msgctxt "Main window - Accents"
+msgid "Accents"
+msgstr "Acentos"
+
+#: src/resources/ui/MainWindow.glade:1181
+msgctxt "Main window - Trainer"
+msgid "Target"
+msgstr "Meta"
+
+#: src/resources/ui/MainWindow.glade:1230
+msgctxt "Main window - Trainer"
+msgid "Start"
+msgstr "Início"
+
+#: src/resources/ui/MainWindow.glade:1279
+msgctxt "Main window - Trainer"
+msgid "Acceleration"
+msgstr "Aceleração"
+
+#: src/resources/ui/MainWindow.glade:1323
+msgctxt "Main window - Trainer"
+msgid "Trainer"
+msgstr "Treinador"
+
+#: src/MainWindow.cpp:1380
+msgctxt "Main window"
+msgid "Stop"
+msgstr "Parar"
+
+#: src/MainWindow.cpp:1382
+msgctxt "Main window"
+msgid "Start"
+msgstr "Iniciar"
+
+#: src/resources/ui/SettingsDialog.glade:62
+msgctxt "Preferences dialog"
+msgid "Startup"
+msgstr "Inicialização"
+
+#: src/resources/ui/SettingsDialog.glade:78
+msgctxt "Preferences dialog"
+msgid "_Restore previous profile:"
+msgstr "_Restaurar perfil anterior:"
+
+#: src/resources/ui/SettingsDialog.glade:104
+msgctxt "Preferences dialog"
+msgid "Profiles"
+msgstr "Perfis"
+
+#: src/resources/ui/SettingsDialog.glade:132
+msgctxt "Preferences dialog"
+msgid "_Link with sound theme:"
+msgstr "_Conectar perfil ao tema de som:"
+
+#: src/resources/ui/SettingsDialog.glade:146
+msgctxt "Preferences dialog"
+msgid "Tapping"
+msgstr "Toque"
+
+#: src/resources/ui/SettingsDialog.glade:162
+msgctxt "Preferences dialog"
+msgid "Auto-adjust _volume:"
+msgstr "Ajustar _volume automaticamente:"
+
+#: src/resources/ui/SettingsDialog.glade:234
+msgctxt "Preferences dialog"
+msgid "_General"
+msgstr "_Geral"
+
+#: src/resources/ui/SettingsDialog.glade:258
+msgctxt "Preferences dialog"
+msgid "S_tart direction:"
+msgstr "Di_reção inicial:"
+
+#: src/resources/ui/SettingsDialog.glade:273
+msgctxt "Preferences dialog"
+msgid "Click sp_ot:"
+msgstr "_Local do clique:"
+
+#: src/resources/ui/SettingsDialog.glade:288
+msgctxt "Preferences dialog"
+msgid "Left"
+msgstr "Esquerda"
+
+#: src/resources/ui/SettingsDialog.glade:289
+msgctxt "Preferences dialog"
+msgid "Right"
+msgstr "Direita"
+
+#: src/resources/ui/SettingsDialog.glade:303
+msgctxt "Preferences dialog"
+msgid "Center"
+msgstr "Centro"
+
+#: src/resources/ui/SettingsDialog.glade:304
+msgctxt "Preferences dialog"
+msgid "Real"
+msgstr "Real"
+
+#: src/resources/ui/SettingsDialog.glade:305
+msgctxt "Preferences dialog"
+msgid "Edge"
+msgstr "Canto"
+
+#: src/resources/ui/SettingsDialog.glade:318
+msgctxt "Preferences dialog"
+msgid "Pendulum"
+msgstr "Pêndulo"
+
+#: src/resources/ui/SettingsDialog.glade:333
+msgctxt "Preferences dialog"
+msgid "Accents"
+msgstr "Acentos"
+
+#: src/resources/ui/SettingsDialog.glade:349
+msgctxt "Preferences dialog"
+msgid "Acc_ent Animation:"
+msgstr "A_nimação de acento:"
+
+#: src/resources/ui/SettingsDialog.glade:374
+msgctxt "Preferences dialog"
+msgid "General"
+msgstr "Geral"
+
+#: src/resources/ui/SettingsDialog.glade:390
+msgctxt "Preferences dialog"
+msgid "S_ynchronization (ms):"
+msgstr "Sincroni_zação (ms):"
+
+#. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
+#: src/resources/ui/SettingsDialog.glade:404
+msgctxt "Preferences dialog"
+msgid ""
+"An additional static time gap between video output (animation) and the audio "
+"stream might be useful for compensating unknown external latencies. However, "
+"it may also cause major problems up to total animation failure, especially "
+"on large (absolute) values."
+msgstr ""
+"Um intervalo de tempo adicional estático entre a saída de vídeo (animação) e "
+"o fluxo de áudio pode ser útil para compensar latências externas "
+"desconhecidas. No entanto, isso também pode causar grandes problemas e até "
+"falha total da animação, especialmente em valores maiores (absolutos)."
+
+#: src/resources/ui/SettingsDialog.glade:471
+msgctxt "Preferences dialog"
+msgid "_Animation"
+msgstr "_Animação"
+
+#: src/resources/ui/SettingsDialog.glade:495
+msgctxt "Preferences dialog"
+msgid "Sound _Theme"
+msgstr "_Tema de Som"
+
+#: src/resources/ui/SettingsDialog.glade:603
+msgctxt "Preferences dialog"
+msgid "_Edit"
+msgstr "_Editar"
+
+#: src/resources/ui/SettingsDialog.glade:638
+msgctxt "Preferences dialog"
+msgid "_Sound"
+msgstr "_Som"
+
+#: src/resources/ui/SettingsDialog.glade:664
+msgctxt "Preferences dialog"
+msgid "Audio _Device:"
+msgstr "Dis_positivo de Áudio:"
+
+#: src/resources/ui/SettingsDialog.glade:679
+msgctxt "Preferences dialog"
+msgid "Audio _Backend:"
+msgstr "_Backend de Áudio:"
+
+#: src/resources/ui/SettingsDialog.glade:694
+msgctxt "Preferences dialog"
+msgid "None"
+msgstr "Nenhum"
+
+#: src/resources/ui/SettingsDialog.glade:695
+msgctxt "Preferences dialog"
+msgid "Alsa"
+msgstr "ALSA"
+
+#: src/resources/ui/SettingsDialog.glade:696
+msgctxt "Preferences dialog"
+msgid "Oss"
+msgstr "OSS"
+
+#: src/resources/ui/SettingsDialog.glade:697
+msgctxt "Preferences dialog"
+msgid "Pulseaudio"
+msgstr "PulseAudio"
+
+#: src/resources/ui/SettingsDialog.glade:726
+msgctxt "Preferences dialog"
+msgid "Default"
+msgstr "Padrão"
+
+#: src/resources/ui/SettingsDialog.glade:740
+msgctxt "Preferences dialog"
+msgid "Audio Settings"
+msgstr "Configurações de Áudio"
+
+#: src/resources/ui/SettingsDialog.glade:777
+msgctxt "Preferences dialog"
+msgid "Audio _Device"
+msgstr "_Dispositivo de Áudio"
+
+#: src/resources/ui/SettingsDialog.glade:823
+msgctxt "Preferences dialog"
+msgid "_Reset shortcuts"
+msgstr "_Redefinir atalhos de teclado"
+
+#: src/resources/ui/SettingsDialog.glade:852
+msgctxt "Preferences dialog"
+msgid "Short_cuts"
+msgstr "Atalho de _Teclado"
+
+#: src/resources/ui/SettingsDialog.glade:876
+msgctxt "Preferences dialog"
+msgid "Preferences"
+msgstr "Preferências"
+
+#. Shortcuts table header title (first column)
+#: src/SettingsDialog.cpp:191
+msgctxt "Preferences dialog"
+msgid "Action"
+msgstr "Ação"
+
+#. Shortcuts table header title (second column)
+#: src/SettingsDialog.cpp:197
+msgctxt "Preferences dialog"
+msgid "Shortcut"
+msgstr "Atalho"
+
+#: src/SettingsDialog.cpp:592
+msgctxt "Preferences dialog"
+msgid "Presets"
+msgstr "Predefinições"
+
+#: src/SettingsDialog.cpp:607
+msgctxt "Preferences dialog"
+msgid "Custom"
+msgstr "Personalizado"
+
+#. default title for new sound themes
+#: src/SoundTheme.h:36
+msgctxt "Sound theme"
+msgid "New Sound Theme"
+msgstr "Novo Tema de Som"
+
+#. placeholder title for untitled sound themes
+#: src/SoundTheme.h:39
+msgctxt "Sound theme"
+msgid "Untitled"
+msgstr "Sem Título"
+
+#. title of duplicated sound themes, %1 will be replaced by the old title
+#: src/SoundTheme.h:42
+msgctxt "Sound theme"
+msgid "%1 (copy)"
+msgstr "%1 (cópia)"
+
+#: src/resources/ui/SoundThemeEditor.glade:127
+msgctxt "Sound theme editor"
+msgid "Title:"
+msgstr "Título:"
+
+#: src/resources/ui/SoundThemeEditor.glade:188
+msgctxt "Sound theme editor"
+msgid "Pitch:"
+msgstr "Tom:"
+
+#: src/resources/ui/SoundThemeEditor.glade:217
+msgctxt "Sound theme editor"
+msgid "Timbre:"
+msgstr "Timbre:"
+
+#: src/resources/ui/SoundThemeEditor.glade:231
+msgctxt "Sound theme editor"
+msgid "Detune:"
+msgstr "Desafinação:"
+
+#: src/resources/ui/SoundThemeEditor.glade:261
+#: src/resources/ui/SoundThemeEditor.glade:453
+msgctxt "Sound theme editor"
+msgid "Attack:"
+msgstr "Ataque:"
+
+#: src/resources/ui/SoundThemeEditor.glade:275
+#: src/resources/ui/SoundThemeEditor.glade:467
+msgctxt "Sound theme editor"
+msgid "Decay:"
+msgstr "Decaimento:"
+
+#: src/resources/ui/SoundThemeEditor.glade:379
+msgctxt "Sound theme editor"
+msgid "Tone"
+msgstr "Tom"
+
+#: src/resources/ui/SoundThemeEditor.glade:425
+#: src/resources/ui/SoundThemeEditor.glade:621
+msgctxt "Sound theme editor"
+msgid "Hold:"
+msgstr "Sustentação:"
+
+#: src/resources/ui/SoundThemeEditor.glade:481
+msgctxt "Sound theme editor"
+msgid "Cutoff:"
+msgstr "Corte:"
+
+#: src/resources/ui/SoundThemeEditor.glade:574
+msgctxt "Sound theme editor"
+msgid "Percussion"
+msgstr "Percussão"
+
+#: src/resources/ui/SoundThemeEditor.glade:678
+msgctxt "Sound theme editor"
+msgid "Pan:"
+msgstr "Pan:"
+
+#: src/resources/ui/SoundThemeEditor.glade:692
+msgctxt "Sound theme editor"
+msgid "Volume:"
+msgstr "Volume:"
+
+#: src/resources/ui/SoundThemeEditor.glade:762
+msgctxt "Sound theme editor"
+msgid "Mix:"
+msgstr "Mescla:"
+
+#. This appears in the sound theme editor if the theme was removed in the settings backend.
+#: src/resources/ui/SoundThemeEditor.glade:872
+msgctxt "Sound theme editor"
+msgid "Not available anymore."
+msgstr "Não está mais disponível."
+
+#: src/resources/ui/SoundThemeEditor.glade:886
+msgctxt "Sound theme editor"
+msgid "Sound Theme Editor"
+msgstr "Editor de Temas de Som"
+
+#: src/Shortcut.cpp:28
+msgctxt "Shortcut group title"
+msgid "Application"
+msgstr "Aplicativo"
+
+#: src/Shortcut.cpp:30
+msgctxt "Shortcut title"
+msgid "Show Primary Menu"
+msgstr "Mostrar menu principal"
+
+#: src/Shortcut.cpp:31
+msgctxt "Shortcut title"
+msgid "Show Profiles"
+msgstr "Mostrar perfis"
+
+#: src/Shortcut.cpp:32
+msgctxt "Shortcut title"
+msgid "Show Preferences"
+msgstr "Mostrar preferências"
+
+#: src/Shortcut.cpp:33
+msgctxt "Shortcut title"
+msgid "Show Keyboard Shortcuts"
+msgstr "Mostrar atalhos de teclado"
+
+#: src/Shortcut.cpp:34
+msgctxt "Shortcut title"
+msgid "Show Help"
+msgstr "Mostrar ajuda"
+
+#: src/Shortcut.cpp:35
+msgctxt "Shortcut title"
+msgid "Show About"
+msgstr "Mostrar sobre"
+
+#: src/Shortcut.cpp:36
+msgctxt "Shortcut title"
+msgid "Quit"
+msgstr "Encerrar"
+
+#: src/Shortcut.cpp:40
+msgctxt "Shortcut group title"
+msgid "View"
+msgstr "Visualização"
+
+#: src/Shortcut.cpp:42
+msgctxt "Shortcut title"
+msgid "Show Pendulum"
+msgstr "Mostrar pêndulo"
+
+#: src/Shortcut.cpp:43
+msgctxt "Shortcut title"
+msgid "Full Screen"
+msgstr "Tela inteira"
+
+#: src/Shortcut.cpp:47
+msgctxt "Shortcut group title"
+msgid "Transport"
+msgstr "Reprodução"
+
+#: src/Shortcut.cpp:49
+msgctxt "Shortcut title"
+msgid "Start / Stop"
+msgstr "Iniciar / Parar"
+
+#: src/Shortcut.cpp:53
+msgctxt "Shortcut group title"
+msgid "Tempo"
+msgstr "Andamento"
+
+#: src/Shortcut.cpp:55
+msgctxt "Shortcut title"
+msgid "Tempo +1 Bpm"
+msgstr "Andamento +1 bpm"
+
+#: src/Shortcut.cpp:56
+msgctxt "Shortcut title"
+msgid "Tempo -1 Bpm"
+msgstr "Andamento -1 bpm"
+
+#: src/Shortcut.cpp:57
+msgctxt "Shortcut title"
+msgid "Tempo +10 Bpm"
+msgstr "Andamento +10 bpm"
+
+#: src/Shortcut.cpp:58
+msgctxt "Shortcut title"
+msgid "Tempo -10 Bpm"
+msgstr "Andamento -10 bpm"
+
+#: src/Shortcut.cpp:59
+msgctxt "Shortcut title"
+msgid "Tempo Quick Set"
+msgstr "Definição rápida do andamento"
+
+#: src/Shortcut.cpp:60
+msgctxt "Shortcut title"
+msgid "Tempo Tap"
+msgstr "Andamento via toque"
+
+#: src/Shortcut.cpp:64
+msgctxt "Shortcut group title"
+msgid "Accents"
+msgstr "Acentuação"
+
+#: src/Shortcut.cpp:66
+msgctxt "Shortcut title"
+msgid "Enable / Disable Accentuation"
+msgstr "Ativar/Desativar acentuação"
+
+#: src/Shortcut.cpp:67
+msgctxt "Shortcut title"
+msgid "Select 2/4 Meter"
+msgstr "Selecionar métrica 2/4"
+
+#: src/Shortcut.cpp:68
+msgctxt "Shortcut title"
+msgid "Select 3/4 Meter"
+msgstr "Selecionar métrica 3/4"
+
+#: src/Shortcut.cpp:69
+msgctxt "Shortcut title"
+msgid "Select 4/4 Meter"
+msgstr "Selecionar métrica 4/4"
+
+#: src/Shortcut.cpp:70
+msgctxt "Shortcut title"
+msgid "Select 6/8 Meter"
+msgstr "Selecionar métrica 6/8"
+
+#: src/Shortcut.cpp:71
+msgctxt "Shortcut title"
+msgid "Select 9/8 Meter"
+msgstr "Selecionar métrica 9/8"
+
+#: src/Shortcut.cpp:72
+msgctxt "Shortcut title"
+msgid "Select 12/8 Meter"
+msgstr "Selecionar métrica 12/8"
+
+#: src/Shortcut.cpp:73
+msgctxt "Shortcut title"
+msgid "Select Custom Meter"
+msgstr "Selecionar métrica personalizada"
+
+#: src/Shortcut.cpp:77
+msgctxt "Shortcut group title"
+msgid "Trainer"
+msgstr "Treinador"
+
+#: src/Shortcut.cpp:79
+msgctxt "Shortcut title"
+msgid "Enable / Disable Trainer"
+msgstr "Ativar/Desativar Treinador"
+
+#: src/Shortcut.cpp:83
+msgctxt "Shortcut group title"
+msgid "Pendulum"
+msgstr "Pêndulo"
+
+#: src/Shortcut.cpp:85
+msgctxt "Shortcut title"
+msgid "Toggle Pendulum Phase"
+msgstr "Alternar fase do pêndulo"
+
+#: src/Shortcut.cpp:89
+msgctxt "Shortcut group title"
+msgid "Volume"
+msgstr "Volume"
+
+#: src/Shortcut.cpp:91
+msgctxt "Shortcut title"
+msgid "Volume +1 Percent"
+msgstr "Volume +1 Porcento"
+
+#: src/Shortcut.cpp:92
+msgctxt "Shortcut title"
+msgid "Volume -1 Percent"
+msgstr "Volume -1 Porcento"
+
+#: src/Shortcut.cpp:93
+msgctxt "Shortcut title"
+msgid "Volume +10 Percent"
+msgstr "Volume +10 Porcento"
+
+#: src/Shortcut.cpp:94
+msgctxt "Shortcut title"
+msgid "Volume -10 Percent"
+msgstr "Volume -10 Porcento"
+
+#: src/Message.cpp:36
+msgctxt "Message"
+msgid "Oops! Something went wrong."
+msgstr "Opa! Algo deu errado."
+
+#. The following parameters will be replaced:
+#. %1 - localized application name
+#. %2 - URL of the project's issues page
+#: src/Message.cpp:42
+msgctxt "Message"
+msgid ""
+"%1 has encountered an unknown error. Please check the details below. Since "
+"this error might be due to a bug in the software package, you can help us to "
+"improve %1 and file a bug report on the project's <a href=\"%2\">issues "
+"page</a>."
+msgstr ""
+"%1 encontrou um erro desconhecido. Por favor, confira os detalhes abaixo. "
+"Como esse erro pode ser causado por uma falha no pacote do programa, você "
+"pode nos ajudar a melhorar o %1 e enviar um relato de problema na <a "
+"href=\"%2\">página de problemas</a> do projeto (em inglês)."
+
+#: src/Message.cpp:54
+msgctxt "Message"
+msgid "Audio problem"
+msgstr "Problema de áudio"
+
+#: src/Message.cpp:55
+msgctxt "Message"
+msgid ""
+"An audio related error occured. Please check the audio configuration in the "
+"preferences dialog and try again."
+msgstr ""
+"Ocorreu um problema relacionado ao áudio. Por favor, confira a configuração "
+"de áudio nas Preferências e tente novamente."
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:687
+msgid "Whether the volume should be dropped when tapping"
+msgstr "Se o volume deve ser baixado ao definir o tempo por toque"
+
+#. Default shortcut to quit the application
+#.
+#. Translators: Please keep the regular single quotes around the shortcut strings as-is.
+#. If you need to change a default shortcut, please keep in mind, that they have to be
+#. valid accelerator strings parsable by the gtk_accelerator_parse function.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:702
+msgctxt "Default shortcut"
+msgid "'<Primary>q'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:703
+msgid "Keyboard shortcut to quit the application"
+msgstr "Atalho de teclado para encerrar o aplicativo"
+
+#. Default shortcut to show the primary menu
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:707
+msgctxt "Default shortcut"
+msgid "'F10'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:708
+msgid "Keyboard shortcut to show the primary menu"
+msgstr "Atalho de teclado para mostrar o menu principal"
+
+#. Default shortcut to show the profiles menu
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:712
+msgctxt "Default shortcut"
+msgid "'F9'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:713
+msgid "Keyboard shortcut to show the profiles menu"
+msgstr "Atalho de teclado para mostrar o menu de perfis"
+
+#. Default shortcut to show the preferences dialog
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:717
+msgctxt "Default shortcut"
+msgid "'<Primary>comma'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:718
+msgid "Keyboard shortcut to show the preferences dialog"
+msgstr "Atalho de teclado para mostrar o diálogo de preferências"
+
+#. Default shortcut to show the help for keyboard shortcuts
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:722
+msgctxt "Default shortcut"
+msgid "'<Primary>question'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:723
+msgid "Keyboard shortcut to show the help for keyboard shortcuts"
+msgstr "Atalho de teclado para mostrar o quadro de atalhos de teclado"
+
+#. Default shortcut to show the help
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:727
+msgctxt "Default shortcut"
+msgid "'F1'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:728
+msgid "Keyboard shortcut to show the help"
+msgstr "Atalho de teclado para mostrar a ajuda"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:732
+msgid "Keyboard shortcut to show the about dialog"
+msgstr "Atalho de teclado para mostrar a seção sobre o aplicativo"
+
+#. Default shortcut to toggle the pendulum display
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:736
+msgctxt "Default shortcut"
+msgid "'<Primary>p'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:737
+msgid "Keyboard shortcut to toggle pendulum display"
+msgstr "Atalho de teclado para mostrar/ocultar o pêndulo"
+
+#. Default shortcut to toogle full screen mode
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:741
+msgctxt "Default shortcut"
+msgid "'F11'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:742
+msgid "Keyboard shortcut to toggle full screen mode"
+msgstr "Atalho de teclado para ativar/desativar o modo de tela inteira"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:746
+msgid "Keyboard shortcut to start or stop the metronome"
+msgstr "Atalho de teclado para iniciar/parar o metrônomo"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:750
+msgid "Keyboard shortcut to increase the volume by 1 percent"
+msgstr "Atalho de teclado para aumentar o volume em 1 porcento"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:754
+msgid "Keyboard shortcut to decrease the volume by 1 percent"
+msgstr "Atalho de teclado para diminuir o volume em 1 porcento"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:758
+msgid "Keyboard shortcut to increase the volume by 10 percent"
+msgstr "Atalho de teclado para aumentar o volume em 10 porcento"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:762
+msgid "Keyboard shortcut to decrease the volume by 10 percent"
+msgstr "Atalho de teclado para diminuir o volume em 10 porcento"
+
+#. Default shortcut to increase the tempo by 1 bpm
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:766
+msgctxt "Default shortcut"
+msgid "'x'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:767
+msgid "Keyboard shortcut to increase the tempo by 1 bpm"
+msgstr "Atalho de teclado para aumentar o andamento em 1 bpm"
+
+#. Default shortcut to decrease the tempo by 1 bpm
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:771
+msgctxt "Default shortcut"
+msgid "'z'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:772
+msgid "Keyboard shortcut to decrease the tempo by 1 bpm"
+msgstr "Atalho de teclado para diminuir o andamento em 1 bpm"
+
+#. Default shortcut to increase the thempo by 10 bpm
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:776
+msgctxt "Default shortcut"
+msgid "'<Shift>x'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:777
+msgid "Keyboard shortcut to increase the tempo by 10 bpm"
+msgstr "Atalho de teclado para aumentar o andamento em 10 bpm"
+
+#. Default shortcut to decrease the tempo by 10 bpm
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:781
+msgctxt "Default shortcut"
+msgid "'<Shift>z'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:782
+msgid "Keyboard shortcut to decrease the tempo by 10 bpm"
+msgstr "Atalho de teclado para diminuir o andamento em 10 bpm"
+
+#. Default shortcut to enter tempo quick set mode
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:786
+msgctxt "Default shortcut"
+msgid "'q'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:787
+msgid "Keyboard shortcut to enter tempo quick set mode"
+msgstr "Atalho de teclado para entrar no modo de definição rápida do andamento"
+
+#. Default shortcut to tap the tempo
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:791
+msgctxt "Default shortcut"
+msgid "'t'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:792
+msgid "Keyboard shortcut to tap the tempo"
+msgstr "Atalho de teclado para definir o tempo via toque"
+
+#. Default shortcut to toggle accentuation
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:796
+msgctxt "Default shortcut"
+msgid "'a'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:797
+msgid "Keyboard shortcut to toggle metric accentuation"
+msgstr "Atalho de teclado para ativar/desativar acentuação de métricas"
+
+#. Default shortcut to select the simple duple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:801
+msgctxt "Default shortcut"
+msgid "'<Primary>2'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:802
+msgid "Keyboard shortcut to select the simple duple meter"
+msgstr "Atalho de teclado para selecionar a métrica binária simples"
+
+#. Default shortcut to select the simple triple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:806
+msgctxt "Default shortcut"
+msgid "'<Primary>3'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:807
+msgid "Keyboard shortcut to select the simple triple meter"
+msgstr "Atalho de teclado para selecionar a métrica ternária simples"
+
+#. Default shortcut to select the simple quadruple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:811
+msgctxt "Default shortcut"
+msgid "'<Primary>4'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:812
+msgid "Keyboard shortcut to select the simple quadruple meter"
+msgstr "Atalho de teclado para selecionar a métrica quaternária simples"
+
+#. Default shortcut to select the compound duple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:816
+msgctxt "Default shortcut"
+msgid "'<Primary>6'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:817
+msgid "Keyboard shortcut to select the compound duple meter"
+msgstr "Atalho de teclado para selecionar a métrica binária composta"
+
+#. Default shortcut to select the compound triple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:821
+msgctxt "Default shortcut"
+msgid "'<Primary>7'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:822
+msgid "Keyboard shortcut to select the compound triple meter"
+msgstr "Atalho de teclado para selecionar a métrica ternária composta"
+
+#. Default shortcut to select the compound quadruple meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:826
+msgctxt "Default shortcut"
+msgid "'<Primary>8'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:827
+msgid "Keyboard shortcut to select the compound quadruple meter"
+msgstr "Atalho de teclado para selecionar a métrica quaternária composta"
+
+#. Default shortcut to select the custom meter
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:831
+msgctxt "Default shortcut"
+msgid "'<Primary>0'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:832
+msgid "Keyboard shortcut to select the custom meter"
+msgstr "Atalho de teclado para selecionar a métrica personalizada"
+
+#. Default shortcut to toggle the tempo trainer
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:836
+msgctxt "Default shortcut"
+msgid "'s'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:837
+msgid "Keyboard shortcut to toggle tempo trainer"
+msgstr "Atalho de teclado para ativar/desativar o treinador de andamento"
+
+#. Default shortcut to toggle the pendulum phase
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:841
+msgctxt "Default shortcut"
+msgid "'p'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:842
+msgid "Keyboard shortcut to toggle the pendulum phase"
+msgstr "Atalho de teclado para alternar a fase do pêndulo"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:850
+msgid "Whether to load the last profile used on startup"
+msgstr "Se o último perfil usado deve ser carregado na inicialização"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:855
+msgid "Wheter to link profiles and sound themes"
+msgstr "Se deve-se conectar perfis e temas de som"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:856
+msgid ""
+"If true, switching profiles also restores the previous sound theme. If the "
+"desired sound theme does not exist anymore, the default will be loaded "
+"instead."
+msgstr ""
+"Se ativado, alternar perfis também restaurará o tema de som anterior. Se o "
+"tema de som desejado não existir mais, o tema padrão será carregado em vez "
+"dele."
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:890
+msgid "Which audio backend to use"
+msgstr "Qual backend de áudio utilizar"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:896
+msgid "Audio device for the ALSA backend"
+msgstr "Dispositivo de áudio para o backend ALSA"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:897
+msgid "ALSA compliant string representation for names of pcm devices"
+msgstr ""
+"Representação em string para nomes de dispositivos PCM, conforme o padrão "
+"ALSA"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:905
+msgid "Audio device for the OSS backend"
+msgstr "Dispositivo de áudio para o backend OSS"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:912
+msgid "Name of a sink for the pulseaudio backend"
+msgstr "Nome de uma sink para o backend PulseAudio"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:929
+msgid "Selected profile"
+msgstr "Perfil selecionado"
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:934
+msgid "Whether to show the animated pendulum"
+msgstr "Se deve mostrar o pêndulo animado"
