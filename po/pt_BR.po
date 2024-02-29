@@ -153,7 +153,7 @@ msgstr "Detalhes"
 #: src/resources/ui/MainWindow.glade:191
 msgctxt "Primary menu"
 msgid "Show _Pendulum"
-msgstr "Mostrar _Pêndulo"
+msgstr "_Mostrar Pêndulo"
 
 #: src/resources/ui/MainWindow.glade:205
 msgctxt "Primary menu"
@@ -168,12 +168,12 @@ msgstr "_Preferências"
 #: src/resources/ui/MainWindow.glade:245
 msgctxt "Primary menu"
 msgid "_Keyboard Shortcuts"
-msgstr "Atalhos de _teclado"
+msgstr "_Atalhos de teclado"
 
 #: src/resources/ui/MainWindow.glade:259
 msgctxt "Primary menu"
 msgid "_Help"
-msgstr "_Ajuda"
+msgstr "Ajuda"
 
 #: src/resources/ui/MainWindow.glade:273
 msgctxt "Primary menu"
@@ -366,12 +366,12 @@ msgstr "_Geral"
 #: src/resources/ui/SettingsDialog.glade:258
 msgctxt "Preferences dialog"
 msgid "S_tart direction:"
-msgstr "D_ireção inicial:"
+msgstr "Di_reção inicial:"
 
 #: src/resources/ui/SettingsDialog.glade:273
 msgctxt "Preferences dialog"
 msgid "Click sp_ot:"
-msgstr "Local do _clique:"
+msgstr "_Local do clique:"
 
 #: src/resources/ui/SettingsDialog.glade:288
 msgctxt "Preferences dialog"
@@ -411,7 +411,7 @@ msgstr "Acentos"
 #: src/resources/ui/SettingsDialog.glade:349
 msgctxt "Preferences dialog"
 msgid "Acc_ent Animation:"
-msgstr "Animação de ace_nto:"
+msgstr "A_nimação de acento:"
 
 #: src/resources/ui/SettingsDialog.glade:374
 msgctxt "Preferences dialog"
@@ -421,7 +421,7 @@ msgstr "Geral"
 #: src/resources/ui/SettingsDialog.glade:390
 msgctxt "Preferences dialog"
 msgid "S_ynchronization (ms):"
-msgstr "S_incronização (ms):"
+msgstr "Sincroni_zação (ms):"
 
 #. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
 #: src/resources/ui/SettingsDialog.glade:404
@@ -460,7 +460,7 @@ msgstr "_Som"
 #: src/resources/ui/SettingsDialog.glade:664
 msgctxt "Preferences dialog"
 msgid "Audio _Device:"
-msgstr "_Dispositivo de Áudio:"
+msgstr "Dis_positivo de Áudio:"
 
 #: src/resources/ui/SettingsDialog.glade:679
 msgctxt "Preferences dialog"
@@ -592,7 +592,7 @@ msgstr "Decaimento:"
 #: src/resources/ui/SoundThemeEditor.glade:379
 msgctxt "Sound theme editor"
 msgid "Tone"
-msgstr "Tom:"
+msgstr "Tom"
 
 #: src/resources/ui/SoundThemeEditor.glade:425
 #: src/resources/ui/SoundThemeEditor.glade:621
@@ -987,7 +987,7 @@ msgstr "Atalho de teclado para aumentar o andamento em 1 bpm"
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:771
 msgctxt "Default shortcut"
 msgid "'z'"
-msgstr "'y'"
+msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:772
 msgid "Keyboard shortcut to decrease the tempo by 1 bpm"
@@ -1007,7 +1007,7 @@ msgstr "Atalho de teclado para aumentar o andamento em 10 bpm"
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:781
 msgctxt "Default shortcut"
 msgid "'<Shift>z'"
-msgstr "'<Shift>y'"
+msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:782
 msgid "Keyboard shortcut to decrease the tempo by 10 bpm"
@@ -1027,7 +1027,7 @@ msgstr "Atalho de teclado para entrar no modo de definição rápida do andament
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:791
 msgctxt "Default shortcut"
 msgid "'t'"
-msgstr "'k'"
+msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:792
 msgid "Keyboard shortcut to tap the tempo"
@@ -1163,7 +1163,7 @@ msgstr "Dispositivo de áudio para o backend ALSA"
 msgid "ALSA compliant string representation for names of pcm devices"
 msgstr ""
 "Representação em string para nomes de dispositivos PCM, conforme o padrão "
-"ALSA "
+"ALSA"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:905
 msgid "Audio device for the OSS backend"
