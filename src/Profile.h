@@ -28,19 +28,19 @@ struct Profile
 {
   using Identifier = std::string;
 
-  // number of UTF-8 encoded unicode characters
+  // Number of UTF-8 encoded unicode characters
   static constexpr std::size_t kTitleMaxLength = 255;
 
-  // number of UTF-8 encoded unicode characters
+  // Number of UTF-8 encoded unicode characters
   static constexpr std::size_t kDescriptionMaxLength = 1024;
 
-  // default title for new profiles
+  // Default title for new profiles
   static inline const std::string kDefaultTitle            = C_("Profile", "New Profile");
-  // placeholder title for untitled profiles
+  // Placeholder title for untitled profiles
   static inline const std::string kDefaultTitlePlaceholder = C_("Profile", "Untitled Profile");
-  // title of duplicated profiles, %1 will be replaced by the old title
+  // Title of duplicated profiles, %1 will be replaced by the old title
   static inline const std::string kDefaultTitleDuplicate   = C_("Profile", "%1 (copy)");
-  // default description for new profiles
+  // Default description for new profiles
   static inline const std::string kDefaultDescription      = "";
 
   static constexpr double  kMinTempo               = 30.0;

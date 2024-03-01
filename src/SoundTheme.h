@@ -32,13 +32,13 @@
 
 struct SoundTheme
 {
-  // default title for new sound themes
+  // Default title for new sound themes
   static inline const std::string kDefaultTitle = C_("Sound theme", "New Sound Theme");
 
-  // placeholder title for untitled sound themes
+  // Placeholder title for untitled sound themes
   static inline const std::string kDefaultTitlePlaceholder = C_("Sound theme", "Untitled");
 
-  // title of duplicated sound themes, %1 will be replaced by the old title
+  // Title of duplicated sound themes, %1 will be replaced by the old title
   static inline const std::string kDefaultTitleDuplicate = C_("Sound theme", "%1 (copy)");
 
   std::string title = kDefaultTitle;
