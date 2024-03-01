@@ -9,5 +9,5 @@ Terminal=false
 Type=Application
 StartupNotify=true
 Categories=Audio;AudioVideo;Music;GTK;
-# Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-Keywords=Bar;Beats;BPM;Measure;Metronome;Minute;Practice;Rhythm;Tap;Tempo;Time;
+# Translators: Search terms to find the application. Please do not translate or localize the semicolons. The list must also end with a semicolon.
+Keywords=Beats;BPM;Metronome;Practice;Rhythm;Tap;Tempo;
