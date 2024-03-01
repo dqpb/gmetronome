@@ -560,6 +560,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes" context="Preferences dialog" comments="Tooltip">Create a new sound theme</property>
                                     <child>
                                       <object class="GtkImage">
                                         <property name="visible">True</property>
@@ -579,6 +580,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes" context="Preferences dialog" comments="Tooltip">Remove selected sound theme</property>
                                     <child>
                                       <object class="GtkImage">
                                         <property name="visible">True</property>
