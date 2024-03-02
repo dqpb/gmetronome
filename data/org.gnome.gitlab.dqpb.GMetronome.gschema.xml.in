@@ -253,9 +253,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-01"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-01/">
-    <override name="title">'Default'</override>
+    <key name="title" type="s">
+      <!--Title of the default sound theme.-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+      <default l10n="messages" context="Sound theme preset">'Default'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-01.weak-params"/>
@@ -333,9 +338,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-02"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-02/">
-    <override name="title">'Classic'</override>
+    <key name="title" type="s">
+      <!--Title of a sound theme preset, which sounds like a (classic) wooden metronome.-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+     <default l10n="messages" context="Sound theme preset">'Classic'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-02.weak-params"/>
@@ -413,9 +423,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-03"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-03/">
-    <override name="title">'Sonar'</override>
+    <key name="title" type="s">
+      <!--Title of a sound theme preset that is a pure sine wave with a short attack.-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+      <default l10n="messages" context="Sound theme preset">'Sonar'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-03.weak-params"/>
@@ -493,9 +508,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-04"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-04/">
-    <override name="title">'Kick &amp; Snare'</override>
+    <key name="title" type="s">
+      <!--The three accentuation levels of this preset sound like a kick drum, snare and hihat.-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+      <default l10n="messages" context="Sound theme preset">'Kick &amp; Snare'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.weak-params"/>
@@ -573,9 +593,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-05"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-05/">
-    <override name="title">'Flip Flop'</override>
+    <key name="title" type="s">
+      <!--Title of a sound theme preset that sounds like finger snapping.-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+      <default l10n="messages" context="Sound theme preset">'Flip Flop'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.weak-params"/>
@@ -653,9 +678,14 @@
   </schema>
 
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-06"
-	  extends="@PACKAGE_ID@.preferences.sound.theme"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-06/">
-    <override name="title">'Palmas'</override>
+    <key name="title" type="s">
+      <!--Title of a sound theme that imitates the hand clapping as used in flamenco music (Palmas).-->
+      <!--
+	  Translators: Please keep the regular single quotes around the title string as-is.
+      -->
+      <default l10n="messages" context="Sound theme preset">'Palmas'</default>
+    </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.mid-params"/>
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-06.weak-params"/>
