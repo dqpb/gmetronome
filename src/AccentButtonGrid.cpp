@@ -318,10 +318,19 @@ void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
 
     for ( std::size_t index = 0; index < buttons_.size(); ++index )
     {
-      button_alloc.set_x( alloc.get_x()
-                          + left_offset_nat
-                          + ( index % cells_per_row_nat ) * cell_width_nat_ );
-
+      if (Gtk::Widget::get_direction() == Gtk::TEXT_DIR_RTL)
+      {
+        button_alloc.set_x( alloc.get_x() + alloc.get_width()
+                            - left_offset_nat
+                            - cell_width_nat_
+                            - ( index % cells_per_row_nat ) * cell_width_nat_ );
+      }
+      else
+      {
+        button_alloc.set_x( alloc.get_x()
+                            + left_offset_nat
+                            + ( index % cells_per_row_nat ) * cell_width_nat_ );
+      }
       button_alloc.set_y( alloc.get_y()
                           + top_offset_nat
                           + ( index / cells_per_row_nat ) * cell_height_nat_ );
