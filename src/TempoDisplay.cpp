@@ -29,6 +29,8 @@ NumericLabel::NumericLabel(unsigned number, unsigned digits, bool fill)
   : number_{std::numeric_limits<unsigned>::max()},
     fill_{fill}
 {
+  Gtk::Widget::set_direction(Gtk::TEXT_DIR_LTR);
+
   while (digits-- > 0)
   {
     auto label = Gtk::manage(new Gtk::Label);
@@ -87,6 +89,8 @@ namespace {
 
 TempoDisplay::TempoDisplay()
 {
+  Gtk::Widget::set_direction(Gtk::TEXT_DIR_LTR);
+
   Gtk::Box::pack_start(integral_label_, Gtk::PACK_EXPAND_WIDGET);
   integral_label_.set_halign(Gtk::ALIGN_END);
   integral_label_.set_valign(Gtk::ALIGN_CENTER);
