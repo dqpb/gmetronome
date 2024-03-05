@@ -110,9 +110,12 @@ resources = \
 	$(resourcesdir)/icons/sound-bell-symbolic.svg \
 	$(resourcesdir)/icons/sound-timbre-symbolic.svg \
 	$(resourcesdir)/icons/sound-crossfade-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-muted-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-zero-symbolic.svg \
 	$(resourcesdir)/icons/sound-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-medium-symbolic.svg \
 	$(resourcesdir)/icons/sound-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/sound-volume-full-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
 	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
