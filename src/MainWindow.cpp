@@ -329,6 +329,7 @@ void MainWindow::initUI()
 
   // initialize transport interface
   updateStartButtonLabel(false);
+  updateVolumeMute(false);
 
   // initialize profile list
   ProfileList list;
@@ -1224,6 +1225,13 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
 
     updateProfileTitle(title, !id.empty());
   }
+  else if (action_name.compare(kActionVolumeMute) == 0)
+  {
+    bool mute;
+    app->get_action_state(kActionVolumeMute, mute);
+    updateVolumeMute(mute);
+  }
+
 }
 
 void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
@@ -1388,6 +1396,29 @@ void MainWindow::updateStartButtonLabel(bool running)
     start_button_->set_label(C_("Main window", "Stop"));
   else
     start_button_->set_label(C_("Main window", "Start"));
+}
+
+void MainWindow::updateVolumeMute(bool mute)
+{
+  static const std::vector<Glib::ustring> icons_muted = {
+    "sound-volume-muted-symbolic"
+  };
+  static const std::vector<Glib::ustring> icons_unmuted = {
+    "sound-volume-zero-symbolic",
+    "sound-volume-full-symbolic",
+    "sound-volume-low-symbolic",
+    "sound-volume-medium-symbolic",
+    "sound-volume-high-symbolic"
+  };
+
+  if (mute)
+  {
+    volume_button_->set_icons(icons_muted);
+  }
+  else
+  {
+    volume_button_->set_icons(icons_unmuted);
+  }
 }
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
