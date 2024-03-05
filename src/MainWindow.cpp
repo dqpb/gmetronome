@@ -297,14 +297,16 @@ void MainWindow::initUI()
   pendulum_.show();
 
   // initialize tempo interface
-  Glib::ustring mark_30 = Glib::ustring::format(30);
-  Glib::ustring mark_120= Glib::ustring::format(120);
-  Glib::ustring mark_250 = Glib::ustring::format(250);
+  if (tempo_scale_->get_direction() != Gtk::TEXT_DIR_RTL) // Gtk::Scale marks seem not to work
+  {                                                       // properly for RTL languages
+    Glib::ustring mark_30  = Glib::ustring::format(30);
+    Glib::ustring mark_120 = Glib::ustring::format(120);
+    Glib::ustring mark_250 = Glib::ustring::format(250);
 
-  tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, mark_30);
-  tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, mark_120);
-  tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, mark_250);
-
+    tempo_scale_->add_mark(30.0, Gtk::POS_BOTTOM, mark_30);
+    tempo_scale_->add_mark(120.0, Gtk::POS_BOTTOM, mark_120);
+    tempo_scale_->add_mark(250.0, Gtk::POS_BOTTOM, mark_250);
+  }
   tempo_scale_->set_round_digits(0);
 
   auto app = Gtk::Application::get_default();
