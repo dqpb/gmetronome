@@ -224,8 +224,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   beats_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("beatsAdjustment"));
 
-  accent_button_grid_.show();
+  accent_button_grid_.set_margin_start(20);
+  accent_button_grid_.set_margin_end(20);
   accent_box_->pack_start(accent_button_grid_);
+  accent_button_grid_.show();
 
   profile_title_default_ =
     g_dpgettext2(NULL, "Profile", Profile::kDefaultTitle.c_str());
