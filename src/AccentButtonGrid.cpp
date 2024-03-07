@@ -250,8 +250,8 @@ void AccentButtonGrid::get_preferred_width_vfunc(int& minimum_width,
 {
   updateCellDimensions();
 
-  minimum_width = group_width_min_;
-  natural_width = group_width_nat_;
+  minimum_width = std::max(group_width_min_, 12 * cell_width_min_);
+  natural_width = std::max(group_width_nat_, 12 * cell_width_nat_);
 }
 
 void AccentButtonGrid::get_preferred_height_for_width_vfunc(int width,
