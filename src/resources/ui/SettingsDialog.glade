@@ -695,9 +695,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="active-id">none</property>
                     <items>
                       <item id="none" translatable="yes" context="Preferences dialog">None</item>
-                      <item id="alsa" translatable="yes" context="Preferences dialog">Alsa</item>
-                      <item id="oss" translatable="yes" context="Preferences dialog">Oss</item>
-                      <item id="pulseaudio" translatable="yes" context="Preferences dialog">Pulseaudio</item>
+                      <item id="alsa" translatable="yes" context="Preferences dialog">ALSA</item>
+                      <item id="oss" translatable="yes" context="Preferences dialog">OSS</item>
+                      <item id="pulseaudio" translatable="yes" context="Preferences dialog">PulseAudio</item>
                     </items>
                   </object>
                   <packing>
