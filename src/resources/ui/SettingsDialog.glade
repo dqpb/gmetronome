@@ -43,10 +43,11 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <child>
-              <!-- n-columns=3 n-rows=8 -->
+              <!-- n-columns=2 n-rows=8 -->
               <object class="GtkGrid" id="generalGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
@@ -201,30 +202,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                 <child>
                   <placeholder/>
                 </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
               </object>
             </child>
             <child type="tab">
@@ -239,10 +216,12 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
               </packing>
             </child>
             <child>
-              <!-- n-columns=3 n-rows=9 -->
+              <!-- n-columns=2 n-rows=9 -->
               <object class="GtkGrid" id="animationGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
                 <property name="margin-top">10</property>
@@ -410,33 +389,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="left-attach">1</property>
                     <property name="top-attach">6</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -647,10 +599,11 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
               </packing>
             </child>
             <child>
-              <!-- n-columns=3 n-rows=4 -->
+              <!-- n-columns=2 n-rows=4 -->
               <object class="GtkGrid" id="deviceGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
@@ -674,7 +627,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label3">
+                  <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
@@ -703,18 +656,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinner" id="audioDeviceSpinner">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="active">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">2</property>
                   </packing>
                 </child>
                 <child>
@@ -752,15 +693,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="top-attach">0</property>
                     <property name="width">2</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

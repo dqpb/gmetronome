@@ -54,7 +54,6 @@ SettingsDialog::SettingsDialog(BaseObjectType* cobject,
   builder_->get_widget("audioBackendComboBox", audio_backend_combo_box_);
   builder_->get_widget("audioDeviceComboBox", audio_device_combo_box_);
   builder_->get_widget("audioDeviceEntry", audio_device_entry_);
-  builder_->get_widget("audioDeviceSpinner", audio_device_spinner_);
   builder_->get_widget("shortcutsResetButton", shortcuts_reset_button_);
   builder_->get_widget("shortcutsTreeView", shortcuts_tree_view_);
 
@@ -166,8 +165,6 @@ void SettingsDialog::initUI()
   }
   updateAudioDeviceList();
   updateAudioDevice();
-
-  audio_device_spinner_->stop();
 
   //
   // Shortcuts tab

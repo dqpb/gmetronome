@@ -100,7 +100,6 @@ private:
   Gtk::ComboBoxText* audio_backend_combo_box_;
   Gtk::ComboBoxText* audio_device_combo_box_;
   Gtk::Entry* audio_device_entry_;
-  Gtk::Spinner *audio_device_spinner_;
 
   // Shortcuts tab
   Gtk::TreeView* shortcuts_tree_view_;
