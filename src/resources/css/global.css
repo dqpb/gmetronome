@@ -1,7 +1,7 @@
 /*
-* Workaround: Some themes (Greybird, Adapta, Numix) set 'min-height' to 32px
-* for vertical levelbars which leads to a permanently filled trough in the lower
-* 32px area when the levelbar value in continuous mode is greater than zero.
+ * Some themes (Greybird, Adapta, Numix) set 'min-height' to 32px for vertical
+ * levelbars which leads to a permanently filled trough in the lower 32px area
+ * if the levelbar is in continuous mode and the value is greater than zero.
 */
 levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
 
@@ -23,16 +23,54 @@ levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
     font-weight: bold;
     margin: 0px 5px;
 }
-label#currentProfileLabel
+#currentProfileLabel
 {
     font-size: 0.9em;
     opacity: 0.75;
 }
-label#currentProfileLabel.placeholder
+#currentProfileLabel.placeholder
 {
     opacity: 0.4;
 }
 .top-label
 {
     font-size: smaller;
+}
+#mainContentBox {
+    margin: 10px;
+}
+frame.main-module
+{
+    margin: 0px 0px 10px 0px;
+}
+box.main-module-content
+{
+    margin: 10px;
+}
+#pendulumFrame
+{
+    margin: 0px;
+}
+#pendulumFrame border
+{
+    border-style: none;
+}
+#pendulumContentBox
+{
+    margin: 0px;
+}
+#transportFrame
+{
+    margin: 10px 0px 0px 0px;
+}
+#transportContentBox
+{
+    margin: 0px;
+}
+#accentButtonGrid button
+{
+    margin: 0px;
+    padding: 6px;
+    min-width: 0px;
+    min-height: 0px;
 }
