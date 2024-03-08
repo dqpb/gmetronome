@@ -84,21 +84,9 @@ namespace
 //
 // AccentButtonDrawingArea implementation
 //
-AccentButtonDrawingArea::AccentButtonDrawingArea(Accent state,
-                                                 const Glib::ustring& label)
+AccentButtonDrawingArea::AccentButtonDrawingArea(Accent state, const Glib::ustring& label)
   : button_state_(state),
-    label_(label),
-    icon_width_(kIconWidth),
-    icon_height_(kIconHeight),
-    text_width_(0),
-    text_height_(0),
-    icon_text_padding_(0),
-    min_width_(-1),
-    min_height_(-1),
-    animation_running_(false),
-    animation_tick_callback_id_(0),
-    animation_alpha_(0)
-
+    label_(label)
 {
   set_can_focus(false);
 
@@ -113,25 +101,8 @@ AccentButtonDrawingArea::AccentButtonDrawingArea(Accent state,
   signal_style_updated()
     .connect(sigc::mem_fun(*this, &AccentButtonDrawingArea::onStyleChanged));
 
-  get_style_context()->add_class(GTK_STYLE_CLASS_BUTTON);
+  //get_style_context()->add_class(GTK_STYLE_CLASS_BUTTON);
 }
-
-
-AccentButtonDrawingArea::AccentButtonDrawingArea(AccentButtonDrawingArea&& src)
-  : button_state_(std::move(src.button_state_)),
-    label_(std::move(src.label_)),
-    icon_width_(std::move(src.icon_width_)),
-    icon_height_(std::move(src.icon_height_)),
-    text_width_(std::move(src.text_width_)),
-    text_height_(std::move(src.text_width_)),
-    icon_text_padding_(std::move(src.icon_text_padding_)),
-    min_width_(std::move(src.min_width_)),
-    min_height_(std::move(src.min_height_)),
-    animation_running_(std::move(src.animation_running_)),
-    animation_tick_callback_id_(std::move(src.animation_tick_callback_id_)),
-    animation_alpha_(std::move(src.animation_alpha_))
-
-{}
 
 AccentButtonDrawingArea::~AccentButtonDrawingArea()
 {
@@ -714,14 +685,6 @@ AccentButton::AccentButton(Accent state, const Glib::ustring& label)
 
   add_events(Gdk::SCROLL_MASK);
 }
-
-AccentButton::AccentButton(AccentButton&& src)
-  : drawing_area_(std::move(src.drawing_area_)),
-    signal_accent_state_changed_(std::move(src.signal_accent_state_changed_))
-{}
-
-AccentButton::~AccentButton()
-{}
 
 bool AccentButton::setAccentState(Accent state)
 {

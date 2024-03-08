@@ -83,10 +83,6 @@ public:
   AccentButtonDrawingArea(Accent state = kAccentMid,
                           const Glib::ustring& label = "");
 
-  AccentButtonDrawingArea(const AccentButtonDrawingArea&) = delete;
-
-  AccentButtonDrawingArea(AccentButtonDrawingArea&& src);
-
   virtual ~AccentButtonDrawingArea();
 
   bool setAccentState(Accent state);
@@ -112,13 +108,13 @@ protected:
   static constexpr int kPadding = 1;
 
   // cache
-  mutable int icon_width_;
-  mutable int icon_height_;
-  mutable int text_width_;
-  mutable int text_height_;
-  mutable int icon_text_padding_;
-  mutable int min_width_;
-  mutable int min_height_;
+  mutable int icon_width_{kIconWidth};
+  mutable int icon_height_{kIconHeight};
+  mutable int text_width_{0};
+  mutable int text_height_{0};
+  mutable int icon_text_padding_{0};
+  mutable int min_width_{-1};
+  mutable int min_height_{-1};
 
   static guint current_font_hash_;
   static AccentButtonCache surface_cache_;
@@ -127,9 +123,9 @@ protected:
   using TimeSet = std::set<gint64, std::greater<gint64>>;
   TimeSet scheduled_animations_;
 
-  bool animation_running_;
-  guint animation_tick_callback_id_;
-  gushort animation_alpha_;
+  bool animation_running_{false};
+  guint animation_tick_callback_id_{0};
+  gushort animation_alpha_{0};
 
   void startAnimation();
 
@@ -199,14 +195,7 @@ public:
  */
 class AccentButton : public Gtk::Button {
 public:
-  AccentButton(Accent state = kAccentMid,
-               const Glib::ustring& label = "");
-
-  AccentButton(const AccentButton&) = delete;
-
-  AccentButton(AccentButton&& src);
-
-  virtual ~AccentButton();
+  AccentButton(Accent state = kAccentMid, const Glib::ustring& label = "");
 
   bool setAccentState(Accent state);
 
