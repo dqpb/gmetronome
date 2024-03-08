@@ -191,10 +191,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("trainerRevealer", trainer_revealer_);
   builder_->get_widget("accentRevealer", accent_revealer_);
   builder_->get_widget("pendulumRevealer", pendulum_revealer_);
-  builder_->get_widget("pendulumBox", pendulum_box_);
+  builder_->get_widget("pendulumContentBox", pendulum_content_box_);
   builder_->get_widget("trainerFrame", trainer_frame_);
   builder_->get_widget("accentFrame", accent_frame_);
-  builder_->get_widget("accentBox", accent_box_);
+  builder_->get_widget("accentContentBox", accent_content_box_);
   builder_->get_widget("tempoScale", tempo_scale_);
   builder_->get_widget("tempoSpinButton", tempo_spin_button_);
   builder_->get_widget("tapEventBox", tap_event_box_);
@@ -224,9 +224,10 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   beats_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("beatsAdjustment"));
 
+  accent_button_grid_.set_name("accentButtonGrid");
   accent_button_grid_.set_margin_start(20);
   accent_button_grid_.set_margin_end(20);
-  accent_box_->pack_start(accent_button_grid_);
+  accent_content_box_->pack_start(accent_button_grid_);
   accent_button_grid_.show();
 
   profile_title_default_ =
@@ -294,7 +295,7 @@ void MainWindow::initUI()
   about_dialog_.set_transient_for(*this);
 
   // initialize pendulum
-  pendulum_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
+  pendulum_content_box_->pack_start(pendulum_, Gtk::PACK_EXPAND_WIDGET);
   pendulum_.set_halign(Gtk::ALIGN_CENTER);
   pendulum_.show();
 

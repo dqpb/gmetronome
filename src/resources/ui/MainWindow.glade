@@ -645,9 +645,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                 <property name="name">mainContentBox</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-start">10</property>
-                <property name="margin-end">10</property>
-                <property name="margin-bottom">10</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkRevealer" id="pendulumRevealer">
@@ -657,26 +654,27 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="reveal-child">True</property>
                     <child>
                       <object class="GtkFrame" id="pendulumFrame">
+                        <property name="name">pendulumFrame</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-top">10</property>
-                        <property name="label-xalign">0.019999999552965164</property>
+                        <property name="label-xalign">0</property>
                         <child>
-                          <object class="GtkBox" id="pendulumBox">
+                          <object class="GtkBox" id="pendulumContentBox">
+                            <property name="name">pendulumContentBox</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="orientation">vertical</property>
                             <child>
                               <placeholder/>
                             </child>
+                            <style>
+                              <class name="main-module-content"/>
+                            </style>
                           </object>
                         </child>
-                        <child type="label">
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                          </object>
-                        </child>
+                        <style>
+                          <class name="main-module"/>
+                        </style>
                       </object>
                     </child>
                   </object>
@@ -688,18 +686,15 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                 </child>
                 <child>
                   <object class="GtkFrame" id="tempoFrame">
+                    <property name="name">tempoFrame</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-top">10</property>
                     <property name="label-xalign">0.019999999552965164</property>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="tempoContentBox">
+                        <property name="name">tempoContentBox</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-end">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
                         <property name="spacing">10</property>
                         <child>
                           <object class="GtkScale" id="tempoScale">
@@ -784,6 +779,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="position">2</property>
                           </packing>
                         </child>
+                        <style>
+                          <class name="main-module-content"/>
+                        </style>
                       </object>
                     </child>
                     <child type="label">
@@ -793,6 +791,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes" context="Main window - Tempo">Tempo</property>
                       </object>
                     </child>
+                    <style>
+                      <class name="main-module"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -807,19 +808,16 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="transition-type">slide-up</property>
                     <child>
                       <object class="GtkFrame" id="accentFrame">
+                        <property name="name">accentFrame</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
-                          <object class="GtkBox" id="accentBox">
+                          <object class="GtkBox" id="accentContentBox">
+                            <property name="name">accentContentBox</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-start">10</property>
-                            <property name="margin-end">10</property>
-                            <property name="margin-top">10</property>
-                            <property name="margin-bottom">10</property>
                             <property name="orientation">vertical</property>
                             <property name="spacing">10</property>
                             <child>
@@ -1070,6 +1068,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <child>
                               <placeholder/>
                             </child>
+                            <style>
+                              <class name="main-module-content"/>
+                            </style>
                           </object>
                         </child>
                         <child type="label">
@@ -1079,6 +1080,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="label" translatable="yes" context="Main window - Accents">Accents</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="main-module"/>
+                        </style>
                       </object>
                     </child>
                   </object>
@@ -1095,19 +1099,16 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="transition-type">slide-up</property>
                     <child>
                       <object class="GtkFrame" id="trainerFrame">
+                        <property name="name">trainerFrame</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-top">10</property>
                         <property name="label-xalign">0.019999999552965164</property>
                         <child>
-                          <object class="GtkBox">
+                          <object class="GtkBox" id="trainerContentBox">
+                            <property name="name">trainerContentBox</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-start">10</property>
-                            <property name="margin-end">10</property>
-                            <property name="margin-top">10</property>
-                            <property name="margin-bottom">10</property>
                             <property name="spacing">20</property>
                             <property name="homogeneous">True</property>
                             <child type="center">
@@ -1257,6 +1258,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                 <property name="position">1</property>
                               </packing>
                             </child>
+                            <style>
+                              <class name="main-module-content"/>
+                            </style>
                           </object>
                         </child>
                         <child type="label">
@@ -1266,6 +1270,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="label" translatable="yes" context="Main window - Trainer">Trainer</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="main-module"/>
+                        </style>
                       </object>
                     </child>
                   </object>
@@ -1276,68 +1283,84 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="transportBox">
+                  <object class="GtkFrame" id="transportFrame">
+                    <property name="name">transportFrame</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-top">20</property>
-                    <child type="center">
-                      <object class="GtkToggleButton" id="startButton">
-                        <property name="label">(Start)</property>
-                        <property name="width-request">200</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="has-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="action-name">app.start</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
+                    <property name="valign">end</property>
+                    <property name="label-xalign">0</property>
+                    <property name="shadow-type">none</property>
                     <child>
-                      <object class="GtkScaleButton" id="volumeButton">
+                      <object class="GtkBox" id="transportContentBox">
+                        <property name="name">transportContentBox</property>
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
-                        <property name="relief">none</property>
-                        <property name="orientation">vertical</property>
-                        <property name="adjustment">volumeAdjustment</property>
-                        <property name="icons">audio-volume-low-symbolic
+                        <property name="can-focus">False</property>
+                        <child type="center">
+                          <object class="GtkToggleButton" id="startButton">
+                            <property name="label">(Start)</property>
+                            <property name="width-request">200</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="has-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="action-name">app.start</property>
+                            <property name="use-underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScaleButton" id="volumeButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="focus-on-click">False</property>
+                            <property name="receives-default">True</property>
+                            <property name="relief">none</property>
+                            <property name="orientation">vertical</property>
+                            <property name="adjustment">volumeAdjustment</property>
+                            <property name="icons">audio-volume-low-symbolic
 audio-volume-high-symbolic
 audio-volume-low-symbolic
 audio-volume-medium-symbolic</property>
-                        <child internal-child="plus_button">
-                          <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
+                            <child internal-child="plus_button">
+                              <object class="GtkButton">
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
+                              </object>
+                            </child>
+                            <child internal-child="minus_button">
+                              <object class="GtkButton">
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
+                              </object>
+                            </child>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
-                        <child internal-child="minus_button">
-                          <object class="GtkButton">
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
-                          </object>
-                        </child>
+                        <style>
+                          <class name="main-module-content"/>
+                        </style>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="pack-type">end</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
+                    <style>
+                      <class name="main-module"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="pack-type">end</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>

@@ -107,10 +107,10 @@ private:
   Gtk::Revealer* trainer_revealer_;
   Gtk::Revealer* accent_revealer_;
   Gtk::Revealer* pendulum_revealer_;
-  Gtk::Box* pendulum_box_;
+  Gtk::Box* pendulum_content_box_;
   Gtk::Frame* trainer_frame_;
   Gtk::Frame* accent_frame_;
-  Gtk::Box* accent_box_;
+  Gtk::Box* accent_content_box_;
   Gtk::Scale* tempo_scale_;
   Gtk::SpinButton* tempo_spin_button_;
   Gtk::EventBox* tap_event_box_;
