@@ -114,6 +114,7 @@ private:
   Gtk::Scale* tempo_scale_;
   Gtk::SpinButton* tempo_spin_button_;
   Gtk::EventBox* tap_event_box_;
+  Gtk::Box* tap_box_;
   Gtk::LevelBar* tap_level_bar_;
   Gtk::ComboBoxText* meter_combo_box_;
   Gtk::SpinButton* beats_spin_button_;
@@ -187,7 +188,6 @@ private:
   void onTempoQuickSet(const Glib::VariantBase& value);
 
   // UI handler
-  bool onTempoTap(GdkEventButton* button_event);
   void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void activateMeterAction(const Glib::ustring& action, const Glib::VariantBase& param);
   void onMeterChanged();

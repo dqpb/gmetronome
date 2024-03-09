@@ -198,6 +198,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("tempoScale", tempo_scale_);
   builder_->get_widget("tempoSpinButton", tempo_spin_button_);
   builder_->get_widget("tapEventBox", tap_event_box_);
+  builder_->get_widget("tapBox", tap_box_);
   builder_->get_widget("tapLevelBar", tap_level_bar_);
   builder_->get_widget("meterComboBox", meter_combo_box_);
   builder_->get_widget("beatsSpinButton", beats_spin_button_);
@@ -385,9 +386,23 @@ void MainWindow::initBindings()
     .push_back( Glib::Binding::bind_property( accent_toggle_button_->property_active(),
                                               accent_revealer_->property_reveal_child() ));
 
-  tap_event_box_->add_events(Gdk::BUTTON_PRESS_MASK);
-  tap_event_box_->signal_button_press_event()
-    .connect(sigc::mem_fun(*this, &MainWindow::onTempoTap));
+  tap_event_box_->add_events(Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK);
+
+  tap_event_box_->signal_button_press_event().connect(
+    [&] (GdkEventButton* button_event) {
+      if (button_event->type != GDK_2BUTTON_PRESS && button_event->type != GDK_3BUTTON_PRESS)
+      {
+        Gtk::Application::get_default()->activate_action(kActionTempoTap);
+        tap_box_->set_state_flags(Gtk::STATE_FLAG_ACTIVE);
+      }
+      return true;
+    });
+
+  tap_event_box_->signal_button_release_event().connect(
+    [&] (GdkEventButton* button_event) {
+      tap_box_->set_state_flags(Gtk::STATE_FLAG_NORMAL);
+      return true;
+    });
 
   action_bindings_
     .push_back( bind_action(app,
@@ -790,16 +805,6 @@ void MainWindow::resizeProfilePopover(bool process_pending)
                                       tv_nat_size.width + 50));
 
   profile_popover_->set_size_request(po_width, po_height);
-}
-
-bool MainWindow::onTempoTap(GdkEventButton* button_event)
-{
-  if (button_event->type != GDK_2BUTTON_PRESS
-      && button_event->type != GDK_3BUTTON_PRESS)
-  {
-    Gtk::Application::get_default()->activate_action(kActionTempoTap);
-  }
-  return true;
 }
 
 void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)
