@@ -1,9 +1,21 @@
 /*
- * Some themes (Greybird, Adapta, Numix) set 'min-height' to 32px for vertical
- * levelbars which leads to a permanently filled trough in the lower 32px area
- * if the levelbar is in continuous mode and the value is greater than zero.
-*/
-levelbar.vertical.continuous block { min-width: 2px; min-height: 1px; }
+ * Copyright (C) 2020-2024 The GMetronome Team
+ *
+ * This file is part of GMetronome.
+ *
+ * GMetronome is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GMetronome is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #tempoIntegralLabel label
 {
@@ -73,4 +85,35 @@ box.main-module-content
     padding: 7px;
     min-width: 0px;
     min-height: 0px;
+}
+
+#tapBox
+{
+    border-radius: 1em 1em;
+}
+@keyframes tap-animation {
+    from { background-color: alpha(currentColor, 0.1); }
+    to   { background-color: alpha(currentColor, 0.0); }
+}
+#tapBox:active
+{
+    border-radius: 0.5em 0.5em;
+    animation-name: tap-animation;
+    animation-duration: 250ms;
+}
+#tapLabel
+{
+    padding: 10px;
+}
+#tapLevelBar
+{}
+/*
+ * Some themes (Greybird, Adapta, Numix) set 'min-height' to 32px for vertical
+ * levelbars which leads to a permanently filled trough in the lower 32px area
+ * if the levelbar is in continuous mode and the value is greater than zero.
+ */
+#tapLevelBar.vertical.continuous block
+{
+    min-width: 2px;
+    min-height: 1px;
 }
