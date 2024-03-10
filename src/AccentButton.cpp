@@ -77,7 +77,7 @@ namespace
 {
   constexpr gint64 kAnimationDuration = 75000; // usecs
   constexpr gushort kAnimationAlphaPeak = 65535; //max: 65535
-  constexpr gushort kAnimationMaxFrames = 3;
+  constexpr gushort kAnimationMaxFrames = 5;
   constexpr gint64 kAnimationClusterTime = 200000; //usecs
 }
 
@@ -319,12 +319,14 @@ void AccentButtonDrawingArea::recalculateDimensions() const
     Pango::FontDescription font = style_context->get_font(widget_state);
     Gdk::RGBA color = getPrimaryColor(style_context);
 
-    //auto& icon_surface = getIconSurface(button_state_, color);
     auto& text_surface =
       const_cast<AccentButtonDrawingArea*>(this)->getTextSurface(label_, font, color);
 
-    text_width_  = text_surface->get_width();
-    text_height_ = text_surface->get_height();
+    if (text_surface)
+    {
+      text_width_  = text_surface->get_width();
+      text_height_ = text_surface->get_height();
+    }
   }
 
   if (text_height_ > 0)
@@ -380,9 +382,9 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
                                               const Gdk::RGBA& color1,
                                               const Gdk::RGBA& color2)
 {
-  auto cairo_context = Cairo::Context::create(surface);
+  auto cr = Cairo::Context::create(surface);
 
-  Gdk::Cairo::set_source_rgba(cairo_context, color1);
+  Gdk::Cairo::set_source_rgba(cr, color1);
 
   double surface_width = surface->get_width();
 
@@ -393,48 +395,48 @@ void AccentButtonDrawingArea::drawIconSurface(Cairo::RefPtr<Cairo::ImageSurface>
   switch ( button_state ) {
   case kAccentStrong:
   {
-    cairo_context->move_to(M, 1.0);
-    cairo_context->line_to(L, 6.0);
-    cairo_context->line_to(L, 10.0);
-    cairo_context->line_to(R, 10.0);
-    cairo_context->line_to(R, 6.0);
-    cairo_context->line_to(M, 1.0);
+    cr->move_to(M, 1.0);
+    cr->line_to(L, 6.0);
+    cr->line_to(L, 10.0);
+    cr->line_to(R, 10.0);
+    cr->line_to(R, 6.0);
+    cr->line_to(M, 1.0);
 
-    Gdk::Cairo::set_source_rgba(cairo_context, color2);
-    cairo_context->fill();
+    Gdk::Cairo::set_source_rgba(cr, color2);
+    cr->fill();
 
-    cairo_context->move_to(M, 1.0 + 0.5);
-    cairo_context->line_to(L + 0.5, 6.0);
-    cairo_context->line_to(L + 0.5, 10.0 - 0.5);
-    cairo_context->line_to(R - 0.5, 10.0 - 0.5);
-    cairo_context->line_to(R - 0.5, 6.0);
-    cairo_context->line_to(M, 1.0 + 0.5);
+    cr->move_to(M, 1.0 + 0.5);
+    cr->line_to(L + 0.5, 6.0);
+    cr->line_to(L + 0.5, 10.0 - 0.5);
+    cr->line_to(R - 0.5, 10.0 - 0.5);
+    cr->line_to(R - 0.5, 6.0);
+    cr->line_to(M, 1.0 + 0.5);
 
-    Gdk::Cairo::set_source_rgba(cairo_context, color1);
-    cairo_context->set_line_width(1.0);
-    cairo_context->stroke();
+    Gdk::Cairo::set_source_rgba(cr, color1);
+    cr->set_line_width(1.0);
+    cr->stroke();
     [[fallthrough]];
   }
   case kAccentMid:
   {
-    cairo_context->rectangle( L, 11, surface_width, 4);
-    cairo_context->fill();
+    cr->rectangle( L, 11, surface_width, 4);
+    cr->fill();
     [[fallthrough]];
   }
   case kAccentWeak:
   {
-    cairo_context->rectangle( L, 16, surface_width, 4);
-    cairo_context->fill();
+    cr->rectangle( L, 16, surface_width, 4);
+    cr->fill();
   }
   break;
   case kAccentOff:
   {
     Gdk::RGBA tr_color = color1;
     tr_color.set_alpha(color1.get_alpha() * .3);
-    Gdk::Cairo::set_source_rgba(cairo_context, tr_color);
+    Gdk::Cairo::set_source_rgba(cr, tr_color);
 
-    cairo_context->rectangle( L, 19, surface_width, 1);
-    cairo_context->fill();
+    cr->rectangle( L, 19, surface_width, 1);
+    cr->fill();
   }
   break;
 
@@ -448,32 +450,39 @@ void AccentButtonDrawingArea::drawTextSurface(Cairo::RefPtr<Cairo::ImageSurface>
                                               Glib::RefPtr<Pango::Layout>& layout,
                                               const Gdk::RGBA& color)
 {
-  auto cairo_context = Cairo::Context::create(surface);
-  auto ink_extents = layout->get_pixel_ink_extents();
+  auto cr = Cairo::Context::create(surface);
 
-  cairo_context->move_to(-ink_extents.get_x(), -ink_extents.get_y());
+  Pango::Rectangle ink_extents = layout->get_pixel_ink_extents();
 
-  Gdk::Cairo::set_source_rgba(cairo_context, color);
+  double x = (surface->get_width() - ink_extents.get_width()) / 2.0 - ink_extents.get_x();
+  double y = (surface->get_height() - ink_extents.get_height()) / 2.0 - ink_extents.get_y();
 
-  layout->show_in_cairo_context(cairo_context);
+  x = std::floor(x);
+  y = std::floor(y);
+
+  cr->move_to(x,y);
+
+  Gdk::Cairo::set_source_rgba(cr, color);
+
+  layout->show_in_cairo_context(cr);
 }
 
 //static
 void AccentButtonDrawingArea::drawAnimationSurface(Cairo::RefPtr<Cairo::ImageSurface>& surface,
                                                    const Gdk::RGBA& color)
 {
-  auto cairo_context = Cairo::Context::create(surface);
+  auto cr = Cairo::Context::create(surface);
 
-  Gdk::Cairo::set_source_rgba(cairo_context, color);
+  Gdk::Cairo::set_source_rgba(cr, color);
 
-  cairo_context->translate( (double) surface->get_width() / 2.,
-                            (double) surface->get_height() / 2.);
+  cr->translate( (double) surface->get_width() / 2.,
+                 (double) surface->get_height() / 2.);
 
   int scale = surface->get_height() / 2;
 
-  cairo_context->scale(scale, scale);
-  cairo_context->arc(0.0, 0.0, 1.0, 0.0, 2 * M_PI);
-  cairo_context->fill();
+  cr->scale(scale, scale);
+  cr->arc(0.0, 0.0, 1.0, 0.0, 2 * M_PI);
+  cr->fill();
 }
 
 
@@ -508,7 +517,7 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
 {
   auto& surface = surface_cache_.getTextSurface(text, font, color);
 
-  if (!surface)
+  if (!surface && !text.empty())
   {
     auto pango_context = create_pango_context();
 
@@ -516,10 +525,15 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
     layout->set_font_description(font);
     layout->set_text(text);
 
-    // measure text dimensions
+    Pango::FontMetrics metrics = layout->get_context()->get_metrics(font);
+
+    int digit_width = std::ceil(metrics.get_approximate_digit_width() / (double) Pango::SCALE);
+    int line_height = std::ceil(metrics.get_height() / (double) Pango::SCALE);
+
     Pango::Rectangle ink_extents = layout->get_pixel_ink_extents();
-    int surface_width = ink_extents.get_width();
-    int surface_height = ink_extents.get_height();
+
+    int surface_width = std::max(kIconWidth, std::max(ink_extents.get_width(), 2 * digit_width));
+    int surface_height = std::max(kIconWidth, line_height);
 
     if (surface_width > 0 && surface_height > 0)
     {
@@ -540,14 +554,11 @@ AccentButtonDrawingArea::getAnimationSurface(const Gdk::RGBA& color)
 
   if (!surface)
   {
-    int surface_height = get_allocated_height() - icon_height_ - kPadding;
-    int surface_width = surface_height;
-
-    if (surface_height > 0 /* && surface_width > 0 */)
+    int dim = get_allocated_height() - icon_height_ - kPadding;
+    if (dim > 0)
     {
-      surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                            surface_width,
-                                            surface_height);
+      surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, dim, dim);
+
       drawAnimationSurface(surface, color);
     }
   }
@@ -610,9 +621,7 @@ void AccentButtonDrawingArea::draw_text(const Cairo::RefPtr<Cairo::Context>& cr)
   // apply animation alpha value
   //color2.set_alpha_u(animation_alpha_);
 
-  auto& surface = getTextSurface(label_, font, color);
-
-  if (surface)
+  if (auto& surface = getTextSurface(label_, font, color); surface)
   {
     int surface_width = surface->get_width();
     int surface_height = surface->get_height();
@@ -638,7 +647,7 @@ void AccentButtonDrawingArea::draw_animation(const Cairo::RefPtr<Cairo::Context>
   {
   case kAccentStrong:
     color = getSecondaryColor(style_context);
-    color.set_alpha_u(0.9 * animation_alpha_);
+   color.set_alpha_u(0.9 * animation_alpha_);
     break;
   case kAccentMid:
     color = getPrimaryColor(style_context);
