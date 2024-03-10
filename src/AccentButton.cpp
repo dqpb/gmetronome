@@ -528,7 +528,8 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
     Pango::FontMetrics metrics = layout->get_context()->get_metrics(font);
 
     int digit_width = std::ceil(metrics.get_approximate_digit_width() / (double) Pango::SCALE);
-    int line_height = std::ceil(metrics.get_height() / (double) Pango::SCALE);
+    int pango_line_height = pango_font_metrics_get_height(metrics.gobj());
+    int line_height = std::ceil(pango_line_height / (double) Pango::SCALE);
 
     Pango::Rectangle ink_extents = layout->get_pixel_ink_extents();
 
