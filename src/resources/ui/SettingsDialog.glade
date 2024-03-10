@@ -339,6 +339,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">start</property>
+                    <property name="valign">center</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
