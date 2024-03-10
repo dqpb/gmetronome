@@ -61,7 +61,7 @@ box.main-module-content
 }
 #pendulumFrame
 {
-    margin: 10px 0px 0px 0px;
+    margin: 5px 0px 0px 0px;
 }
 #pendulumFrame border
 {
@@ -82,7 +82,7 @@ box.main-module-content
 #accentButtonGrid button
 {
     margin: 0px;
-    padding: 7px;
+    padding: 3px 7px;
     min-width: 0px;
     min-height: 0px;
 }
@@ -103,7 +103,7 @@ box.main-module-content
 }
 #tapLabel
 {
-    padding: 10px;
+    padding: 10px 8px;
 }
 #tapLevelBar
 {}
