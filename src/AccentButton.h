@@ -105,7 +105,7 @@ protected:
 
   static constexpr int kIconWidth = 16;
   static constexpr int kIconHeight = 20;
-  static constexpr int kPadding = 1;
+  static constexpr int kPadding = 5;
 
   // cache
   mutable int icon_width_{kIconWidth};

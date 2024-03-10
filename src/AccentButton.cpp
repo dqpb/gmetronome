@@ -320,7 +320,8 @@ void AccentButtonDrawingArea::recalculateDimensions() const
     Gdk::RGBA color = getPrimaryColor(style_context);
 
     //auto& icon_surface = getIconSurface(button_state_, color);
-    auto& text_surface = const_cast<AccentButtonDrawingArea*>(this)->getTextSurface(label_, font, color);
+    auto& text_surface =
+      const_cast<AccentButtonDrawingArea*>(this)->getTextSurface(label_, font, color);
 
     text_width_  = text_surface->get_width();
     text_height_ = text_surface->get_height();
@@ -448,6 +449,9 @@ void AccentButtonDrawingArea::drawTextSurface(Cairo::RefPtr<Cairo::ImageSurface>
                                               const Gdk::RGBA& color)
 {
   auto cairo_context = Cairo::Context::create(surface);
+  auto ink_extents = layout->get_pixel_ink_extents();
+
+  cairo_context->move_to(-ink_extents.get_x(), -ink_extents.get_y());
 
   Gdk::Cairo::set_source_rgba(cairo_context, color);
 
@@ -513,10 +517,11 @@ AccentButtonDrawingArea::getTextSurface(const Glib::ustring& text,
     layout->set_text(text);
 
     // measure text dimensions
-    int surface_width, surface_height;
-    layout->get_pixel_size(surface_width, surface_height);
+    Pango::Rectangle ink_extents = layout->get_pixel_ink_extents();
+    int surface_width = ink_extents.get_width();
+    int surface_height = ink_extents.get_height();
 
-    if (surface_height > 0 && surface_width > 0)
+    if (surface_width > 0 && surface_height > 0)
     {
       surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
                                             surface_width,
