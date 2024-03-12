@@ -154,7 +154,6 @@ private:
   void onStart(const Glib::VariantBase& value);
 
   // Audio Device
-  void onAudioDeviceList(const Glib::VariantBase& value);
   Glib::ustring currentAudioDeviceKey();
   Glib::ustring currentAudioDevice();
 

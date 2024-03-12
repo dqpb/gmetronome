@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020-2024 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -229,7 +229,7 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         :
+  /* Action         : kActionMeterSelect
    * Scope          : Application
    * Parameter type :
    * State type     :
@@ -529,6 +529,24 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionAudioDeviceList
+   * Scope          : Application
+   * Parameter type :
+   * State type     :
+   * State value    :
+   * State hint     :
+   * Enabled        :
+   */
+  { kActionAudioDeviceList,
+    {
+      ActionScope::kApp,
+      Glib::Variant<std::vector<Glib::ustring>>::variant_type(),
+      Glib::Variant<std::vector<Glib::ustring>>::create({}),
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionShowPrimaryMenu
    * Scope          : Window
    * Parameter type : -
@@ -644,30 +662,13 @@ const ActionDescriptionMap kActionDescriptions =
    * Enabled        : true
    */
   { kActionTempoQuickSet, { ActionScope::kWin, {}, {}, {}, true } },
-
-  /* Action         : kActionAudioDeviceList
-   * Scope          : Application
-   * Parameter type :
-   * State type     :
-   * State value    :
-   * State hint     :
-   * Enabled        :
-   */
-  { kActionAudioDeviceList,
-    {
-      ActionScope::kApp,
-      Glib::Variant<std::vector<Glib::ustring>>::variant_type(),
-      Glib::Variant<std::vector<Glib::ustring>>::create({}),
-      {},
-      true
-    }
-  }
 };
 
 namespace {
 
-  Glib::RefPtr<Gio::SimpleAction> create_custom_action(const Glib::ustring& action_name,
-                                                       const ActionDescription& action_descr)
+  Glib::RefPtr<Gio::SimpleAction>
+  create_simple_action(const Glib::ustring& action_name,
+                       const ActionDescription& action_descr)
   {
     Glib::RefPtr<Gio::SimpleAction> action = Gio::SimpleAction::create(
       action_name,
@@ -682,49 +683,73 @@ namespace {
     return action;
   }
 
+  Glib::RefPtr<Gio::SimpleAction>
+  create_simple_action(const Glib::ustring& action_name,
+                       const ActionDescription& action_descr,
+                       const ActionHandlerSlot& action_slot)
+  {
+    Glib::RefPtr<Gio::SimpleAction> action = create_simple_action(action_name, action_descr);
+
+    if (action && action_slot.has_value())
+    {
+      const auto& slot = action_slot.value();
+
+      if (action->get_state_variant())
+        action->signal_change_state().connect(slot);
+      else // stateless action
+        action->signal_activate().connect(slot);
+    }
+    return action;
+  }
+
+  Glib::RefPtr<Gio::Action>
+  create_settings_action(const Glib::ustring& action_name,
+                         const ActionHandlerSlot& action_slot,
+                         Glib::RefPtr<Gio::Settings> settings)
+  {
+    Glib::RefPtr<Gio::Action> action;
+    if (settings)
+    {
+      if (action = settings->create_action(action_name); action)
+      {
+        if (action_slot.has_value()) {
+          const auto& slot = action_slot.value();
+
+          action->property_state().signal_changed().connect(
+            [action, slot] () { slot(action->get_state_variant()); });
+        }
+      }
+    }
+    return action;
+  }
+
+  void install_action(Gio::ActionMap& action_map,
+                      const Glib::ustring action_name,
+                      const ActionDescription& action_descr,
+                      const ActionHandlerSlot& action_slot,
+                      Glib::RefPtr<Gio::Settings> settings)
+  {
+    Glib::RefPtr<Gio::Action> action;
+
+    if (settings)
+      action = create_settings_action(action_name, action_slot, settings);
+    else
+      action = create_simple_action(action_name, action_descr, action_slot);
+
+    if (action)
+      action_map.add_action(action);
+  }
+
 }//unnamed namespace
 
-void install_action(Gio::ActionMap& gmap,
-                    const Glib::ustring action_name,
-                    const ActionDescription& action_descr,
-                    const ActionHandler& action_handler)
+void install_actions(Gio::ActionMap& action_map, const ActionHandlerList& handler)
 {
-  Glib::RefPtr<Gio::Action> action;
-
-  if (std::holds_alternative<ActionHandlerSlot>(action_handler))
+  for (const auto& [action_name, action_slot, settings] : handler)
   {
-    auto& slot = std::get<ActionHandlerSlot>(action_handler);
-
-    Glib::RefPtr<Gio::SimpleAction> simple_action =
-      create_custom_action(action_name, action_descr);
-
-    if ( simple_action->get_state_variant() )
-      simple_action->signal_change_state().connect(slot);
-    else // stateless action
-      simple_action->signal_activate().connect(slot);
-
-    action = simple_action;
-  }
-  else if (std::holds_alternative<ActionHandlerSettings>(action_handler))
-  {
-    auto& settings = std::get<ActionHandlerSettings>(action_handler);
-    if (settings)
-      action = settings->create_action(action_name);
-  }
-
-  if (action) gmap.add_action(action);
-}
-
-void install_actions(Gio::ActionMap& gmap,
-                     const ActionDescriptionMap& descriptions,
-                     const ActionHandlerMap& handler)
-{
-  for (const auto& [action_name, action_handler] : handler)
-  {
-    if (auto action_descr_it = descriptions.find(action_name);
-        action_descr_it != descriptions.end())
+    if (auto action_descr_it = kActionDescriptions.find(action_name);
+        action_descr_it != kActionDescriptions.end())
     {
-      install_action(gmap, action_name, action_descr_it->second, action_handler);
+      install_action(action_map, action_name, action_descr_it->second, action_slot, settings);
     }
   }
 }

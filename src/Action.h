@@ -24,10 +24,13 @@
 #include "Meter.h"
 
 #include <giomm.h>
+#include <utility>
 #include <tuple>
 #include <vector>
 #include <map>
 #include <variant>
+#include <functional>
+#include <optional>
 
 // Application actions
 inline const Glib::ustring  kActionQuit                 {"quit"};
@@ -120,29 +123,34 @@ extern const ActionDescriptionMap kActionDescriptions;
 
 // There are two posibilities to setup and install actions:
 //
-// 1) ActionHandlerSlot:     Creates a Gio::SimpleAction according to the parameters given
-//                           in ActionDescription; connects the given handler slot to
+// 1) simple action:         Creates a Gio::SimpleAction according to the parameters given
+//                           in kActionDescriptions; connects the given handler slot to
 //                           signal_activate() or signal_change_state() and adds the action
-//                           to the given Gio::ActionMap
+//                           to the given Gio::ActionMap.
 //
-// 2) ActionHandlerSettings: Uses Gio::Settings::create_action method to create the action
-//                           and adds it to the given Gio::ActionMap.
-//                           See glibmm documentation for details.
-//
-using ActionHandlerSlot     = sigc::slot<void, const Glib::VariantBase&>;
-using ActionHandlerSettings = Glib::RefPtr<Gio::Settings>;
-using ActionHandler         = std::variant<ActionHandlerSlot, ActionHandlerSettings>;
+// 2) settings action:       Uses the given Gio::Settings object and calls its create_action
+//                           method to build a Gio::Action. This action is added to the given
+//                           Gio::ActionMap. The slot is called whenever the state property
+//                           (i.e. the value of the settings key) of the action changes.
+//                           In this case the optional slot does not actually define the
+//                           action logic but is a callback to get informed whenever the
+//                           value of a settings key changes.
 
-// map action names to action handler
-using ActionHandlerMap = std::map<Glib::ustring, ActionHandler>;
+using ActionHandlerSlot = std::optional<sigc::slot<void(const Glib::VariantBase&)>>;
 
-void install_action(Gio::ActionMap& gmap,
-                    const Glib::ustring action_name,
-                    const ActionDescription& action_descr,
-                    const ActionHandler& handler);
+inline const ActionHandlerSlot kActionNoSlot;
+inline const ActionHandlerSlot kActionNullSlot {std::in_place};
+inline const ActionHandlerSlot kActionEmptySlot {std::in_place, [](const Glib::VariantBase&){}};
 
-void install_actions(Gio::ActionMap& gmap,
-                     const ActionDescriptionMap& descriptions,
-                     const ActionHandlerMap& handler);
+struct ActionHandlerListEntry
+{
+  Glib::ustring action_name;
+  ActionHandlerSlot slot;
+  Glib::RefPtr<Gio::Settings> settings;
+};
+
+using ActionHandlerList = std::vector<ActionHandlerListEntry>;
+
+void install_actions(Gio::ActionMap& action_map, const ActionHandlerList& handler);
 
 #endif//GMetronome_Action_h

@@ -183,6 +183,7 @@ private:
   void onShowShortcuts(const Glib::VariantBase& value);
   void onShowHelp(const Glib::VariantBase& value);
   void onShowAbout(const Glib::VariantBase& value);
+  void onShowPendulum(const Glib::VariantBase& value);
   void onToggleFullScreen(const Glib::VariantBase& value);
   void onPendulumTogglePhase(const Glib::VariantBase& value);
   void onTempoQuickSet(const Glib::VariantBase& value);

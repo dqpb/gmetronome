@@ -115,11 +115,11 @@ void Application::initSettings()
 
 void Application::initActions()
 {
-  const ActionHandlerMap kAppActionHandler =
+  const ActionHandlerList kAppActionHandler =
     {
       {kActionQuit,            sigc::mem_fun(*this, &Application::onQuit)},
 
-      {kActionVolume,          settings::sound()},
+      {kActionVolume,          kActionNoSlot, settings::sound()},
       {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
 
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
@@ -151,10 +151,13 @@ void Application::initActions()
       {kActionProfileDescription,  sigc::mem_fun(*this, &Application::onProfileDescription)},
       {kActionProfileReorder,      sigc::mem_fun(*this, &Application::onProfileReorder)},
 
-      {kActionAudioDeviceList,     sigc::mem_fun(*this, &Application::onAudioDeviceList)}
+      // The state of kActionAudioDeviceList provides a list of audio devices
+      // as given by the current audio backend. It is not to be changed in
+      // response of an "activation" or a "change_state" request of the client.
+      {kActionAudioDeviceList,     kActionEmptySlot}
     };
 
-  install_actions(*this, kActionDescriptions, kAppActionHandler);
+  install_actions(*this, kAppActionHandler);
 }
 
 void Application::initUI()
@@ -1178,14 +1181,6 @@ void Application::onStart(const Glib::VariantBase& value)
   }
 
   lookupSimpleAction(kActionStart)->set_state(new_state);
-}
-
-void Application::onAudioDeviceList(const Glib::VariantBase& value)
-{
-  // The state of kActionAudioDeviceList provides a list of audio devices
-  // as given by the current audio backend. It is not to be changed in
-  // response of an "activation" or a "change_state" request of the client.
-  // Ergo: nothing to do here
 }
 
 Glib::ustring Application::currentAudioDeviceKey()

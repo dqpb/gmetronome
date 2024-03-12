@@ -259,7 +259,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
 
 void MainWindow::initActions()
 {
-  const ActionHandlerMap kWinActionHandler =
+  const ActionHandlerList kWinActionHandler =
     {
       {kActionShowPrimaryMenu,         sigc::mem_fun(*this, &MainWindow::onShowPrimaryMenu)},
       {kActionShowProfiles,            sigc::mem_fun(*this, &MainWindow::onShowProfiles)},
@@ -267,13 +267,17 @@ void MainWindow::initActions()
       {kActionShowShortcuts,           sigc::mem_fun(*this, &MainWindow::onShowShortcuts)},
       {kActionShowHelp,                sigc::mem_fun(*this, &MainWindow::onShowHelp)},
       {kActionShowAbout,               sigc::mem_fun(*this, &MainWindow::onShowAbout)},
-      {kActionShowPendulum,            settings::state()},
+      {
+        kActionShowPendulum,
+        sigc::mem_fun(*this, &MainWindow::onShowPendulum),
+        settings::state()
+      },
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)},
       {kActionPendulumTogglePhase,     sigc::mem_fun(*this, &MainWindow::onPendulumTogglePhase)},
       {kActionTempoQuickSet,           sigc::mem_fun(*this, &MainWindow::onTempoQuickSet)}
     };
 
-  install_actions(*this, kActionDescriptions, kWinActionHandler);
+  install_actions(*this, kWinActionHandler);
 }
 
 void MainWindow::initUI()
@@ -946,6 +950,9 @@ void MainWindow::onShowAbout(const Glib::VariantBase& parameter)
   about_dialog_.show();
   about_dialog_.present();
 }
+
+void MainWindow::onShowPendulum(const Glib::VariantBase& parameter)
+{}
 
 void MainWindow::onToggleFullScreen(const Glib::VariantBase& parameter)
 {
