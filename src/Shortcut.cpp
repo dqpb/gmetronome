@@ -101,9 +101,7 @@ const std::vector<ShortcutGroup>& ShortcutList()
 
 const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
 {
-  { settings::kKeyShortcutsQuit,
-    { kActionQuit, {} }
-  },
+  // Application
   { settings::kKeyShortcutsShowPrimaryMenu,
     { kActionShowPrimaryMenu, {} }
   },
@@ -122,15 +120,24 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsShowAbout,
     { kActionShowAbout, {} }
   },
+  { settings::kKeyShortcutsQuit,
+    { kActionQuit, {} }
+  },
+
+  // View
   { settings::kKeyShortcutsShowPendulum,
     { kActionShowPendulum, {} }
   },
   { settings::kKeyShortcutsFullScreen,
     { kActionFullScreen, {} }
   },
+
+  // Transport
   { settings::kKeyShortcutsStart,
     { kActionStart, {} }
   },
+
+  //Tempo
   { settings::kKeyShortcutsTempoIncrease1,
     { kActionTempoChange, Glib::Variant<double>::create(1.0) }
   },
@@ -149,6 +156,8 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsTempoTap,
     { kActionTempoTap, {} }
   },
+
+  //Meter
   { settings::kKeyShortcutsMeterEnabled,
     { kActionMeterEnabled, {} }
   },
@@ -173,12 +182,18 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsMeterSelectCustom,
     { kActionMeterSelect, Glib::Variant<Glib::ustring>::create(kActionMeterCustom) }
   },
+
+  //Trainer
   { settings::kKeyShortcutsTrainerEnabled,
     { kActionTrainerEnabled, {} }
   },
+
+  // Pendulum
   { settings::kKeyShortcutsPendulumTogglePhase,
     { kActionPendulumTogglePhase, {} }
   },
+
+  // Volume
   { settings::kKeyShortcutsVolumeIncrease1,
     { kActionVolumeChange, Glib::Variant<double>::create(1.0) }
   },
