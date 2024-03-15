@@ -62,12 +62,11 @@ private:
   Meter meter_;
 
   // cache
-  mutable int cell_width_min_;
-  mutable int cell_height_min_;
-  mutable int cell_width_nat_;
-  mutable int cell_height_nat_;
-  mutable int group_width_min_;
-  mutable int group_width_nat_;
+  mutable int cell_width_;
+  mutable int cell_height_;
+  mutable int group_width_;
+
+  static constexpr int kMaxButtonsPerRow {12};
 
   sigc::signal<void(std::size_t index)> signal_accent_changed_;
 
@@ -77,14 +76,8 @@ private:
   void onAccentChanged(std::size_t index);
 
   void updateCellDimensions() const;
-
-  void numRowsForWidth(int width,
-                       int& num_rows_min,
-                       int& num_rows_nat) const;
-
-  void numGroupsPerRowForHeight(int height,
-                                int& groups_per_row_min,
-                                int& groups_per_row_nat) const;
+  int numRowsForWidth(int width) const;
+  int numGroupsPerRowForHeight(int height) const;
 
 private:
   Gtk::SizeRequestMode get_request_mode_vfunc() const override;

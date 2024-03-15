@@ -172,77 +172,50 @@ Gtk::SizeRequestMode AccentButtonGrid::get_request_mode_vfunc() const
 
 void AccentButtonGrid::updateCellDimensions() const
 {
-  int result_width_min = 1;
-  int result_height_min = 1;
+  cell_width_ = 1;
+  cell_height_ = 1;
 
-  int result_width_nat = 1;
-  int result_height_nat = 1;
-
-  int button_min;
-  int button_nat;
-
-  for ( auto& button : buttons_ )
+  if (!buttons_.empty())
   {
-    button->get_preferred_width(button_min, button_nat);
-    result_width_min = std::max(result_width_min, button_min);
-    result_width_nat = std::max(result_width_nat, button_nat);
+    // The accent button size should be equal for all buttons, so the cell size
+    // is just the natural button size of one of the buttons, e.g. the first one.
+    int min, nat;
 
-    button->get_preferred_height(button_min, button_nat);
-    result_height_min = std::max(result_height_min, button_min);
-    result_height_nat = std::max(result_height_nat, button_nat);
+    buttons_.front()->get_preferred_width(min, nat);
+    cell_width_ = nat;
+
+    buttons_.front()->get_preferred_height(min, nat);
+    cell_height_ = nat;
   }
 
-  cell_width_min_ = result_width_min;
-  cell_height_min_ = result_height_min;
-
-  cell_width_nat_ = result_width_nat;
-  cell_height_nat_ = result_height_nat;
+  std::size_t group_size = meter_.division();
 
   std::size_t min_cells_per_row =
-    std::max<std::size_t>(1, std::min<std::size_t>(buttons_.size(), meter_.division()));
+    std::max<std::size_t>(1, std::min<std::size_t>(buttons_.size(), group_size));
 
-  group_width_min_ = min_cells_per_row * cell_width_min_;
-  group_width_nat_ = min_cells_per_row * cell_width_nat_;
+  group_width_ = min_cells_per_row * cell_width_;
 }
 
-void AccentButtonGrid::numRowsForWidth(int width,
-                                       int& num_rows_min,
-                                       int& num_rows_nat) const
+int AccentButtonGrid::numRowsForWidth(int width) const
 {
+  std::size_t group_size = meter_.division();
   std::size_t num_groups = meter_.beats();
-  std::size_t max_groups_per_row_min = ( width / group_width_min_ );
-  std::size_t max_groups_per_row_nat = ( width / group_width_nat_ );
 
-  if ( max_groups_per_row_min < 1 )
-    max_groups_per_row_min = 1;
+  std::size_t max_groups_per_row = (width / group_width_);
+  max_groups_per_row = std::min(max_groups_per_row, kMaxButtonsPerRow / group_size);
 
-  if ( max_groups_per_row_nat < 1 )
-    max_groups_per_row_nat = 1;
+  if ( max_groups_per_row < 1 )
+    max_groups_per_row = 1;
 
-  num_rows_min = std::ceil( (double) num_groups / max_groups_per_row_min );
-  num_rows_nat = std::ceil( (double) num_groups / max_groups_per_row_nat );
-
-  //int groups_per_row = std::ceil( (double) num_groups / num_rows);
-  //int max_columns = groups_per_row * subdiv;
+  return std::ceil((double) num_groups / max_groups_per_row);
 }
 
-void AccentButtonGrid::numGroupsPerRowForHeight(int height,
-                                                int& groups_per_row_min,
-                                                int& groups_per_row_nat) const
+int AccentButtonGrid::numGroupsPerRowForHeight(int height) const
 {
   std::size_t num_groups = meter_.beats();
+  std::size_t num_rows = std::max(1, (height / cell_height_));
 
-  std::size_t num_rows_min = ( height / cell_height_min_ );
-  std::size_t num_rows_nat = ( height / cell_height_nat_ );
-
-  if ( num_rows_min < 1 )
-    num_rows_min = 1;
-
-  if ( num_rows_nat < 1 )
-    num_rows_nat = 1;
-
-  groups_per_row_min = std::ceil( (double) num_groups / num_rows_min );
-  groups_per_row_nat = std::ceil( (double) num_groups / num_rows_nat );
+  return std::ceil((double) num_groups / num_rows);
 }
 
 void AccentButtonGrid::get_preferred_width_vfunc(int& minimum_width,
@@ -250,23 +223,16 @@ void AccentButtonGrid::get_preferred_width_vfunc(int& minimum_width,
 {
   updateCellDimensions();
 
-  minimum_width = std::max(group_width_min_, 12 * cell_width_min_);
-  natural_width = std::max(group_width_nat_, 12 * cell_width_nat_);
+  natural_width = std::max(group_width_, kMaxButtonsPerRow * cell_width_);
+  minimum_width = natural_width;
 }
 
 void AccentButtonGrid::get_preferred_height_for_width_vfunc(int width,
                                                             int& minimum_height,
                                                             int& natural_height) const
 {
-  updateCellDimensions();
-
-  int num_rows_min;
-  int num_rows_nat;
-
-  numRowsForWidth( width, num_rows_min, num_rows_nat );
-
-  minimum_height = num_rows_min * cell_height_min_;
-  natural_height = num_rows_nat * cell_height_nat_;
+  natural_height = numRowsForWidth(width) * cell_height_;
+  minimum_height = natural_height;
 }
 
 void AccentButtonGrid::get_preferred_height_vfunc(int& minimum_height,
@@ -274,66 +240,60 @@ void AccentButtonGrid::get_preferred_height_vfunc(int& minimum_height,
 {
   updateCellDimensions();
 
-  minimum_height = cell_height_min_;
-  natural_height = cell_height_nat_;
+  natural_height = cell_height_;
+  minimum_height = natural_height;
 }
 
 void AccentButtonGrid::get_preferred_width_for_height_vfunc(int height,
                                                             int& minimum_width,
                                                             int& natural_width) const
 {
-  updateCellDimensions();
-
-  int groups_per_row_min;
-  int groups_per_row_nat;
-
-  numGroupsPerRowForHeight(height, groups_per_row_min, groups_per_row_nat);
-
-  minimum_width = groups_per_row_min * group_width_min_;
-  natural_width = groups_per_row_nat * group_width_nat_;
+  natural_width = numGroupsPerRowForHeight(height) * group_width_;
+  minimum_width = natural_width;
 }
 
 void AccentButtonGrid::on_size_allocate(Gtk::Allocation& alloc)
 {
-  updateCellDimensions();
-
+  std::size_t num_rows = numRowsForWidth(alloc.get_width());
   std::size_t num_groups = meter_.beats();
+  std::size_t group_size = meter_.division();
 
-  int num_rows_min;
-  int num_rows_nat;
-
-  numRowsForWidth( alloc.get_width(), num_rows_min, num_rows_nat );
-
-  if ( num_rows_nat > 0 )
+  if (num_rows > 0)
   {
-    //int groups_per_row_min = std::ceil( (double) num_groups / num_rows_min );
-    int groups_per_row_nat = std::ceil( (double) num_groups / num_rows_nat );
+    int groups_per_row = std::ceil((double) num_groups / num_rows);
+    int cells_per_row = groups_per_row * group_size;
 
-    int cells_per_row_nat = groups_per_row_nat * meter_.division();
+    int padding_width = (alloc.get_width() - kMaxButtonsPerRow * cell_width_) / 2;
+    int padding_height = 0;
 
-    int left_offset_nat = ( alloc.get_width() - ( cells_per_row_nat * cell_width_nat_ ) ) / 2;
-    int top_offset_nat = ( alloc.get_height() - ( num_rows_nat * cell_height_nat_ ) ) / 2;
+    double padding_x = (padding_width > 0 && kMaxButtonsPerRow > 1) ?
+      (double) padding_width / (kMaxButtonsPerRow - 1) : 0.0;
 
-    Gtk::Allocation button_alloc (0, 0, cell_width_nat_, cell_height_nat_);
+    int padding_y = 0;
+
+    int left_offset = (alloc.get_width() - cells_per_row * (cell_width_ + padding_x)) / 2;
+    int top_offset = (alloc.get_height() - (num_rows * cell_height_) - padding_height) / 2;
+
+    Gtk::Allocation button_alloc (0, 0, cell_width_, cell_height_);
 
     for ( std::size_t index = 0; index < buttons_.size(); ++index )
     {
       if (Gtk::Widget::get_direction() == Gtk::TEXT_DIR_RTL)
       {
         button_alloc.set_x( alloc.get_x() + alloc.get_width()
-                            - left_offset_nat
-                            - cell_width_nat_
-                            - ( index % cells_per_row_nat ) * cell_width_nat_ );
+                            - left_offset
+                            - cell_width_
+                            - ( index % cells_per_row ) * (cell_width_ + padding_x));
       }
       else
       {
         button_alloc.set_x( alloc.get_x()
-                            + left_offset_nat
-                            + ( index % cells_per_row_nat ) * cell_width_nat_ );
+                            + left_offset
+                            + ( index % cells_per_row ) * (cell_width_  + padding_x));
       }
       button_alloc.set_y( alloc.get_y()
-                          + top_offset_nat
-                          + ( index / cells_per_row_nat ) * cell_height_nat_ );
+                          + top_offset
+                          + ( index / cells_per_row ) * (cell_height_ + padding_y) );
 
       buttons_[index]->size_allocate(button_alloc);
     }
