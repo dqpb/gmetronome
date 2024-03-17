@@ -37,6 +37,7 @@ inline const Glib::ustring  kActionQuit                 {"quit"};
 inline const Glib::ustring  kActionStart                {"start"};
 inline const Glib::ustring  kActionVolume               {"volume"};
 inline const Glib::ustring  kActionVolumeChange         {"volume-change"};
+inline const Glib::ustring  kActionVolumeMute           {"volume-mute"};
 inline const Glib::ustring  kActionTempo                {"tempo"};
 inline const Glib::ustring  kActionTempoChange          {"tempo-change"};
 inline const Glib::ustring  kActionTempoTap             {"tempo-tap"};

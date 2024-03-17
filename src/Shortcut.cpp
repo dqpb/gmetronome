@@ -91,7 +91,8 @@ const std::vector<ShortcutGroup>& ShortcutList()
         { settings::kKeyShortcutsVolumeIncrease1,    C_("Shortcut title", "Volume +1 Percent") },
         { settings::kKeyShortcutsVolumeDecrease1,    C_("Shortcut title", "Volume -1 Percent") },
         { settings::kKeyShortcutsVolumeIncrease10,   C_("Shortcut title", "Volume +10 Percent") },
-        { settings::kKeyShortcutsVolumeDecrease10,   C_("Shortcut title", "Volume -10 Percent") }
+        { settings::kKeyShortcutsVolumeDecrease10,   C_("Shortcut title", "Volume -10 Percent") },
+        { settings::kKeyShortcutsVolumeMute,         C_("Shortcut title", "Mute Volume") }
       }
     }
   };
@@ -205,5 +206,8 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   },
   { settings::kKeyShortcutsVolumeDecrease10,
     { kActionVolumeChange, Glib::Variant<double>::create(-10.0) }
+  },
+  { settings::kKeyShortcutsVolumeMute,
+    { kActionVolumeMute, {} }
   }
 };

@@ -59,9 +59,27 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionVolumeMute
+   * Scope          : Application
+   * Parameter type : -
+   * State type     : bool
+   * State value    : false
+   * State hint     : -
+   * Enabled        : true
+   */
+  { kActionVolumeMute,
+    {
+      ActionScope::kApp,
+      {},
+      Glib::Variant<bool>::create(false),
+      {},
+      true
+    }
+  },
+
   /* Action         : kActionStart
    * Scope          : Application
-   * Parameter type : bool
+   * Parameter type : -
    * State type     : bool
    * State value    : false
    * State hint     : -
@@ -70,7 +88,7 @@ const ActionDescriptionMap kActionDescriptions =
   { kActionStart,
     {
       ActionScope::kApp,
-      {},//Glib::Variant<bool>::variant_type(),
+      {},
       Glib::Variant<bool>::create( false ),
       {},
       true
@@ -129,7 +147,7 @@ const ActionDescriptionMap kActionDescriptions =
 
   /* Action         : kActionTrainerEnabled
    * Scope          : Application
-   * Parameter type : bool
+   * Parameter type : -
    * State type     : bool
    * State value    : kDefaultProfile.content.trainer_enabled
    * State hint     : -
@@ -138,7 +156,7 @@ const ActionDescriptionMap kActionDescriptions =
   { kActionTrainerEnabled,
     {
       ActionScope::kApp,
-      {}, //Glib::Variant<bool>::variant_type(),
+      {},
       Glib::Variant<bool>::create(kDefaultProfile.content.trainer_enabled),
       {},
       true
@@ -213,7 +231,7 @@ const ActionDescriptionMap kActionDescriptions =
 
   /* Action         : kActionMeterEnabled
    * Scope          : Application
-   * Parameter type : bool
+   * Parameter type : -
    * State type     : bool
    * State value    : kDefaultProfile.content.meter_enabled
    * State hint     : -
@@ -222,7 +240,7 @@ const ActionDescriptionMap kActionDescriptions =
   { kActionMeterEnabled,
     {
       ActionScope::kApp,
-      {}, //Glib::Variant<bool>::variant_type(),
+      {},
       Glib::Variant<bool>::create(kDefaultProfile.content.meter_enabled),
       {},
       true

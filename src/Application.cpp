@@ -121,6 +121,7 @@ void Application::initActions()
 
       {kActionVolume,          kActionNoSlot, settings::sound()},
       {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
+      {kActionVolumeMute,      sigc::mem_fun(*this, &Application::onVolumeMute)},
 
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
@@ -296,8 +297,7 @@ void Application::loadSelectedSoundTheme()
           settings_sound_params_connections_[accent] =
             settings_sound_params_[accent]->signal_changed().connect(
               [accent, this] (const Glib::ustring& key) {
-                double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-                updateTickerSound(accent, volume);
+                updateTickerSound(accent);
               });
         }
       }
@@ -314,14 +314,37 @@ void Application::loadSelectedSoundTheme()
 #endif
   }
 
-  double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-  updateTickerSound(kAccentMaskAll, volume);
+  updateTickerSound(kAccentMaskAll);
+}
+
+// Helper to compute the currently effective volume, i.e. it takes into account
+// the current global volume, mute state and auto volume dropping when tapping.
+double Application::getCurrentVolume() const
+{
+  bool mute;
+  get_action_state(kActionVolumeMute, mute);
+
+  if (mute)
+    return 0.0;
+
+  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
+
+  if (hasVolumeDrop())
+    return std::clamp(
+      global_volume - global_volume / 100.0 * getVolumeDrop(),
+      0.0,
+      100.0);
+  else
+    return global_volume;
 }
 
 void Application::updateTickerSound(Accent accent, double volume)
 {
   if (accent == kAccentOff)
     return;
+
+  if (volume <= 0.0)
+    volume = getCurrentVolume();
 
   audio::SoundParameters params;
 
@@ -336,6 +359,9 @@ void Application::updateTickerSound(const AccentFlags& flags, double volume)
 {
   if (flags.none())
     return;
+
+  if (volume <= 0.0)
+    volume = getCurrentVolume();
 
   for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
     if (flags[accent])
@@ -657,6 +683,12 @@ void Application::onVolumeChange(const Glib::VariantBase& value)
   settings::sound()->set_double(settings::kKeySoundVolume, new_volume);
 }
 
+void Application::onVolumeMute(const Glib::VariantBase& value)
+{
+  lookupSimpleAction(kActionVolumeMute)->set_state(value);
+  updateTickerSound(kAccentMaskAll);
+}
+
 void Application::onTempo(const Glib::VariantBase& value)
 {
   double in_tempo =
@@ -667,7 +699,6 @@ void Application::onTempo(const Glib::VariantBase& value)
   ticker_.setTempo(tempo);
 
   auto new_state = Glib::Variant<double>::create(tempo);
-
   lookupSimpleAction(kActionTempo)->set_state(new_state);
 }
 
@@ -1248,11 +1279,12 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeySoundVolume)
   {
-    if (!isDropVolumeTimerRunning())
-    {
-      double volume = settings::sound()->get_double(settings::kKeySoundVolume);
-      updateTickerSound(kAccentMaskAll, volume);
-    }
+    bool mute;
+    get_action_state(kActionVolumeMute, mute);
+    if (mute)
+      activate_action(kActionVolumeMute);
+    else
+      updateTickerSound(kAccentMaskAll);
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
@@ -1333,10 +1365,7 @@ bool Application::onStatsTimer()
 
 void Application::startDropVolumeTimer(double drop)
 {
-  drop = std::clamp(drop, 0.0, 100.0);
-  volume_drop_ = std::max(volume_drop_, drop);
-
-  dropVolume(volume_drop_);
+  setVolumeDrop(std::max(getVolumeDrop(), std::clamp(drop, 0.0, 100.0)));
 
   if (!isDropVolumeTimerRunning())
   {
@@ -1351,7 +1380,7 @@ void Application::stopDropVolumeTimer()
   if (isDropVolumeTimerRunning())
   {
     volume_timer_connection_.disconnect();
-    dropVolume(0.0);
+    setVolumeDrop(0.0);
   }
 }
 
@@ -1363,17 +1392,14 @@ bool Application::isDropVolumeTimerRunning()
 bool Application::onDropVolumeTimer()
 {
   constexpr double kVolumeRecover = kDropVolumeRecoverSpeed * kDropVolumeTimerInterval / 1000ms;
-  volume_drop_ = std::clamp(volume_drop_ - kVolumeRecover, 0.0, 100.0);
-  dropVolume(volume_drop_);
-  return volume_drop_ > 0.0;
+  setVolumeDrop(std::clamp(getVolumeDrop() - kVolumeRecover, 0.0, 100.0));
+  return hasVolumeDrop();
 }
 
-void Application::dropVolume(double drop)
+void Application::setVolumeDrop(double drop)
 {
-  double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
-  double volume = std::clamp(global_volume - global_volume / 100.0 * drop, 0.0, 100.0);
-
-  updateTickerSound(kAccentMaskAll, volume);
+  volume_drop_ = std::clamp(drop, 0.0, 100.0);
+  updateTickerSound(kAccentMaskAll);
 }
 
 // helper

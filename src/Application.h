@@ -85,8 +85,9 @@ private:
   void initTicker();
 
   void loadSelectedSoundTheme();
-  void updateTickerSound(Accent accent, double volume);
-  void updateTickerSound(const AccentFlags& flags, double volume);
+  double getCurrentVolume() const;
+  void updateTickerSound(Accent accent, double volume = -1.0);
+  void updateTickerSound(const AccentFlags& flags, double volume = -1.0);
   void configureAudioBackend();
   void configureAudioDevice();
 
@@ -105,6 +106,7 @@ private:
 
   // Volume
   void onVolumeChange(const Glib::VariantBase& value);
+  void onVolumeMute(const Glib::VariantBase& value);
 
   // Tempo
   void onTempo(const Glib::VariantBase& value);
@@ -172,7 +174,11 @@ private:
   void stopDropVolumeTimer();
   bool isDropVolumeTimerRunning();
   bool onDropVolumeTimer();
-  void dropVolume(double drop);
+  double getVolumeDrop() const
+    { return volume_drop_; }
+  bool hasVolumeDrop() const
+    { return volume_drop_ > 0.0; }
+  void setVolumeDrop(double drop);
 
   // Input validation
   std::pair<double,bool> validateTempo(double value);

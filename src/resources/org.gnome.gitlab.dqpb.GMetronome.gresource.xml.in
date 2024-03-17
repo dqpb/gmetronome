@@ -17,9 +17,12 @@
     <file>icons/sound-bell-symbolic.svg</file>
     <file>icons/sound-timbre-symbolic.svg</file>
     <file>icons/sound-crossfade-symbolic.svg</file>
-    <file>icons/sound-volume-symbolic.svg</file>
+    <file>icons/sound-volume-muted-symbolic.svg</file>
+    <file>icons/sound-volume-zero-symbolic.svg</file>
     <file>icons/sound-volume-low-symbolic.svg</file>
+    <file>icons/sound-volume-medium-symbolic.svg</file>
     <file>icons/sound-volume-high-symbolic.svg</file>
+    <file>icons/sound-volume-full-symbolic.svg</file>
     <file>icons/sound-balance-symbolic.svg</file>
     <file>icons/sound-balance-left-symbolic.svg</file>
     <file>icons/sound-balance-right-symbolic.svg</file>

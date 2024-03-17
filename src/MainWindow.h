@@ -100,7 +100,7 @@ private:
   Gtk::Label* info_details_label_;
   Gtk::Expander* info_details_expander_;
   Gtk::Box* main_content_box_;
-  Gtk::ScaleButton* volume_button_;
+  Gtk::VolumeButton* volume_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::ToggleButton* trainer_toggle_button_;
   Gtk::ToggleButton* accent_toggle_button_;
@@ -216,6 +216,7 @@ private:
   void updateTempo(double tempo);
   void updateStart(bool running);
   void updateStartButtonLabel(bool running);
+  void updateVolumeMute(bool mute);
 
   void updateCurrentTempo(const audio::Ticker::Statistics& stats);
   void updateAccentAnimation(const audio::Ticker::Statistics& stats);
