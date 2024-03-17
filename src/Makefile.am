@@ -105,20 +105,20 @@ resources = \
 	$(resourcesdir)/icons/note-eighth-symbolic.svg \
 	$(resourcesdir)/icons/note-triplet-symbolic.svg \
 	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
-	$(resourcesdir)/icons/sound-classic-symbolic.svg \
-	$(resourcesdir)/icons/sound-modern-symbolic.svg \
-	$(resourcesdir)/icons/sound-bell-symbolic.svg \
-	$(resourcesdir)/icons/sound-timbre-symbolic.svg \
-	$(resourcesdir)/icons/sound-crossfade-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-muted-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-zero-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-low-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-medium-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-high-symbolic.svg \
-	$(resourcesdir)/icons/sound-volume-full-symbolic.svg \
-	$(resourcesdir)/icons/sound-balance-symbolic.svg \
-	$(resourcesdir)/icons/sound-balance-left-symbolic.svg \
-	$(resourcesdir)/icons/sound-balance-right-symbolic.svg \
+	$(resourcesdir)/icons/snd-classic-symbolic.svg \
+	$(resourcesdir)/icons/snd-modern-symbolic.svg \
+	$(resourcesdir)/icons/snd-bell-symbolic.svg \
+	$(resourcesdir)/icons/snd-timbre-symbolic.svg \
+	$(resourcesdir)/icons/snd-crossfade-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-muted-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-zero-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-medium-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/snd-volume-full-symbolic.svg \
+	$(resourcesdir)/icons/snd-balance-symbolic.svg \
+	$(resourcesdir)/icons/snd-balance-left-symbolic.svg \
+	$(resourcesdir)/icons/snd-balance-right-symbolic.svg \
 	$(resourcesdir)/icons/curve-keep-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-up-symbolic.svg \
 	$(resourcesdir)/icons/curve-linear-down-symbolic.svg \

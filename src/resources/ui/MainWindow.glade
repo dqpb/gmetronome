@@ -1322,11 +1322,11 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="relief">none</property>
                             <property name="orientation">vertical</property>
                             <property name="adjustment">volumeAdjustment</property>
-                            <property name="icons">sound-volume-zero-symbolic
-sound-volume-full-symbolic
-sound-volume-low-symbolic
-sound-volume-medium-symbolic
-sound-volume-high-symbolic</property>
+                            <property name="icons">snd-volume-zero-symbolic
+snd-volume-full-symbolic
+snd-volume-low-symbolic
+snd-volume-medium-symbolic
+snd-volume-high-symbolic</property>
                             <child internal-child="plus_button">
                               <object class="GtkButton">
                                 <property name="can-focus">True</property>

@@ -1418,14 +1418,14 @@ void MainWindow::updateStartButtonLabel(bool running)
 void MainWindow::updateVolumeMute(bool mute)
 {
   static const std::vector<Glib::ustring> icons_muted = {
-    "sound-volume-muted-symbolic"
+    "snd-volume-muted-symbolic"
   };
   static const std::vector<Glib::ustring> icons_unmuted = {
-    "sound-volume-zero-symbolic",
-    "sound-volume-full-symbolic",
-    "sound-volume-low-symbolic",
-    "sound-volume-medium-symbolic",
-    "sound-volume-high-symbolic"
+    "snd-volume-zero-symbolic",
+    "snd-volume-full-symbolic",
+    "snd-volume-low-symbolic",
+    "snd-volume-medium-symbolic",
+    "snd-volume-high-symbolic"
   };
 
   if (mute)

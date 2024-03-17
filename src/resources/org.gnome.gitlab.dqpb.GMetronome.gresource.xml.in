@@ -12,20 +12,20 @@
     <file>icons/note-eighth-symbolic.svg</file>
     <file>icons/note-triplet-symbolic.svg</file>
     <file>icons/note-sixteenth-symbolic.svg</file>
-    <file>icons/sound-classic-symbolic.svg</file>
-    <file>icons/sound-modern-symbolic.svg</file>
-    <file>icons/sound-bell-symbolic.svg</file>
-    <file>icons/sound-timbre-symbolic.svg</file>
-    <file>icons/sound-crossfade-symbolic.svg</file>
-    <file>icons/sound-volume-muted-symbolic.svg</file>
-    <file>icons/sound-volume-zero-symbolic.svg</file>
-    <file>icons/sound-volume-low-symbolic.svg</file>
-    <file>icons/sound-volume-medium-symbolic.svg</file>
-    <file>icons/sound-volume-high-symbolic.svg</file>
-    <file>icons/sound-volume-full-symbolic.svg</file>
-    <file>icons/sound-balance-symbolic.svg</file>
-    <file>icons/sound-balance-left-symbolic.svg</file>
-    <file>icons/sound-balance-right-symbolic.svg</file>
+    <file>icons/snd-classic-symbolic.svg</file>
+    <file>icons/snd-modern-symbolic.svg</file>
+    <file>icons/snd-bell-symbolic.svg</file>
+    <file>icons/snd-timbre-symbolic.svg</file>
+    <file>icons/snd-crossfade-symbolic.svg</file>
+    <file>icons/snd-volume-muted-symbolic.svg</file>
+    <file>icons/snd-volume-zero-symbolic.svg</file>
+    <file>icons/snd-volume-low-symbolic.svg</file>
+    <file>icons/snd-volume-medium-symbolic.svg</file>
+    <file>icons/snd-volume-high-symbolic.svg</file>
+    <file>icons/snd-volume-full-symbolic.svg</file>
+    <file>icons/snd-balance-symbolic.svg</file>
+    <file>icons/snd-balance-left-symbolic.svg</file>
+    <file>icons/snd-balance-right-symbolic.svg</file>
     <file>icons/curve-keep-symbolic.svg</file>
     <file>icons/curve-linear-up-symbolic.svg</file>
     <file>icons/curve-linear-down-symbolic.svg</file>
