@@ -817,13 +817,11 @@
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
     <key name="tempo-half" type="s">
-      <!-- Default shortcut to half the tempo -->
-      <default l10n="messages" context="Default shortcut">'h'</default>
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to half the tempo</summary>
     </key>
     <key name="tempo-double" type="s">
-      <!-- Default shortcut to double the tempo -->
-      <default l10n="messages" context="Default shortcut">'d'</default>
+      <default>'disabled'</default>
       <summary>Keyboard shortcut to double the tempo</summary>
     </key>
     <key name="tempo-quick-set" type="s">
