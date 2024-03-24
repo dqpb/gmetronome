@@ -868,7 +868,7 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
     "      <object class=\"GtkShortcutsSection\">\n"
     "        <property name=\"visible\">1</property>\n"
     "        <property name=\"section-name\">shortcuts</property>\n"
-    "        <property name=\"max-height\">10</property>\n";
+    "        <property name=\"max-height\">11</property>\n";
 
   static const Glib::ustring ui_section_footer =
     "      </object>\n"
