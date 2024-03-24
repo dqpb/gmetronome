@@ -56,8 +56,8 @@ const std::vector<ShortcutGroup>& ShortcutList()
         { settings::kKeyShortcutsTempoDecrease1,  C_("Shortcut title", "Tempo -1 Bpm") },
         { settings::kKeyShortcutsTempoIncrease10, C_("Shortcut title", "Tempo +10 Bpm") },
         { settings::kKeyShortcutsTempoDecrease10, C_("Shortcut title", "Tempo -10 Bpm") },
-        { settings::kKeyShortcutsTempoHalf,       C_("Shortcut title", "Half Tempo") },
         { settings::kKeyShortcutsTempoDouble,     C_("Shortcut title", "Double Tempo") },
+        { settings::kKeyShortcutsTempoHalf,       C_("Shortcut title", "Half Tempo") },
         { settings::kKeyShortcutsTempoQuickSet,   C_("Shortcut title", "Tempo Quick Set") },
         { settings::kKeyShortcutsTempoTap,        C_("Shortcut title", "Tempo Tap") },
       }
@@ -153,11 +153,11 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   { settings::kKeyShortcutsTempoDecrease10,
     { kActionTempoChange, Glib::Variant<double>::create(-10.0) }
   },
-  { settings::kKeyShortcutsTempoHalf,
-    { kActionTempoScale, Glib::Variant<double>::create(0.5) }
-  },
   { settings::kKeyShortcutsTempoDouble,
     { kActionTempoScale, Glib::Variant<double>::create(2.0) }
+  },
+  { settings::kKeyShortcutsTempoHalf,
+    { kActionTempoScale, Glib::Variant<double>::create(0.5) }
   },
   { settings::kKeyShortcutsTempoQuickSet,
     { kActionTempoQuickSet, {} }
