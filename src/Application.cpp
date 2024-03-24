@@ -126,6 +126,7 @@ void Application::initActions()
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
       {kActionTempoChange,     sigc::mem_fun(*this, &Application::onTempoChange)},
+      {kActionTempoScale,      sigc::mem_fun(*this, &Application::onTempoScale)},
       {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
       {kActionTrainerEnabled,  sigc::mem_fun(*this, &Application::onTrainerEnabled)},
       {kActionTrainerStart,    sigc::mem_fun(*this, &Application::onTrainerStart)},
@@ -729,6 +730,19 @@ void Application::onTempoChange(const Glib::VariantBase& value)
 
   Glib::Variant<double> new_tempo_state
     = Glib::Variant<double>::create(tempo_state);
+
+  activate_action(kActionTempo, new_tempo_state);
+}
+
+void Application::onTempoScale(const Glib::VariantBase& value)
+{
+  double scale = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+
+  double current_tempo;
+  get_action_state(kActionTempo, current_tempo);
+
+  Glib::Variant<double> new_tempo_state
+    = Glib::Variant<double>::create(scale * current_tempo);
 
   activate_action(kActionTempo, new_tempo_state);
 }
