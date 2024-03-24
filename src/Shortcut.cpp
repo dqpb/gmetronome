@@ -46,7 +46,7 @@ const std::vector<ShortcutGroup>& ShortcutList()
       ShortcutGroupIdentifier::Transport,
       C_("Shortcut group title", "Transport"),
       {
-        {settings::kKeyShortcutsStart,            C_("Shortcut title", "Start / Stop") },
+        {settings::kKeyShortcutsStart,            C_("Shortcut title", "Start/Stop") },
       }
     },{
       ShortcutGroupIdentifier::Tempo,
@@ -56,6 +56,8 @@ const std::vector<ShortcutGroup>& ShortcutList()
         { settings::kKeyShortcutsTempoDecrease1,  C_("Shortcut title", "Tempo -1 Bpm") },
         { settings::kKeyShortcutsTempoIncrease10, C_("Shortcut title", "Tempo +10 Bpm") },
         { settings::kKeyShortcutsTempoDecrease10, C_("Shortcut title", "Tempo -10 Bpm") },
+        { settings::kKeyShortcutsTempoHalf,       C_("Shortcut title", "Half Tempo") },
+        { settings::kKeyShortcutsTempoDouble,     C_("Shortcut title", "Double Tempo") },
         { settings::kKeyShortcutsTempoQuickSet,   C_("Shortcut title", "Tempo Quick Set") },
         { settings::kKeyShortcutsTempoTap,        C_("Shortcut title", "Tempo Tap") },
       }
@@ -63,7 +65,7 @@ const std::vector<ShortcutGroup>& ShortcutList()
       ShortcutGroupIdentifier::Accents,
       C_("Shortcut group title", "Accents"),
       {
-        { settings::kKeyShortcutsMeterEnabled, C_("Shortcut title", "Enable / Disable Accentuation") },
+        { settings::kKeyShortcutsMeterEnabled, C_("Shortcut title", "Enable/Disable Accentuation") },
         { settings::kKeyShortcutsMeterSelectSimple2,   C_("Shortcut title", "Select 2/4 Meter") },
         { settings::kKeyShortcutsMeterSelectSimple3,   C_("Shortcut title", "Select 3/4 Meter") },
         { settings::kKeyShortcutsMeterSelectSimple4,   C_("Shortcut title", "Select 4/4 Meter") },
@@ -76,7 +78,7 @@ const std::vector<ShortcutGroup>& ShortcutList()
       ShortcutGroupIdentifier::Trainer,
       C_("Shortcut group title", "Trainer"),
       {
-        { settings::kKeyShortcutsTrainerEnabled, C_("Shortcut title", "Enable / Disable Trainer") },
+        { settings::kKeyShortcutsTrainerEnabled, C_("Shortcut title", "Enable/Disable Trainer") },
       }
     },{
       ShortcutGroupIdentifier::Pendulum,
@@ -150,6 +152,12 @@ const std::map<Glib::ustring, ShortcutAction> kDefaultShortcutActionMap
   },
   { settings::kKeyShortcutsTempoDecrease10,
     { kActionTempoChange, Glib::Variant<double>::create(-10.0) }
+  },
+  { settings::kKeyShortcutsTempoHalf,
+    { kActionTempoScale, Glib::Variant<double>::create(0.5) }
+  },
+  { settings::kKeyShortcutsTempoDouble,
+    { kActionTempoScale, Glib::Variant<double>::create(2.0) }
   },
   { settings::kKeyShortcutsTempoQuickSet,
     { kActionTempoQuickSet, {} }

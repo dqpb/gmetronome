@@ -816,6 +816,16 @@
       <default l10n="messages" context="Default shortcut">'&lt;Shift&gt;z'</default>
       <summary>Keyboard shortcut to decrease the tempo by 10 bpm</summary>
     </key>
+    <key name="tempo-half" type="s">
+      <!-- Default shortcut to half the tempo -->
+      <default l10n="messages" context="Default shortcut">'h'</default>
+      <summary>Keyboard shortcut to half the tempo</summary>
+    </key>
+    <key name="tempo-double" type="s">
+      <!-- Default shortcut to double the tempo -->
+      <default l10n="messages" context="Default shortcut">'d'</default>
+      <summary>Keyboard shortcut to double the tempo</summary>
+    </key>
     <key name="tempo-quick-set" type="s">
       <!-- Default shortcut to enter tempo quick set mode -->
       <default l10n="messages" context="Default shortcut">'q'</default>

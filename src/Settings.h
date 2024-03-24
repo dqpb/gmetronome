@@ -226,6 +226,8 @@ namespace settings {
   inline const Glib::ustring  kKeyShortcutsTempoDecrease1         {"tempo-decrease-1"};
   inline const Glib::ustring  kKeyShortcutsTempoIncrease10        {"tempo-increase-10"};
   inline const Glib::ustring  kKeyShortcutsTempoDecrease10        {"tempo-decrease-10"};
+  inline const Glib::ustring  kKeyShortcutsTempoHalf              {"tempo-half"};
+  inline const Glib::ustring  kKeyShortcutsTempoDouble            {"tempo-double"};
   inline const Glib::ustring  kKeyShortcutsTempoQuickSet          {"tempo-quick-set"};
   inline const Glib::ustring  kKeyShortcutsTempoTap               {"tempo-tap"};
   inline const Glib::ustring  kKeyShortcutsMeterEnabled           {"meter-enabled"};
