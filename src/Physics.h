@@ -212,6 +212,24 @@ namespace physics {
 
     /**
      * @function synchronize
+     *
+     * This function applies a force to synchronize the underlying oscillator (source)
+     * with another oscillator (target) over a specified time. The parameters beat_dev
+     * and tempo_dev are the beat and tempo deviations of the (unsynced) source oscillator
+     * from the target oscillator after the sync time.
+     * If one of the deviation parameters is zero, no further computation is necessary
+     * on the client side and the other parameter is just the desired deviation after
+     * the synchronization process.
+     * On the other hand, if both beat position and tempo are to be changed the client
+     * should compute the difference in beat position and tempo after sync time. In the
+     * simple case of two oscillators to be exactly synchronized in tempo and position
+     * that would be:
+     *
+     * tempo_dev = tempo_tgt - tempo_src
+     * beat_dev = (tempo_tgt * sync_time + pos_tgt) - (tempo_src * sync_time + pos_src)
+     *
+     * where tempo_src, pos_src and tempo_tgt, pos_tgt are the velocities and position
+     * of the source and target oscillators, respectively.
      */
     void synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time);
 
@@ -276,6 +294,7 @@ namespace physics {
 
     void shutdown(const seconds_dbl& time);
 
+    /** See comments for BeatKinematics::synchronize. */
     void synchronize(double theta_dev, double omega_dev, const seconds_dbl& time);
 
     void step(seconds_dbl time);
