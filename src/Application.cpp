@@ -741,8 +741,10 @@ void Application::onTempoScale(const Glib::VariantBase& value)
   double current_tempo;
   get_action_state(kActionTempo, current_tempo);
 
+  double new_tempo = scale * current_tempo;
+
   Glib::Variant<double> new_tempo_state
-    = Glib::Variant<double>::create(scale * current_tempo);
+    = Glib::Variant<double>::create(new_tempo);
 
   activate_action(kActionTempo, new_tempo_state);
 }
