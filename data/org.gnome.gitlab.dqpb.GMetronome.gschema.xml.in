@@ -784,11 +784,11 @@
       <summary>Keyboard shortcut to decrease the volume by 1 percent</summary>
     </key>
     <key name="volume-increase-10" type="s">
-      <default>'disabled'</default>
+      <default>'&lt;Primary&gt;Up'</default>
       <summary>Keyboard shortcut to increase the volume by 10 percent</summary>
     </key>
     <key name="volume-decrease-10" type="s">
-      <default>'disabled'</default>
+      <default>'&lt;Primary&gt;Down'</default>
       <summary>Keyboard shortcut to decrease the volume by 10 percent</summary>
     </key>
     <key name="volume-mute" type="s">
