@@ -17,28 +17,41 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#tempoIntegralLabel label
+#headerBarTitleBox
+{
+    margin: 0.7em 0.0em 0.3em 0.0em;
+    padding: 0px;
+}
+#tempoDisplay
+{
+    margin: 0.0em 0em 0.3em 0em;
+    padding: 0px;
+}
+#tempoIntegralLabel
 {
     font-size: 1.4em;
     font-weight: bold;
-    margin: 0px;
+    margin: 0em;
     padding: 0px;
 }
-#tempoFractionLabel label
+#tempoFractionLabel
 {
     font-size: 0.9em;
-    margin: 0px;
+    margin: 0em;
     padding: 0px;
 }
 #tempoDividerLabel
 {
-    font-weight: bold;
-    margin: 0px 5px;
+    font-size: 1.2em;
+    margin: 0em 0.2em;
+    padding: 0px;
 }
 #currentProfileLabel
 {
     font-size: 0.9em;
     opacity: 0.75;
+    margin: 0px;
+    padding: 0px;
 }
 #currentProfileLabel.placeholder
 {

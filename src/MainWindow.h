@@ -189,7 +189,6 @@ private:
   void onTempoQuickSet(const Glib::VariantBase& value);
 
   // UI handler
-  void onTempoLabelAllocate(Gtk::Allocation& alloc);
   void activateMeterAction(const Glib::ustring& action, const Glib::VariantBase& param);
   void onMeterChanged();
   void onBeatsChanged();

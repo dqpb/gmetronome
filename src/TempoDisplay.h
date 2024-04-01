@@ -21,41 +21,140 @@
 #define GMetronome_TempoDisplay_h
 
 #include <gtkmm.h>
+#include <vector>
+#include <chrono>
 
-class NumericLabel : public Gtk::Box {
+class DividerLabel : public Gtk::DrawingArea {
 public:
-  NumericLabel(unsigned number = 0, unsigned digits = 3, bool fill = false);
+  enum class State
+  {
+    kSpeedup,
+    kSlowdown,
+    kStable
+  };
 
-  void setNumber(unsigned number);
+public:
+  DividerLabel();
+  ~DividerLabel();
 
-  unsigned getNumber() const
-    { return number_; }
-  unsigned getDigits() const
-    { return Gtk::Box::get_children().size(); }
-  bool getFill() const
-    { return fill_; }
+  void changeState(State s);
 
 private:
-  unsigned number_;
-  bool fill_;
+  State state_{State::kStable};
+  int content_size_{1};
+  guint animation_tick_callback_id_{0};
+  bool animation_running_{false};
+
+  using seconds_dbl = std::chrono::duration<double>;
+
+  class TriangleMotionState {
+  public:
+    void reset(double position = 0.0);
+    void moveTo(double target);
+    bool step(const seconds_dbl& time);
+
+    double position() const
+      { return p_; }
+    bool targetReached() const
+      { return p_ == t_; }
+
+  private:
+    double p_{0.0}; // position (degreed)
+    double v_{0.0}; // velocity (degrees/s)
+    double t_{0.0}; // target position
+  };
+
+  TriangleMotionState triangle_motion_;
+
+  std::chrono::microseconds last_frame_time_{0};
+
+  void startAnimation();
+  void stopAnimation();
+  bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock);
+
+  void updateSize();
+
+  void addBulletPath(const Cairo::RefPtr<Cairo::Context>& cr);
+  void addTrianglePath(const Cairo::RefPtr<Cairo::Context>& cr);
+
+  // default signal handler
+  void on_style_updated() override;
+  bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+  Gtk::SizeRequestMode get_request_mode_vfunc() const override;
+  void get_preferred_width_vfunc(int& minimum_width,
+                                 int& natural_width) const override;
+  void get_preferred_height_for_width_vfunc(int width,
+                                            int& minimum_height,
+                                            int& natural_height) const  override;
+  void get_preferred_height_vfunc(int& minimum_height,
+                                  int& natural_height) const override;
+  void get_preferred_width_for_height_vfunc(int height,
+                                            int& minimum_width,
+                                            int& natural_width) const override;
 };
 
+class NumericLabel : public Gtk::DrawingArea {
+public:
+  NumericLabel(int number = 0, std::size_t digits = 3, bool fill = false);
+
+  void display(int number);
+
+  void clear()
+    { display(0); }
+
+  int number() const
+    { return number_; }
+  std::size_t digits() const
+    { return kDigits; }
+  bool fill() const
+    { return kFill; }
+
+private:
+  int number_{0};
+  const std::size_t kDigits;
+  const bool kFill;
+
+  std::vector<Glib::ustring> digits_;
+
+  int digit_width_{0};
+  int digit_height_{0};
+
+  void updateDigits();
+  void updateDigitDimensions();
+
+private:
+  // default signal handler
+  void on_style_updated() override;
+  void on_screen_changed(const Glib::RefPtr< Gdk::Screen > &previous_screen) override;
+  bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+  Gtk::SizeRequestMode get_request_mode_vfunc() const override;
+  void get_preferred_width_vfunc(int& minimum_width,
+                                 int& natural_width) const override;
+  void get_preferred_height_for_width_vfunc(int width,
+                                            int& minimum_height,
+                                            int& natural_height) const  override;
+  void get_preferred_height_vfunc(int& minimum_height,
+                                  int& natural_height) const override;
+  void get_preferred_width_for_height_vfunc(int height,
+                                            int& minimum_width,
+                                            int& natural_width) const override;
+};
 
 class TempoDisplay : public Gtk::Box {
 public:
   TempoDisplay();
 
-  void setTempo(double tempo, double accel);
+  void display(double tempo, double accel);
 
-  double getTempo() const
+  double tempo() const
     { return tempo_; }
-  double getAccel() const
+  double accel() const
     { return accel_; }
 
 private:
   double tempo_{0.0};
   double accel_{0.0};
-  Gtk::Label divider_label_;
+  DividerLabel divider_label_;
   NumericLabel integral_label_{0,3,false};
   NumericLabel fraction_label_{0,2,true};
 };

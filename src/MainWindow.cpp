@@ -289,6 +289,7 @@ void MainWindow::initUI()
 
   // initialize header bar
   header_bar_title_box_->pack_start(tempo_display_, Gtk::PACK_EXPAND_WIDGET);
+  tempo_display_.set_name("tempoDisplay");
   tempo_display_.show();
   updateCurrentTempo(audio::Ticker::Statistics{});
 
@@ -499,9 +500,6 @@ void MainWindow::initBindings()
 
   app->signalTap()
     .connect(sigc::mem_fun(*this, &MainWindow::onTap));
-
-  tempo_display_.signal_size_allocate()
-    .connect(sigc::mem_fun(*this, &MainWindow::onTempoLabelAllocate));
 }
 
 MainWindow::~MainWindow()
@@ -810,13 +808,6 @@ void MainWindow::resizeProfilePopover(bool process_pending)
                                       tv_nat_size.width + 50));
 
   profile_popover_->set_size_request(po_width, po_height);
-}
-
-void MainWindow::onTempoLabelAllocate(Gtk::Allocation& alloc)
-{
-  // make sure that the header bar is always high enough
-  // for the tempo label and the profile name label
-  header_bar_->set_size_request(-1, 2 * alloc.get_height() + 10);
 }
 
 void MainWindow::onProfileShow()
@@ -1440,7 +1431,7 @@ void MainWindow::updateVolumeMute(bool mute)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  tempo_display_.setTempo(stats.tempo, stats.acceleration);
+  tempo_display_.display(stats.tempo, stats.acceleration);
 }
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
