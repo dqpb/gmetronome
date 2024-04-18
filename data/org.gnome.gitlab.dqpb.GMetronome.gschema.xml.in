@@ -521,7 +521,7 @@
     <child name="weak-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-04.weak-params"/>
   </schema>
 
-  <!-- Flip Flop -->
+  <!-- Snap -->
   <schema id="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.strong-params"
 	  extends="@PACKAGE_ID@.preferences.sound.theme.parameters"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/themes/preset-05/strong-params/">
@@ -599,7 +599,7 @@
       <!--
 	  Translators: Please keep the regular single quotes around the title string as-is.
       -->
-      <default l10n="messages" context="Sound theme preset">'Flip Flop'</default>
+      <default l10n="messages" context="Sound theme preset">'Snap'</default>
     </key>
     <child name="strong-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.strong-params"/>
     <child name="mid-params" schema="@PACKAGE_ID@.preferences.sound.theme-list.preset-05.mid-params"/>
