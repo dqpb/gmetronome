@@ -98,35 +98,35 @@ resources = \
 	$(resourcesdir)/ui/MainWindow.glade \
 	$(resourcesdir)/ui/SettingsDialog.glade \
 	$(resourcesdir)/ui/SoundThemeEditor.glade \
-	$(resourcesdir)/icons/access-profile-symbolic.svg \
-	$(resourcesdir)/icons/access-accent-symbolic.svg \
-	$(resourcesdir)/icons/access-trainer-symbolic.svg \
-	$(resourcesdir)/icons/note-quarter-symbolic.svg \
-	$(resourcesdir)/icons/note-eighth-symbolic.svg \
-	$(resourcesdir)/icons/note-triplet-symbolic.svg \
-	$(resourcesdir)/icons/note-sixteenth-symbolic.svg \
-	$(resourcesdir)/icons/snd-classic-symbolic.svg \
-	$(resourcesdir)/icons/snd-modern-symbolic.svg \
-	$(resourcesdir)/icons/snd-bell-symbolic.svg \
-	$(resourcesdir)/icons/snd-timbre-symbolic.svg \
-	$(resourcesdir)/icons/snd-crossfade-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-muted-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-zero-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-low-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-medium-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-high-symbolic.svg \
-	$(resourcesdir)/icons/snd-volume-full-symbolic.svg \
-	$(resourcesdir)/icons/snd-balance-symbolic.svg \
-	$(resourcesdir)/icons/snd-balance-left-symbolic.svg \
-	$(resourcesdir)/icons/snd-balance-right-symbolic.svg \
-	$(resourcesdir)/icons/curve-keep-symbolic.svg \
-	$(resourcesdir)/icons/curve-linear-up-symbolic.svg \
-	$(resourcesdir)/icons/curve-linear-down-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-up-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-up-flipped-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-down-symbolic.svg \
-	$(resourcesdir)/icons/curve-cubic-down-flipped-symbolic.svg \
-	$(resourcesdir)/icons/curve-quartic-symbolic.svg \
+	$(resourcesdir)/icons/gm-access-profile-symbolic.svg \
+	$(resourcesdir)/icons/gm-access-accent-symbolic.svg \
+	$(resourcesdir)/icons/gm-access-trainer-symbolic.svg \
+	$(resourcesdir)/icons/gm-note-quarter-symbolic.svg \
+	$(resourcesdir)/icons/gm-note-eighth-symbolic.svg \
+	$(resourcesdir)/icons/gm-note-triplet-symbolic.svg \
+	$(resourcesdir)/icons/gm-note-sixteenth-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-classic-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-modern-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-bell-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-timbre-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-crossfade-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-muted-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-zero-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-medium-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-full-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-balance-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-balance-left-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-balance-right-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-keep-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-linear-up-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-linear-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-up-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-up-flipped-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-down-flipped-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-quartic-symbolic.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml

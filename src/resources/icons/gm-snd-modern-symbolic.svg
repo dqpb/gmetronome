@@ -7,7 +7,7 @@
    viewBox="0 0 16.0 16.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="snd-crossfade-symbolic.svg"
+   sodipodi:docname="gm-snd-modern-symbolic.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,14 +27,14 @@
      inkscape:document-units="px"
      showgrid="true"
      inkscape:zoom="14.493388"
-     inkscape:cx="8.0726466"
+     inkscape:cx="8.1416436"
      inkscape:cy="9.2800938"
      inkscape:window-width="1280"
      inkscape:window-height="973"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g1203"
+     inkscape:current-layer="layer1"
      inkscape:snap-smooth-nodes="true"
      inkscape:showpageshadow="2"
      inkscape:deskcolor="#d1d1d1">
@@ -44,61 +44,6 @@
   </sodipodi:namedview>
   <defs
      id="defs824">
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1199"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1195"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1874"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1335"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1051"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
     <inkscape:path-effect
        effect="bspline"
        id="path-effect952"
@@ -116,17 +61,15 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="g1203"
-       style="stroke-width:1.88976">
+       id="path950">
       <path
-         id="path1193"
-         style="color:#000000;fill:#000000;stroke-width:1.88976;-inkscape-stroke:none"
-         d="m 9,11 c 1.135842,1.034069 2,2 2,2 0,0 2.997666,-0.0057 4,0 v -2 c -0.99984,0.0253 -2.000067,0.01082 -3,0 -0.817401,-0.766466 -0.940074,-0.92302 -1.746506,-1.7011493 M 12,5 c 0.999932,-0.010855 2.000161,-0.025376 3,0 V 3.0467496 C 14.00028,3.0172891 11,3 11,3 11,3 6.6748759,8.4525826 4,11 3.0000673,11.01082 1.9998396,11.02529 1,11 v 2.174145 C 2.0025515,13.201125 4.0071248,13.140767 5,13 M 7.1570148,5.2780984 C 5.9837494,4.1831982 6.1860099,4.0811652 5,3 4.0000437,3.0181591 2.0000777,3.0366445 1,3.0467496 V 5 C 1.9998394,4.974696 3.0000674,4.989173 4,5 l 1.6577335,1.8931018"
-         sodipodi:nodetypes="cccccccccccccccccccc" />
+         id="path2199"
+         style="color:#000000;fill:#000000;stroke-linecap:round;-inkscape-stroke:none"
+         d="M 4.4199219,3.6933594 C 3.2913187,3.7257299 2.5182067,4.7023993 1.9115412,5.5413333 1.4167457,6.2489097 0.99516891,7.003581 0.56640625,7.7519531 0.2339784,8.6407786 1.4144739,8.6269795 1.6127175,8 3.543895,8 5.4750725,8 7.40625,8 c 0.881971,1.3317495 1.6209797,2.814754 2.880061,3.84148 0.698065,0.588599 1.773292,0.617034 2.488663,0.04323 1.2107,-0.933624 1.894453,-2.3502173 2.65862,-3.6366601 C 15.746375,7.3310874 14.59874,7.4821454 14.318098,8 12.409982,8 10.501866,8 8.59375,8 7.7135575,6.6681783 6.9736528,5.1868883 5.7156622,4.1605086 5.3465283,3.87614 4.8900733,3.6905174 4.4199219,3.6933594 Z" />
     </g>
   </g>
   <metadata
-     id="metadata692">
+     id="metadata687">
     <rdf:RDF>
       <cc:Work
          rdf:about="">

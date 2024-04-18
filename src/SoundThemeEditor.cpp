@@ -40,15 +40,15 @@ ShapeButton::ShapeButton(Mode mode)
   switch (mode_) {
   case Mode::kAttack:
     property_shape_ = "linear";
-    set_image_from_icon_name("curve-linear-up-symbolic");
+    set_image_from_icon_name("gm-curve-linear-up-symbolic");
     break;
   case Mode::kHold:
     property_shape_ = "keep";
-    set_image_from_icon_name("curve-keep-symbolic");
+    set_image_from_icon_name("gm-curve-keep-symbolic");
     break;
   case Mode::kDecay:
     property_shape_ = "linear";
-    set_image_from_icon_name("curve-linear-down-symbolic");
+    set_image_from_icon_name("gm-curve-linear-down-symbolic");
     break;
   default:
     break;
@@ -139,30 +139,30 @@ void ShapeButton::onShapeChanged()
 
   if (mode_ == Mode::kAttack) {
     if (current_shape == "linear")
-      set_image_from_icon_name("curve-linear-up-symbolic");
+      set_image_from_icon_name("gm-curve-linear-up-symbolic");
     else if (current_shape == "cubic")
-      set_image_from_icon_name("curve-cubic-up-symbolic");
+      set_image_from_icon_name("gm-curve-cubic-up-symbolic");
     else if (current_shape == "cubic-flipped")
-      set_image_from_icon_name("curve-cubic-up-flipped-symbolic");
+      set_image_from_icon_name("gm-curve-cubic-up-flipped-symbolic");
     else
       set_image_from_icon_name("");
   }
   else if (mode_ == Mode::kHold)
   {
     if (current_shape == "keep")
-      set_image_from_icon_name("curve-keep-symbolic");
+      set_image_from_icon_name("gm-curve-keep-symbolic");
     else if (current_shape == "quartic")
-      set_image_from_icon_name("curve-quartic-symbolic");
+      set_image_from_icon_name("gm-curve-quartic-symbolic");
     else
       set_image_from_icon_name("");
   }
   else if (mode_ == Mode::kDecay) {
     if (current_shape == "linear")
-      set_image_from_icon_name("curve-linear-down-symbolic");
+      set_image_from_icon_name("gm-curve-linear-down-symbolic");
     else if (current_shape == "cubic")
-      set_image_from_icon_name("curve-cubic-down-symbolic");
+      set_image_from_icon_name("gm-curve-cubic-down-symbolic");
     else if (current_shape == "cubic-flipped")
-      set_image_from_icon_name("curve-cubic-down-flipped-symbolic");
+      set_image_from_icon_name("gm-curve-cubic-down-flipped-symbolic");
     else
       set_image_from_icon_name("");
   }

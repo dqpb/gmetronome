@@ -7,8 +7,8 @@
    viewBox="0 0 16.0 16.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="snd-modern-symbolic.svg"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="gm-snd-volume-muted-symbolic.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -16,6 +16,18 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <g
+     id="path2"
+     inkscape:label="cross">
+    <path
+       style="color:#000000;fill:#000000;-inkscape-stroke:none"
+       d="m 14,6 -4,4 m 0,-4 4,4"
+       id="path4" />
+    <path
+       style="color:#000000;fill:#000000;-inkscape-stroke:none"
+       d="m 10,5 a 1,1 0 0 0 -0.7070312,0.2929687 1,1 0 0 0 0,1.4140625 L 10.585938,8 9.2929688,9.2929688 a 1,1 0 0 0 0,1.4140622 1,1 0 0 0 1.4140622,0 L 12,9.4140625 13.292969,10.707031 a 1,1 0 0 0 1.414062,0 1,1 0 0 0 0,-1.4140622 L 13.414063,8 14.707031,6.7070312 a 1,1 0 0 0 0,-1.4140625 1,1 0 0 0 -1.414062,0 L 12,6.5859375 10.707031,5.2929687 A 1,1 0 0 0 10,5 Z"
+       id="path5" />
+  </g>
   <sodipodi:namedview
      id="namedview829"
      pagecolor="#ffffff"
@@ -26,50 +38,32 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="14.493388"
-     inkscape:cx="8.1416436"
-     inkscape:cy="9.2800938"
-     inkscape:window-width="1280"
-     inkscape:window-height="973"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:zoom="40.993492"
+     inkscape:cx="6.0619378"
+     inkscape:cy="7.3426289"
+     inkscape:window-width="1801"
+     inkscape:window-height="1095"
+     inkscape:window-x="69"
+     inkscape:window-y="48"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="SVGRoot"
      inkscape:snap-smooth-nodes="true"
      inkscape:showpageshadow="2"
      inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
-       id="grid892" />
+       id="grid892"
+       originx="0"
+       originy="0"
+       spacingy="1"
+       spacingx="1"
+       units="px"
+       visible="true" />
   </sodipodi:namedview>
   <defs
-     id="defs824">
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect952"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
-  </defs>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
-    <g
-       id="path950">
-      <path
-         id="path2199"
-         style="color:#000000;fill:#000000;stroke-linecap:round;-inkscape-stroke:none"
-         d="M 4.4199219,3.6933594 C 3.2913187,3.7257299 2.5182067,4.7023993 1.9115412,5.5413333 1.4167457,6.2489097 0.99516891,7.003581 0.56640625,7.7519531 0.2339784,8.6407786 1.4144739,8.6269795 1.6127175,8 3.543895,8 5.4750725,8 7.40625,8 c 0.881971,1.3317495 1.6209797,2.814754 2.880061,3.84148 0.698065,0.588599 1.773292,0.617034 2.488663,0.04323 1.2107,-0.933624 1.894453,-2.3502173 2.65862,-3.6366601 C 15.746375,7.3310874 14.59874,7.4821454 14.318098,8 12.409982,8 10.501866,8 8.59375,8 7.7135575,6.6681783 6.9736528,5.1868883 5.7156622,4.1605086 5.3465283,3.87614 4.8900733,3.6905174 4.4199219,3.6933594 Z" />
-    </g>
-  </g>
+     id="defs824" />
   <metadata
-     id="metadata687">
+     id="metadata691">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -80,7 +74,7 @@
         </dc:creator>
         <dc:rights>
           <cc:Agent>
-            <dc:title>Copyright (C) 2023 The GMetronome Team</dc:title>
+            <dc:title>Copyright (C) 2024 The GMetronome Team</dc:title>
           </cc:Agent>
         </dc:rights>
         <dc:publisher>
@@ -107,4 +101,9 @@
       </cc:License>
     </rdf:RDF>
   </metadata>
+  <path
+     style="fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;fill:#000000"
+     d="M 0,5 H 3 L 7,1 V 15 L 3,11 0,11.03151 Z"
+     id="path3"
+     inkscape:label="speaker" />
 </svg>

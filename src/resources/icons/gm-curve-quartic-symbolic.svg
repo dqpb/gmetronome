@@ -7,7 +7,7 @@
    viewBox="0 0 16.0 16.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="snd-bell-symbolic.svg"
+   sodipodi:docname="gm-curve-quartic-symbolic.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -26,15 +26,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="14.493388"
-     inkscape:cx="8.0726466"
-     inkscape:cy="9.2800938"
+     inkscape:zoom="28.986776"
+     inkscape:cx="7.4861723"
+     inkscape:cy="8.7453672"
      inkscape:window-width="1280"
      inkscape:window-height="973"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g1203"
      inkscape:snap-smooth-nodes="true"
      inkscape:showpageshadow="2"
      inkscape:deskcolor="#d1d1d1">
@@ -46,7 +46,29 @@
      id="defs824">
     <inkscape:path-effect
        effect="bspline"
-       id="path-effect5854"
+       id="path-effect699"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1199"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1195"
        is_visible="true"
        lpeversion="1"
        weight="33.333333"
@@ -104,29 +126,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 8.0005525,1.8004999 C 6.0000553,1.8000026 4.0000553,3.6000514 3.3336234,5.2673463 2.6671914,6.9346412 3.3338088,8.4678125 3.1668674,9.7339453 2.9999261,11.000078 2,12.000004 1,13.000004 c 0,0 14,0 14,0 -1,-1 -1.999118,-1.999118 -2.166368,-3.2658734 C 12.666381,8.4673753 13.333127,6.9339101 12.667088,5.267478 12.00105,3.6010458 10.00105,1.8009971 8.0005525,1.8004999 Z"
-       id="path5852"
-       inkscape:path-effect="#path-effect5854"
-       inkscape:original-d="M 8,3.5700647e-6 C 6.001,1.8010523 4.0010001,3.6011011 2.0000001,5.4001499 c 0.6676666,1.5342846 1.3342841,3.0674559 2,4.5998541 -0.999074,1.001074 -3.0000001,3 -3.0000001,3 h 14 c 0,0 -1.999118,-1.999118 -3,-3 C 12.667588,8.4678999 13.334333,6.9344347 14,5.4001499 12.001,3.6011009 10.001,1.8010523 8,3.5700647e-6 Z"
-       sodipodi:nodetypes="ssccccss" />
-    <ellipse
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke"
-       id="path7952"
-       cx="8"
-       cy="13.000002"
-       rx="2"
-       ry="1.9999981" />
-    <circle
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke"
-       id="path8056"
-       cx="8"
-       cy="2.0000038"
-       r="1" />
+    <g
+       id="g1203"
+       style="stroke-width:1.88976">
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 2,2 C 2,6 2,10.001 4.0005002,12.0005 6.0010004,14 10.001,14 12.0005,12.0005 14,10.001 14,6 14,2 14,2 12,2 12,2 12,5.3333333 12,8.6676666 10.667167,10.333833 9.3343333,12 6.6676667,12 5.3338333,10.333833 4,8.6676666 4,5.3333333 4,2 4,2 2,2 2,2 Z"
+         id="path697"
+         inkscape:path-effect="#path-effect699"
+         inkscape:original-d="m 2,2 c 0,0 10e-4,8.001 0,12 4.0010004,10e-4 8.001,10e-4 12,0 10e-4,-3.999 0,-12 0,-12 h -2 c 0,0 10e-4,6.6676666 0,10 C 9.3343333,12.001 6.6676667,12.001 4,12 4.001,8.6676666 4,2 4,2 Z"
+         sodipodi:nodetypes="cscccsscc" />
+    </g>
   </g>
   <metadata
-     id="metadata692">
+     id="metadata694">
     <rdf:RDF>
       <cc:Work
          rdf:about="">

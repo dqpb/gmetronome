@@ -702,7 +702,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="icon-name">snd-volume-full-symbolic</property>
+                        <property name="icon-name">gm-snd-volume-full-symbolic</property>
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
@@ -713,7 +713,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="icon-name">snd-balance-symbolic</property>
+                        <property name="icon-name">gm-snd-balance-symbolic</property>
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
@@ -790,7 +790,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="icon-name">snd-crossfade-symbolic</property>
+                        <property name="icon-name">gm-snd-crossfade-symbolic</property>
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
