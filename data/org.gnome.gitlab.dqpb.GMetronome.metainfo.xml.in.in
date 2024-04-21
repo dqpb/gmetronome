@@ -25,7 +25,6 @@
   <url type="bugtracker">@PACKAGE_BUGREPORT@</url>
   <screenshots>
     <screenshot type="default">
-      <caption>The main window</caption>
       <image>https://gitlab.gnome.org/dqpb/gmetronome/raw/main/data/screenshots/screenshot.png</image>
     </screenshot>
   </screenshots>
