@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.3.3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2024-02-29 19:51+0100\n"
+"POT-Creation-Date: 2024-04-21 13:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,13 +27,14 @@ msgid "The GMetronome Team"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:9
-msgid "A tempo measurement tool for composers and musicians"
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
+msgid "Maintain a steady tempo"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
 msgid ""
-"GMetronome is a free software metronome and tempo measurement tool for GNU/"
-"Linux and other Unix-like operating systems."
+"GMetronome is a free/libre software metronome and tempo measurement tool for "
+"GNU/Linux and other Unix-like operating systems."
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:12
@@ -41,11 +42,11 @@ msgid "Features:"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:14
-msgid "Tempo range from 30 to 250 beats per minute"
+msgid "Tempo range from 30 to 250 BPM"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
-msgid "Custom accentuation patterns"
+msgid "Accent patterns with three levels of accentuation"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
@@ -53,48 +54,36 @@ msgid "Divisible beats for simple and compound meters"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:17
-msgid "Three accentuation levels for strong, middle and weak accents"
+msgid "Predefined patterns for widely used meters and time signatures"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
-msgid "Pre defined patterns for widely used meters and time signatures"
+msgid "Training function (smoothly increase or decrease tempo)"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
-msgid "Integrated synthesizer to customize click sounds"
+msgid "Profile support (save/restore settings)"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:20
-msgid "Trainer function to smoothly raise or lower tempo"
+msgid "Built-in synthesizer to customize click sounds"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:21
-msgid "Profiles to save and restore metronome settings"
-msgstr ""
-
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:22
 msgid "Customizable keyboard shortcuts"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:29
-msgid "The main window"
-msgstr ""
-
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:34
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:32
 msgid "Metronome"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:35
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:33
 msgid "Music"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
-msgid "Play a steady rhythm"
-msgstr ""
-
-#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#. Translators: Search terms to find the application. Please do not translate or localize the semicolons. The list must also end with a semicolon.
 #: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:14
-msgid "Bar;Beats;BPM;Measure;Metronome;Minute;Practice;Rhythm;Tap;Tempo;Time;"
+msgid "Beats;BPM;Metronome;Practice;Rhythm;Tap;Tempo;"
 msgstr ""
 
 #. Put one translator per line, in the form
@@ -117,19 +106,19 @@ msgctxt "About dialog"
 msgid "Website"
 msgstr ""
 
-#. default title for new profiles
+#. Default title for new profiles
 #: src/Profile.h:38
 msgctxt "Profile"
 msgid "New Profile"
 msgstr ""
 
-#. placeholder title for untitled profiles
+#. Placeholder title for untitled profiles
 #: src/Profile.h:40
 msgctxt "Profile"
 msgid "Untitled Profile"
 msgstr ""
 
-#. title of duplicated profiles, %1 will be replaced by the old title
+#. Title of duplicated profiles, %1 will be replaced by the old title
 #: src/Profile.h:42
 msgctxt "Profile"
 msgid "%1 (copy)"
@@ -194,227 +183,227 @@ msgid "Reset the metronome"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:476
+#: src/resources/ui/MainWindow.glade:480
 msgctxt "Main window"
 msgid "Profiles menu"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:492
+#: src/resources/ui/MainWindow.glade:496
 msgctxt "Main window"
 msgid "Toggle Full Screen"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:520
+#: src/resources/ui/MainWindow.glade:525
 msgctxt "Main window"
 msgid "Toggle accentuation"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:544
+#: src/resources/ui/MainWindow.glade:549
 msgctxt "Main window"
 msgid "Toggle tempo trainer"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:573
+#: src/resources/ui/MainWindow.glade:578
 msgctxt "Main window"
 msgid "Application menu"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:757
+#: src/resources/ui/MainWindow.glade:756
 msgctxt "Main window - Tempo"
 msgid "Tap"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:793
+#: src/resources/ui/MainWindow.glade:796
 msgctxt "Main window - Tempo"
 msgid "Tempo"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:843
+#: src/resources/ui/MainWindow.glade:846
 msgctxt "Main window - Accents"
 msgid "Beats"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:891
+#: src/resources/ui/MainWindow.glade:894
 msgctxt "Main window - Accents"
 msgid "Meter"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:908
+#: src/resources/ui/MainWindow.glade:911
 msgctxt "Main window - Accents"
 msgid "2/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:909
+#: src/resources/ui/MainWindow.glade:912
 msgctxt "Main window - Accents"
 msgid "3/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:910
+#: src/resources/ui/MainWindow.glade:913
 msgctxt "Main window - Accents"
 msgid "4/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:912
+#: src/resources/ui/MainWindow.glade:915
 msgctxt "Main window - Accents"
 msgid "6/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:913
+#: src/resources/ui/MainWindow.glade:916
 msgctxt "Main window - Accents"
 msgid "9/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:914
+#: src/resources/ui/MainWindow.glade:917
 msgctxt "Main window - Accents"
 msgid "12/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:916
+#: src/resources/ui/MainWindow.glade:919
 msgctxt "Main window - Accents"
 msgid "Custom"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:945
+#: src/resources/ui/MainWindow.glade:948
 msgctxt "Main window - Accents"
 msgid "Division"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1079
+#: src/resources/ui/MainWindow.glade:1085
 msgctxt "Main window - Accents"
 msgid "Accents"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1124
+#: src/resources/ui/MainWindow.glade:1130
 msgctxt "Main window - Trainer"
 msgid "Target"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1173
+#: src/resources/ui/MainWindow.glade:1179
 msgctxt "Main window - Trainer"
 msgid "Start"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1222
+#: src/resources/ui/MainWindow.glade:1228
 msgctxt "Main window - Trainer"
 msgid "Acceleration"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1266
+#: src/resources/ui/MainWindow.glade:1275
 msgctxt "Main window - Trainer"
 msgid "Trainer"
 msgstr ""
 
-#: src/MainWindow.cpp:1388
+#: src/MainWindow.cpp:1404
 msgctxt "Main window"
 msgid "Stop"
 msgstr ""
 
-#: src/MainWindow.cpp:1390
+#: src/MainWindow.cpp:1406
 msgctxt "Main window"
 msgid "Start"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:62
+#: src/resources/ui/SettingsDialog.glade:63
 msgctxt "Preferences dialog"
 msgid "Startup"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:78
+#: src/resources/ui/SettingsDialog.glade:79
 msgctxt "Preferences dialog"
 msgid "_Restore previous profile:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:104
+#: src/resources/ui/SettingsDialog.glade:105
 msgctxt "Preferences dialog"
 msgid "Profiles"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:132
+#: src/resources/ui/SettingsDialog.glade:133
 msgctxt "Preferences dialog"
 msgid "_Link with sound theme:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:146
+#: src/resources/ui/SettingsDialog.glade:147
 msgctxt "Preferences dialog"
 msgid "Tapping"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:162
+#: src/resources/ui/SettingsDialog.glade:163
 msgctxt "Preferences dialog"
 msgid "Auto-adjust _volume:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:234
+#: src/resources/ui/SettingsDialog.glade:211
 msgctxt "Preferences dialog"
 msgid "_General"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:258
+#: src/resources/ui/SettingsDialog.glade:237
 msgctxt "Preferences dialog"
 msgid "S_tart direction:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:273
+#: src/resources/ui/SettingsDialog.glade:252
 msgctxt "Preferences dialog"
 msgid "Click sp_ot:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:288
+#: src/resources/ui/SettingsDialog.glade:267
 msgctxt "Preferences dialog"
 msgid "Left"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:289
+#: src/resources/ui/SettingsDialog.glade:268
 msgctxt "Preferences dialog"
 msgid "Right"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:303
+#: src/resources/ui/SettingsDialog.glade:282
 msgctxt "Preferences dialog"
 msgid "Center"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:304
+#: src/resources/ui/SettingsDialog.glade:283
 msgctxt "Preferences dialog"
 msgid "Real"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:305
+#: src/resources/ui/SettingsDialog.glade:284
 msgctxt "Preferences dialog"
 msgid "Edge"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:318
+#: src/resources/ui/SettingsDialog.glade:297
 msgctxt "Preferences dialog"
 msgid "Pendulum"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:333
+#: src/resources/ui/SettingsDialog.glade:312
 msgctxt "Preferences dialog"
 msgid "Accents"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:349
+#: src/resources/ui/SettingsDialog.glade:328
 msgctxt "Preferences dialog"
 msgid "Acc_ent Animation:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:374
+#: src/resources/ui/SettingsDialog.glade:354
 msgctxt "Preferences dialog"
 msgid "General"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:390
+#: src/resources/ui/SettingsDialog.glade:370
 msgctxt "Preferences dialog"
 msgid "S_ynchronization (ms):"
 msgstr ""
 
 #. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
-#: src/resources/ui/SettingsDialog.glade:404
+#: src/resources/ui/SettingsDialog.glade:384
 msgctxt "Preferences dialog"
 msgid ""
 "An additional static time gap between video output (animation) and the audio "
@@ -423,121 +412,133 @@ msgid ""
 "on large (absolute) values."
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:471
+#: src/resources/ui/SettingsDialog.glade:424
 msgctxt "Preferences dialog"
 msgid "_Animation"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:495
+#: src/resources/ui/SettingsDialog.glade:448
 msgctxt "Preferences dialog"
 msgid "Sound _Theme"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:603
+#. Tooltip
+#: src/resources/ui/SettingsDialog.glade:517
+msgctxt "Preferences dialog"
+msgid "Create a new sound theme"
+msgstr ""
+
+#. Tooltip
+#: src/resources/ui/SettingsDialog.glade:537
+msgctxt "Preferences dialog"
+msgid "Remove selected sound theme"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:559
 msgctxt "Preferences dialog"
 msgid "_Edit"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:638
+#: src/resources/ui/SettingsDialog.glade:594
 msgctxt "Preferences dialog"
 msgid "_Sound"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:664
+#: src/resources/ui/SettingsDialog.glade:621
 msgctxt "Preferences dialog"
 msgid "Audio _Device:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:679
+#: src/resources/ui/SettingsDialog.glade:636
 msgctxt "Preferences dialog"
 msgid "Audio _Backend:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:694
+#: src/resources/ui/SettingsDialog.glade:651
 msgctxt "Preferences dialog"
 msgid "None"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:695
+#: src/resources/ui/SettingsDialog.glade:652
 msgctxt "Preferences dialog"
-msgid "Alsa"
+msgid "ALSA"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:696
+#: src/resources/ui/SettingsDialog.glade:653
 msgctxt "Preferences dialog"
-msgid "Oss"
+msgid "OSS"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:697
+#: src/resources/ui/SettingsDialog.glade:654
 msgctxt "Preferences dialog"
-msgid "Pulseaudio"
+msgid "PulseAudio"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:726
+#: src/resources/ui/SettingsDialog.glade:671
 msgctxt "Preferences dialog"
 msgid "Default"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:740
+#: src/resources/ui/SettingsDialog.glade:685
 msgctxt "Preferences dialog"
 msgid "Audio Settings"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:777
+#: src/resources/ui/SettingsDialog.glade:713
 msgctxt "Preferences dialog"
 msgid "Audio _Device"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:823
+#: src/resources/ui/SettingsDialog.glade:759
 msgctxt "Preferences dialog"
 msgid "_Reset shortcuts"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:852
+#: src/resources/ui/SettingsDialog.glade:788
 msgctxt "Preferences dialog"
 msgid "Short_cuts"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:876
+#: src/resources/ui/SettingsDialog.glade:812
 msgctxt "Preferences dialog"
 msgid "Preferences"
 msgstr ""
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:194
+#: src/SettingsDialog.cpp:191
 msgctxt "Preferences dialog"
 msgid "Action"
 msgstr ""
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:200
+#: src/SettingsDialog.cpp:197
 msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr ""
 
-#: src/SettingsDialog.cpp:595
+#: src/SettingsDialog.cpp:592
 msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr ""
 
-#: src/SettingsDialog.cpp:610
+#: src/SettingsDialog.cpp:607
 msgctxt "Preferences dialog"
 msgid "Custom"
 msgstr ""
 
-#. default title for new sound themes
+#. Default title for new sound themes
 #: src/SoundTheme.h:36
 msgctxt "Sound theme"
 msgid "New Sound Theme"
 msgstr ""
 
-#. placeholder title for untitled sound themes
+#. Placeholder title for untitled sound themes
 #: src/SoundTheme.h:39
 msgctxt "Sound theme"
 msgid "Untitled"
 msgstr ""
 
-#. title of duplicated sound themes, %1 will be replaced by the old title
+#. Title of duplicated sound themes, %1 will be replaced by the old title
 #: src/SoundTheme.h:42
 msgctxt "Sound theme"
 msgid "%1 (copy)"
@@ -684,7 +685,7 @@ msgstr ""
 
 #: src/Shortcut.cpp:49
 msgctxt "Shortcut title"
-msgid "Start / Stop"
+msgid "Start/Stop"
 msgstr ""
 
 #: src/Shortcut.cpp:53
@@ -714,102 +715,117 @@ msgstr ""
 
 #: src/Shortcut.cpp:59
 msgctxt "Shortcut title"
-msgid "Tempo Quick Set"
+msgid "Double Tempo"
 msgstr ""
 
 #: src/Shortcut.cpp:60
 msgctxt "Shortcut title"
+msgid "Half Tempo"
+msgstr ""
+
+#: src/Shortcut.cpp:61
+msgctxt "Shortcut title"
+msgid "Tempo Quick Set"
+msgstr ""
+
+#: src/Shortcut.cpp:62
+msgctxt "Shortcut title"
 msgid "Tempo Tap"
 msgstr ""
 
-#: src/Shortcut.cpp:64
+#: src/Shortcut.cpp:66
 msgctxt "Shortcut group title"
 msgid "Accents"
 msgstr ""
 
-#: src/Shortcut.cpp:66
-msgctxt "Shortcut title"
-msgid "Enable / Disable Accentuation"
-msgstr ""
-
-#: src/Shortcut.cpp:67
-msgctxt "Shortcut title"
-msgid "Select 2/4 Meter"
-msgstr ""
-
 #: src/Shortcut.cpp:68
 msgctxt "Shortcut title"
-msgid "Select 3/4 Meter"
+msgid "Enable/Disable Accentuation"
 msgstr ""
 
 #: src/Shortcut.cpp:69
 msgctxt "Shortcut title"
-msgid "Select 4/4 Meter"
+msgid "Select 2/4 Meter"
 msgstr ""
 
 #: src/Shortcut.cpp:70
 msgctxt "Shortcut title"
-msgid "Select 6/8 Meter"
+msgid "Select 3/4 Meter"
 msgstr ""
 
 #: src/Shortcut.cpp:71
 msgctxt "Shortcut title"
-msgid "Select 9/8 Meter"
+msgid "Select 4/4 Meter"
 msgstr ""
 
 #: src/Shortcut.cpp:72
 msgctxt "Shortcut title"
-msgid "Select 12/8 Meter"
+msgid "Select 6/8 Meter"
 msgstr ""
 
 #: src/Shortcut.cpp:73
 msgctxt "Shortcut title"
+msgid "Select 9/8 Meter"
+msgstr ""
+
+#: src/Shortcut.cpp:74
+msgctxt "Shortcut title"
+msgid "Select 12/8 Meter"
+msgstr ""
+
+#: src/Shortcut.cpp:75
+msgctxt "Shortcut title"
 msgid "Select Custom Meter"
 msgstr ""
 
-#: src/Shortcut.cpp:77
+#: src/Shortcut.cpp:79
 msgctxt "Shortcut group title"
 msgid "Trainer"
 msgstr ""
 
-#: src/Shortcut.cpp:79
+#: src/Shortcut.cpp:81
 msgctxt "Shortcut title"
-msgid "Enable / Disable Trainer"
+msgid "Enable/Disable Trainer"
 msgstr ""
 
-#: src/Shortcut.cpp:83
+#: src/Shortcut.cpp:85
 msgctxt "Shortcut group title"
 msgid "Pendulum"
 msgstr ""
 
-#: src/Shortcut.cpp:85
+#: src/Shortcut.cpp:87
 msgctxt "Shortcut title"
 msgid "Toggle Pendulum Phase"
 msgstr ""
 
-#: src/Shortcut.cpp:89
+#: src/Shortcut.cpp:91
 msgctxt "Shortcut group title"
 msgid "Volume"
 msgstr ""
 
-#: src/Shortcut.cpp:91
+#: src/Shortcut.cpp:93
 msgctxt "Shortcut title"
 msgid "Volume +1 Percent"
 msgstr ""
 
-#: src/Shortcut.cpp:92
+#: src/Shortcut.cpp:94
 msgctxt "Shortcut title"
 msgid "Volume -1 Percent"
 msgstr ""
 
-#: src/Shortcut.cpp:93
+#: src/Shortcut.cpp:95
 msgctxt "Shortcut title"
 msgid "Volume +10 Percent"
 msgstr ""
 
-#: src/Shortcut.cpp:94
+#: src/Shortcut.cpp:96
 msgctxt "Shortcut title"
 msgid "Volume -10 Percent"
+msgstr ""
+
+#: src/Shortcut.cpp:97
+msgctxt "Shortcut title"
+msgid "Mute Volume"
 msgstr ""
 
 #: src/Message.cpp:36
@@ -841,7 +857,55 @@ msgid ""
 "preferences dialog and try again."
 msgstr ""
 
+#. Title of the default sound theme.
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:262
+msgctxt "Sound theme preset"
+msgid "'Default'"
+msgstr ""
+
+#. Title of a sound theme preset, which sounds like a (classic) wooden metronome.
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:347
+msgctxt "Sound theme preset"
+msgid "'Classic'"
+msgstr ""
+
+#. Title of a sound theme preset that is a pure sine wave with a short attack.
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:432
+msgctxt "Sound theme preset"
+msgid "'Sonar'"
+msgstr ""
+
+#. The three accentuation levels of this preset sound like a kick drum, snare and hihat.
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:517
+msgctxt "Sound theme preset"
+msgid "'Kick & Snare'"
+msgstr ""
+
+#. Title of a sound theme preset that sounds like finger snapping.
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:602
+msgctxt "Sound theme preset"
+msgid "'Snap'"
+msgstr ""
+
+#. Title of a sound theme that imitates the hand clapping as used in flamenco music (Palmas).
+#.
+#. Translators: Please keep the regular single quotes around the title string as-is.
 #: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:687
+msgctxt "Sound theme preset"
+msgid "'Palmas'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:717
 msgid "Whether the volume should be dropped when tapping"
 msgstr ""
 
@@ -850,308 +914,326 @@ msgstr ""
 #. Translators: Please keep the regular single quotes around the shortcut strings as-is.
 #. If you need to change a default shortcut, please keep in mind, that they have to be
 #. valid accelerator strings parsable by the gtk_accelerator_parse function.
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:702
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:732
 msgctxt "Default shortcut"
 msgid "'<Primary>q'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:703
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:733
 msgid "Keyboard shortcut to quit the application"
 msgstr ""
 
 #. Default shortcut to show the primary menu
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:707
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:737
 msgctxt "Default shortcut"
 msgid "'F10'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:708
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:738
 msgid "Keyboard shortcut to show the primary menu"
 msgstr ""
 
 #. Default shortcut to show the profiles menu
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:712
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:742
 msgctxt "Default shortcut"
 msgid "'F9'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:713
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:743
 msgid "Keyboard shortcut to show the profiles menu"
 msgstr ""
 
 #. Default shortcut to show the preferences dialog
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:717
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:747
 msgctxt "Default shortcut"
 msgid "'<Primary>comma'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:718
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:748
 msgid "Keyboard shortcut to show the preferences dialog"
 msgstr ""
 
 #. Default shortcut to show the help for keyboard shortcuts
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:722
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:752
 msgctxt "Default shortcut"
 msgid "'<Primary>question'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:723
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:753
 msgid "Keyboard shortcut to show the help for keyboard shortcuts"
 msgstr ""
 
 #. Default shortcut to show the help
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:727
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:757
 msgctxt "Default shortcut"
 msgid "'F1'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:728
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:758
 msgid "Keyboard shortcut to show the help"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:732
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:762
 msgid "Keyboard shortcut to show the about dialog"
 msgstr ""
 
 #. Default shortcut to toggle the pendulum display
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:736
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:766
 msgctxt "Default shortcut"
 msgid "'<Primary>p'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:737
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:767
 msgid "Keyboard shortcut to toggle pendulum display"
 msgstr ""
 
 #. Default shortcut to toogle full screen mode
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:741
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:771
 msgctxt "Default shortcut"
 msgid "'F11'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:742
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:772
 msgid "Keyboard shortcut to toggle full screen mode"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:746
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:776
 msgid "Keyboard shortcut to start or stop the metronome"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:750
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:780
 msgid "Keyboard shortcut to increase the volume by 1 percent"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:754
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:784
 msgid "Keyboard shortcut to decrease the volume by 1 percent"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:758
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:788
 msgid "Keyboard shortcut to increase the volume by 10 percent"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:762
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:792
 msgid "Keyboard shortcut to decrease the volume by 10 percent"
 msgstr ""
 
+#. Default shortcut to mute the volume
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:796
+msgctxt "Default shortcut"
+msgid "'m'"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:797
+msgid "Keyboard shortcut to mute the volume"
+msgstr ""
+
 #. Default shortcut to increase the tempo by 1 bpm
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:766
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:801
 msgctxt "Default shortcut"
 msgid "'x'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:767
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:802
 msgid "Keyboard shortcut to increase the tempo by 1 bpm"
 msgstr ""
 
 #. Default shortcut to decrease the tempo by 1 bpm
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:771
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:806
 msgctxt "Default shortcut"
 msgid "'z'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:772
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:807
 msgid "Keyboard shortcut to decrease the tempo by 1 bpm"
 msgstr ""
 
 #. Default shortcut to increase the thempo by 10 bpm
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:776
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:811
 msgctxt "Default shortcut"
 msgid "'<Shift>x'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:777
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:812
 msgid "Keyboard shortcut to increase the tempo by 10 bpm"
 msgstr ""
 
 #. Default shortcut to decrease the tempo by 10 bpm
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:781
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:816
 msgctxt "Default shortcut"
 msgid "'<Shift>z'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:782
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:817
 msgid "Keyboard shortcut to decrease the tempo by 10 bpm"
 msgstr ""
 
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:821
+msgid "Keyboard shortcut to double the tempo"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:825
+msgid "Keyboard shortcut to half the tempo"
+msgstr ""
+
 #. Default shortcut to enter tempo quick set mode
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:786
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:829
 msgctxt "Default shortcut"
 msgid "'q'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:787
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:830
 msgid "Keyboard shortcut to enter tempo quick set mode"
 msgstr ""
 
 #. Default shortcut to tap the tempo
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:791
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:834
 msgctxt "Default shortcut"
 msgid "'t'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:792
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:835
 msgid "Keyboard shortcut to tap the tempo"
 msgstr ""
 
 #. Default shortcut to toggle accentuation
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:796
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:839
 msgctxt "Default shortcut"
 msgid "'a'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:797
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:840
 msgid "Keyboard shortcut to toggle metric accentuation"
 msgstr ""
 
 #. Default shortcut to select the simple duple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:801
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:844
 msgctxt "Default shortcut"
 msgid "'<Primary>2'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:802
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:845
 msgid "Keyboard shortcut to select the simple duple meter"
 msgstr ""
 
 #. Default shortcut to select the simple triple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:806
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:849
 msgctxt "Default shortcut"
 msgid "'<Primary>3'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:807
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:850
 msgid "Keyboard shortcut to select the simple triple meter"
 msgstr ""
 
 #. Default shortcut to select the simple quadruple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:811
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:854
 msgctxt "Default shortcut"
 msgid "'<Primary>4'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:812
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:855
 msgid "Keyboard shortcut to select the simple quadruple meter"
 msgstr ""
 
 #. Default shortcut to select the compound duple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:816
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:859
 msgctxt "Default shortcut"
 msgid "'<Primary>6'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:817
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:860
 msgid "Keyboard shortcut to select the compound duple meter"
 msgstr ""
 
 #. Default shortcut to select the compound triple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:821
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:864
 msgctxt "Default shortcut"
 msgid "'<Primary>7'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:822
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:865
 msgid "Keyboard shortcut to select the compound triple meter"
 msgstr ""
 
 #. Default shortcut to select the compound quadruple meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:826
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:869
 msgctxt "Default shortcut"
 msgid "'<Primary>8'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:827
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:870
 msgid "Keyboard shortcut to select the compound quadruple meter"
 msgstr ""
 
 #. Default shortcut to select the custom meter
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:831
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:874
 msgctxt "Default shortcut"
 msgid "'<Primary>0'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:832
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:875
 msgid "Keyboard shortcut to select the custom meter"
 msgstr ""
 
 #. Default shortcut to toggle the tempo trainer
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:836
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:879
 msgctxt "Default shortcut"
 msgid "'s'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:837
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:880
 msgid "Keyboard shortcut to toggle tempo trainer"
 msgstr ""
 
 #. Default shortcut to toggle the pendulum phase
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:841
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:884
 msgctxt "Default shortcut"
 msgid "'p'"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:842
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:885
 msgid "Keyboard shortcut to toggle the pendulum phase"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:850
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:893
 msgid "Whether to load the last profile used on startup"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:855
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:898
 msgid "Wheter to link profiles and sound themes"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:856
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:899
 msgid ""
 "If true, switching profiles also restores the previous sound theme. If the "
 "desired sound theme does not exist anymore, the default will be loaded "
 "instead."
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:890
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:933
 msgid "Which audio backend to use"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:896
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:939
 msgid "Audio device for the ALSA backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:897
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:940
 msgid "ALSA compliant string representation for names of pcm devices"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:905
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:948
 msgid "Audio device for the OSS backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:912
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:955
 msgid "Name of a sink for the pulseaudio backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:929
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:972
 msgid "Selected profile"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:934
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:977
 msgid "Whether to show the animated pendulum"
 msgstr ""
