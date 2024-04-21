@@ -6,19 +6,18 @@
   <project_license>GPL-3.0+</project_license>
   <name>GMetronome</name>
   <developer_name>The GMetronome Team</developer_name>
-  <summary>A tempo measurement tool for composers and musicians</summary>
+  <summary>Maintain a steady tempo</summary>
   <description>
-    <p>GMetronome is a free software metronome and tempo measurement tool for GNU/Linux and other Unix-like operating systems.</p>
+    <p>GMetronome is a free/libre software metronome and tempo measurement tool for GNU/Linux and other Unix-like operating systems.</p>
     <p>Features:</p>
     <ul>
-      <li>Tempo range from 30 to 250 beats per minute</li>
-      <li>Custom accentuation patterns</li>
+      <li>Tempo range from 30 to 250 BPM</li>
+      <li>Accent patterns with three levels of accentuation</li>
       <li>Divisible beats for simple and compound meters</li>
-      <li>Three accentuation levels for strong, middle and weak accents</li>
-      <li>Pre defined patterns for widely used meters and time signatures</li>
-      <li>Integrated synthesizer to customize click sounds</li>
-      <li>Trainer function to smoothly raise or lower tempo</li>
-      <li>Profiles to save and restore metronome settings</li>
+      <li>Predefined patterns for widely used meters and time signatures</li>
+      <li>Training function (smoothly increase or decrease tempo)</li>
+      <li>Profile support (save/restore settings)</li>
+      <li>Built-in synthesizer to customize click sounds</li>
       <li>Customizable keyboard shortcuts</li>
     </ul>
   </description>
