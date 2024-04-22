@@ -22,6 +22,8 @@
 #endif
 
 #include "Ticker.h"
+
+#include <glib.h>
 #include <algorithm>
 #include <cassert>
 

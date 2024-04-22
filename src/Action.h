@@ -21,7 +21,7 @@
 #define GMetronome_Action_h
 
 #include "Profile.h"
-#include "Meter.h"
+#include "MeterVariant.h"
 
 #include <giomm.h>
 #include <utility>

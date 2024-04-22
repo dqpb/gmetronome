@@ -66,6 +66,7 @@ noinst_HEADERS = \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
+	MeterVariant.h \
 	ObjectLibrary.h \
 	Oss.h \
 	Pendulum.h \
