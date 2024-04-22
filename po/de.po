@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.3.3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2024-04-21 13:25+0200\n"
-"PO-Revision-Date: 2024-04-21 13:26+0200\n"
+"POT-Creation-Date: 2024-04-22 21:48+0200\n"
+"PO-Revision-Date: 2024-04-22 21:50+0200\n"
 "Last-Translator: dqpb <dqpb@mailbox.org>\n"
 "Language-Team: German - Germany <>\n"
 "Language: de\n"
@@ -50,8 +50,8 @@ msgid "Tempo range from 30 to 250 BPM"
 msgstr "Tempobereich von 30 bis 250 Schlägen pro Minute"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
-msgid "Accent patterns with three levels of accentuation"
-msgstr "Betonungsmuster mit drei Betonungsstufen"
+msgid "Customizable accent patterns with three levels of accentuation"
+msgstr "Veränderbare Betonungsmuster mit drei Betonungsstufen"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
 msgid "Divisible beats for simple and compound meters"
@@ -512,23 +512,23 @@ msgid "Preferences"
 msgstr "Einstellungen"
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:191
+#: src/SettingsDialog.cpp:192
 msgctxt "Preferences dialog"
 msgid "Action"
 msgstr "Aktion"
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:197
+#: src/SettingsDialog.cpp:198
 msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr "Tastenkürzel"
 
-#: src/SettingsDialog.cpp:592
+#: src/SettingsDialog.cpp:593
 msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr "Voreinstellungen"
 
-#: src/SettingsDialog.cpp:607
+#: src/SettingsDialog.cpp:608
 msgctxt "Preferences dialog"
 msgid "Custom"
 msgstr "Eigenes"
