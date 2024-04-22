@@ -567,7 +567,7 @@ namespace audio {
         constexpr long offset = isUnsigned(OtherFormat) ?
           std::numeric_limits<OtherTypeSigned>::min() : 0;
 
-        (*this) = (other + offset) / (double) -std::numeric_limits<OtherTypeSigned>::min();
+        (*this) = (other + offset) / - double(std::numeric_limits<OtherTypeSigned>::min());
       }
 
     template<SampleFormat OtherFormat, typename OtherStoreIter>
