@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmetronome 0.3.4\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2024-04-22 17:41+0200\n"
+"POT-Creation-Date: 2024-04-22 21:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,7 +46,7 @@ msgid "Tempo range from 30 to 250 BPM"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:15
-msgid "Accent patterns with three levels of accentuation"
+msgid "Customizable accent patterns with three levels of accentuation"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:16
