@@ -39,7 +39,7 @@ namespace audio {
 
   // Ticker
   Ticker::Ticker()
-    : backend_ {createBackend(settings::kAudioBackendNone)}
+    : backend_ {createBackend(BackendIdentifier::kNone)}
   {
     tempo_imported_flag_.test_and_set();
     target_tempo_imported_flag_.test_and_set();

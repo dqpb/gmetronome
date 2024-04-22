@@ -156,7 +156,8 @@ void SettingsDialog::initUI()
   // Audio device tab
   //
   // remove unavailable audio backends from combo box
-  const auto& backends = audio::availableBackends();
+  const auto& backends = settings::availableBackends();
+
   auto n_backends = audio_backend_combo_box_->get_model()->children().size();
   for (int index = n_backends - 1; index >= 0; --index)
   {

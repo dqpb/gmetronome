@@ -24,16 +24,19 @@
 # include "config.h"
 #endif
 
-#include "Meter.h"
-
 #include <glibmm/ustring.h>
 #include <glibmm/refptr.h>
 #include <giomm/settings.h>
 #include <map>
 #include <tuple>
 
-namespace settings {
+// forward decl.
+namespace audio {
+  enum class BackendIdentifier;
+}
+enum Accent : int;
 
+namespace settings {
   /*
    * GSettings schema id's
    */
@@ -115,6 +118,16 @@ namespace settings {
 #endif
   };
 
+  // Map audio backend to an identifier as used in the audio framework
+  extern const std::map<AudioBackend, audio::BackendIdentifier> kAudioBackendToIdentifierMap;
+
+  AudioBackend audioBackendFromIdentifier(audio::BackendIdentifier id);
+
+  audio::BackendIdentifier audioBackendToIdentifier(AudioBackend backend);
+
+  // Get a list of available audio backends (see audio::availableBackends)
+  std::vector<AudioBackend> availableBackends();
+
   enum PendulumAction
   {
     kPendulumActionCenter = 0,
@@ -163,9 +176,8 @@ namespace settings {
   inline const Glib::ustring  kKeyPrefsAudioDevicePulseaudio      {"audio-device-pulseaudio"};
 #endif
 
-  // map audio backend identifier (w/o kAudioBackendNone) to the corresponding
-  // audio device settings key (e.g. kAudioBackendAlsa -> "audio-device-alsa")
-  // and vice versa
+  // Map audio backend (w/o kAudioBackendNone) to the corresponding audio device settings
+  // key (e.g. kAudioBackendAlsa -> "audio-device-alsa") and vice versa
   extern const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap;
   extern const std::map<Glib::ustring, settings::AudioBackend> kDeviceToBackendMap;
 

@@ -22,7 +22,6 @@
 
 #include "Audio.h"
 #include "Error.h"
-#include "Settings.h"
 #include <vector>
 #include <memory>
 
@@ -96,6 +95,20 @@ namespace audio {
     virtual BackendState state() const = 0;
   };
 
+  enum class BackendIdentifier
+  {
+    kNone = 0,
+#if HAVE_ALSA
+    kALSA = 1,
+#endif
+#if HAVE_OSS
+    kOSS = 2,
+#endif
+#if HAVE_PULSEAUDIO
+    kPulseAudio = 3,
+#endif
+  };
+
   /**
    * @function availableBackends
    *
@@ -104,7 +117,7 @@ namespace audio {
    *
    * @return A std::vector of audio backend identifiers.
    */
-  const std::vector<settings::AudioBackend>& availableBackends();
+  const std::vector<BackendIdentifier>& availableBackends();
 
   /**
    * @function createBackend
@@ -112,7 +125,7 @@ namespace audio {
    * @param  An audio backend identifier.
    * @return  A pointer to the audio backend object or nullptr on error.
    */
-  std::unique_ptr<Backend> createBackend(settings::AudioBackend backend);
+  std::unique_ptr<Backend> createBackend(BackendIdentifier backend);
 
   /**
    * @class BackendError
@@ -120,20 +133,20 @@ namespace audio {
    */
   class BackendError : public GMetronomeError {
   public:
-    BackendError(settings::AudioBackend backend, BackendState state, const std::string& what = "")
+    BackendError(BackendIdentifier backend, BackendState state, const std::string& what = "")
       : GMetronomeError(what),
         backend_(backend),
         state_(state)
     {}
 
-    settings::AudioBackend backend() const noexcept
+    BackendIdentifier backend() const noexcept
     { return backend_; }
 
     BackendState state() const noexcept
     { return state_; }
 
   private:
-    settings::AudioBackend backend_;
+    BackendIdentifier backend_;
     BackendState state_;
   };
 

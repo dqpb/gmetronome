@@ -243,15 +243,15 @@ namespace {
     {
       details += "Backend: ";
       switch(e.backend()) {
-      case settings::kAudioBackendNone: details += "none ("; break;
+      case audio::BackendIdentifier::kNone: details += "none ("; break;
 #if HAVE_ALSA
-      case settings::kAudioBackendAlsa: details += "alsa ("; break;
+      case audio::BackendIdentifier::kALSA: details += "ALSA ("; break;
 #endif
 #if HAVE_OSS
-      case settings::kAudioBackendOss: details += "oss ("; break;
+      case audio::BackendIdentifier::kOSS: details += "OSS ("; break;
 #endif
 #if HAVE_PULSEAUDIO
-      case settings::kAudioBackendPulseaudio: details += "pulseaudio ("; break;
+      case audio::BackendIdentifier::kPulseAudio: details += "PulseAudio ("; break;
 #endif
       default: details += "unknown ("; break;
       };
@@ -381,8 +381,10 @@ void Application::configureAudioBackend()
     settings::AudioBackend backend = (settings::AudioBackend)
       settings::preferences()->get_enum(settings::kKeyPrefsAudioBackend);
 
+    auto backend_id = settings::audioBackendToIdentifier(backend);
+
     // create new backend
-    if (auto new_backend = audio::createBackend(backend);
+    if (auto new_backend = audio::createBackend(backend_id);
         new_backend != nullptr)
     {
       // save device list

@@ -18,6 +18,9 @@
  */
 
 #include "Settings.h"
+#include "Meter.h"
+#include "AudioBackend.h"
+#include "Error.h"
 
 namespace settings {
 
@@ -28,6 +31,47 @@ namespace settings {
     { kAccentMid, kSchemaPathSoundThemeMidParamsBasename },
     { kAccentStrong, kSchemaPathSoundThemeStrongParamsBasename }
   };
+
+  const std::map<settings::AudioBackend, audio::BackendIdentifier> kAudioBackendToIdentifierMap
+  {
+    {settings::kAudioBackendNone, audio::BackendIdentifier::kNone},
+#if HAVE_ALSA
+    {settings::kAudioBackendAlsa, audio::BackendIdentifier::kALSA},
+#endif
+#if HAVE_OSS
+    {settings::kAudioBackendOss, audio::BackendIdentifier::kOSS},
+#endif
+#if HAVE_PULSEAUDIO
+    {settings::kAudioBackendPulseaudio, audio::BackendIdentifier::kPulseAudio},
+#endif
+  };
+
+  AudioBackend audioBackendFromIdentifier(audio::BackendIdentifier id)
+  {
+    auto it = std::find_if(kAudioBackendToIdentifierMap.begin(),
+                           kAudioBackendToIdentifierMap.end(),
+                           [&] (const auto& e) { return e.second == id; });
+
+    if (it == kAudioBackendToIdentifierMap.end())
+      throw GMetronomeError {"invalid audio backend identifier"};
+
+    return it->first;
+  }
+
+  audio::BackendIdentifier audioBackendToIdentifier(AudioBackend backend)
+  { return kAudioBackendToIdentifierMap.at(backend); }
+
+
+  std::vector<AudioBackend> availableBackends()
+  {
+    const auto& ids = audio::availableBackends();
+    std::vector<settings::AudioBackend> backends;
+
+    std::transform(ids.begin(), ids.end(), std::back_inserter(backends),
+                   [] (auto& id) { return settings::audioBackendFromIdentifier(id); });
+
+    return backends;
+  }
 
   const std::map<settings::AudioBackend, Glib::ustring> kBackendToDeviceMap
   {

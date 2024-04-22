@@ -22,11 +22,14 @@
 #endif
 
 #include "Oss.h"
+
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/soundcard.h>
 #include <cassert>
+#include <cstring>
+#include <utility>
 
 #ifndef NDEBUG
 #  include <iostream>
@@ -39,15 +42,15 @@ namespace audio {
     class OssError : public BackendError {
     public:
       explicit OssError(BackendState state, const char* what = "")
-        : BackendError(settings::kAudioBackendOss, state, what)
+        : BackendError(BackendIdentifier::kOSS, state, what)
         {}
       OssError(BackendState state, int error)
-        : BackendError(settings::kAudioBackendOss, state, strerror(error))
+        : BackendError(BackendIdentifier::kOSS, state, std::strerror(error))
         {}
       OssError(BackendState state, const std::string& what, int error)
-        : BackendError(settings::kAudioBackendOss, state,
+        : BackendError(BackendIdentifier::kOSS, state,
                        what + " (" + std::to_string(error) +
-                       " '" + std::string(strerror(error)) + "')")
+                       " '" + std::string(std::strerror(error)) + "')")
         {}
     };
 

@@ -25,6 +25,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
+#include <utility>
 #include <thread>
 #include <cassert>
 #include <iostream>
@@ -49,7 +50,7 @@ namespace audio {
   class AlsaBackendError : public BackendError {
   public:
     explicit AlsaBackendError(BackendState state, const std::string& what = "", int error = 0)
-      : BackendError(settings::kAudioBackendAlsa, state, what),
+      : BackendError(BackendIdentifier::kALSA, state, what),
         error_(error)
       {}
     AlsaBackendError(BackendState state, int error, const std::string& what = "")

@@ -36,45 +36,45 @@
 
 namespace audio {
 
-  const std::vector<settings::AudioBackend>& availableBackends()
+  const std::vector<BackendIdentifier>& availableBackends()
   {
-    static const std::vector<settings::AudioBackend> backends = {
-      settings::kAudioBackendNone,
+    static const std::vector<BackendIdentifier> backends = {
+      BackendIdentifier::kNone,
 #ifdef HAVE_ALSA
-      settings::kAudioBackendAlsa,
+      BackendIdentifier::kALSA,
 #endif
 #ifdef HAVE_OSS
-      settings::kAudioBackendOss,
+      BackendIdentifier::kOSS,
 #endif
 #ifdef HAVE_PULSEAUDIO
-      settings::kAudioBackendPulseaudio,
+      BackendIdentifier::kPulseAudio,
 #endif
     };
     return backends;
   }
 
-  std::unique_ptr<Backend> createBackend(settings::AudioBackend id)
+  std::unique_ptr<Backend> createBackend(BackendIdentifier id)
   {
     std::unique_ptr<Backend> backend = nullptr;
 
     switch (id)
     {
 #ifdef HAVE_ALSA
-    case settings::kAudioBackendAlsa:
+    case BackendIdentifier::kALSA:
       backend = std::make_unique<AlsaBackend>();
       break;
 #endif
 #ifdef HAVE_OSS
-    case settings::kAudioBackendOss:
+    case BackendIdentifier::kOSS:
       backend = std::make_unique<OssBackend>();
       break;
 #endif
 #ifdef HAVE_PULSEAUDIO
-    case settings::kAudioBackendPulseaudio:
+    case BackendIdentifier::kPulseAudio:
       backend = std::make_unique<PulseAudioBackend>();
       break;
 #endif
-    case settings::kAudioBackendNone:
+    case BackendIdentifier::kNone:
       backend = std::make_unique<DummyBackend>();
       break;
 

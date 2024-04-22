@@ -23,7 +23,7 @@
 #include <vector>
 #include <bitset>
 
-enum Accent
+enum Accent : int
 {
   kAccentOff    = 0,
   kAccentWeak   = 1,

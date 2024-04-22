@@ -23,6 +23,7 @@
 
 #include "PulseAudio.h"
 #include <cassert>
+#include <utility>
 
 #ifndef NDEBUG
 #  include <iostream>
@@ -35,10 +36,10 @@ namespace audio {
     class PulseaudioError : public BackendError {
     public:
       explicit PulseaudioError(BackendState state, const char* what = "")
-        : BackendError(settings::kAudioBackendPulseaudio, state, what)
+        : BackendError(BackendIdentifier::kPulseAudio, state, what)
       {}
       PulseaudioError(BackendState state, int error)
-        : BackendError(settings::kAudioBackendPulseaudio, state, pa_strerror(error))
+        : BackendError(BackendIdentifier::kPulseAudio, state, pa_strerror(error))
       {}
     };
 
