@@ -1,7 +1,7 @@
-AC_COPYRIGHT([Copyright (c) 2020-2023 The GMetronome Team. All rights reserved.])
+AC_COPYRIGHT([Copyright (c) 2020-2024 The GMetronome Team. All rights reserved.])
 
 AC_INIT([GMetronome],
-	[0.3.3],
+	[0.3.4],
 	[https://gitlab.gnome.org/dqpb/gmetronome/issues],
 	[gmetronome],
 	[https://gitlab.gnome.org/dqpb/gmetronome])
