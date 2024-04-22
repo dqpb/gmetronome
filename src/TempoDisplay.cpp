@@ -195,12 +195,12 @@ void DividerLabel::addTrianglePath(const Cairo::RefPtr<Cairo::Context>& cr)
   static constexpr double one_third_squared = one_third * one_third;
   static constexpr double two_third_squared = two_third * two_third;
 
-  static constexpr double side = 2.0 * std::sqrt(one_third_squared + two_third_squared);
-  static constexpr double side_half = side / 2.0;
+  static const double side = 2.0 * std::sqrt(one_third_squared + two_third_squared);
+  static const double side_half = side / 2.0;
 
   // we make the bottom side a bit shorter, so this is not exactly
   // an equilateral triangle
-  static constexpr double bottom_side_half = 0.70 * side_half;
+  static const double bottom_side_half = 0.70 * side_half;
 
   cr->move_to(0.0, two_third);
   cr->line_to(bottom_side_half, -one_third);
