@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gmetronome 0.3.3\n"
+"Project-Id-Version: gmetronome 0.3.4\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2024-04-21 13:25+0200\n"
+"POT-Creation-Date: 2024-04-22 17:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -505,23 +505,23 @@ msgid "Preferences"
 msgstr ""
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:191
+#: src/SettingsDialog.cpp:192
 msgctxt "Preferences dialog"
 msgid "Action"
 msgstr ""
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:197
+#: src/SettingsDialog.cpp:198
 msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr ""
 
-#: src/SettingsDialog.cpp:592
+#: src/SettingsDialog.cpp:593
 msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr ""
 
-#: src/SettingsDialog.cpp:607
+#: src/SettingsDialog.cpp:608
 msgctxt "Preferences dialog"
 msgid "Custom"
 msgstr ""
