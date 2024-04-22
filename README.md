@@ -8,7 +8,7 @@ and other Unix-like operating systems.
 Features
 --------
 * Tempo range from 30 to 250 BPM
-* Accent patterns with three levels of accentuation
+* Customizable accent patterns with three levels of accentuation
 * Divisible beats for simple and compound meters
 * Predefined patterns for widely used meters and time signatures
 * Training function (smoothly increase or decrease tempo)
