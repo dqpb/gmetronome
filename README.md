@@ -3,7 +3,7 @@ GMetronome
 GMetronome is a free/libre software metronome and tempo measurement tool for GNU/Linux
 and other Unix-like operating systems.
 
-![Screenshot](data/screenshots/screenshot.png)
+![Screenshot](data/screenshots/screenshot-light.png)
 
 Features
 --------
