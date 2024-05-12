@@ -1,3 +1,11 @@
+2024-05-12  0.3.4
+	* Fix some layout issues with RTL languages
+	* Add Brazilian Portuguese translation
+	* Animate acceleration triangle in tempo display
+	* Tap button gives visual feedback when pressed
+	* Add shortcut to double/half tempo (disabled by default)
+	* Add shortcut to mute volume
+
 2024-02-27  0.3.3
 
 	* Add shortcut to set tempo quickly
