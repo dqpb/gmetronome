@@ -84,8 +84,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.6.tar.xz",
-                    "sha256": "5358742598181e5351d7bf8da072bf93e6dd5f178d27640d4e462bc8f14e152f"
+                    "url": "https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.7.tar.xz",
+                    "sha256": "fe02c1e5f5825940d82b56b6ec31a12c06c05c1583cfe62f934d0763e1e542b3"
                 }
             ]
         },
@@ -138,8 +138,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.8.tar.xz",
-                    "sha256" : "d2940c64922e5b958554b23d4c41d1839ea9e43e0d2e5b3819cfb46824a098c4"
+                    "url" : "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.9.tar.xz",
+                    "sha256" : "30d5bfe404571ce566a8e938c8bac17576420eb508f1e257837da63f14ad44ce"
                 }
             ]
         },
