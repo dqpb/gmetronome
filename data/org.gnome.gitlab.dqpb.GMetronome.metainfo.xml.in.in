@@ -25,7 +25,10 @@
   <url type="bugtracker">@PACKAGE_BUGREPORT@</url>
   <screenshots>
     <screenshot type="default">
-      <image>https://gitlab.gnome.org/dqpb/gmetronome/raw/main/data/screenshots/screenshot.png</image>
+      <image>https://gitlab.gnome.org/dqpb/gmetronome/raw/main/data/screenshots/screenshot-light.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://gitlab.gnome.org/dqpb/gmetronome/raw/main/data/screenshots/screenshot-dark.png</image>
     </screenshot>
   </screenshots>
   <keywords>
@@ -43,6 +46,18 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.3.4" date="2024-05-12">
+      <description translate="no">
+	<ul>
+	  <li>Fix some layout issues with RTL languages</li>
+	  <li>Add Brazilian Portuguese translation</li>
+	  <li>Animate acceleration triangle in tempo display</li>
+	  <li>Tap button gives visual feedback when pressed</li>
+	  <li>Add shortcut to double/half tempo (disabled by default)</li>
+	  <li>Add shortcut to mute volume</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.3.3" date="2024-02-27">
       <description translate="no">
 	<ul>
