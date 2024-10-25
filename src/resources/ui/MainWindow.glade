@@ -1143,6 +1143,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   <object class="GtkSpinButton" id="trainerEndSpinButton">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes" context="Main window">Target tempo in BPM</property>
                                     <property name="halign">start</property>
                                     <property name="max-length">3</property>
                                     <property name="width-chars">3</property>
@@ -1192,6 +1193,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   <object class="GtkSpinButton" id="trainerStartSpinButton">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes" context="Main window">Start tempo in BPM</property>
                                     <property name="halign">start</property>
                                     <property name="max-length">3</property>
                                     <property name="width-chars">3</property>
@@ -1241,6 +1243,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   <object class="GtkSpinButton" id="trainerAccelSpinButton">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
+                                    <property name="tooltip-text" translatable="yes" context="Main window">Tempo change in BPM per minute</property>
                                     <property name="halign">start</property>
                                     <property name="max-length">4</property>
                                     <property name="width-chars">4</property>
