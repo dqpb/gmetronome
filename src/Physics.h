@@ -185,6 +185,10 @@ namespace physics {
 
     /**
      * @function setBeats
+     * @brief Sets the number of beats of the oscillator
+     *
+     * The current position will be recomputed to fit the new module
+     * (see @ref Oscillator::remodule).
      */
     void setBeats(double beats, bool turnover = false);
 
@@ -192,21 +196,40 @@ namespace physics {
      * @function setTempo
      * @brief Set the current tempo of the oscillation
      *
-     * Setting the current tempo does not affect the target tempo and
-     * the target acceleration, i.e. the oscillator will continue to
-     * change the speed towards the target tempo.
+     * Setting the current tempo does not affect the target tempo or the
+     * target acceleration, i.e. the oscillator will continue to change
+     * the speed from the new tempo towards the target tempo with the current
+     * acceleration.
+     *
+     * However, it will stop an ongoing synchronization that was previously
+     * initiated by a call to @ref synchronize, because it is regarded obsolete.
+     *
+     * @param tempo  The new tempo in BPM
      */
     void setTempo(double tempo);
 
     /**
      * @function setTargetTempo
      * @brief Sets the target tempo of the oscillation
+     *
+     * If the current tempo differs from the target tempo the oscillator
+     * starts to accelerate towards the target tempo with the current
+     * acceleration (i.e. the acceleration that is set with @ref setAcceleration).
+     *
+     * @param tempo  The target tempo in BPM
      */
     void setTargetTempo(double tempo);
 
     /**
      * @function setAcceleration
      * @brief Sets the acceleration used to reach the target tempo
+     *
+     * The parameter accel is the magnitude (i.e. the absolute value)
+     * of the acceleration in BPM per minute. The actual acceleration
+     * towards the target tempo can then be accessed by a call to
+     * @ref acceleration().
+     *
+     * @param accel  The magnitude of acceleration in BPM per minute
      */
     void setAcceleration(double accel);
 
@@ -252,7 +275,7 @@ namespace physics {
 
     double tempo_{0.0};           // beats / s
     double target_tempo_{0.0};    // beats / s
-    double accel_{0.0};           // 1.0 / s²
+    double accel_{0.0};           // beats / s²
     double sync_beat_dev_{0.0};
     double sync_tempo_dev_{0.0};
     double sync_start_tempo_{0.0};
