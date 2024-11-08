@@ -28,7 +28,6 @@ namespace aux {
   namespace math {
 
     /**
-     * @function  solveQuadratic
      * @brief     Computes all real solutions of the quadratic equation
      * @return    A tuple containing the number of solutions and the roots
      */
@@ -39,7 +38,6 @@ namespace aux {
     solveQuadratic(double a2, double a1, double a0);
 
     /**
-     * @function  solveCubic
      * @brief     Computes all real solutions of the cubic equation
      * @return    A tuple containing the number of solutions and the roots
      */
@@ -50,7 +48,6 @@ namespace aux {
     solveCubic(double a3, double a2, double a1, double a0);
 
     /**
-     * @function  modulo
      * @brief     Modulo operation that uses the largest integer value
      *            not greater than the result of the division (std::floor)
      */
