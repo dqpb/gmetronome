@@ -118,15 +118,33 @@ namespace audio {
     updateFramesLeft(ctrl);
   }
 
-  void RegularGenerator::onTargetTempoChanged(BeatStreamController& ctrl)
+  void RegularGenerator::configureAcceleration(BeatStreamController& ctrl)
   {
-    k_.setTargetTempo(ctrl.targetTempo());
-    updateFramesLeft(ctrl);
+    switch (ctrl.accelerationMode()) {
+    case AccelerationMode::kContinuous:
+      // TODO: stop possible stepwise acceleration
+      k_.accelerate(ctrl.acceleration(), ctrl.targetTempo());
+      break;
+    case AccelerationMode::kStepwise:
+      if (k_.acceleration() != 0.0)
+        k_.accelerate(0.0, 0.0);
+      // TODO: configure stepwise acceleration
+      break;
+    case AccelerationMode::kNoAcceleration:
+      if (k_.acceleration() != 0.0)
+        k_.accelerate(0.0, 0.0);
+      // TODO: stop possible stepwise acceleration
+      break;
+    };
   }
 
   void RegularGenerator::onAccelerationChanged(BeatStreamController& ctrl)
   {
-    k_.setAcceleration(ctrl.acceleration());
+    configureAcceleration(ctrl);
+
+    if (ctrl.accelerationMode() == AccelerationMode::kNoAcceleration)
+      k_.setTempo(ctrl.tempo());
+
     updateFramesLeft(ctrl);
   }
 
@@ -178,8 +196,8 @@ namespace audio {
     k_.reset();
     k_.setBeats(ctrl.meter().beats());
     k_.setTempo(ctrl.tempo());
-    k_.setTargetTempo(ctrl.targetTempo());
-    k_.setAcceleration(ctrl.acceleration());
+
+    configureAcceleration(ctrl);
 
     accent_ = 0;
     accent_point_ = true;

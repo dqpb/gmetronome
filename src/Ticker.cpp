@@ -44,15 +44,14 @@ namespace audio {
     : backend_ {createBackend(BackendIdentifier::kNone)}
   {
     tempo_imported_flag_.test_and_set();
-    target_tempo_imported_flag_.test_and_set();
     accel_imported_flag_.test_and_set();
-    meter_imported_flag_.test_and_set();
     sync_imported_flag_.test_and_set();
+    meter_imported_flag_.test_and_set();
 
     for (auto& flag : sound_imported_flags_)
       flag.test_and_set();
 
-    sync_swap_backend_flag_.test_and_set();
+    swap_backend_flag_.test_and_set();
   }
 
   Ticker::~Ticker()
@@ -77,24 +76,26 @@ namespace audio {
   void Ticker::swapBackend(std::unique_ptr<Backend>& backend,
                            const microseconds& timeout)
   {
+    // After the swap operation the ui thread can safely destroy the old backend.
+
     // If the audio thread is still running after a stop() call or in the
     // error state, we explicitly join it and swap the audio backends directly,
     // otherwise we try to synchronize the threads with a conditional variable
     // to prevent data races during the swap operation.
 
     if (auto s = state();
-        s.test(TickerStateFlag::kRunning)
-        && ( ! s.test(TickerStateFlag::kStarted) || s.test(TickerStateFlag::kError) ) )
+        s.test(Ticker::StateFlag::kRunning)
+        && ( ! s.test(Ticker::StateFlag::kStarted) || s.test(Ticker::StateFlag::kError) ) )
     {
       stopAudioThread(true); // join
     }
 
-    if ( state().test(TickerStateFlag::kRunning) )
+    if ( state().test(Ticker::StateFlag::kRunning) )
     {
       std::unique_lock<SpinLock> lck(spin_mutex_);
 
       // initiate backend swap
-      sync_swap_backend_flag_.clear(std::memory_order_release);
+      swap_backend_flag_.clear(std::memory_order_release);
 
       // wait for the audio thread to be ready
       ready_to_swap_ = false;
@@ -111,13 +112,13 @@ namespace audio {
       else
       {
         // audio thread did not respond (no swap)
-        sync_swap_backend_flag_.test_and_set();
+        swap_backend_flag_.test_and_set();
         throw GMetronomeError {"failed to swap audio backend (audio thread not responding)"};
       }
     }
     else // audio thread is not running
     {
-      sync_swap_backend_flag_.test_and_set();
+      swap_backend_flag_.test_and_set();
 
       if (backend_)
         closeBackend();
@@ -128,50 +129,40 @@ namespace audio {
 
   void Ticker::setTempo(double tempo)
   {
-    in_tempo_.store(std::clamp(tempo, kMinTempo, kMaxTempo));
+    in_tempo_.store(tempo);
     tempo_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setTargetTempo(double target_tempo)
+  void Ticker::accelerate(double accel, double target)
   {
-    in_target_tempo_.store(std::clamp(target_tempo, kMinTempo, kMaxTempo));
-    target_tempo_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setAccel(double accel)
-  {
-    in_accel_.store(std::clamp(accel, kMinAcceleration, kMaxAcceleration));
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_accel_ = accel;
+      in_target_ = target;
+      in_accel_mode_ = AccelerationMode::kContinuous;
+    }
     accel_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::setMeter(Meter meter)
+  void Ticker::accelerate(double step, int hold, double target)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      std::swap(in_meter_, meter);
-      reset_meter_ = false;
-
-      meter_imported_flag_.clear(std::memory_order_release);
+      in_step_ = step;
+      in_hold_ = hold;
+      in_target_ = target;
+      in_accel_mode_ = AccelerationMode::kStepwise;
     }
+    accel_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::resetMeter()
+  void Ticker::stopAcceleration()
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      reset_meter_ = true;
-
-      meter_imported_flag_.clear(std::memory_order_release);
+      in_accel_mode_ = AccelerationMode::kNoAcceleration;
     }
-  }
-
-  void Ticker::setSound(Accent accent, const SoundParameters& params)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sounds_[accent] = params;
-    }
-    sound_imported_flags_[accent].clear(std::memory_order_release);
+    accel_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::synchronize(double beat_dev, double tempo_dev)
@@ -182,6 +173,34 @@ namespace audio {
       in_tempo_dev_ = tempo_dev;
     }
     sync_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::setMeter(Meter meter)
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      std::swap(in_meter_, meter);
+      reset_meter_ = false;
+    }
+    meter_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::resetMeter()
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      reset_meter_ = true;
+    }
+    meter_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::setSound(Accent accent, const SoundParameters& params)
+  {
+    {
+      std::lock_guard<SpinLock> guard(spin_mutex_);
+      in_sounds_[accent] = params;
+    }
+    sound_imported_flags_[accent].clear(std::memory_order_release);
   }
 
   Ticker::Statistics Ticker::getStatistics()
@@ -205,36 +224,36 @@ namespace audio {
   {
     auto current_state = state();
 
-    if (current_state.test(TickerStateFlag::kError))
+    if (current_state.test(Ticker::StateFlag::kError))
     {
       assert(audio_thread_error_ != nullptr);
       std::rethrow_exception(audio_thread_error_);
     }
 
-    if (current_state.test(TickerStateFlag::kRunning))
+    if (current_state.test(Ticker::StateFlag::kRunning))
       stopAudioThread(true); // join
 
     has_stats_ = false;
 
     startAudioThread();
 
-    state_.set(TickerStateFlag::kStarted);
+    state_.set(Ticker::StateFlag::kStarted);
   }
 
   void Ticker::stop()
   {
     auto current_state = state();
 
-    if (current_state.test(TickerStateFlag::kError))
+    if (current_state.test(Ticker::StateFlag::kError))
     {
       assert(audio_thread_error_ != nullptr);
       std::rethrow_exception(audio_thread_error_);
     }
 
-    if (current_state.test(TickerStateFlag::kRunning))
+    if (current_state.test(Ticker::StateFlag::kRunning))
       stopAudioThread(false); // do not join
 
-    state_.reset(TickerStateFlag::kStarted);
+    state_.reset(Ticker::StateFlag::kStarted);
   }
 
   void Ticker::reset() noexcept
@@ -251,12 +270,12 @@ namespace audio {
     }
   }
 
-  TickerState Ticker::state() const noexcept
+  Ticker::State Ticker::state() const noexcept
   {
-    TickerState out_state = state_;
+    Ticker::State out_state = state_;
 
     if (audio_thread_error_flag_.load(std::memory_order_acquire))
-      out_state.set(TickerStateFlag::kError);
+      out_state.set(Ticker::StateFlag::kError);
 
     return out_state;
   }
@@ -268,13 +287,13 @@ namespace audio {
     try {
       stop_audio_thread_flag_ = false;
       audio_thread_finished_flag_ = false;
-      state_.set(TickerStateFlag::kRunning);
+      state_.set(Ticker::StateFlag::kRunning);
 
       audio_thread_ = std::make_unique<std::thread>(&Ticker::audioThreadFunction, this);
     }
     catch(...)
     {
-      state_.reset(TickerStateFlag::kRunning);
+      state_.reset(Ticker::StateFlag::kRunning);
       audio_thread_finished_flag_ = true;
       stop_audio_thread_flag_ = true;
 
@@ -311,7 +330,7 @@ namespace audio {
         {
           throw GMetronomeError("Failed to join audio thread.");
         }
-        state_.reset(TickerStateFlag::kRunning);
+        state_.reset(Ticker::StateFlag::kRunning);
       }
       else throw GMetronomeError("Audio thread not responing. (Timeout)");
     }
@@ -323,16 +342,26 @@ namespace audio {
     return true;
   }
 
-  bool Ticker::importTargetTempo()
-  {
-    stream_ctrl_.setTargetTempo(in_target_tempo_.load());
-    return true;
-  }
-
   bool Ticker::importAccel()
   {
-    stream_ctrl_.setAcceleration(in_accel_.load());
-    return true;
+    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      switch (in_accel_mode_) {
+      case AccelerationMode::kContinuous:
+        stream_ctrl_.accelerate(in_accel_, in_target_);
+        break;
+      case AccelerationMode::kStepwise:
+        stream_ctrl_.accelerate(in_step_, in_hold_, in_target_);
+        break;
+      case AccelerationMode::kNoAcceleration:
+        stream_ctrl_.stopAcceleration();
+        break;
+      };
+      return true;
+    }
+    else
+      return false;
   }
 
   bool Ticker::importMeter()
@@ -436,9 +465,6 @@ namespace audio {
     if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
       if (!importTempo()) tempo_imported_flag_.clear();
 
-    if (!target_tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importTargetTempo()) target_tempo_imported_flag_.clear();
-
     if (!accel_imported_flag_.test_and_set(std::memory_order_acquire))
       if (!importAccel()) accel_imported_flag_.clear();
 
@@ -455,7 +481,7 @@ namespace audio {
 
   bool Ticker::importBackend()
   {
-    if (!sync_swap_backend_flag_.test_and_set(std::memory_order_acquire))
+    if (!swap_backend_flag_.test_and_set(std::memory_order_acquire))
     {
       closeBackend();
       return syncSwapBackend();
@@ -473,14 +499,14 @@ namespace audio {
       const auto& gen_stats = stream_ctrl_.status();
       const auto& meter = stream_ctrl_.meter();
 
-      out_stats_.position = gen_stats.position;
-      out_stats_.tempo = gen_stats.tempo;
+      out_stats_.position     = gen_stats.position;
+      out_stats_.tempo        = gen_stats.tempo;
       out_stats_.acceleration = gen_stats.acceleration;
-      out_stats_.n_beats = meter.beats();
-      out_stats_.n_accents = meter.beats() * meter.division();
-      out_stats_.next_accent = gen_stats.next_accent;
+      out_stats_.n_beats      = meter.beats();
+      out_stats_.n_accents    = meter.beats() * meter.division();
+      out_stats_.next_accent       = gen_stats.next_accent;
       out_stats_.next_accent_delay = gen_stats.next_accent_delay;
-      out_stats_.generator_state = gen_stats.state;
+      out_stats_.generator_state   = gen_stats.state;
 
       if (backend_)
         out_stats_.backend_latency = backend_->latency();

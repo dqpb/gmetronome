@@ -92,19 +92,10 @@ namespace physics {
       updateOscForce(ForceMode::kAccelForce);
   }
 
-  void BeatKinematics::setTargetTempo(double tempo)
-  {
-    target_tempo_ = bpm_2_bps(tempo);
-
-    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
-      switchForceMode(ForceMode::kAccelForce);
-    else if (force_mode_ == ForceMode::kAccelForce)
-      updateOscForce(ForceMode::kAccelForce);
-  }
-
-  void BeatKinematics::setAcceleration(double accel)
+  void BeatKinematics::accelerate(double accel, double target)
   {
     accel_ = bpm2_2_bps2(accel);
+    target_tempo_ = bpm_2_bps(target);
 
     if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
       switchForceMode(ForceMode::kAccelForce);

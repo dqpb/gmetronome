@@ -132,9 +132,11 @@ private:
 
   // Trainer
   void onTrainerEnabled(const Glib::VariantBase& value);
-  void onTrainerStart(const Glib::VariantBase& value);
+  void onTrainerMode(const Glib::VariantBase& value);
   void onTrainerTarget(const Glib::VariantBase& value);
   void onTrainerAccel(const Glib::VariantBase& value);
+  void onTrainerStep(const Glib::VariantBase& value);
+  void onTrainerHold(const Glib::VariantBase& value);
 
   // Profiles
   void onProfileManagerChanged();
@@ -183,9 +185,11 @@ private:
 
   // Input validation
   std::pair<double,bool> validateTempo(double value);
-  std::pair<double,bool> validateTrainerStart(double value);
+  std::pair<Profile::TrainerMode,bool> validateTrainerMode(Profile::TrainerMode value);
   std::pair<double,bool> validateTrainerTarget(double value);
   std::pair<double,bool> validateTrainerAccel(double value);
+  std::pair<double,bool> validateTrainerStep(double value);
+  std::pair<int,bool> validateTrainerHold(int value);
   std::pair<double,bool> validateVolume(double value);
   std::pair<Meter,bool> validateMeter(Meter meter);
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);

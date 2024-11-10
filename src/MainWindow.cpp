@@ -209,18 +209,25 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("subdiv3RadioButton", subdiv_3_radio_button_);
   builder_->get_widget("subdiv4RadioButton", subdiv_4_radio_button_);
   builder_->get_widget("subdivLabel", subdiv_label_);
+  builder_->get_widget("trainerStack", trainer_stack_);
+  builder_->get_widget("trainerModeButtonBox", trainer_mode_button_box_);
+  builder_->get_widget("trainerMode1RadioButton", trainer_mode_1_radio_button_);
+  builder_->get_widget("trainerMode2RadioButton", trainer_mode_2_radio_button_);
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("tempoAdjustment"));
-
-  trainer_start_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
-    ::cast_dynamic(builder_->get_object("trainerStartAdjustment"));
 
   trainer_target_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("trainerTargetAdjustment"));
 
   trainer_accel_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("trainerAccelAdjustment"));
+
+  trainer_step_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
+    ::cast_dynamic(builder_->get_object("trainerStepAdjustment"));
+
+  trainer_hold_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
+    ::cast_dynamic(builder_->get_object("trainerHoldAdjustment"));
 
   beats_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("beatsAdjustment"));
@@ -410,14 +417,11 @@ void MainWindow::initBindings()
       return true;
     });
 
+
   action_bindings_
     .push_back( bind_action(app,
                             kActionTempo,
                             tempo_adjustment_->property_value()) );
-  action_bindings_
-    .push_back( bind_action(app,
-                            kActionTrainerStart,
-                            trainer_start_adjustment_->property_value()) );
   action_bindings_
     .push_back( bind_action(app,
                             kActionTrainerTarget,
@@ -426,6 +430,14 @@ void MainWindow::initBindings()
     .push_back( bind_action(app,
                             kActionTrainerAccel,
                             trainer_accel_adjustment_->property_value()) );
+  action_bindings_
+    .push_back( bind_action(app,
+                            kActionTrainerStep,
+                            trainer_step_adjustment_->property_value()) );
+  action_bindings_
+    .push_back( bind_action(app,
+                            kActionTrainerHold,
+                            trainer_hold_adjustment_->property_value()) );
 
   meter_connections_
     .push_back( beats_adjustment_->signal_value_changed()
@@ -456,6 +468,12 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onAccentChanged))
       );
 
+  trainer_mode_1_radio_button_->signal_clicked()
+    .connect([&]{onTrainerModeChanged(trainer_mode_1_radio_button_);});
+
+  trainer_mode_2_radio_button_->signal_clicked()
+    .connect([&]{onTrainerModeChanged(trainer_mode_2_radio_button_);});
+
   profile_tree_view_->signal_drag_begin()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileDragBegin));
 
@@ -471,10 +489,10 @@ void MainWindow::initBindings()
 
   cell_renderer->property_placeholder_text() = profile_title_placeholder_;
 
-    cell_renderer->signal_editing_started()
+  cell_renderer->signal_editing_started()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleStartEditing));
 
-    cell_renderer->signal_edited()
+  cell_renderer->signal_edited()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleChanged));
 
   profile_new_button_->signal_clicked()
@@ -1057,6 +1075,26 @@ void MainWindow::onAccentChanged(std::size_t button_index)
   Gtk::Application::get_default()->activate_action(meter_slot, state);
 }
 
+void MainWindow::onTrainerModeChanged(Gtk::RadioButton* button)
+{
+  if (button == nullptr || !button->get_active())
+    return;
+
+  Profile::TrainerMode mode;
+
+  if (button == trainer_mode_1_radio_button_)
+    mode = Profile::kTrainerModeContinuous;
+  else if (button == trainer_mode_2_radio_button_)
+    mode = Profile::kTrainerModeStepwise;
+  else
+    return;
+
+  auto app = Gtk::Application::get_default();
+
+  auto mode_variant = Glib::Variant<Profile::TrainerMode>::create(mode);
+  app->activate_action(kActionTrainerMode, mode_variant);
+}
+
 void MainWindow::onProfileSelectionChanged()
 {
   Glib::ustring id;
@@ -1194,6 +1232,12 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     bool running;
     app->get_action_state(kActionStart, running);
     updateStart(running);
+  }
+  else if (action_name.compare(kActionTrainerMode) == 0)
+  {
+    Profile::TrainerMode mode;
+    app->get_action_state(kActionTrainerMode, mode);
+    updateTrainerMode(mode);
   }
   else if (action_name.compare(kActionProfileList) == 0)
   {
@@ -1381,6 +1425,24 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 void MainWindow::updateTempo(double tempo)
 {
   // nothing
+}
+
+void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
+{
+  if (mode == Profile::kTrainerModeContinuous)
+  {
+    if (!trainer_mode_1_radio_button_->get_active())
+      trainer_mode_1_radio_button_->set_active(true);
+
+    trainer_stack_->set_visible_child("trainerContinuousPage");
+  }
+  else if (mode == Profile::kTrainerModeStepwise)
+  {
+    if (!trainer_mode_2_radio_button_->get_active())
+      trainer_mode_2_radio_button_->set_active(true);
+
+    trainer_stack_->set_visible_child("trainerStepwisePage");
+  }
 }
 
 void MainWindow::updateStart(bool running)

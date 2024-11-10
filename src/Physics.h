@@ -179,12 +179,10 @@ namespace physics {
   class BeatKinematics {
   public:
     /**
-     * @function reset
      */
     void reset();
 
     /**
-     * @function setBeats
      * @brief Sets the number of beats of the oscillator
      *
      * The current position will be recomputed to fit the new module
@@ -193,49 +191,41 @@ namespace physics {
     void setBeats(double beats, bool turnover = false);
 
     /**
-     * @function setTempo
      * @brief Set the current tempo of the oscillation
      *
-     * Setting the current tempo does not affect the target tempo or the
-     * target acceleration, i.e. the oscillator will continue to change
-     * the speed from the new tempo towards the target tempo with the current
-     * acceleration.
+     * Setting the current tempo does not affect the target tempo or acceleration
+     * (see @ref accelerate), i.e. the oscillator will continue to change the speed
+     * from the new tempo towards the target tempo.
      *
      * However, it will stop an ongoing synchronization that was previously
-     * initiated by a call to @ref synchronize, because it is regarded obsolete.
+     * initiated by @ref synchronize, because the synchronization is regarded
+     * obsolete.
      *
      * @param tempo  The new tempo in BPM
      */
     void setTempo(double tempo);
 
     /**
-     * @function setTargetTempo
-     * @brief Sets the target tempo of the oscillation
+     * @brief Set up an acceleration towards a target tempo
      *
-     * If the current tempo differs from the target tempo the oscillator
-     * starts to accelerate towards the target tempo with the current
-     * acceleration (i.e. the acceleration that is set with @ref setAcceleration).
+     * If the current tempo differs from the target tempo the oscillator starts to
+     * accelerate towards the target tempo with the given acceleration.
      *
-     * @param tempo  The target tempo in BPM
-     */
-    void setTargetTempo(double tempo);
-
-    /**
-     * @function setAcceleration
-     * @brief Sets the acceleration used to reach the target tempo
+     * The parameter accel is the magnitude (i.e. the absolute value) of the
+     * acceleration in BPM per minute. The actual signed acceleration towards the
+     * target tempo can then be accessed by a call to @ref acceleration().
      *
-     * The parameter accel is the magnitude (i.e. the absolute value)
-     * of the acceleration in BPM per minute. The actual acceleration
-     * towards the target tempo can then be accessed by a call to
-     * @ref acceleration().
+     * Changing the acceleration or target tempo does not interrupt an ongoing
+     * synchronization process (see @ref synchronize). However, after the
+     * synchronization is completed, the oscillator will continue to accelerate
+     * towards the new target tempo with the new acceleration.
      *
      * @param accel  The magnitude of acceleration in BPM per minute
+     * @param target  The target tempo in BPM
      */
-    void setAcceleration(double accel);
+    void accelerate(double accel, double target);
 
     /**
-     * @function synchronize
-     *
      * This function applies a force to synchronize the underlying oscillator (source)
      * with another oscillator (target) over a specified time. The parameters beat_dev
      * and tempo_dev are the beat and tempo deviations of the (unsynced) source oscillator
@@ -261,12 +251,10 @@ namespace physics {
     double acceleration() const;
 
     /**
-     * @function step
      */
     void step(seconds_dbl time);
 
     /**
-     * @function arrival
      */
     seconds_dbl arrival(double p_dev) const;
 

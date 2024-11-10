@@ -76,6 +76,7 @@ noinst_HEADERS = \
 	ProfileIOLocalXml.h \
 	ProfileListStore.h \
 	ProfileManager.h \
+	ProfileVariant.h \
 	PulseAudio.h \
 	Settings.h \
 	SettingsDialog.h \
@@ -123,6 +124,7 @@ resources = \
 	$(resourcesdir)/icons/gm-curve-keep-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-linear-up-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-linear-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-stepwise-up-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-up-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-up-flipped-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-down-symbolic.svg \

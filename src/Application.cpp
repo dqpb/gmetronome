@@ -129,9 +129,11 @@ void Application::initActions()
       {kActionTempoScale,      sigc::mem_fun(*this, &Application::onTempoScale)},
       {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
       {kActionTrainerEnabled,  sigc::mem_fun(*this, &Application::onTrainerEnabled)},
-      {kActionTrainerStart,    sigc::mem_fun(*this, &Application::onTrainerStart)},
+      {kActionTrainerMode,     sigc::mem_fun(*this, &Application::onTrainerMode)},
       {kActionTrainerTarget,   sigc::mem_fun(*this, &Application::onTrainerTarget)},
       {kActionTrainerAccel,    sigc::mem_fun(*this, &Application::onTrainerAccel)},
+      {kActionTrainerStep,     sigc::mem_fun(*this, &Application::onTrainerStep)},
+      {kActionTrainerHold,     sigc::mem_fun(*this, &Application::onTrainerHold)},
 
       {kActionMeterEnabled,    sigc::mem_fun(*this, &Application::onMeterEnabled)},
       {kActionMeterSelect,     sigc::mem_fun(*this, &Application::onMeterSelect)},
@@ -521,23 +523,25 @@ void Application::onTrainerEnabled(const Glib::VariantBase& value)
 
   if (new_state.get())
   {
-    double trainer_target_tempo;
-    get_action_state(kActionTrainerTarget, trainer_target_tempo);
+    double trainer_target;
+    get_action_state(kActionTrainerTarget, trainer_target);
 
     double trainer_accel;
     get_action_state(kActionTrainerAccel, trainer_accel);
 
-    ticker_.setTargetTempo(trainer_target_tempo);
-    ticker_.setAccel(trainer_accel);
+    // ticker_.setTargetTempo(trainer_target_tempo);
+    // ticker_.setAccel(trainer_accel);
+    ticker_.accelerate(trainer_accel, trainer_target);
   }
   else
   {
     double tempo;
     get_action_state(kActionTempo, tempo);
 
-    ticker_.setTargetTempo(tempo);
-    ticker_.setAccel(0.0);
-    ticker_.setTempo(tempo);
+    // ticker_.setTargetTempo(tempo);
+    // ticker_.setAccel(0.0);
+    // ticker_.setTempo(tempo);
+    ticker_.stopAcceleration();
   }
 
   lookupSimpleAction(kActionTrainerEnabled)->set_state(new_state);
@@ -778,8 +782,8 @@ void Application::onTempoTap(const Glib::VariantBase& value)
     activate_action(kActionTempo, new_tempo_state);
   }
 
-  if (audio::TickerState state = ticker_.state();
-      state.test(audio::TickerStateFlag::kStarted))
+  if (audio::Ticker::State state = ticker_.state();
+      state.test(audio::Ticker::StateFlag::kStarted))
   {
     if (settings::sound()->get_boolean(settings::kKeySoundAutoAdjustVolume))
         startDropVolumeTimer( (1.0 - confidence) * kMaxVolumeDrop );
@@ -816,27 +820,38 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   signal_tap_.emit(confidence);
 }
 
-void Application::onTrainerStart(const Glib::VariantBase& value)
+void Application::onTrainerMode(const Glib::VariantBase& value)
 {
-  double in_tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  auto [tempo, valid] = validateTrainerStart(in_tempo);
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-  auto new_state = Glib::Variant<double>::create(tempo);
-  lookupSimpleAction(kActionTrainerStart)->set_state(new_state);
+  Profile::TrainerMode in_mode =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<Profile::TrainerMode>>(value).get();
+
+  if (auto [mode, valid] = validateTrainerMode(in_mode); valid)
+  {
+    // TODO: set ticker trainer mode
+
+    auto new_state = Glib::Variant<Profile::TrainerMode>::create(mode);
+    lookupSimpleAction(kActionTrainerMode)->set_state(new_state);
+  }
 }
 
 void Application::onTrainerTarget(const Glib::VariantBase& value)
 {
-  double in_tempo = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
-  auto [tempo, valid] = validateTrainerTarget(in_tempo);
+  double in_target = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  auto [target, valid] = validateTrainerTarget(in_target);
 
   bool trainer_enabled;
   get_action_state(kActionTrainerEnabled, trainer_enabled);
 
   if (trainer_enabled)
-    ticker_.setTargetTempo(tempo);
+  {
+    double accel;
+    get_action_state(kActionTrainerAccel, accel);
 
-  auto new_state = Glib::Variant<double>::create(tempo);
+    ticker_.accelerate(accel, target);
+  }
+  auto new_state = Glib::Variant<double>::create(target);
   lookupSimpleAction(kActionTrainerTarget)->set_state(new_state);
 }
 
@@ -849,10 +864,40 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
   get_action_state(kActionTrainerEnabled, trainer_enabled);
 
   if (trainer_enabled)
-    ticker_.setAccel(accel);
+  {
+    double target;
+    get_action_state(kActionTrainerTarget, target);
 
+    ticker_.accelerate(accel, target);
+  }
   auto new_state = Glib::Variant<double>::create(accel);
   lookupSimpleAction(kActionTrainerAccel)->set_state(new_state);
+}
+
+void Application::onTrainerStep(const Glib::VariantBase& value)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  double in_step = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  auto [step, valid] = validateTrainerStep(in_step);
+
+  // TODO: set ticker step value
+
+  auto new_state = Glib::Variant<double>::create(step);
+  lookupSimpleAction(kActionTrainerStep)->set_state(new_state);
+}
+
+void Application::onTrainerHold(const Glib::VariantBase& value)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  int in_hold = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(value).get();
+  auto [hold, valid] = validateTrainerHold(in_hold);
+
+  // TODO: set ticker hold value
+
+  auto new_state = Glib::Variant<int>::create(hold);
+  lookupSimpleAction(kActionTrainerHold)->set_state(new_state);
 }
 
 void Application::onProfileManagerChanged()
@@ -973,9 +1018,11 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionMeterCompound4, content.meter_compound_4);
   get_action_state(kActionMeterCustom, content.meter_custom);
   get_action_state(kActionTrainerEnabled, content.trainer_enabled);
-  get_action_state(kActionTrainerStart, content.trainer_start);
+  get_action_state(kActionTrainerMode, content.trainer_mode);
   get_action_state(kActionTrainerTarget, content.trainer_target);
   get_action_state(kActionTrainerAccel, content.trainer_accel);
+  get_action_state(kActionTrainerStep, content.trainer_step);
+  get_action_state(kActionTrainerHold, content.trainer_hold);
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     content.sound_theme_id = settings::soundThemes()->selected();
@@ -1005,12 +1052,16 @@ void Application::convertProfileToAction(const Profile::Content& content)
                   Glib::Variant<Meter>::create(content.meter_custom) );
   change_action_state(kActionTrainerEnabled,
                       Glib::Variant<bool>::create(content.trainer_enabled) );
-  activate_action(kActionTrainerStart,
-                  Glib::Variant<double>::create(content.trainer_start) );
+  activate_action(kActionTrainerMode,
+                  Glib::Variant<Profile::TrainerMode>::create(content.trainer_mode) );
   activate_action(kActionTrainerTarget,
                   Glib::Variant<double>::create(content.trainer_target) );
   activate_action(kActionTrainerAccel,
                   Glib::Variant<double>::create(content.trainer_accel) );
+  activate_action(kActionTrainerStep,
+                  Glib::Variant<double>::create(content.trainer_step) );
+  activate_action(kActionTrainerHold,
+                  Glib::Variant<int>::create(content.trainer_hold) );
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
   {
@@ -1187,13 +1238,13 @@ void Application::onStart(const Glib::VariantBase& value)
       bool trainer_enabled;
       get_action_state(kActionTrainerEnabled, trainer_enabled);
 
-      if (trainer_enabled)
-      {
-        double trainer_start_tempo;
-        get_action_state(kActionTrainerStart, trainer_start_tempo);
+      // if (trainer_enabled)
+      // {
+      //   double trainer_start_tempo;
+      //   get_action_state(kActionTrainerStart, trainer_start_tempo);
 
-        ticker_.setTempo(trainer_start_tempo);
-      }
+      //   ticker_.setTempo(trainer_start_tempo);
+      // }
       ticker_.start();
       startStatsTimer();
     }
@@ -1363,8 +1414,8 @@ void Application::stopStatsTimer()
 
 bool Application::onStatsTimer()
 {
-  audio::TickerState state = ticker_.state();
-  if (state.test(audio::TickerStateFlag::kError))
+  audio::Ticker::State state = ticker_.state();
+  if (state.test(audio::Ticker::StateFlag::kError))
   {
     // this will handle the error
     change_action_state(kActionStart, Glib::Variant<bool>::create(false));
@@ -1420,52 +1471,51 @@ void Application::setVolumeDrop(double drop)
   updateTickerSound(kAccentMaskAll);
 }
 
-// helper
-template<class T>
-std::pair<T,bool> validateRange(T value, const ActionStateHintRange<T>& range)
-{
-  T ret = clampActionStateValue(value, range);
-  return { ret, value == ret };
-}
-
-template<class T>
-std::pair<T,bool> validateRange(T value, const T& min, const T& max)
-{
-  T ret = std::clamp(value, min, max);
-  return { ret, value == ret };
-}
-
 std::pair<double,bool> Application::validateTempo(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTempo, range);
-  return validateRange(value, range);
+  return validateActionState(value, range);
 }
 
-std::pair<double,bool> Application::validateTrainerStart(double value)
+std::pair<Profile::TrainerMode,bool> Application::validateTrainerMode(Profile::TrainerMode value)
 {
-  ActionStateHintRange<double> range;
-  get_action_state_hint(kActionTrainerStart, range);
-  return validateRange(value, range);
+  ActionStateHintArray<Profile::TrainerMode> allowed_values;
+  get_action_state_hint(kActionTrainerMode, allowed_values);
+  return validateActionState(value, allowed_values);
 }
 
 std::pair<double,bool> Application::validateTrainerTarget(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTrainerTarget, range);
-  return validateRange(value, range);
+  return validateActionState(value, range);
 }
 
 std::pair<double,bool> Application::validateTrainerAccel(double value)
 {
   ActionStateHintRange<double> range;
   get_action_state_hint(kActionTrainerAccel, range);
-  return validateRange(value, range);
+  return validateActionState(value, range);
+}
+
+std::pair<double,bool> Application::validateTrainerStep(double value)
+{
+  ActionStateHintRange<double> range;
+  get_action_state_hint(kActionTrainerStep, range);
+  return validateActionState(value, range);
+}
+
+std::pair<int,bool> Application::validateTrainerHold(int value)
+{
+  ActionStateHintRange<int> range;
+  get_action_state_hint(kActionTrainerHold, range);
+  return validateActionState(value, range);
 }
 
 std::pair<double,bool> Application::validateVolume(double value)
 {
-  return validateRange(value, settings::kMinVolume, settings::kMaxVolume);
+  return validateActionStateRange(value, settings::kMinVolume, settings::kMaxVolume);
 }
 
 std::pair<Meter,bool> Application::validateMeter(Meter meter)

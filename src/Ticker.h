@@ -36,21 +36,16 @@
 
 namespace audio {
 
-  enum TickerStateFlag
-  {
-    kStarted      = 0,
-    kRunning      = 1,
-    kError        = 2
-  };
-
-  using TickerState = std::bitset<16>;
-
   class Ticker {
   public:
-    static constexpr double kMinTempo = 30.0;
-    static constexpr double kMaxTempo = 250.0;
-    static constexpr double kMinAcceleration = 0.0;
-    static constexpr double kMaxAcceleration = 1000.0;
+    enum StateFlag
+    {
+      kStarted      = 0,
+      kRunning      = 1,
+      kError        = 2
+    };
+
+    using State = std::bitset<16>;
 
     struct Statistics
     {
@@ -82,16 +77,44 @@ namespace audio {
     void stop();
     void reset() noexcept;
 
-    TickerState state() const noexcept;
+    Ticker::State state() const noexcept;
 
     void setTempo(double tempo);
-    void setTargetTempo(double target_tempo);
-    void setAccel(double accel);
+
+    /**
+     * @brief Accelerate the metronome continuously towards a target tempo
+     *
+     * @param accel  Magnitude of acceleration in BPM per minute
+     * @param target Target tempo in BPM
+     */
+    void accelerate(double accel, double target);
+
+    /**
+     * @brief Accelerate the metronome stepwise towards a target tempo
+     *
+     * @param step   Magnitude of tempo change in BPM
+     * @param hold   Number of beats to hold the tempo
+     * @param target Target tempo in BPM
+     */
+    void accelerate(double step, int hold, double target);
+
+    /**
+     * @brief Stop an ongoing acceleration and reset tempo
+     *
+     * This function stops an ongoing continuous or stepwise acceleration that was
+     * previously initiated by a call to one of the @ref accelerate overloads and
+     * resets the tempo back to the last value set with the @ref setTempo function.
+     *
+     * A possible ongoing synchronization (see @ref synchronize) will be regarded
+     * as obsolete and aborted as well.
+     */
+    void stopAcceleration();
+
+    void synchronize(double beat_dev, double tempo_dev);
+
     void setMeter(Meter meter);
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
-
-    void synchronize(double beat_dev, double tempo_dev);
 
     Ticker::Statistics getStatistics();
 
@@ -104,33 +127,42 @@ namespace audio {
     std::unique_ptr<Backend> dummy_{nullptr};
     DeviceConfig actual_device_config_{kDefaultConfig};
 
-    TickerState state_{0};
+    Ticker::State state_{0};
 
+    // tempo
     std::atomic<double> in_tempo_{0.0};
-    std::atomic<double> in_target_tempo_{0.0};
-    std::atomic<double> in_accel_{0.0};
-    Meter in_meter_{};
+
+    // acceleration
+    AccelerationMode in_accel_mode_{AccelerationMode::kNoAcceleration};
+    double in_target_{0.0};
+    double in_accel_{0.0};
+    double in_step_{0.0};
+    int in_hold_{0};
+
+    // synchronization
     double in_beat_dev_{0.0};
     double in_tempo_dev_{0.0};
+
+    // meter
+    Meter in_meter_{};
     bool reset_meter_{false};
+
+    // sound
     std::array<SoundParameters, kNumAccents> in_sounds_;
 
     Ticker::Statistics out_stats_;
     bool has_stats_{false};
 
     std::atomic_flag tempo_imported_flag_;
-    std::atomic_flag target_tempo_imported_flag_;
     std::atomic_flag accel_imported_flag_;
-    std::atomic_flag meter_imported_flag_;
     std::atomic_flag sync_imported_flag_;
+    std::atomic_flag meter_imported_flag_;
     std::array<std::atomic_flag, kNumAccents> sound_imported_flags_;
-    std::atomic_flag sync_swap_backend_flag_;
+    std::atomic_flag swap_backend_flag_;
 
-    mutable std::mutex std_mutex_;
     mutable SpinLock spin_mutex_;
 
     bool importTempo();
-    bool importTargetTempo();
     bool importAccel();
     bool importMeter();
     bool importSync();

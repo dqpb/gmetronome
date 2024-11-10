@@ -21,6 +21,7 @@
 #define GMetronome_Action_h
 
 #include "Profile.h"
+#include "ProfileVariant.h"
 #include "MeterVariant.h"
 
 #include <giomm.h>
@@ -43,9 +44,11 @@ inline const Glib::ustring  kActionTempoChange          {"tempo-change"};
 inline const Glib::ustring  kActionTempoScale           {"tempo-scale"};
 inline const Glib::ustring  kActionTempoTap             {"tempo-tap"};
 inline const Glib::ustring  kActionTrainerEnabled       {"trainer-enabled"};
-inline const Glib::ustring  kActionTrainerStart         {"trainer-start"};
+inline const Glib::ustring  kActionTrainerMode          {"trainer-mode"};
 inline const Glib::ustring  kActionTrainerTarget        {"trainer-target"};
 inline const Glib::ustring  kActionTrainerAccel         {"trainer-accel"};
+inline const Glib::ustring  kActionTrainerStep          {"trainer-step"};
+inline const Glib::ustring  kActionTrainerHold          {"trainer-hold"};
 inline const Glib::ustring  kActionMeterEnabled         {"meter-enabled"};
 inline const Glib::ustring  kActionMeterSelect          {"meter-select"};
 inline const Glib::ustring  kActionMeterSimple2         {"meter-simple-2"};
@@ -101,14 +104,33 @@ using ActionStateHintRange = std::tuple<T,T>;
 constexpr std::size_t kActionStateHintRangeMinimum = 0;
 constexpr std::size_t kActionStateHintRangeMaximum = 1;
 
-// helper to clamp values to the inclusive range of min and max
 template<class T>
-T clampActionStateValue(T value, const ActionStateHintRange<T>& range)
+using ActionStateHintArray = std::vector<T>;
+
+template<class T>
+std::pair<T,bool> validateActionStateRange(T value, const T& min, const T& max)
 {
-  return std::clamp( value,
-                     std::get<kActionStateHintRangeMinimum>(range),
-                     std::get<kActionStateHintRangeMaximum>(range) );
+  T ret = std::clamp(value, min, max);
+  return { ret, value == ret };
 }
+
+template<class T>
+std::pair<T,bool> validateActionState(T value, const ActionStateHintRange<T>& range)
+{
+  return validateActionStateRange( value,
+                                   std::get<kActionStateHintRangeMinimum>(range),
+                                   std::get<kActionStateHintRangeMaximum>(range));
+}
+
+template<class T>
+std::pair<T, bool> validateActionState(const T& value, const ActionStateHintArray<T>& array)
+{
+  if (std::find(array.cbegin(), array.cend(), value) != array.cend())
+    return { value, true };
+  else
+    return { array.front(), false };
+}
+
 
 using ProfileListEntry = std::tuple<Glib::ustring, Glib::ustring, Glib::ustring>;
 
