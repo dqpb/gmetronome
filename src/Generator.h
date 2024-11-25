@@ -96,17 +96,9 @@ namespace audio {
     explicit StreamController(const StreamSpec& spec = kDefaultSpec);
 
     void setTempo(double tempo);
-
-    [[deprecated]]
-    void setTargetTempo(double tempo);
-
-    [[deprecated]]
-    void setAcceleration(double accel);
-
     void accelerate(double accel, double target);
     void accelerate(int hold, double step, double target);
     void stopAcceleration();
-
     void synchronize(double beats, double tempo, microseconds time);
     void swapMeter(Meter& meter);
     void resetMeter();
