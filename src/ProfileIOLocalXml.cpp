@@ -647,7 +647,7 @@ namespace {
     ostream->write(boolToString(content.trainer_enabled));
     ostream->write("</enabled>\n");
     ostream->write("        <mode>");
-    ostream->write(intToString(content.trainer_mode));
+    ostream->write(intToString(static_cast<int>(content.trainer_mode)));
     ostream->write("</mode>\n");
     ostream->write("        <target>");
     ostream->write(doubleToString(content.trainer_target));

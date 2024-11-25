@@ -42,7 +42,7 @@ public:
   }
 
   static Variant<Profile::TrainerMode> create(Profile::TrainerMode data) {
-    auto result = Variant<Profile::TrainerMode>(g_variant_new_int32(data));
+    auto result = Variant<Profile::TrainerMode>(g_variant_new_int32(static_cast<CType>(data)));
     return result;
   }
 

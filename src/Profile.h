@@ -28,10 +28,10 @@ struct Profile
 {
   using Identifier = std::string;
 
-  enum TrainerMode
+  enum class TrainerMode
   {
-    kTrainerModeContinuous = 1,
-    kTrainerModeStepwise = 2
+    kContinuous = 1,
+    kStepwise = 2
   };
 
   // Number of UTF-8 encoded unicode characters
@@ -52,7 +52,7 @@ struct Profile
   static constexpr double      kMinTempo               = 30.0;
   static constexpr double      kMaxTempo               = 250.0;
   static constexpr double      kDefaultTempo           = 120.0;
-  static constexpr TrainerMode kDefaultTrainerMode     = kTrainerModeContinuous;
+  static constexpr TrainerMode kDefaultTrainerMode     = TrainerMode::kContinuous;
   static constexpr double      kMinTrainerTarget       = kMinTempo;
   static constexpr double      kMaxTrainerTarget       = kMaxTempo;
   static constexpr double      kDefaultTrainerTarget   = 160.0;

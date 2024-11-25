@@ -196,8 +196,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<Profile::TrainerMode>::create(kDefaultProfile.content.trainer_mode),
       Glib::Variant<std::vector<Profile::TrainerMode>>::create(
         {
-          Profile::kTrainerModeContinuous,
-          Profile::kTrainerModeStepwise
+          Profile::TrainerMode::kContinuous,
+          Profile::TrainerMode::kStepwise
         }),
       true
     }

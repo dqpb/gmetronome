@@ -1083,9 +1083,9 @@ void MainWindow::onTrainerModeChanged(Gtk::RadioButton* button)
   Profile::TrainerMode mode;
 
   if (button == trainer_mode_1_radio_button_)
-    mode = Profile::kTrainerModeContinuous;
+    mode = Profile::TrainerMode::kContinuous;
   else if (button == trainer_mode_2_radio_button_)
-    mode = Profile::kTrainerModeStepwise;
+    mode = Profile::TrainerMode::kStepwise;
   else
     return;
 
@@ -1429,14 +1429,14 @@ void MainWindow::updateTempo(double tempo)
 
 void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
 {
-  if (mode == Profile::kTrainerModeContinuous)
+  if (mode == Profile::TrainerMode::kContinuous)
   {
     if (!trainer_mode_1_radio_button_->get_active())
       trainer_mode_1_radio_button_->set_active(true);
 
     trainer_stack_->set_visible_child("trainerContinuousPage");
   }
-  else if (mode == Profile::kTrainerModeStepwise)
+  else if (mode == Profile::TrainerMode::kStepwise)
   {
     if (!trainer_mode_2_radio_button_->get_active())
       trainer_mode_2_radio_button_->set_active(true);
