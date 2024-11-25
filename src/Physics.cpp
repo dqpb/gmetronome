@@ -51,7 +51,7 @@ namespace physics {
   void BeatKinematics::reset()
   {
     tempo_ = 0.0;
-    target_tempo_ = 0.0;
+    target_ = 0.0;
     accel_ = 0.0;
 
     osc_.reset();
@@ -81,12 +81,12 @@ namespace physics {
 
     if (force_mode_ == ForceMode::kSyncForce)
     {
-      if (tempo_ != target_tempo_ && accel_ != 0)
+      if (tempo_ != target_ && accel_ != 0)
         switchForceMode(ForceMode::kAccelForce);
       else
         switchForceMode(ForceMode::kNoForce);
     }
-    else if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
+    else if (force_mode_ == ForceMode::kNoForce && tempo_ != target_ && accel_ != 0)
       switchForceMode(ForceMode::kAccelForce);
     else if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
@@ -95,9 +95,9 @@ namespace physics {
   void BeatKinematics::accelerate(double accel, double target)
   {
     accel_ = bpm2_2_bps2(accel);
-    target_tempo_ = bpm_2_bps(target);
+    target_ = bpm_2_bps(target);
 
-    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_tempo_ && accel_ != 0)
+    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_ && accel_ != 0)
       switchForceMode(ForceMode::kAccelForce);
     else if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
@@ -125,7 +125,6 @@ namespace physics {
   double BeatKinematics::acceleration() const
   { return bps2_2_bpm2(osc_.force().base); }
 
-
   void BeatKinematics::updateOscForce(ForceMode mode)
   {
     switch (mode) {
@@ -137,7 +136,7 @@ namespace physics {
 
     case ForceMode::kAccelForce:
     {
-      const auto& [force, time] = computeAccelForce(target_tempo_ - osc_.velocity(), accel_);
+      const auto& [force, time] = computeAccelForce(target_ - osc_.velocity(), accel_);
       osc_.resetForce(force, time);
     }
     break;
@@ -171,7 +170,7 @@ namespace physics {
     }
 
     if (force_mode_ != ForceMode::kAccelForce
-        && osc_.velocity() != target_tempo_
+        && osc_.velocity() != target_
         && accel_ != 0.0)
     {
       switchForceMode(ForceMode::kAccelForce);
@@ -182,7 +181,7 @@ namespace physics {
       time = osc_.step(time);
 
       if (osc_.remainingForceTime() == kZeroTime)
-        osc_.resetVelocity(target_tempo_);
+        osc_.resetVelocity(target_);
       else if (time <= kZeroTime)
         return;
     }
@@ -272,9 +271,9 @@ namespace physics {
       return time;
 
     // accel force phase
-    if (v0 != target_tempo_ && accel_ != 0.0)
+    if (v0 != target_ && accel_ != 0.0)
     {
-      if (double v_dev = target_tempo_ - v0; v_dev != 0.0)
+      if (double v_dev = target_ - v0; v_dev != 0.0)
       {
         auto [force, force_time] = computeAccelForce(v_dev, accel_);
         time += physics::arrival(p0, v0, p, force, force_time);
@@ -364,7 +363,6 @@ namespace physics {
     }
     return r;
   }
-
 
   void PendulumKinematics::shutdown(const seconds_dbl& time)
   {

@@ -261,9 +261,9 @@ namespace physics {
   private:
     Oscillator osc_;
 
-    double tempo_{0.0};           // beats / s
-    double target_tempo_{0.0};    // beats / s
-    double accel_{0.0};           // beats / s²
+    double tempo_{0.0};     // beats / s
+    double target_{0.0};    // beats / s
+    double accel_{0.0};     // beats / s²
     double sync_beat_dev_{0.0};
     double sync_tempo_dev_{0.0};
     double sync_start_tempo_{0.0};
