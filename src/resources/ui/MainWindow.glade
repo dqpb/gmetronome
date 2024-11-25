@@ -1297,7 +1297,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                             <property name="can-focus">False</property>
                                             <property name="opacity">0.80</property>
                                             <property name="halign">start</property>
-                                            <property name="label" translatable="yes" context="Main window - Trainer">Step</property>
+                                            <property name="label" translatable="yes" context="Main window - Trainer">Hold</property>
                                             <property name="justify">fill</property>
                                             <style>
                                               <class name="top-label"/>
@@ -1310,16 +1310,16 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkSpinButton" id="trainerStepSpinButton">
+                                          <object class="GtkSpinButton" id="trainerHoldSpinButton">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Tempo change in BPM</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Number of beats to hold the tempo</property>
                                             <property name="halign">start</property>
                                             <property name="max-length">3</property>
                                             <property name="width-chars">3</property>
                                             <property name="max-width-chars">3</property>
                                             <property name="input-purpose">number</property>
-                                            <property name="adjustment">trainerStepAdjustment</property>
+                                            <property name="adjustment">trainerHoldAdjustment</property>
                                             <property name="numeric">True</property>
                                           </object>
                                           <packing>
@@ -1348,7 +1348,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                             <property name="can-focus">False</property>
                                             <property name="opacity">0.80</property>
                                             <property name="halign">start</property>
-                                            <property name="label" translatable="yes" context="Main window - Trainer">Hold</property>
+                                            <property name="label" translatable="yes" context="Main window - Trainer">Step</property>
                                             <property name="justify">fill</property>
                                             <style>
                                               <class name="top-label"/>
@@ -1361,16 +1361,16 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkSpinButton" id="trainerHoldSpinButton">
+                                          <object class="GtkSpinButton" id="trainerStepSpinButton">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Number of beats to hold the tempo</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Tempo change in BPM</property>
                                             <property name="halign">start</property>
                                             <property name="max-length">3</property>
                                             <property name="width-chars">3</property>
                                             <property name="max-width-chars">3</property>
                                             <property name="input-purpose">number</property>
-                                            <property name="adjustment">trainerHoldAdjustment</property>
+                                            <property name="adjustment">trainerStepAdjustment</property>
                                             <property name="numeric">True</property>
                                           </object>
                                           <packing>

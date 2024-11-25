@@ -92,11 +92,11 @@ namespace audio {
     /**
      * @brief Accelerate the metronome stepwise towards a target tempo
      *
-     * @param step   Magnitude of tempo change in BPM
      * @param hold   Number of beats to hold the tempo
+     * @param step   Magnitude of tempo change in BPM
      * @param target Target tempo in BPM
      */
-    void accelerate(double step, int hold, double target);
+    void accelerate(int hold, double step, double target);
 
     /**
      * @brief Stop an ongoing acceleration and reset tempo
@@ -136,8 +136,8 @@ namespace audio {
     AccelerationMode in_accel_mode_{AccelerationMode::kNoAcceleration};
     double in_target_{0.0};
     double in_accel_{0.0};
+    int    in_hold_{0};
     double in_step_{0.0};
-    int in_hold_{0};
 
     // synchronization
     double in_beat_dev_{0.0};

@@ -144,12 +144,12 @@ namespace audio {
     accel_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::accelerate(double step, int hold, double target)
+  void Ticker::accelerate(int hold, double step, double target)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_step_ = step;
       in_hold_ = hold;
+      in_step_ = step;
       in_target_ = target;
       in_accel_mode_ = AccelerationMode::kStepwise;
     }
@@ -352,7 +352,7 @@ namespace audio {
         stream_ctrl_.accelerate(in_accel_, in_target_);
         break;
       case AccelerationMode::kStepwise:
-        stream_ctrl_.accelerate(in_step_, in_hold_, in_target_);
+        stream_ctrl_.accelerate(in_hold_, in_step_, in_target_);
         break;
       case AccelerationMode::kNoAcceleration:
         stream_ctrl_.stopAcceleration();
