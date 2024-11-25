@@ -516,37 +516,6 @@ void Application::onQuit(const Glib::VariantBase& parameter)
   quit();
 }
 
-void Application::onTrainerEnabled(const Glib::VariantBase& value)
-{
-  Glib::Variant<bool> new_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
-
-  if (new_state.get())
-  {
-    double trainer_target;
-    get_action_state(kActionTrainerTarget, trainer_target);
-
-    double trainer_accel;
-    get_action_state(kActionTrainerAccel, trainer_accel);
-
-    // ticker_.setTargetTempo(trainer_target_tempo);
-    // ticker_.setAccel(trainer_accel);
-    ticker_.accelerate(trainer_accel, trainer_target);
-  }
-  else
-  {
-    double tempo;
-    get_action_state(kActionTempo, tempo);
-
-    // ticker_.setTargetTempo(tempo);
-    // ticker_.setAccel(0.0);
-    // ticker_.setTempo(tempo);
-    ticker_.stopAcceleration();
-  }
-
-  lookupSimpleAction(kActionTrainerEnabled)->set_state(new_state);
-}
-
 void Application::onMeterEnabled(const Glib::VariantBase& value)
 {
   Glib::Variant<bool> new_state
@@ -820,19 +789,63 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   signal_tap_.emit(confidence);
 }
 
+void Application::updateTickerAcceleration()
+{
+  bool trainer_enabled;
+  get_action_state(kActionTrainerEnabled, trainer_enabled);
+
+  if (!trainer_enabled)
+  {
+    ticker_.stopAcceleration();
+    return;
+  }
+
+  Profile::TrainerMode trainer_mode;
+  get_action_state(kActionTrainerMode, trainer_mode);
+
+  double trainer_target;
+  get_action_state(kActionTrainerTarget, trainer_target);
+
+  if (trainer_mode == Profile::TrainerMode::kContinuous)
+  {
+    double trainer_accel;
+    get_action_state(kActionTrainerAccel, trainer_accel);
+
+    ticker_.accelerate(trainer_accel, trainer_target);
+  }
+  else
+  {
+    int trainer_hold;
+    get_action_state(kActionTrainerHold, trainer_hold);
+
+    double trainer_step;
+    get_action_state(kActionTrainerStep, trainer_step);
+
+    ticker_.accelerate(trainer_hold, trainer_step, trainer_target);
+  }
+}
+
+void Application::onTrainerEnabled(const Glib::VariantBase& value)
+{
+  Glib::Variant<bool> new_state
+    = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
+
+  lookupSimpleAction(kActionTrainerEnabled)->set_state(new_state);
+
+  updateTickerAcceleration();
+}
+
 void Application::onTrainerMode(const Glib::VariantBase& value)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   Profile::TrainerMode in_mode =
     Glib::VariantBase::cast_dynamic<Glib::Variant<Profile::TrainerMode>>(value).get();
 
   if (auto [mode, valid] = validateTrainerMode(in_mode); valid)
   {
-    // TODO: set ticker trainer mode
-
     auto new_state = Glib::Variant<Profile::TrainerMode>::create(mode);
     lookupSimpleAction(kActionTrainerMode)->set_state(new_state);
+
+    updateTickerAcceleration();
   }
 }
 
@@ -841,18 +854,10 @@ void Application::onTrainerTarget(const Glib::VariantBase& value)
   double in_target = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [target, valid] = validateTrainerTarget(in_target);
 
-  bool trainer_enabled;
-  get_action_state(kActionTrainerEnabled, trainer_enabled);
-
-  if (trainer_enabled)
-  {
-    double accel;
-    get_action_state(kActionTrainerAccel, accel);
-
-    ticker_.accelerate(accel, target);
-  }
   auto new_state = Glib::Variant<double>::create(target);
   lookupSimpleAction(kActionTrainerTarget)->set_state(new_state);
+
+  updateTickerAcceleration();
 }
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
@@ -860,44 +865,32 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
   double in_accel = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [accel, valid] = validateTrainerAccel(in_accel);
 
-  bool trainer_enabled;
-  get_action_state(kActionTrainerEnabled, trainer_enabled);
-
-  if (trainer_enabled)
-  {
-    double target;
-    get_action_state(kActionTrainerTarget, target);
-
-    ticker_.accelerate(accel, target);
-  }
   auto new_state = Glib::Variant<double>::create(accel);
   lookupSimpleAction(kActionTrainerAccel)->set_state(new_state);
+
+  updateTickerAcceleration();
 }
 
 void Application::onTrainerStep(const Glib::VariantBase& value)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   double in_step = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [step, valid] = validateTrainerStep(in_step);
 
-  // TODO: set ticker step value
-
   auto new_state = Glib::Variant<double>::create(step);
   lookupSimpleAction(kActionTrainerStep)->set_state(new_state);
+
+  updateTickerAcceleration();
 }
 
 void Application::onTrainerHold(const Glib::VariantBase& value)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   int in_hold = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(value).get();
   auto [hold, valid] = validateTrainerHold(in_hold);
 
-  // TODO: set ticker hold value
-
   auto new_state = Glib::Variant<int>::create(hold);
   lookupSimpleAction(kActionTrainerHold)->set_state(new_state);
+
+  updateTickerAcceleration();
 }
 
 void Application::onProfileManagerChanged()

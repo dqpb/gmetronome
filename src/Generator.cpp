@@ -122,18 +122,19 @@ namespace audio {
   {
     switch (ctrl.accelerationMode()) {
     case AccelerationMode::kContinuous:
-      // TODO: stop possible stepwise acceleration
       k_.accelerate(ctrl.acceleration(), ctrl.targetTempo());
+      hold_pos_ = 0;
       break;
     case AccelerationMode::kStepwise:
       if (k_.acceleration() != 0.0)
         k_.accelerate(0.0, 0.0);
-      // TODO: configure stepwise acceleration
+      if (hold_pos_ > 0)
+        hold_pos_ = hold_pos_ % ctrl.hold();
       break;
     case AccelerationMode::kNoAcceleration:
       if (k_.acceleration() != 0.0)
         k_.accelerate(0.0, 0.0);
-      // TODO: stop possible stepwise acceleration
+      hold_pos_ = 0;
       break;
     };
   }
@@ -197,11 +198,13 @@ namespace audio {
     k_.setBeats(ctrl.meter().beats());
     k_.setTempo(ctrl.tempo());
 
-    configureAcceleration(ctrl);
+    if (ctrl.accelerationMode() == AccelerationMode::kContinuous)
+      k_.accelerate(ctrl.acceleration(), ctrl.targetTempo());
 
     accent_ = 0;
     accent_point_ = true;
     division_saved_ = ctrl.meter().division();
+    hold_pos_ = 0;
     updateFramesLeft(ctrl);
   }
 
@@ -292,11 +295,51 @@ namespace audio {
     {
       accent_ = (accent_ + 1) % accents.size();
       accent_point_ = true;
+
+      handleStepwiseAcceleration(ctrl);
+
       updateFramesLeft(ctrl);
     }
     else
     {
       accent_point_ = false;
+    }
+  }
+
+  void RegularGenerator::handleStepwiseAcceleration(BeatStreamController& ctrl)
+  {
+    if (ctrl.accelerationMode() != AccelerationMode::kStepwise)
+      return;
+
+    if (!accent_point_)
+      return;
+
+    const Meter& meter = ctrl.meter();
+
+    if (accent_ % meter.division() == 0)
+    {
+      hold_pos_ += 1;
+      if (hold_pos_ >= ctrl.hold())
+      {
+        accelerateStepwise(ctrl);
+        hold_pos_ = 0;
+      }
+    }
+  }
+
+  void RegularGenerator::accelerateStepwise(BeatStreamController& ctrl)
+  {
+    double tempo = k_.tempo();
+    double tempo_diff = ctrl.targetTempo() - tempo;
+
+    if (std::abs(ctrl.step()) <= std::abs(tempo_diff))
+    {
+      double step = std::copysign(ctrl.step() , tempo_diff);
+      k_.setTempo(tempo + step);
+    }
+    else
+    {
+      k_.setTempo(ctrl.targetTempo());
     }
   }
 

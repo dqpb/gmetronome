@@ -131,6 +131,7 @@ private:
   void onMeterSeek(const Glib::VariantBase& value);
 
   // Trainer
+  void updateTickerAcceleration();
   void onTrainerEnabled(const Glib::VariantBase& value);
   void onTrainerMode(const Glib::VariantBase& value);
   void onTrainerTarget(const Glib::VariantBase& value);

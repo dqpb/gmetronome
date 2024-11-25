@@ -104,7 +104,7 @@ namespace audio {
     void setAcceleration(double accel);
 
     void accelerate(double accel, double target);
-    void accelerate(double step, int hold, double target);
+    void accelerate(int hold, double step, double target);
     void stopAcceleration();
 
     void synchronize(double beat_dev, double tempo_dev);
@@ -117,13 +117,13 @@ namespace audio {
     AccelerationMode accelerationMode() const
       { return accel_mode_; }
     double targetTempo() const
-      { return target_tempo_; }
+      { return target_; }
     double acceleration() const
       { return accel_; }
-    double step() const
-      { return step_; }
     int hold() const
       { return hold_; }
+    double step() const
+      { return step_; }
     const StreamSpec& spec() const
       { return spec_; }
     const Meter& meter() const
@@ -146,10 +146,10 @@ namespace audio {
     StreamSpec spec_;
     double tempo_{0.0};
     AccelerationMode accel_mode_{AccelerationMode::kNoAcceleration};
-    double target_tempo_{0.0};
+    double target_{0.0};
     double accel_{0.0};
+    int    hold_{0};
     double step_{0.0};
-    int hold_{0};
     Meter default_meter_{kMeter1};
     Meter meter_{kMeter1};
     bool meter_enabled_{false};
@@ -223,18 +223,18 @@ namespace audio {
   void StreamController<Gs...>::accelerate(double accel, double target)
   {
     accel_ = accel;
-    target_tempo_ = target;
+    target_ = target;
     accel_mode_ = AccelerationMode::kContinuous;
 
     if (g_) g_->onAccelerationChanged(*this);
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::accelerate(double step, int hold, double target)
+  void StreamController<Gs...>::accelerate(int hold, double step, double target)
   {
-    step_ = step;
     hold_ = hold;
-    target_tempo_ = target;
+    step_ = step;
+    target_ = target;
     accel_mode_ = AccelerationMode::kStepwise;
 
     if (g_) g_->onAccelerationChanged(*this);
@@ -422,10 +422,14 @@ namespace audio {
     size_t frames_left_{0};
     bool accent_point_{false};
     size_t division_saved_{0};
+    int hold_pos_{0};
 
     void configureAcceleration(BeatStreamController& ctrl);
     void updateFramesLeft(BeatStreamController& ctrl);
     void step(BeatStreamController& ctrl, size_t frames_chunk);
+
+    void handleStepwiseAcceleration(BeatStreamController& ctrl);
+    void accelerateStepwise(BeatStreamController& ctrl);
   };
 
   /**
