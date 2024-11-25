@@ -36,7 +36,6 @@ namespace audio {
     constexpr microseconds kMaxChunkDuration = 80ms;
     constexpr microseconds kAvgChunkDuration = 50ms;
     constexpr microseconds kFillBufferDuration = 200ms;
-    constexpr microseconds kKinematicsSyncTime = 1000ms;
 
     // not implemented yet
     // constexpr microseconds kDrainBufferDuration = 50ms;
@@ -150,9 +149,9 @@ namespace audio {
   }
 
   void RegularGenerator::onSynchronize(BeatStreamController& ctrl,
-                                       double beat_dev, double tempo_dev)
+                                       double beats, double tempo, microseconds time)
   {
-    k_.synchronize(beat_dev, tempo_dev, kKinematicsSyncTime);
+    k_.synchronize(beats, tempo, time);
     updateFramesLeft(ctrl);
   }
 

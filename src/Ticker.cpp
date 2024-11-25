@@ -165,12 +165,13 @@ namespace audio {
     accel_imported_flag_.clear(std::memory_order_release);
   }
 
-  void Ticker::synchronize(double beat_dev, double tempo_dev)
+  void Ticker::synchronize(double beats, double tempo, microseconds time)
   {
     {
       std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_beat_dev_ = beat_dev;
-      in_tempo_dev_ = tempo_dev;
+      in_beat_dev_ = beats;
+      in_tempo_dev_ = tempo;
+      in_sync_time_ = time;
     }
     sync_imported_flag_.clear(std::memory_order_release);
   }
@@ -386,7 +387,7 @@ namespace audio {
     if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
         lck.owns_lock())
     {
-      stream_ctrl_.synchronize(in_beat_dev_, in_tempo_dev_);
+      stream_ctrl_.synchronize(in_beat_dev_, in_tempo_dev_, in_sync_time_);
       return true;
     }
     else {

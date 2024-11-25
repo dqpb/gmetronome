@@ -61,6 +61,8 @@ namespace audio {
       microseconds  backend_latency {0us};
     };
 
+    static constexpr microseconds kDefaultSyncTime = 1s;
+
   public:
     Ticker();
     ~Ticker();
@@ -110,7 +112,7 @@ namespace audio {
      */
     void stopAcceleration();
 
-    void synchronize(double beat_dev, double tempo_dev);
+    void synchronize(double beats, double tempo, microseconds time = kDefaultSyncTime);
 
     void setMeter(Meter meter);
     void resetMeter();
@@ -142,6 +144,7 @@ namespace audio {
     // synchronization
     double in_beat_dev_{0.0};
     double in_tempo_dev_{0.0};
+    microseconds in_sync_time_{0};
 
     // meter
     Meter in_meter_{};

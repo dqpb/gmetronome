@@ -61,7 +61,7 @@ namespace audio {
   public:
     virtual void onTempoChanged(Controller& ctrl) {}
     virtual void onAccelerationChanged(Controller& ctrl) {}
-    virtual void onSynchronize(Controller& ctrl, double beat_dev, double tempo_dev) {}
+    virtual void onSynchronize(Controller& ctrl, double beats, double tempo, microseconds time) {}
     virtual void onMeterChanged(Controller& ctrl, bool meter_enabled_changed) {}
     virtual void onSoundChanged(Controller& ctrl, Accent a) {}
     virtual void onStart(Controller& ctrl) {}
@@ -107,7 +107,7 @@ namespace audio {
     void accelerate(int hold, double step, double target);
     void stopAcceleration();
 
-    void synchronize(double beat_dev, double tempo_dev);
+    void synchronize(double beats, double tempo, microseconds time);
     void swapMeter(Meter& meter);
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
@@ -248,9 +248,9 @@ namespace audio {
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::synchronize(double beat_dev, double tempo_dev)
+  void StreamController<Gs...>::synchronize(double beats, double tempo, microseconds time)
   {
-    if (g_) g_->onSynchronize(*this, beat_dev, tempo_dev);
+    if (g_) g_->onSynchronize(*this, beats, tempo, time);
   }
 
   template<typename...Gs>
@@ -404,7 +404,8 @@ namespace audio {
   public:
     void onTempoChanged(BeatStreamController& ctrl) override;
     void onAccelerationChanged(BeatStreamController& ctrl) override;
-    void onSynchronize(BeatStreamController& ctrl, double beat_dev, double tempo_dev) override;
+    void onSynchronize(BeatStreamController& ctrl,
+                       double beats, double tempo, microseconds time) override;
     void onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed) override;
 
     void prepare(BeatStreamController& ctrl) override;
