@@ -32,7 +32,7 @@ namespace audio {
   bool operator!=(const StreamSpec& lhs, const StreamSpec& rhs)
   { return !(lhs==rhs); }
 
-  size_t frameSize(StreamSpec spec) {
+  size_t frameSize(const StreamSpec& spec) {
     return sampleSize(spec.format) * spec.channels;
   }
 
@@ -48,7 +48,7 @@ namespace audio {
     return usecsToFrames(usecs, spec) * frameSize(spec);
   }
 
-  std::chrono::microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec) {
+  microseconds bytesToUsecs(size_t bytes, const StreamSpec& spec) {
     size_t nframes = bytes / frameSize(spec);
     return framesToUsecs(nframes, spec);
   }

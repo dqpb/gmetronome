@@ -244,7 +244,7 @@ namespace audio {
   }
 
   /** Returns the byte size of a frame with a given sample specification. */
-  size_t frameSize(StreamSpec spec);
+  size_t frameSize(const StreamSpec& spec);
 
   /** Calculates number of frames required for a given time. */
   size_t usecsToFrames(microseconds usecs, const StreamSpec& spec);
