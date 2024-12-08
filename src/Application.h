@@ -131,7 +131,7 @@ private:
   void onMeterSeek(const Glib::VariantBase& value);
 
   // Trainer
-  void updateTickerAcceleration();
+  void configureTickerForTrainerMode(Profile::TrainerMode mode);
   void onTrainerEnabled(const Glib::VariantBase& value);
   void onTrainerMode(const Glib::VariantBase& value);
   void onTrainerTarget(const Glib::VariantBase& value);
@@ -196,6 +196,51 @@ private:
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileTitle(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileDescription(Glib::ustring str);
+
+public:
+
+  // Helper to query action states
+  template<typename T>
+  T queryActionState(const Glib::ustring& action) const {
+    T value;
+    get_action_state(action, value);
+    return value;
+  }
+  bool queryStart() const
+    { return queryActionState<bool>(kActionStart); }
+  double queryTempo() const
+    { return queryActionState<double>(kActionTempo); }
+  Glib::ustring queryMeterSelect() const
+    { return queryActionState<Glib::ustring>(kActionMeterSelect); }
+  bool queryMeterEnabled() const
+    { return queryActionState<bool>(kActionMeterEnabled); }
+  Meter queryMeter(const Glib::ustring& slot) const
+    { return queryActionState<Meter>(slot); }
+  double queryTrainerTarget() const
+    { return queryActionState<double>(kActionTrainerTarget); }
+  double queryTrainerAccel() const
+    { return queryActionState<double>(kActionTrainerAccel); }
+  int queryTrainerHold() const
+    { return queryActionState<int>(kActionTrainerHold); }
+  double queryTrainerStep() const
+    { return queryActionState<double>(kActionTrainerStep); }
+  bool queryTrainerEnabled() const
+    { return queryActionState<bool>(kActionTrainerEnabled); }
+  Profile::TrainerMode queryTrainerMode() const
+    { return queryActionState<Profile::TrainerMode>(kActionTrainerMode); }
+  Glib::ustring queryProfileSelect() const
+    { return queryActionState<Glib::ustring>(kActionProfileSelect); }
+  Glib::ustring queryProfileTitle() const
+    { return queryActionState<Glib::ustring>(kActionProfileTitle); }
+  ProfileList queryProfileList() const
+    { return queryActionState<ProfileList>(kActionProfileList); }
+  bool queryVolumeMute() const
+    { return queryActionState<bool>(kActionVolumeMute); }
+
+  std::tuple<double, double> queryTrainerContinuousParams() const
+    { return {queryTrainerAccel(), queryTrainerTarget()}; }
+  std::tuple<int, double, double> queryTrainerStepwiseParams() const
+    { return {queryTrainerHold(), queryTrainerStep(), queryTrainerTarget()}; }
 };
 
 #endif//GMetronome_Application_h

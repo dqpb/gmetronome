@@ -324,10 +324,7 @@ void Application::loadSelectedSoundTheme()
 // the current global volume, mute state and auto volume dropping when tapping.
 double Application::getCurrentVolume() const
 {
-  bool mute;
-  get_action_state(kActionVolumeMute, mute);
-
-  if (mute)
+  if (queryVolumeMute())
     return 0.0;
 
   double global_volume = settings::sound()->get_double(settings::kKeySoundVolume);
@@ -493,10 +490,7 @@ void Application::onHideWindow(Gtk::Window* window)
 {
   saveSelectedProfile();
 
-  bool start_state;
-  get_action_state(kActionStart, start_state);
-
-  if (start_state)
+  if (queryStart())
     change_action_state(kActionStart, Glib::Variant<bool>::create(false));
 
   delete window;
@@ -522,49 +516,27 @@ void Application::onMeterEnabled(const Glib::VariantBase& value)
     = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
 
   if (new_state.get())
-  {
-    Glib::ustring current_meter_slot;
-    get_action_state(kActionMeterSelect, current_meter_slot);
-
-    Meter meter;
-    get_action_state(current_meter_slot, meter);
-
-    ticker_.setMeter(std::move(meter));
-  }
+    ticker_.setMeter(queryMeter(queryMeterSelect()));
   else
-  {
     ticker_.resetMeter();
-  }
 
   lookupSimpleAction(kActionMeterEnabled)->set_state(new_state);
 }
 
 void Application::onMeterSelect(const Glib::VariantBase& value)
 {
-  auto in_meter_slot =
+  auto in_slot =
     Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value).get();
 
-  Glib::ustring current_meter_slot;
-  get_action_state(kActionMeterSelect, current_meter_slot);
-
-  if (in_meter_slot != current_meter_slot)
+  if (auto old_slot = queryMeterSelect(); in_slot != old_slot)
   {
-    if (auto [new_meter_slot, valid] = validateMeterSlot(std::move(in_meter_slot));
-        valid)
+    if (auto [new_slot, valid] = validateMeterSlot(std::move(in_slot)); valid)
     {
-      bool meter_enabled;
-      get_action_state(kActionMeterEnabled, meter_enabled);
-
-      if (meter_enabled)
-      {
-        Meter meter;
-        get_action_state(new_meter_slot, meter);
-
-        ticker_.setMeter(std::move(meter));
-      }
+      if (queryMeterEnabled())
+        ticker_.setMeter(queryMeter(new_slot));
 
       Glib::Variant<Glib::ustring> out_state =
-        Glib::Variant<Glib::ustring>::create(new_meter_slot);
+        Glib::Variant<Glib::ustring>::create(new_slot);
 
       lookupSimpleAction(kActionMeterSelect)->set_state(out_state);
     }
@@ -592,13 +564,11 @@ void Application::onMeterChanged_Compound4(const Glib::VariantBase& value)
 void Application::onMeterChanged_Default(const Glib::ustring& action_name,
                                          const Glib::VariantBase& value)
 {
-  Meter old_meter;
-  get_action_state(action_name, old_meter);
-
   Glib::Variant<Meter> in_state
     = Glib::VariantBase::cast_dynamic<Glib::Variant<Meter>>(value);
 
   Meter new_meter = in_state.get();
+  Meter old_meter = queryMeter(action_name);
 
   if (old_meter.beats() == new_meter.beats()
       && old_meter.division() == new_meter.division())
@@ -617,26 +587,17 @@ void Application::onMeterChanged_Custom(const Glib::VariantBase& value)
   onMeterChanged_SetState(kActionMeterCustom, std::move(meter));
 }
 
-void Application::onMeterChanged_SetState(const Glib::ustring& action_name,
-                                          Meter&& in_meter)
+void Application::onMeterChanged_SetState(const Glib::ustring& action_name, Meter&& in_meter)
 {
-  auto action = lookupSimpleAction(action_name);
-  if (action)
+  if (auto action = lookupSimpleAction(action_name); action)
   {
-    bool meter_enabled;
-    get_action_state(kActionMeterEnabled, meter_enabled);
-
-    Glib::ustring current_meter_slot;
-    get_action_state(kActionMeterSelect, current_meter_slot);
-
     auto [meter, valid] = validateMeter(in_meter);
 
+    // keep this line before ticker_.setMeter call (meter is moved)
     Glib::Variant<Meter> out_state = Glib::Variant<Meter>::create(meter);
 
-    if (meter_enabled == true && current_meter_slot == action_name)
-    {
+    if (queryMeterEnabled() && queryMeterSelect() == action_name)
       ticker_.setMeter(std::move(meter));
-    }
 
     action->set_state(out_state);
   }
@@ -649,8 +610,8 @@ void Application::onMeterSeek(const Glib::VariantBase& value)
 
 void Application::onVolumeChange(const Glib::VariantBase& value)
 {
-  double delta_volume
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  double delta_volume =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
   double current_volume = settings::sound()->get_double(settings::kKeySoundVolume);
 
@@ -680,14 +641,13 @@ void Application::onTempo(const Glib::VariantBase& value)
 
 void Application::onTempoChange(const Glib::VariantBase& value)
 {
-  double delta_tempo
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
+  double delta_tempo =
+    Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
   if (delta_tempo == 0.0)
     return;
 
-  double tempo_state;
-  get_action_state(kActionTempo, tempo_state);
+  double tempo_state = queryTempo();
 
   double integral;
   double fractional = std::modf(tempo_state, &integral);
@@ -713,14 +673,9 @@ void Application::onTempoScale(const Glib::VariantBase& value)
 {
   double scale = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  double current_tempo;
-  get_action_state(kActionTempo, current_tempo);
+  double new_tempo = scale * queryTempo();
 
-  double new_tempo = scale * current_tempo;
-
-  Glib::Variant<double> new_tempo_state
-    = Glib::Variant<double>::create(new_tempo);
-
+  Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create(new_tempo);
   activate_action(kActionTempo, new_tempo_state);
 }
 
@@ -729,9 +684,9 @@ namespace {
   using std::chrono::milliseconds;
   using std::literals::chrono_literals::operator""ms;
 
-  constexpr double  kMaxVolumeDrop = 85.0; // percent
-  constexpr milliseconds  kDropVolumeTimerInterval = 250ms;
-  constexpr double kDropVolumeRecoverSpeed = 30.0; // percent/s
+  constexpr double        kMaxVolumeDrop            = 85.0; // percent
+  constexpr milliseconds  kDropVolumeTimerInterval  = 250ms;
+  constexpr double        kDropVolumeRecoverSpeed   = 30.0; // percent/s
 
 }//unnamed namespace
 
@@ -789,50 +744,34 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   signal_tap_.emit(confidence);
 }
 
-void Application::updateTickerAcceleration()
+void Application::configureTickerForTrainerMode(Profile::TrainerMode mode)
 {
-  bool trainer_enabled;
-  get_action_state(kActionTrainerEnabled, trainer_enabled);
+  switch (mode) {
 
-  if (!trainer_enabled)
-  {
-    ticker_.stopAcceleration();
-    return;
+  case Profile::TrainerMode::kContinuous: {
+    auto [accel, target] = queryTrainerContinuousParams();
+    ticker_.accelerate(accel, target);
   }
+  break;
 
-  Profile::TrainerMode trainer_mode;
-  get_action_state(kActionTrainerMode, trainer_mode);
-
-  double trainer_target;
-  get_action_state(kActionTrainerTarget, trainer_target);
-
-  if (trainer_mode == Profile::TrainerMode::kContinuous)
-  {
-    double trainer_accel;
-    get_action_state(kActionTrainerAccel, trainer_accel);
-
-    ticker_.accelerate(trainer_accel, trainer_target);
+  case Profile::TrainerMode::kStepwise: {
+    auto [hold, step, target] = queryTrainerStepwiseParams();
+    ticker_.accelerate(hold, step, target);
   }
-  else
-  {
-    int trainer_hold;
-    get_action_state(kActionTrainerHold, trainer_hold);
-
-    double trainer_step;
-    get_action_state(kActionTrainerStep, trainer_step);
-
-    ticker_.accelerate(trainer_hold, trainer_step, trainer_target);
-  }
+  break;
+  };
 }
 
 void Application::onTrainerEnabled(const Glib::VariantBase& value)
 {
-  Glib::Variant<bool> new_state
-    = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value);
+  bool in_enabled = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value).get();
 
-  lookupSimpleAction(kActionTrainerEnabled)->set_state(new_state);
+  if (in_enabled)
+    configureTickerForTrainerMode(queryTrainerMode());
+  else
+    ticker_.stopAcceleration();
 
-  updateTickerAcceleration();
+  lookupSimpleAction(kActionTrainerEnabled)->set_state(value);
 }
 
 void Application::onTrainerMode(const Glib::VariantBase& value)
@@ -842,10 +781,11 @@ void Application::onTrainerMode(const Glib::VariantBase& value)
 
   if (auto [mode, valid] = validateTrainerMode(in_mode); valid)
   {
+    if (queryTrainerEnabled())
+      configureTickerForTrainerMode(in_mode);
+
     auto new_state = Glib::Variant<Profile::TrainerMode>::create(mode);
     lookupSimpleAction(kActionTrainerMode)->set_state(new_state);
-
-    updateTickerAcceleration();
   }
 }
 
@@ -854,10 +794,17 @@ void Application::onTrainerTarget(const Glib::VariantBase& value)
   double in_target = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [target, valid] = validateTrainerTarget(in_target);
 
+  if (queryTrainerEnabled())
+  {
+    Profile::TrainerMode mode = queryTrainerMode();
+
+    if (mode == Profile::TrainerMode::kContinuous)
+      ticker_.accelerate(queryTrainerAccel(), target);
+    else if (mode == Profile::TrainerMode::kStepwise)
+      ticker_.accelerate(queryTrainerHold(), queryTrainerStep(), target);
+  }
   auto new_state = Glib::Variant<double>::create(target);
   lookupSimpleAction(kActionTrainerTarget)->set_state(new_state);
-
-  updateTickerAcceleration();
 }
 
 void Application::onTrainerAccel(const Glib::VariantBase& value)
@@ -865,10 +812,15 @@ void Application::onTrainerAccel(const Glib::VariantBase& value)
   double in_accel = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [accel, valid] = validateTrainerAccel(in_accel);
 
+  if (queryTrainerEnabled())
+  {
+    Profile::TrainerMode mode = queryTrainerMode();
+
+    if (mode == Profile::TrainerMode::kContinuous)
+      ticker_.accelerate(accel, queryTrainerTarget());
+  }
   auto new_state = Glib::Variant<double>::create(accel);
   lookupSimpleAction(kActionTrainerAccel)->set_state(new_state);
-
-  updateTickerAcceleration();
 }
 
 void Application::onTrainerStep(const Glib::VariantBase& value)
@@ -876,10 +828,15 @@ void Application::onTrainerStep(const Glib::VariantBase& value)
   double in_step = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
   auto [step, valid] = validateTrainerStep(in_step);
 
+  if (queryTrainerEnabled())
+  {
+    Profile::TrainerMode mode = queryTrainerMode();
+
+    if (mode == Profile::TrainerMode::kStepwise)
+      ticker_.accelerate(queryTrainerHold(), step, queryTrainerTarget());
+  }
   auto new_state = Glib::Variant<double>::create(step);
   lookupSimpleAction(kActionTrainerStep)->set_state(new_state);
-
-  updateTickerAcceleration();
 }
 
 void Application::onTrainerHold(const Glib::VariantBase& value)
@@ -887,10 +844,15 @@ void Application::onTrainerHold(const Glib::VariantBase& value)
   int in_hold = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(value).get();
   auto [hold, valid] = validateTrainerHold(in_hold);
 
+  if (queryTrainerEnabled())
+  {
+    Profile::TrainerMode mode = queryTrainerMode();
+
+    if (mode == Profile::TrainerMode::kStepwise)
+      ticker_.accelerate(hold, queryTrainerStep(), queryTrainerTarget());
+  }
   auto new_state = Glib::Variant<int>::create(hold);
   lookupSimpleAction(kActionTrainerHold)->set_state(new_state);
-
-  updateTickerAcceleration();
 }
 
 void Application::onProfileManagerChanged()
@@ -909,10 +871,7 @@ void Application::onProfileManagerChanged()
   lookupSimpleAction(kActionProfileList)->set_state(out_list_state);
 
   // update selection
-  Glib::ustring selected_id;
-  get_action_state(kActionProfileSelect, selected_id);
-
-  if ( !selected_id.empty() )
+  if (Glib::ustring selected_id = queryProfileSelect(); !selected_id.empty())
   {
     auto it = std::find_if(out_list.begin(), out_list.end(),
                            [&selected_id] (const auto& p) -> bool {
@@ -964,8 +923,7 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
 
   if ( ! in_state.get().empty() )
   {
-    ProfileList plist;
-    get_action_state(kActionProfileList, plist);
+    ProfileList plist = queryProfileList();
 
     if ( auto it = std::find_if(plist.begin(), plist.end(),
                                 [&in_state] (auto& e) {
@@ -999,8 +957,7 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionTempo, content.tempo);
   get_action_state(kActionMeterEnabled, content.meter_enabled);
 
-  Glib::ustring tmp_string;
-  get_action_state(kActionMeterSelect,  tmp_string);
+  Glib::ustring tmp_string = queryMeterSelect();
   content.meter_select = tmp_string.raw();
 
   get_action_state(kActionMeterSimple2, content.meter_simple_2);
@@ -1088,9 +1045,7 @@ void Application::onProfileNew(const Glib::VariantBase& value)
 
 void Application::loadSelectedProfile()
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
+  Glib::ustring id = queryProfileSelect();
   bool has_selected_id = !id.empty();
 
   if (has_selected_id)
@@ -1105,9 +1060,7 @@ void Application::loadSelectedProfile()
 
 void Application::loadDefaultProfile()
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
+  Glib::ustring id = queryProfileSelect();
   bool has_selected_id = !id.empty();
 
   convertProfileToAction(kDefaultProfile.content);
@@ -1119,10 +1072,7 @@ void Application::loadDefaultProfile()
 
 void Application::saveSelectedProfile()
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
-  if (!id.empty())
+  if (Glib::ustring id = queryProfileSelect(); !id.empty())
   {
     Profile::Content content = profile_manager_.getProfileContent(id);
     convertActionToProfile(content);
@@ -1132,10 +1082,7 @@ void Application::saveSelectedProfile()
 
 void Application::onProfileDelete(const Glib::VariantBase& value)
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
-  if (!id.empty())
+  if (Glib::ustring id = queryProfileSelect(); !id.empty())
   {
     Glib::Variant<Glib::ustring> empty_state
       = Glib::Variant<Glib::ustring>::create({""});
@@ -1153,10 +1100,7 @@ void Application::onProfileReset(const Glib::VariantBase& value)
 
 void Application::onProfileTitle(const Glib::VariantBase& value)
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
-  if (!id.empty())
+  if (Glib::ustring id = queryProfileSelect(); !id.empty())
   {
     Glib::Variant<Glib::ustring> in_value
       = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
@@ -1177,10 +1121,7 @@ void Application::onProfileTitle(const Glib::VariantBase& value)
 
 void Application::onProfileDescription(const Glib::VariantBase& value)
 {
-  Glib::ustring id;
-  get_action_state(kActionProfileSelect, id);
-
-  if (!id.empty())
+  if (Glib::ustring id = queryProfileSelect(); !id.empty())
   {
     Glib::Variant<Glib::ustring> in_value
       = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value);
@@ -1228,16 +1169,6 @@ void Application::onStart(const Glib::VariantBase& value)
   try {
     if (new_state.get())
     {
-      bool trainer_enabled;
-      get_action_state(kActionTrainerEnabled, trainer_enabled);
-
-      // if (trainer_enabled)
-      // {
-      //   double trainer_start_tempo;
-      //   get_action_state(kActionTrainerStart, trainer_start_tempo);
-
-      //   ticker_.setTempo(trainer_start_tempo);
-      // }
       ticker_.start();
       startStatsTimer();
     }
@@ -1304,9 +1235,7 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
     // load sound theme from selected profile
     if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     {
-      Glib::ustring id;
-      get_action_state(kActionProfileSelect, id);
-      if (!id.empty())
+      if (Glib::ustring id = queryProfileSelect(); !id.empty())
       {
         if (Profile::Content content = profile_manager_.getProfileContent(id);
             !content.sound_theme_id.empty())
@@ -1341,9 +1270,7 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
   if (key == settings::kKeySoundVolume)
   {
-    bool mute;
-    get_action_state(kActionVolumeMute, mute);
-    if (mute)
+    if (queryVolumeMute())
       activate_action(kActionVolumeMute);
     else
       updateTickerSound(kAccentMaskAll);
@@ -1353,9 +1280,7 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
     // store sound theme to selected profile
     if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     {
-      Glib::ustring id;
-      get_action_state(kActionProfileSelect, id);
-      if (!id.empty())
+      if (Glib::ustring id = queryProfileSelect(); !id.empty())
       {
         Profile::Content content = profile_manager_.getProfileContent(id);
         content.sound_theme_id = settings::soundThemes()->selected();
@@ -1530,11 +1455,7 @@ std::pair<Glib::ustring,bool> Application::validateMeterSlot(Glib::ustring str)
     return {str, true};
   }
   else
-  {
-    Glib::ustring current_meter_slot;
-    get_action_state(kActionMeterSelect, current_meter_slot);
-    return {current_meter_slot, false};
-  }
+    return {queryMeterSelect(), false};
 }
 
 //helper
