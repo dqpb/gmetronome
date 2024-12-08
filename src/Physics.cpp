@@ -79,17 +79,8 @@ namespace physics {
 
     osc_.resetVelocity(tempo_);
 
-    if (force_mode_ == ForceMode::kSyncForce)
-    {
-      if (tempo_ != target_ && accel_ != 0)
-        switchForceMode(ForceMode::kAccelForce);
-      else
-        switchForceMode(ForceMode::kNoForce);
-    }
-    else if (force_mode_ == ForceMode::kNoForce && tempo_ != target_ && accel_ != 0)
-      switchForceMode(ForceMode::kAccelForce);
-    else if (force_mode_ == ForceMode::kAccelForce)
-      updateOscForce(ForceMode::kAccelForce);
+    if (force_mode_ != ForceMode::kNoForce)
+      switchForceMode(ForceMode::kNoForce);
   }
 
   void BeatKinematics::accelerate(double accel, double target)
@@ -97,10 +88,10 @@ namespace physics {
     accel_ = bpm2_2_bps2(accel);
     target_ = bpm_2_bps(target);
 
-    if (force_mode_ == ForceMode::kNoForce && tempo_ != target_ && accel_ != 0)
-      switchForceMode(ForceMode::kAccelForce);
-    else if (force_mode_ == ForceMode::kAccelForce)
+    if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
+    else
+      switchForceMode(ForceMode::kAccelForce);
   }
 
   void BeatKinematics::synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time)
@@ -114,6 +105,18 @@ namespace physics {
       updateOscForce(ForceMode::kSyncForce);
     else
       switchForceMode(ForceMode::kSyncForce);
+  }
+
+  void BeatKinematics::stopAcceleration()
+  {
+    if (force_mode_ == ForceMode::kAccelForce)
+      switchForceMode(ForceMode::kNoForce);
+  }
+
+  void BeatKinematics::stopSynchronization()
+  {
+    if (force_mode_ == ForceMode::kSyncForce)
+      switchForceMode(ForceMode::kNoForce);
   }
 
   double BeatKinematics::position() const
@@ -158,37 +161,26 @@ namespace physics {
 
   void BeatKinematics::step(seconds_dbl time)
   {
-    if (force_mode_ == ForceMode::kSyncForce)
+    // force phase
+    if (force_mode_ != ForceMode::kNoForce)
     {
       time = osc_.step(time);
 
       // if force time is exceeded handle possible rounding errors
       if (osc_.remainingForceTime() == kZeroTime)
-        osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
+      {
+        if (force_mode_ == ForceMode::kSyncForce)
+          osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
+        else if (force_mode_ == ForceMode::kAccelForce)
+          osc_.resetVelocity(target_);
+      }
       else if (time <= kZeroTime)
         return;
-    }
 
-    if (force_mode_ != ForceMode::kAccelForce
-        && osc_.velocity() != target_
-        && accel_ != 0.0)
-    {
-      switchForceMode(ForceMode::kAccelForce);
-    }
-
-    if (force_mode_ == ForceMode::kAccelForce)
-    {
-      time = osc_.step(time);
-
-      if (osc_.remainingForceTime() == kZeroTime)
-        osc_.resetVelocity(target_);
-      else if (time <= kZeroTime)
-        return;
-    }
-
-    if (force_mode_ != ForceMode::kNoForce)
       switchForceMode(ForceMode::kNoForce);
+    }
 
+    // no force phase
     if (time > kZeroTime)
       osc_.step(time);
   }
@@ -259,25 +251,12 @@ namespace physics {
     if (p == p0)
       return time;
 
-    // sync force phase
-    if (force_mode_ == ForceMode::kSyncForce)
+    // force phase
+    if (force_mode_ != ForceMode::kNoForce)
     {
       const Force& force = osc_.force();
       const seconds_dbl& force_time = osc_.remainingForceTime();
       time += physics::arrival(p0, v0, p, force, force_time);
-    }
-
-    if (p0 == p)
-      return time;
-
-    // accel force phase
-    if (v0 != target_ && accel_ != 0.0)
-    {
-      if (double v_dev = target_ - v0; v_dev != 0.0)
-      {
-        auto [force, force_time] = computeAccelForce(v_dev, accel_);
-        time += physics::arrival(p0, v0, p, force, force_time);
-      }
     }
 
     if (p0 == p)

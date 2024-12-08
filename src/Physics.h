@@ -193,13 +193,9 @@ namespace physics {
     /**
      * @brief Set the current tempo of the oscillation
      *
-     * Setting the current tempo does not affect the target tempo or acceleration
-     * (see @ref accelerate), i.e. the oscillator will continue to change the speed
-     * from the new tempo towards the target tempo.
-     *
-     * However, it will stop an ongoing synchronization that was previously
-     * initiated by @ref synchronize, because the synchronization is regarded
-     * obsolete.
+     * This function stops a possibly ongoing acceleration or synchronization process
+     * that was previously initiated by a call to @ref accelerate or @ref synchronize
+     * and resets the tempo to the given value.
      *
      * @param tempo  The new tempo in BPM
      */
@@ -208,17 +204,12 @@ namespace physics {
     /**
      * @brief Set up an acceleration towards a target tempo
      *
-     * If the current tempo differs from the target tempo the oscillator starts to
-     * accelerate towards the target tempo with the given acceleration.
+     * If the current tempo differs from the target tempo the oscillator starts
+     * to accelerate towards the target tempo with the given acceleration.
      *
      * The parameter accel is the magnitude (i.e. the absolute value) of the
-     * acceleration in BPM per minute. The actual signed acceleration towards the
-     * target tempo can then be accessed by a call to @ref acceleration().
-     *
-     * Changing the acceleration or target tempo does not interrupt an ongoing
-     * synchronization process (see @ref synchronize). However, after the
-     * synchronization is completed, the oscillator will continue to accelerate
-     * towards the new target tempo with the new acceleration.
+     * acceleration in BPM per minute. The actual signed acceleration can then
+     * be accessed by a call to @ref acceleration().
      *
      * @param accel  The magnitude of acceleration in BPM per minute
      * @param target  The target tempo in BPM
@@ -245,6 +236,17 @@ namespace physics {
      * of the source and target oscillators, respectively.
      */
     void synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time);
+
+    /** Stop an ongoing acceleration process */
+    void stopAcceleration();
+
+    /** Stop an ongoing synchronization process */
+    void stopSynchronization();
+
+    bool isAccelerating() const
+      { return (force_mode_ == ForceMode::kAccelForce); }
+    bool isSynchronizing() const
+      { return (force_mode_ == ForceMode::kSyncForce); }
 
     double position() const;
     double tempo() const;
