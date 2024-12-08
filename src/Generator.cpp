@@ -24,6 +24,7 @@
 #include "Generator.h"
 #include <cmath>
 #include <ratio>
+#include <numeric>
 #include <cassert>
 
 #ifndef NDEBUG
@@ -96,7 +97,7 @@ namespace audio {
     status.acceleration = 0.0;
     status.next_accent = 0;
     status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
-    status.state = kFillBufferGenerator;
+    status.generator = kFillBufferGenerator;
   }
 
   // PreCountGenerator (not implemented yet)
@@ -111,62 +112,48 @@ namespace audio {
 
   // RegularGenerator
   //
-  void RegularGenerator::onTempoChanged(BeatStreamController& ctrl)
+  void RegularGenerator::onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode)
   {
-    k_.setTempo(ctrl.tempo());
-    updateFramesLeft(ctrl);
-  }
+    switch (ctrl.mode()) {
 
-  void RegularGenerator::configureAcceleration(BeatStreamController& ctrl)
-  {
-    switch (ctrl.accelerationMode()) {
-    case AccelerationMode::kContinuous:
-      k_.accelerate(ctrl.acceleration(), ctrl.targetTempo());
-      hold_pos_ = 0;
+    case TempoMode::kConstant:
+      k_.setTempo(ctrl.tempo());
       break;
-    case AccelerationMode::kStepwise:
-      if (k_.acceleration() != 0.0)
-        k_.accelerate(0.0, 0.0);
-      if (hold_pos_ > 0)
-        hold_pos_ = hold_pos_ % ctrl.hold();
+
+    case TempoMode::kContinuous:
+      k_.accelerate(ctrl.acceleration(), ctrl.target());
       break;
-    case AccelerationMode::kNoAcceleration:
-      if (k_.acceleration() != 0.0)
-        k_.accelerate(0.0, 0.0);
-      hold_pos_ = 0;
+
+    case TempoMode::kStepwise:
+      if (old_mode == TempoMode::kContinuous)
+        k_.stopAcceleration();
+      else if (old_mode == TempoMode::kSync)
+        k_.stopSynchronization();
+
+      recomputeStepwise(ctrl);
+      break;
+
+    case TempoMode::kSync:
+      k_.synchronize(ctrl.syncBeats(), ctrl.syncTempo(), ctrl.syncTime());
       break;
     };
-  }
-
-  void RegularGenerator::onAccelerationChanged(BeatStreamController& ctrl)
-  {
-    configureAcceleration(ctrl);
-
-    if (ctrl.accelerationMode() == AccelerationMode::kNoAcceleration)
-      k_.setTempo(ctrl.tempo());
 
     updateFramesLeft(ctrl);
   }
 
-  void RegularGenerator::onSynchronize(BeatStreamController& ctrl,
-                                       double beats, double tempo, microseconds time)
-  {
-    k_.synchronize(beats, tempo, time);
-    updateFramesLeft(ctrl);
-  }
-
-  void RegularGenerator::onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed)
+  void RegularGenerator::onMeterChanged(BeatStreamController& ctrl,
+                                        const Meter& old_meter, bool enabled_changed)
   {
     const Meter& meter = ctrl.meter();
 
     // play the accent pattern from the beginning, when accentuation was enabled
-    bool turnover = meter_enabled_changed && ctrl.isMeterEnabled();
+    bool turnover = enabled_changed && ctrl.isMeterEnabled();
     k_.setBeats(meter.beats(), turnover);
 
     // If accent_point_ == true (i.e. we are about to play an accent), we check
     // if there is a matching accent in the new meter and set the current accent
     // accordingly
-    bool accent_match = (accent_ * meter.division()) % division_saved_ == 0;
+    bool accent_match = (accent_ * meter.division()) % old_meter.division() == 0;
     if (accent_point_ && accent_match)
     {
       accent_ = std::fmod(std::round(k_.position() * meter.division()),
@@ -177,8 +164,11 @@ namespace audio {
       accent_ = std::trunc(k_.position() * meter.division());
       accent_point_ = false;
     }
+
+    if (ctrl.mode() == TempoMode::kStepwise)
+      recomputeStepwise(ctrl);
+
     updateFramesLeft(ctrl);
-    division_saved_ = ctrl.meter().division();
   }
 
   void RegularGenerator::prepare(BeatStreamController& ctrl)
@@ -197,13 +187,25 @@ namespace audio {
     k_.setBeats(ctrl.meter().beats());
     k_.setTempo(ctrl.tempo());
 
-    if (ctrl.accelerationMode() == AccelerationMode::kContinuous)
-      k_.accelerate(ctrl.acceleration(), ctrl.targetTempo());
+    switch (ctrl.mode()) {
+    case TempoMode::kContinuous:
+      if (ctrl.target() != ctrl.tempo())
+        k_.accelerate(ctrl.acceleration(), ctrl.target());
+      break;
+
+    case TempoMode::kStepwise:
+    case TempoMode::kConstant:
+    case TempoMode::kSync:
+      [[fallthrough]];
+    default:
+      // nothing
+      break;
+    };
+
+    resetStepwise(ctrl);
 
     accent_ = 0;
     accent_point_ = true;
-    division_saved_ = ctrl.meter().division();
-    hold_pos_ = 0;
     updateFramesLeft(ctrl);
   }
 
@@ -250,17 +252,20 @@ namespace audio {
     const Meter& meter = ctrl.meter();
     const AccentPattern& accents = meter.accents();
 
-    status.position = k_.position();
-    status.tempo = k_.tempo();
+    status.position     = k_.position();
+    status.tempo        = k_.tempo();
+    status.mode         = effectiveMode(ctrl);
     status.acceleration = k_.acceleration();
-    status.next_accent = (accent_ + 1) % accents.size();
+    // status.hold         = ;
+    // status.step         = ;
+    status.next_accent  = (accent_ + 1) % accents.size();
 
     const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
 
     status.next_accent_delay
       = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio));
 
-    status.state = kRegularGenerator;
+    status.generator = kRegularGenerator;
   }
 
   void RegularGenerator::updateFramesLeft(BeatStreamController& ctrl)
@@ -295,7 +300,7 @@ namespace audio {
       accent_ = (accent_ + 1) % accents.size();
       accent_point_ = true;
 
-      handleStepwiseAcceleration(ctrl);
+      handleStepwise(ctrl);
 
       updateFramesLeft(ctrl);
     }
@@ -305,9 +310,30 @@ namespace audio {
     }
   }
 
-  void RegularGenerator::handleStepwiseAcceleration(BeatStreamController& ctrl)
+  void RegularGenerator::recomputeStepwise(BeatStreamController& ctrl)
   {
-    if (ctrl.accelerationMode() != AccelerationMode::kStepwise)
+    int beats = (accent_point_) ? std::round(ctrl.meter().beats()) : ctrl.meter().beats();
+    int gcd = std::gcd(ctrl.hold(), beats);
+
+    if (gcd > 1)
+    {
+      int offset = (hold_pos_ / beats) * beats;
+      hold_pos_ = (offset + (int) k_.position()) % ctrl.hold();
+    }
+    else
+    {
+      hold_pos_ = hold_pos_ % ctrl.hold();
+    }
+  }
+
+  void RegularGenerator::resetStepwise(BeatStreamController& ctrl)
+  {
+    hold_pos_ = 0;
+  }
+
+  void RegularGenerator::handleStepwise(BeatStreamController& ctrl)
+  {
+    if (ctrl.mode() != TempoMode::kStepwise)
       return;
 
     if (!accent_point_)
@@ -329,7 +355,7 @@ namespace audio {
   void RegularGenerator::accelerateStepwise(BeatStreamController& ctrl)
   {
     double tempo = k_.tempo();
-    double tempo_diff = ctrl.targetTempo() - tempo;
+    double tempo_diff = ctrl.target() - tempo;
 
     if (std::abs(ctrl.step()) <= std::abs(tempo_diff))
     {
@@ -338,9 +364,37 @@ namespace audio {
     }
     else
     {
-      k_.setTempo(ctrl.targetTempo());
+      k_.setTempo(ctrl.target());
     }
   }
+
+  TempoMode RegularGenerator::effectiveMode(const BeatStreamController& ctrl) const
+  {
+    TempoMode m = TempoMode::kConstant;
+
+    switch (ctrl.mode())
+    {
+    case TempoMode::kConstant:
+      // nothing
+      break;
+
+    case TempoMode::kSync:
+      if (k_.isSynchronizing())
+        m = TempoMode::kSync;
+      break;
+
+    case TempoMode::kContinuous:
+      if (k_.isAccelerating())
+        m = TempoMode::kContinuous;
+      break;
+
+    case TempoMode::kStepwise:
+
+      break;
+    };
+    return m;
+  }
+
 
   // DrainGenerator
   //
