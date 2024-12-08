@@ -159,14 +159,14 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
   if (state_ == kStop || state_ == kShutdown)
     return;
 
-  if (stats.generator_state == audio::kFillBufferGenerator)
+  if (stats.generator == audio::kFillBufferGenerator)
   {
     if (state_ != kFillBuffer)
     {
       state_ = kFillBuffer;
     }
   }
-  else if (stats.generator_state == audio::kRegularGenerator)
+  else if (stats.generator == audio::kRegularGenerator)
   {
     if (state_ != kRegular) // init kinematics
     {
