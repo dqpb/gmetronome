@@ -43,14 +43,7 @@ namespace audio {
   Ticker::Ticker()
     : backend_ {createBackend(BackendIdentifier::kNone)}
   {
-    tempo_imported_flag_.test_and_set();
-    accel_imported_flag_.test_and_set();
-    sync_imported_flag_.test_and_set();
-    meter_imported_flag_.test_and_set();
-
-    for (auto& flag : sound_imported_flags_)
-      flag.test_and_set();
-
+    ops_imported_flag_.test_and_set();
     swap_backend_flag_.test_and_set();
   }
 
@@ -127,100 +120,6 @@ namespace audio {
     }
   }
 
-  void Ticker::setTempo(double tempo)
-  {
-    in_tempo_.store(tempo);
-    tempo_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::accelerate(double accel, double target)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_accel_ = accel;
-      in_target_ = target;
-      in_accel_mode_ = AccelerationMode::kContinuous;
-    }
-    accel_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::accelerate(int hold, double step, double target)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_hold_ = hold;
-      in_step_ = step;
-      in_target_ = target;
-      in_accel_mode_ = AccelerationMode::kStepwise;
-    }
-    accel_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::stopAcceleration()
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_accel_mode_ = AccelerationMode::kNoAcceleration;
-    }
-    accel_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::synchronize(double beats, double tempo, microseconds time)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_beat_dev_ = beats;
-      in_tempo_dev_ = tempo;
-      in_sync_time_ = time;
-    }
-    sync_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setMeter(Meter meter)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      std::swap(in_meter_, meter);
-      reset_meter_ = false;
-    }
-    meter_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::resetMeter()
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      reset_meter_ = true;
-    }
-    meter_imported_flag_.clear(std::memory_order_release);
-  }
-
-  void Ticker::setSound(Accent accent, const SoundParameters& params)
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      in_sounds_[accent] = params;
-    }
-    sound_imported_flags_[accent].clear(std::memory_order_release);
-  }
-
-  Ticker::Statistics Ticker::getStatistics()
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      has_stats_ = false;
-      return out_stats_;
-    }
-  }
-
-  bool Ticker::hasStatistics() const
-  {
-    {
-      std::lock_guard<SpinLock> guard(spin_mutex_);
-      return has_stats_;
-    }
-  }
-
   void Ticker::start()
   {
     auto current_state = state();
@@ -281,6 +180,114 @@ namespace audio {
     return out_state;
   }
 
+  void Ticker::setTempo(double tempo)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_tempo_ = tempo;
+
+    in_ops_.reset (kOpFlagSync);
+    in_ops_.set   (kOpFlagTempo);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::accelerate(double accel, double target)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_accel_ = accel;
+    in_target_ = target;
+
+    in_ops_ &= ~kOpMaskAccel;
+    in_ops_.set(kOpFlagAccelCS);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::accelerate(int hold, double step, double target)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_hold_ = hold;
+    in_step_ = step;
+    in_target_ = target;
+
+    in_ops_ &= ~kOpMaskAccel;
+    in_ops_.set(kOpFlagAccelSW);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::stopAcceleration()
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_ops_ &= ~kOpMaskAccel;
+    in_ops_.set(kOpFlagAccelSP);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::synchronize(double beats, double tempo, microseconds time)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_sync_beats_ = beats;
+    in_sync_tempo_ = tempo;
+    in_sync_time_ = time;
+
+    in_ops_.set(kOpFlagSync);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::setMeter(Meter meter)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    std::swap(in_meter_, meter);
+
+    in_ops_ &= ~kOpMaskMeter;
+    in_ops_.set(kOpFlagMeter);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::resetMeter()
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_ops_ &= ~kOpMaskMeter;
+    in_ops_.set(kOpFlagMeterReset);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  void Ticker::setSound(Accent accent, const SoundParameters& params)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+
+    in_sounds_[accent] = params;
+
+    in_ops_.set(kOpFlagSoundOff + accent);
+
+    ops_imported_flag_.clear(std::memory_order_release);
+  }
+
+  Ticker::Statistics Ticker::getStatistics()
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+    has_stats_ = false;
+    return out_stats_;
+  }
+
+  bool Ticker::hasStatistics() const
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+    return has_stats_;
+  }
+
   void Ticker::startAudioThread()
   {
     assert( audio_thread_ == nullptr );
@@ -334,187 +341,6 @@ namespace audio {
         state_.reset(Ticker::StateFlag::kRunning);
       }
       else throw GMetronomeError("Audio thread not responing. (Timeout)");
-    }
-  }
-
-  bool Ticker::importTempo()
-  {
-    stream_ctrl_.setTempo(in_tempo_.load());
-    return true;
-  }
-
-  bool Ticker::importAccel()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      switch (in_accel_mode_) {
-      case AccelerationMode::kContinuous:
-        stream_ctrl_.accelerate(in_accel_, in_target_);
-        break;
-      case AccelerationMode::kStepwise:
-        stream_ctrl_.accelerate(in_hold_, in_step_, in_target_);
-        break;
-      case AccelerationMode::kNoAcceleration:
-        stream_ctrl_.stopAcceleration();
-        break;
-      };
-      return true;
-    }
-    else
-      return false;
-  }
-
-  bool Ticker::importMeter()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      if (reset_meter_)
-        stream_ctrl_.resetMeter();
-      else
-        stream_ctrl_.swapMeter(in_meter_);
-
-      meter_imported_flag_.test_and_set(std::memory_order_acquire);
-      return true;
-    }
-    else
-      return false;
-  }
-
-  bool Ticker::importSync()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      stream_ctrl_.synchronize(in_beat_dev_, in_tempo_dev_, in_sync_time_);
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  bool Ticker::importSound(Accent accent)
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      stream_ctrl_.setSound(accent, in_sounds_[accent]);
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  bool Ticker::syncSwapBackend()
-  {
-    std::unique_lock<SpinLock> lck(spin_mutex_);
-
-    backend_swapped_ = false;
-
-    if (using_dummy_) // hide dummy backend from client
-    {
-      std::swap(dummy_, backend_);
-      using_dummy_ = false;
-    }
-
-    // signal the client, that we are ready to swap the backends
-    ready_to_swap_ = true;
-    lck.unlock();
-    cond_var_.notify_one();
-
-    // wait for the new backend
-    lck.lock();
-    bool success = cond_var_.wait_for(lck, kSwapBackendTimeout,
-                                      [&] {return backend_swapped_;});
-    lck.unlock();
-
-    // check the (possibly) new backend and (re-)install
-    // the dummy backend if necessary
-    if (!backend_)
-    {
-      backend_ = std::move(dummy_);
-      using_dummy_ = true;
-    }
-
-    return success;
-  }
-
-  void Ticker::hardSwapBackend(std::unique_ptr<Backend>& backend)
-  {
-    // same as syncSwapBackend() without thread synchronization
-
-    if (using_dummy_)
-    {
-      std::swap(dummy_, backend_);
-      using_dummy_ = false;
-    }
-
-    std::swap(backend, backend_);
-
-    if (!backend_)
-    {
-      backend_ = std::move(dummy_);
-      using_dummy_ = true;
-    }
-  }
-
-  void Ticker::importGeneratorSettings()
-  {
-    if (!tempo_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importTempo()) tempo_imported_flag_.clear();
-
-    if (!accel_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importAccel()) accel_imported_flag_.clear();
-
-    if (!meter_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importMeter()) meter_imported_flag_.clear();
-
-    if (!sync_imported_flag_.test_and_set(std::memory_order_acquire))
-      if (!importSync()) sync_imported_flag_.clear();
-
-    for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
-      if (!sound_imported_flags_[accent].test_and_set(std::memory_order_acquire))
-        if (!importSound(accent)) sound_imported_flags_[accent].clear();
-  }
-
-  bool Ticker::importBackend()
-  {
-    if (!swap_backend_flag_.test_and_set(std::memory_order_acquire))
-    {
-      closeBackend();
-      return syncSwapBackend();
-    }
-    else return false;
-  }
-
-  void Ticker::exportStatistics()
-  {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
-    {
-      out_stats_.timestamp = microseconds(g_get_monotonic_time());
-
-      const auto& gen_stats = stream_ctrl_.status();
-      const auto& meter = stream_ctrl_.meter();
-
-      out_stats_.position     = gen_stats.position;
-      out_stats_.tempo        = gen_stats.tempo;
-      out_stats_.acceleration = gen_stats.acceleration;
-      out_stats_.n_beats      = meter.beats();
-      out_stats_.n_accents    = meter.beats() * meter.division();
-      out_stats_.next_accent       = gen_stats.next_accent;
-      out_stats_.next_accent_delay = gen_stats.next_accent_delay;
-      out_stats_.generator_state   = gen_stats.state;
-
-      if (backend_)
-        out_stats_.backend_latency = backend_->latency();
-      else
-        out_stats_.backend_latency = 0us;
-
-      has_stats_ = true;
     }
   }
 
@@ -603,6 +429,233 @@ namespace audio {
       backend_->write(data, bytes);
   }
 
+  bool Ticker::syncSwapBackend()
+  {
+    std::unique_lock<SpinLock> lck(spin_mutex_);
+
+    backend_swapped_ = false;
+
+    if (using_dummy_) // hide dummy backend from client
+    {
+      std::swap(dummy_, backend_);
+      using_dummy_ = false;
+    }
+
+    // signal the client, that we are ready to swap the backends
+    ready_to_swap_ = true;
+    lck.unlock();
+    cond_var_.notify_one();
+
+    // wait for the new backend
+    lck.lock();
+    bool success = cond_var_.wait_for(lck, kSwapBackendTimeout,
+                                      [&] {return backend_swapped_;});
+    lck.unlock();
+
+    // check the (possibly) new backend and (re-)install
+    // the dummy backend if necessary
+    if (!backend_)
+    {
+      backend_ = std::move(dummy_);
+      using_dummy_ = true;
+    }
+
+    return success;
+  }
+
+  void Ticker::hardSwapBackend(std::unique_ptr<Backend>& backend)
+  {
+    // same as syncSwapBackend() without thread synchronization
+
+    if (using_dummy_)
+    {
+      std::swap(dummy_, backend_);
+      using_dummy_ = false;
+    }
+
+    std::swap(backend, backend_);
+
+    if (!backend_)
+    {
+      backend_ = std::move(dummy_);
+      using_dummy_ = true;
+    }
+  }
+
+  bool Ticker::importBackend()
+  {
+    if (!swap_backend_flag_.test_and_set(std::memory_order_acquire))
+    {
+      closeBackend();
+      return syncSwapBackend();
+    }
+    else return false;
+  }
+
+  bool Ticker::suspendAccel(microseconds time)
+  {
+    if (!accel_suspend_blocked_ && accel_mode_ != AccelMode::kNoAccel)
+    {
+      accel_suspend_timer_.start(time);
+      return true;
+    }
+    else return false;
+  }
+
+  void Ticker::reinstateAccel()
+  {
+    if (accel_mode_ == AccelMode::kContinuous)
+      stream_ctrl_.accelerate(stream_ctrl_.acceleration(), stream_ctrl_.target());
+
+    else if (accel_mode_ == AccelMode::kStepwise)
+      stream_ctrl_.accelerate(stream_ctrl_.hold(),
+                              stream_ctrl_.step(),
+                              stream_ctrl_.target());
+
+    accel_suspend_timer_.reset();
+  }
+
+  void Ticker::importTempo()
+  {
+    stream_ctrl_.setTempo(in_tempo_);
+    in_ops_.reset(kOpFlagTempo);
+
+    if (!suspendAccel())
+      reinstateAccel();
+  }
+
+  void Ticker::importAccel()
+  {
+    if (isAccelSuspended())
+      abortAccelSuspend();
+
+    if (in_ops_.test(kOpFlagAccelCS))
+    {
+      stream_ctrl_.accelerate(in_accel_, in_target_);
+
+      in_ops_.reset(kOpFlagAccelCS);
+      accel_mode_ = AccelMode::kContinuous;
+    }
+    else if (in_ops_.test(kOpFlagAccelSW))
+    {
+      stream_ctrl_.accelerate(in_hold_, in_step_, in_target_);
+
+      in_ops_.reset(kOpFlagAccelSW);
+      accel_mode_ = AccelMode::kStepwise;
+    }
+    else if (in_ops_.test(kOpFlagAccelSP))
+    {
+      stream_ctrl_.setTempo(in_tempo_);
+
+      in_ops_.reset(kOpFlagAccelSP);
+      accel_mode_ = AccelMode::kNoAccel;
+    }
+  }
+
+  void Ticker::importSync()
+  {
+    stream_ctrl_.synchronize(in_sync_beats_, in_sync_tempo_, in_sync_time_);
+    in_ops_.reset(kOpFlagSync);
+
+    if (!suspendAccel(in_sync_time_ + kDefaultAccelSuspendTime))
+      reinstateAccel(); // this will effectively nullify the sync op
+  }
+
+  void Ticker::importMeter()
+  {
+    if (in_ops_.test(kOpFlagMeterReset))
+    {
+      stream_ctrl_.resetMeter();
+      in_ops_.reset(kOpFlagMeterReset);
+    }
+    else if (in_ops_.test(kOpFlagMeter))
+    {
+      stream_ctrl_.swapMeter(in_meter_);
+      in_ops_.reset(kOpFlagMeter);
+    }
+  }
+
+  void Ticker::importSound()
+  {
+    // import one sound per cycle
+    if (in_ops_.test(kOpFlagSoundOff))
+    {
+      stream_ctrl_.setSound(kAccentOff, in_sounds_[kAccentOff]);
+      in_ops_.reset(kOpFlagSoundOff);
+    }
+    else if (in_ops_.test(kOpFlagSoundWeak))
+    {
+      stream_ctrl_.setSound(kAccentWeak, in_sounds_[kAccentWeak]);
+      in_ops_.reset(kOpFlagSoundWeak);
+    }
+    else if (in_ops_.test(kOpFlagSoundMid))
+    {
+      stream_ctrl_.setSound(kAccentMid, in_sounds_[kAccentMid]);
+      in_ops_.reset(kOpFlagSoundMid);
+    }
+    else if (in_ops_.test(kOpFlagSoundStrong))
+    {
+      stream_ctrl_.setSound(kAccentStrong, in_sounds_[kAccentStrong]);
+      in_ops_.reset(kOpFlagSoundStrong);
+    }
+  }
+
+  void Ticker::importGeneratorSettings()
+  {
+     if (!ops_imported_flag_.test_and_set(std::memory_order_acquire))
+    {
+      if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
+          lck.owns_lock())
+      {
+        if (in_ops_.test(kOpFlagTempo))
+          importTempo();
+
+        if (in_ops_.test(kOpFlagSync))
+          importSync();
+
+        if ((in_ops_ & kOpMaskAccel).any())
+          importAccel();
+
+        if ((in_ops_ & kOpMaskMeter).any())
+          importMeter();
+
+        if ((in_ops_ & kOpMaskSound).any())
+          importSound();
+
+        if (in_ops_.any())
+          ops_imported_flag_.clear(std::memory_order_release);
+      }
+    }
+  }
+
+  void Ticker::exportStatistics()
+  {
+    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
+        lck.owns_lock())
+    {
+      out_stats_.timestamp = microseconds(g_get_monotonic_time());
+
+      const auto& gen_stats = stream_ctrl_.status();
+      const auto& meter = stream_ctrl_.meter();
+
+      out_stats_.position     = gen_stats.position;
+      out_stats_.tempo        = gen_stats.tempo;
+      out_stats_.acceleration = gen_stats.acceleration;
+      out_stats_.n_beats      = meter.beats();
+      out_stats_.n_accents    = meter.beats() * meter.division();
+      out_stats_.next_accent       = gen_stats.next_accent;
+      out_stats_.next_accent_delay = gen_stats.next_accent_delay;
+      out_stats_.generator         = gen_stats.generator;
+
+      if (backend_)
+        out_stats_.backend_latency = backend_->latency();
+      else
+        out_stats_.backend_latency = 0us;
+
+      has_stats_ = true;
+    }
+  }
+
   void Ticker::audioThreadFunction() noexcept
   {
     const void* data;
@@ -611,7 +664,13 @@ namespace audio {
     try {
       openBackend(); // sets actual_device_config_
       stream_ctrl_.prepare(actual_device_config_.spec);
+
+      accel_suspend_timer_.switchStreamSpec(actual_device_config_.spec);
+
+      blockAccelSuspend();
       importGeneratorSettings();
+      unblockAccelSuspend();
+
       stream_ctrl_.start(kFillBufferGenerator);
       startBackend();
 
@@ -622,13 +681,26 @@ namespace audio {
         {
           openBackend(); // updates actual_device_config_
           stream_ctrl_.prepare(actual_device_config_.spec);
+
+          accel_suspend_timer_.switchStreamSpec(actual_device_config_.spec);
+
           startBackend();
         }
         importGeneratorSettings();
+
+        // reinstate accel mode before the new cycle
+        if (isAccelSuspended() && isAccelSuspendExpired())
+          reinstateAccel();
+
         stream_ctrl_.cycle(data, bytes);
         writeBackend(data, bytes);
+        updateAccelSuspendTimer(bytes);
+
         exportStatistics();
       }
+
+      if (isAccelSuspended())
+        reinstateAccel();
 
       stream_ctrl_.stop();
       exportStatistics();

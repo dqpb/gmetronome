@@ -47,6 +47,13 @@ namespace audio {
 
     using State = std::bitset<16>;
 
+    enum class AccelMode
+    {
+      kNoAccel,
+      kContinuous,
+      kStepwise
+    };
+
     struct Statistics
     {
       microseconds  timestamp {0us};
@@ -57,7 +64,7 @@ namespace audio {
       int           n_accents {-1};
       int           next_accent {-1};
       microseconds  next_accent_delay {0us};
-      int           generator_state {-1};
+      GeneratorId   generator {kInvalidGenerator};
       microseconds  backend_latency {0us};
     };
 
@@ -81,6 +88,9 @@ namespace audio {
 
     Ticker::State state() const noexcept;
 
+    /**
+     * @brief Set the tempo of the metronome
+     */
     void setTempo(double tempo);
 
     /**
@@ -101,17 +111,18 @@ namespace audio {
     void accelerate(int hold, double step, double target);
 
     /**
-     * @brief Stop an ongoing acceleration and reset tempo
+     * @brief Stop an ongoing acceleration
      *
-     * This function stops an ongoing continuous or stepwise acceleration that was
-     * previously initiated by a call to one of the @ref accelerate overloads and
-     * resets the tempo back to the last value set with the @ref setTempo function.
-     *
-     * A possible ongoing synchronization (see @ref synchronize) will be regarded
-     * as obsolete and aborted as well.
+     * This function ends an acceleration mode that was previously started
+     * by a call to one of the @ref accelerate overloads and switches back
+     * to the unaccelerated state.
      */
     void stopAcceleration();
 
+    /**
+     * @brief Synchronize the metronome with another oscillation
+     * @see physics::BeatKinematics::synchronize for details
+     */
     void synchronize(double beats, double tempo, microseconds time = kDefaultSyncTime);
 
     void setMeter(Meter meter);
@@ -132,23 +143,21 @@ namespace audio {
     Ticker::State state_{0};
 
     // tempo
-    std::atomic<double> in_tempo_{0.0};
+    double in_tempo_{0.0};
 
     // acceleration
-    AccelerationMode in_accel_mode_{AccelerationMode::kNoAcceleration};
     double in_target_{0.0};
     double in_accel_{0.0};
     int    in_hold_{0};
     double in_step_{0.0};
 
     // synchronization
-    double in_beat_dev_{0.0};
-    double in_tempo_dev_{0.0};
+    double in_sync_beats_{0.0};
+    double in_sync_tempo_{0.0};
     microseconds in_sync_time_{0};
 
     // meter
     Meter in_meter_{};
-    bool reset_meter_{false};
 
     // sound
     std::array<SoundParameters, kNumAccents> in_sounds_;
@@ -156,34 +165,99 @@ namespace audio {
     Ticker::Statistics out_stats_;
     bool has_stats_{false};
 
-    std::atomic_flag tempo_imported_flag_;
-    std::atomic_flag accel_imported_flag_;
-    std::atomic_flag sync_imported_flag_;
-    std::atomic_flag meter_imported_flag_;
-    std::array<std::atomic_flag, kNumAccents> sound_imported_flags_;
+    enum OpFlag
+    {
+      kOpFlagTempo       = 0,
+      kOpFlagAccelCS     = 1,
+      kOpFlagAccelSW     = 2,
+      kOpFlagAccelSP     = 3,
+      kOpFlagSync        = 4,
+      kOpFlagMeter       = 5,
+      kOpFlagMeterReset  = 6,
+      kOpFlagSoundOff    = 7,
+      kOpFlagSoundWeak   = 8,
+      kOpFlagSoundMid    = 9,
+      kOpFlagSoundStrong = 10,
+      kNumOpFlags
+    };
+
+    using OpFlags = std::bitset<kNumOpFlags>;
+
+    static constexpr OpFlags kOpMaskMeter {   0b11u << kOpFlagMeter};
+    static constexpr OpFlags kOpMaskAccel {  0b111u << kOpFlagAccelCS};
+    static constexpr OpFlags kOpMaskSound { 0b1111u << kOpFlagSoundOff};
+
+    OpFlags in_ops_{0};
+
+    std::atomic_flag ops_imported_flag_;
     std::atomic_flag swap_backend_flag_;
 
     mutable SpinLock spin_mutex_;
-
-    bool importTempo();
-    bool importAccel();
-    bool importMeter();
-    bool importSync();
-    bool importSound(Accent accent);
-    bool syncSwapBackend();
-    void hardSwapBackend(std::unique_ptr<Backend>& backend);
-
-    void importGeneratorSettings();
-    bool importBackend();
-
-    void exportStatistics();
-    void exportBackend();
 
     void openBackend();
     void closeBackend();
     void startBackend();
     void stopBackend();
     void writeBackend(const void* data, size_t bytes);
+
+    bool syncSwapBackend();
+    void hardSwapBackend(std::unique_ptr<Backend>& backend);
+
+    bool importBackend();
+
+    class StreamTimer {
+    public:
+      void start(microseconds time)
+        { running_ = true; bytes_ = usecsToBytes(time, spec_); }
+      bool finished() const
+        { return running_ && bytes_ == 0; }
+      bool running() const
+        { return running_; }
+      void step(size_t bytes)
+        { bytes_ = (bytes < bytes_) ? bytes_-bytes : 0; }
+      microseconds remaining() const
+        { return bytesToUsecs(bytes_, spec_); }
+      void reset()
+        { running_ = false; bytes_ = 0; }
+      void switchStreamSpec(const StreamSpec& spec)
+        {
+          if (bytes_ != 0) bytes_ = usecsToBytes(remaining(), spec);
+          spec_ = spec;
+        }
+    private:
+      StreamSpec spec_{kDefaultSpec};
+      bool running_{false};
+      size_t bytes_{0};
+    };
+
+    static constexpr microseconds kDefaultAccelSuspendTime = 2s;
+    StreamTimer accel_suspend_timer_;
+    bool accel_suspend_blocked_{false};
+    AccelMode accel_mode_{AccelMode::kNoAccel};
+
+    bool suspendAccel(microseconds time = kDefaultAccelSuspendTime);
+    void reinstateAccel();
+    void abortAccelSuspend()
+      { accel_suspend_timer_.reset(); }
+    bool isAccelSuspended() const
+      { return accel_suspend_timer_.running(); }
+    void updateAccelSuspendTimer(size_t bytes)
+      { accel_suspend_timer_.step(bytes); }
+    bool isAccelSuspendExpired() const
+      { return accel_suspend_timer_.finished(); }
+    void blockAccelSuspend()
+      { if (isAccelSuspended()) reinstateAccel(); accel_suspend_blocked_ = true; }
+    void unblockAccelSuspend()
+      { accel_suspend_blocked_ = false; }
+
+    void importTempo();
+    void importAccel();
+    void importSync();
+    void importMeter();
+    void importSound();
+    void importGeneratorSettings();
+
+    void exportStatistics();
 
     std::unique_ptr<std::thread> audio_thread_{nullptr};
     std::atomic<bool> stop_audio_thread_flag_{true};
