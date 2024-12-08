@@ -33,6 +33,7 @@
 #include <vector>
 #include <chrono>
 
+class Application;
 class ActionBinding;
 class ProfileListStore;
 class SettingsDialog;
@@ -51,6 +52,7 @@ public:
                                               const Glib::ustring& title_placeholder);
 private:
   Glib::RefPtr<Gtk::Builder> builder_;
+  Glib::RefPtr<Application> app_;
 
   //Bindings
   std::list<Glib::RefPtr<Glib::Binding>> bindings_;
