@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 namespace {
 
@@ -69,13 +70,16 @@ void AccentButtonGrid::stop()
 void AccentButtonGrid::synchronize(const audio::Ticker::Statistics& stats,
                                    const std::chrono::microseconds& sync)
 {
-  const int n_beats = meter_.beats();
-  const int n_accents = n_beats * meter_.division();
+  const int beats = meter_.beats();
+  const int division = meter_.division();
+  const int n_accents = beats * division;
 
-  if (stats.n_beats == n_beats && stats.n_accents == n_accents)
+  if (stats.beats == beats && stats.division == division)
   {
-    std::size_t next_accent = stats.next_accent;
-    if ( next_accent < buttons_.size() )
+    int next_accent = (stats.accent + 1) % n_accents;
+    assert(next_accent >= 0);
+
+    if (next_accent < buttons_.size())
     {
       microseconds time = stats.timestamp
         + stats.backend_latency
