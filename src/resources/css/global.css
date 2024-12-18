@@ -72,16 +72,16 @@
 {
     min-width: 16px;
     min-height: 16px;
-    margin: 0px 0px 0px 0px;
-    background-color: alpha(currentColor, 0.08);
+    margin: 0px;
+    padding: 0px;
+    background-color: alpha(currentColor, 0.07);
 }
 #lcd #profileLabel
 {
-    font-size: 0.9em;
-    opacity: 0.75;
     margin: 0px;
     padding: 0px;
-
+    font-size: 0.9em;
+    opacity: 0.75;
     border-top: 1px solid;
     border-color: alpha(currentColor, 0.2);
 }
@@ -156,7 +156,7 @@ box.main-module-content
     /* The timing function should be steps(1,start) (or step_start)
      * but that doesn't work in GTK.
      */
-    animation: blinker 750ms steps(2,start) infinite;
+    animation: blinker 650ms steps(2,start) infinite;
 }
 @keyframes blinker
 {
