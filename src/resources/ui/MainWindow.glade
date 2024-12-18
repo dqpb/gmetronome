@@ -578,14 +578,14 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
   </object>
   <object class="GtkAdjustment" id="trainerHoldAdjustment">
     <property name="lower">1</property>
-    <property name="upper">999</property>
+    <property name="upper">99</property>
     <property name="value">4</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="trainerStepAdjustment">
     <property name="lower">1</property>
-    <property name="upper">250</property>
+    <property name="upper">99</property>
     <property name="value">8</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
