@@ -43,7 +43,6 @@ namespace audio {
   Ticker::Ticker()
     : backend_ {createBackend(BackendIdentifier::kNone)}
   {
-    ops_imported_flag_.test_and_set();
     swap_backend_flag_.test_and_set();
   }
 
@@ -188,8 +187,6 @@ namespace audio {
 
     in_ops_.reset (kOpFlagSync);
     in_ops_.set   (kOpFlagTempo);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::accelerate(double accel, double target)
@@ -201,8 +198,6 @@ namespace audio {
 
     in_ops_ &= ~kOpMaskAccel;
     in_ops_.set(kOpFlagAccelCS);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::accelerate(int hold, double step, double target)
@@ -215,8 +210,6 @@ namespace audio {
 
     in_ops_ &= ~kOpMaskAccel;
     in_ops_.set(kOpFlagAccelSW);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::stopAcceleration()
@@ -225,8 +218,6 @@ namespace audio {
 
     in_ops_ &= ~kOpMaskAccel;
     in_ops_.set(kOpFlagAccelSP);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::synchronize(double beats, double tempo, microseconds time)
@@ -238,8 +229,6 @@ namespace audio {
     in_sync_time_ = time;
 
     in_ops_.set(kOpFlagSync);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setMeter(Meter meter)
@@ -250,8 +239,6 @@ namespace audio {
 
     in_ops_ &= ~kOpMaskMeter;
     in_ops_.set(kOpFlagMeter);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::resetMeter()
@@ -260,8 +247,6 @@ namespace audio {
 
     in_ops_ &= ~kOpMaskMeter;
     in_ops_.set(kOpFlagMeterReset);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   void Ticker::setSound(Accent accent, const SoundParameters& params)
@@ -271,8 +256,6 @@ namespace audio {
     in_sounds_[accent] = params;
 
     in_ops_.set(kOpFlagSoundOff + accent);
-
-    ops_imported_flag_.clear(std::memory_order_release);
   }
 
   Ticker::Statistics Ticker::getStatistics()
@@ -492,73 +475,77 @@ namespace audio {
     else return false;
   }
 
-  bool Ticker::suspendAccel(microseconds time)
+  void Ticker::deferAccel(microseconds time)
   {
-    if (!accel_suspend_blocked_ && accel_mode_ != AccelMode::kNoAccel)
+    accel_defer_timer_.start(time);
+  }
+
+  bool Ticker::tryAmendAccel(bool force)
+  {
+    if (!isAccelDeferred())
+      return true;
+
+    std::unique_lock<SpinLock> lck(spin_mutex_, std::defer_lock);
+
+    if (force)
+      lck.lock();
+    else
+      static_cast<void>(lck.try_lock()); // try_lock has [[nodiscard]]
+
+    if (lck.owns_lock())
     {
-      accel_suspend_timer_.start(time);
+      importAccelModeParams();
+      accel_defer_timer_.reset();
+
       return true;
     }
     else return false;
   }
 
-  void Ticker::reinstateAccel()
+  void Ticker::abortAccelDefer()
   {
-    if (accel_mode_ == AccelMode::kContinuous)
-      stream_ctrl_.accelerate(stream_ctrl_.acceleration(), stream_ctrl_.target());
-
-    else if (accel_mode_ == AccelMode::kStepwise)
-      stream_ctrl_.accelerate(stream_ctrl_.hold(),
-                              stream_ctrl_.step(),
-                              stream_ctrl_.target());
-
-    accel_suspend_timer_.reset();
+    accel_defer_timer_.reset();
   }
 
   void Ticker::importTempo()
   {
     stream_ctrl_.setTempo(in_tempo_);
     in_ops_.reset(kOpFlagTempo);
-
-    if (!suspendAccel())
-      reinstateAccel();
   }
 
-  void Ticker::importAccel()
+  void Ticker::importAccelMode()
   {
-    if (isAccelSuspended())
-      abortAccelSuspend();
-
     if (in_ops_.test(kOpFlagAccelCS))
     {
-      stream_ctrl_.accelerate(in_accel_, in_target_);
-
       in_ops_.reset(kOpFlagAccelCS);
       accel_mode_ = AccelMode::kContinuous;
     }
     else if (in_ops_.test(kOpFlagAccelSW))
     {
-      stream_ctrl_.accelerate(in_hold_, in_step_, in_target_);
-
       in_ops_.reset(kOpFlagAccelSW);
       accel_mode_ = AccelMode::kStepwise;
     }
     else if (in_ops_.test(kOpFlagAccelSP))
     {
-      stream_ctrl_.setTempo(in_tempo_);
-
       in_ops_.reset(kOpFlagAccelSP);
       accel_mode_ = AccelMode::kNoAccel;
     }
+  }
+
+  void Ticker::importAccelModeParams()
+  {
+    if (accel_mode_ == AccelMode::kContinuous)
+      stream_ctrl_.accelerate(in_accel_, in_target_);
+    else if (accel_mode_ == AccelMode::kStepwise)
+      stream_ctrl_.accelerate(in_hold_, in_step_, in_target_);
+    else if (accel_mode_ == AccelMode::kNoAccel)
+      stream_ctrl_.setTempo(in_tempo_);
   }
 
   void Ticker::importSync()
   {
     stream_ctrl_.synchronize(in_sync_beats_, in_sync_tempo_, in_sync_time_);
     in_ops_.reset(kOpFlagSync);
-
-    if (!suspendAccel(in_sync_time_ + kDefaultAccelSuspendTime))
-      reinstateAccel(); // this will effectively nullify the sync op
   }
 
   void Ticker::importMeter()
@@ -600,50 +587,124 @@ namespace audio {
     }
   }
 
-  void Ticker::importGeneratorSettings()
+  void Ticker::importSettingsInitial()
   {
-     if (!ops_imported_flag_.test_and_set(std::memory_order_acquire))
+    std::unique_lock<SpinLock> lck(spin_mutex_);
+
+    // Ignore Sync
+    if (in_ops_.test(kOpFlagSync))
+      in_ops_.reset(kOpFlagSync);
+
+    // Accel and Tempo
+    if ((in_ops_ & kOpMaskAccel).any())
+      importAccelMode();
+
+    if (in_ops_.test(kOpFlagTempo))
+      importTempo();
+
+    if (accel_mode_ != AccelMode::kNoAccel)
+      importAccelModeParams();
+
+    // Meter
+    if ((in_ops_ & kOpMaskMeter).any())
+      importMeter();
+
+    // Sound
+    if ((in_ops_ & kOpMaskSound).any())
+      importSound();
+  }
+
+  bool Ticker::tryImportSettings(bool force)
+  {
+    std::unique_lock<SpinLock> lck(spin_mutex_, std::defer_lock);
+
+    if (force)
+      lck.lock();
+    else
+      static_cast<void>(lck.try_lock()); // try_lock has [[nodiscard]]
+
+    if (lck.owns_lock())
     {
-      if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-          lck.owns_lock())
+      if (in_ops_.any())
       {
+        // Tempo
         if (in_ops_.test(kOpFlagTempo))
+        {
           importTempo();
+          if (accel_mode_ != AccelMode::kNoAccel)
+            deferAccel();
+        }
 
+        // Sync
         if (in_ops_.test(kOpFlagSync))
+        {
           importSync();
+          deferAccel(in_sync_time_ + kDefaultAccelDeferTime);
+        }
 
+        // Accel
         if ((in_ops_ & kOpMaskAccel).any())
-          importAccel();
+        {
+          auto old_mode = accel_mode_;
+
+          importAccelMode();
+
+          bool mode_changed = accel_mode_ != old_mode;
+
+          if (isAccelDeferred() && mode_changed && accel_mode_ == AccelMode::kNoAccel)
+            abortAccelDefer();
+
+          if (!isAccelDeferred())
+            importAccelModeParams();
+        }
 
         if ((in_ops_ & kOpMaskMeter).any())
           importMeter();
 
         if ((in_ops_ & kOpMaskSound).any())
           importSound();
-
-        if (in_ops_.any())
-          ops_imported_flag_.clear(std::memory_order_release);
       }
+      return true;
     }
+    else return false;
   }
 
-  void Ticker::exportStatistics()
+  bool Ticker::tryExportStatistics(bool force)
   {
-    if (std::unique_lock<SpinLock> lck(spin_mutex_, std::try_to_lock);
-        lck.owns_lock())
+    std::unique_lock<SpinLock> lck(spin_mutex_, std::defer_lock);
+
+    if (force)
+      lck.lock();
+    else
+      static_cast<void>(lck.try_lock()); // try_lock has [[nodiscard]]
+
+    if (lck.owns_lock())
     {
       out_stats_.timestamp = microseconds(g_get_monotonic_time());
 
       const auto& gen_stats = stream_ctrl_.status();
       const auto& meter = stream_ctrl_.meter();
 
+      out_stats_.mode         = accel_mode_;
+      out_stats_.pending      = isAccelDeferred();
+      out_stats_.syncing      = gen_stats.mode == TempoMode::kSync;
+
       out_stats_.position     = gen_stats.position;
       out_stats_.tempo        = gen_stats.tempo;
       out_stats_.acceleration = gen_stats.acceleration;
-      out_stats_.n_beats      = meter.beats();
-      out_stats_.n_accents    = meter.beats() * meter.division();
-      out_stats_.next_accent       = gen_stats.next_accent;
+
+      if (isAccelDeferred())
+        out_stats_.target     = in_target_;
+      else
+        out_stats_.target     = stream_ctrl_.target();
+
+      out_stats_.hold = gen_stats.hold;
+
+      // Meter
+      out_stats_.default_meter     = !stream_ctrl_.isMeterEnabled();
+      out_stats_.beats             = meter.beats();
+      out_stats_.division          = meter.division();
+      out_stats_.accent            = gen_stats.accent;
       out_stats_.next_accent_delay = gen_stats.next_accent_delay;
       out_stats_.generator         = gen_stats.generator;
 
@@ -653,7 +714,10 @@ namespace audio {
         out_stats_.backend_latency = 0us;
 
       has_stats_ = true;
+
+      return true;
     }
+    else return false;
   }
 
   void Ticker::audioThreadFunction() noexcept
@@ -665,11 +729,9 @@ namespace audio {
       openBackend(); // sets actual_device_config_
       stream_ctrl_.prepare(actual_device_config_.spec);
 
-      accel_suspend_timer_.switchStreamSpec(actual_device_config_.spec);
+      accel_defer_timer_.switchStreamSpec(actual_device_config_.spec);
 
-      blockAccelSuspend();
-      importGeneratorSettings();
-      unblockAccelSuspend();
+      importSettingsInitial();
 
       stream_ctrl_.start(kFillBufferGenerator);
       startBackend();
@@ -682,28 +744,30 @@ namespace audio {
           openBackend(); // updates actual_device_config_
           stream_ctrl_.prepare(actual_device_config_.spec);
 
-          accel_suspend_timer_.switchStreamSpec(actual_device_config_.spec);
+          accel_defer_timer_.switchStreamSpec(actual_device_config_.spec);
 
           startBackend();
         }
-        importGeneratorSettings();
 
-        // reinstate accel mode before the new cycle
-        if (isAccelSuspended() && isAccelSuspendExpired())
-          reinstateAccel();
+        tryExportStatistics();
+
+        tryImportSettings();
+
+        // make up deferred accel mode before the new cycle
+        if (isAccelDeferred() && isAccelDeferExpired())
+          tryAmendAccel();
 
         stream_ctrl_.cycle(data, bytes);
         writeBackend(data, bytes);
-        updateAccelSuspendTimer(bytes);
 
-        exportStatistics();
+        updateAccelDeferTimer(bytes);
       }
 
-      if (isAccelSuspended())
-        reinstateAccel();
+      if (isAccelDeferred())
+        tryAmendAccel(true);
 
       stream_ctrl_.stop();
-      exportStatistics();
+      tryExportStatistics(true);
       stopBackend();
     }
     catch(...)

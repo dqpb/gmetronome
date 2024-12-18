@@ -57,13 +57,24 @@ namespace audio {
     struct Statistics
     {
       microseconds  timestamp {0us};
+
+      AccelMode     mode {AccelMode::kNoAccel};
+      bool          pending {false};
+      bool          syncing {false};
+
       double        position {0.0};
       double        tempo {0.0};
       double        acceleration {0.0};
-      int           n_beats {-1};
-      int           n_accents {-1};
-      int           next_accent {-1};
+      double        target {0.0};
+
+      int           hold {0};
+
+      bool          default_meter {true};
+      int           beats {-1};
+      int           division {-1};
+      int           accent {-1};
       microseconds  next_accent_delay {0us};
+
       GeneratorId   generator {kInvalidGenerator};
       microseconds  backend_latency {0us};
     };
@@ -162,9 +173,7 @@ namespace audio {
     // sound
     std::array<SoundParameters, kNumAccents> in_sounds_;
 
-    Ticker::Statistics out_stats_;
-    bool has_stats_{false};
-
+    // input operations
     enum OpFlag
     {
       kOpFlagTempo       = 0,
@@ -189,10 +198,11 @@ namespace audio {
 
     OpFlags in_ops_{0};
 
-    std::atomic_flag ops_imported_flag_;
     std::atomic_flag swap_backend_flag_;
-
     mutable SpinLock spin_mutex_;
+
+    Ticker::Statistics out_stats_;
+    bool has_stats_{false};
 
     void openBackend();
     void closeBackend();
@@ -205,59 +215,34 @@ namespace audio {
 
     bool importBackend();
 
-    class StreamTimer {
-    public:
-      void start(microseconds time)
-        { running_ = true; bytes_ = usecsToBytes(time, spec_); }
-      bool finished() const
-        { return running_ && bytes_ == 0; }
-      bool running() const
-        { return running_; }
-      void step(size_t bytes)
-        { bytes_ = (bytes < bytes_) ? bytes_-bytes : 0; }
-      microseconds remaining() const
-        { return bytesToUsecs(bytes_, spec_); }
-      void reset()
-        { running_ = false; bytes_ = 0; }
-      void switchStreamSpec(const StreamSpec& spec)
-        {
-          if (bytes_ != 0) bytes_ = usecsToBytes(remaining(), spec);
-          spec_ = spec;
-        }
-    private:
-      StreamSpec spec_{kDefaultSpec};
-      bool running_{false};
-      size_t bytes_{0};
-    };
-
-    static constexpr microseconds kDefaultAccelSuspendTime = 2s;
-    StreamTimer accel_suspend_timer_;
-    bool accel_suspend_blocked_{false};
+    // current accel mode
     AccelMode accel_mode_{AccelMode::kNoAccel};
 
-    bool suspendAccel(microseconds time = kDefaultAccelSuspendTime);
-    void reinstateAccel();
-    void abortAccelSuspend()
-      { accel_suspend_timer_.reset(); }
-    bool isAccelSuspended() const
-      { return accel_suspend_timer_.running(); }
-    void updateAccelSuspendTimer(size_t bytes)
-      { accel_suspend_timer_.step(bytes); }
-    bool isAccelSuspendExpired() const
-      { return accel_suspend_timer_.finished(); }
-    void blockAccelSuspend()
-      { if (isAccelSuspended()) reinstateAccel(); accel_suspend_blocked_ = true; }
-    void unblockAccelSuspend()
-      { accel_suspend_blocked_ = false; }
+    // accel mode suspension handling
+    static constexpr microseconds kDefaultAccelDeferTime = 2s;
+
+    StreamTimer accel_defer_timer_;
+
+    void deferAccel(microseconds time = kDefaultAccelDeferTime);
+    bool tryAmendAccel(bool force = false);
+    void abortAccelDefer();
+    bool isAccelDeferred() const
+      { return accel_defer_timer_.running(); }
+    void updateAccelDeferTimer(size_t bytes)
+      { accel_defer_timer_.step(bytes); }
+    bool isAccelDeferExpired() const
+      { return accel_defer_timer_.finished(); }
 
     void importTempo();
-    void importAccel();
+    void importAccelMode();
+    void importAccelModeParams();
     void importSync();
     void importMeter();
     void importSound();
-    void importGeneratorSettings();
+    void importSettingsInitial();
+    bool tryImportSettings(bool force = false);
 
-    void exportStatistics();
+    bool tryExportStatistics(bool force = false);
 
     std::unique_ptr<std::thread> audio_thread_{nullptr};
     std::atomic<bool> stop_audio_thread_flag_{true};
