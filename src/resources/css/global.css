@@ -63,7 +63,7 @@
 }
 #lcd #holdLabel
 {
-    margin: 0px 0px 0px 5px;
+    margin: 0px 2px;
     padding: 0.0em;
     font-size: 1.4em;
     font-weight: normal;
@@ -72,7 +72,7 @@
 {
     min-width: 16px;
     min-height: 16px;
-    margin: 0px 0px 0px 2px;
+    margin: 0px 0px 0px 0px;
     background-color: alpha(currentColor, 0.08);
 }
 #lcd #profileLabel

@@ -328,11 +328,21 @@ LCD::LCD()
   hold_label_.set_halign(Gtk::ALIGN_END);
   hold_label_.set_valign(Gtk::ALIGN_CENTER);
 
-  stat_box_.pack_end(tempo_frac_label_, Gtk::PACK_EXPAND_WIDGET);
   tempo_frac_label_.set_name("tempoFracLabel");
   tempo_frac_label_.set_halign(Gtk::ALIGN_START);
   tempo_frac_label_.set_valign(Gtk::ALIGN_CENTER);
   tempo_frac_label_.reset(true, true);
+
+  if (get_direction() == Gtk::TEXT_DIR_RTL)
+  {
+    tempo_frac_label_.set_halign(Gtk::ALIGN_END);
+    stat_box_.pack_start(tempo_frac_label_, Gtk::PACK_EXPAND_WIDGET);
+  }
+  else
+  {
+    tempo_frac_label_.set_halign(Gtk::ALIGN_START);
+    stat_box_.pack_end(tempo_frac_label_, Gtk::PACK_EXPAND_WIDGET);
+  }
 
   stat_box_.set_center_widget(tempo_int_label_);
   tempo_int_label_.set_name("tempoIntLabel");
