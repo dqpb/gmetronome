@@ -101,6 +101,7 @@ resources = \
 	$(resourcesdir)/ui/SettingsDialog.glade \
 	$(resourcesdir)/ui/SoundThemeEditor.glade \
 	$(resourcesdir)/icons/gm-access-profile-symbolic.svg \
+	$(resourcesdir)/icons/gm-access-profile-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-access-menu-symbolic.svg \
 	$(resourcesdir)/icons/gm-access-accent-symbolic.svg \
 	$(resourcesdir)/icons/gm-access-trainer-symbolic.svg \
@@ -114,24 +115,38 @@ resources = \
 	$(resourcesdir)/icons/gm-snd-timbre-symbolic.svg \
 	$(resourcesdir)/icons/gm-snd-crossfade-symbolic.svg \
 	$(resourcesdir)/icons/gm-snd-volume-muted-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-muted-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-volume-zero-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-zero-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-volume-low-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-low-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-volume-medium-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-medium-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-volume-high-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-high-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-volume-full-symbolic.svg \
+	$(resourcesdir)/icons/gm-snd-volume-full-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-snd-balance-symbolic.svg \
 	$(resourcesdir)/icons/gm-snd-balance-left-symbolic.svg \
 	$(resourcesdir)/icons/gm-snd-balance-right-symbolic.svg \
 	$(resourcesdir)/icons/gm-target-hit-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-keep-symbolic.svg \
 	$(resourcesdir)/icons/gm-curve-linear-up-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-linear-up-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-linear-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-linear-down-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-stepwise-up-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-stepwise-up-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-stepwise-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-stepwise-down-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-up-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-up-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-up-flipped-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-up-flipped-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-down-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-down-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-cubic-down-flipped-symbolic.svg \
+	$(resourcesdir)/icons/gm-curve-cubic-down-flipped-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-quartic-symbolic.svg \
 	$(resourcesdir)/css/global.css
 

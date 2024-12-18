@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 4.2333334 4.2333336"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="gm-access-profile-symbolic-rtl.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="40.993491"
+     inkscape:cx="9.7454496"
+     inkscape:cy="7.8792997"
+     inkscape:window-width="1920"
+     inkscape:window-height="1147"
+     inkscape:window-x="0"
+     inkscape:window-y="29"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg5"
+     units="px"
+     inkscape:snap-global="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:object-nodes="true"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4773"
+       originx="0"
+       originy="0"
+       spacingy="0.26458334"
+       spacingx="0.26458336"
+       units="px"
+       enabled="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect7884"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect3417"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect3164"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+  </defs>
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.57476;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect8"
+     width="1.8520834"
+     height="0.5291667"
+     x="-2.3812501"
+     y="2.9104166"
+     transform="scale(-1,1)" />
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.57476;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect7"
+     width="1.8520834"
+     height="0.52916664"
+     x="-2.3812501"
+     y="1.8520834"
+     transform="scale(-1,1)" />
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.57477;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect6"
+     width="1.8520834"
+     height="0.52916658"
+     x="-2.3812501"
+     y="0.79374999"
+     transform="scale(-1,1)" />
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.36949;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect2"
+     width="0.79375005"
+     height="0.5291667"
+     x="-3.7041669"
+     y="2.9104164"
+     transform="scale(-1,1)" />
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.04904;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect3"
+     width="0.79375005"
+     height="0.5291667"
+     x="-3.7041669"
+     y="1.8520833"
+     transform="scale(-1,1)" />
+  <rect
+     style="display:inline;fill:#000000;stroke-width:1.3432;stroke-linecap:round;stroke-opacity:0.369099"
+     id="rect1"
+     width="0.79375005"
+     height="0.52916676"
+     x="-3.7041669"
+     y="0.79374975"
+     transform="scale(-1,1)" />
+  <metadata
+     id="metadata4775">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>dqpb &lt;dqpb@mailbox.org&gt;</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Copyright (C) 2023 The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>The GMetronome Team</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:source>https://gitlab.gnome.org/dqpb/gmetronome</dc:source>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
