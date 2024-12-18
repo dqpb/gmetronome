@@ -74,9 +74,7 @@ private:
   // UI elements
   class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
-  Gtk::Box* header_bar_title_box_;
-  TempoDisplay tempo_display_;
-  Gtk::Label* current_profile_label_;
+  LCD lcd_;
   Gtk::Button* full_screen_button_;
   Gtk::Image* full_screen_image_;
   Gtk::MenuButton* main_menu_button_;

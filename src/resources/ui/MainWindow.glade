@@ -439,37 +439,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="spacing">5</property>
     <property name="show-close-button">True</property>
     <child type="title">
-      <object class="GtkBox" id="headerBarTitleBox">
-        <property name="name">headerBarTitleBox</property>
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="valign">center</property>
-        <property name="hexpand">True</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkLabel" id="currentProfileLabel">
-            <property name="name">currentProfileLabel</property>
-            <property name="can-focus">False</property>
-            <property name="label">Default</property>
-            <property name="ellipsize">end</property>
-            <property name="single-line-mode">True</property>
-            <property name="max-width-chars">30</property>
-            <property name="track-visited-links">False</property>
-            <style>
-              <class name="smaller"/>
-            </style>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack-type">end</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
+      <placeholder/>
     </child>
     <child>
       <object class="GtkMenuButton" id="profileMenuButton">
@@ -484,7 +454,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
           <object class="GtkImage">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="icon-name">view-list-symbolic</property>
+            <property name="icon-name">gm-access-profile-symbolic</property>
           </object>
         </child>
       </object>
@@ -582,7 +552,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
           <object class="GtkImage">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="icon-name">open-menu-symbolic</property>
+            <property name="icon-name">gm-access-menu-symbolic</property>
           </object>
         </child>
       </object>
@@ -1514,22 +1484,18 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="relief">none</property>
                             <property name="orientation">vertical</property>
                             <property name="adjustment">volumeAdjustment</property>
+                            <property name="icons">
+</property>
                             <child internal-child="plus_button">
                               <object class="GtkButton">
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
-                                <property name="relief">none</property>
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
                               </object>
                             </child>
                             <child internal-child="minus_button">
                               <object class="GtkButton">
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
-                                <property name="relief">none</property>
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
                               </object>
                             </child>
                           </object>

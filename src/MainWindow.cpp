@@ -159,8 +159,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   app_ = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
 
   builder_->get_widget("headerBar", header_bar_);
-  builder_->get_widget("headerBarTitleBox", header_bar_title_box_);
-  builder_->get_widget("currentProfileLabel", current_profile_label_);
   builder_->get_widget("fullScreenButton", full_screen_button_);
   builder_->get_widget("fullScreenImage", full_screen_image_);
   builder_->get_widget("mainMenuButton", main_menu_button_);
@@ -297,9 +295,10 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
-  header_bar_title_box_->pack_start(tempo_display_, Gtk::PACK_EXPAND_WIDGET);
-  tempo_display_.set_name("tempoDisplay");
-  tempo_display_.show();
+  header_bar_->set_custom_title(lcd_);
+  lcd_.set_name("lcd");
+  lcd_.set_hexpand(false);
+  lcd_.show();
   updateCurrentTempo(audio::Ticker::Statistics{});
 
   // initialize info bar
@@ -1331,23 +1330,12 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
     bool is_placeholder = title.empty() ? true : false;
     const Glib::ustring& profile_title = is_placeholder ? profile_title_placeholder_ : title;
 
-    auto style_context = current_profile_label_->get_style_context();
-    if (is_placeholder)
-    {
-      if (!style_context->has_class("placeholder"))
-        style_context->add_class("placeholder");
-    }
-    else if (style_context->has_class("placeholder"))
-      style_context->remove_class("placeholder");
-
-    current_profile_label_->set_text(profile_title);
-    current_profile_label_->show();
+    lcd_.setProfileTitle(profile_title, is_placeholder);
     Gtk::Window::set_title(Glib::get_application_name() + " - " + profile_title);
   }
   else
   {
-    current_profile_label_->hide();
-    current_profile_label_->set_text("");
+    lcd_.unsetProfileTitle();
     Gtk::Window::set_title(Glib::get_application_name());
   }
 }
@@ -1423,7 +1411,7 @@ void MainWindow::updateVolumeMute(bool mute)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  tempo_display_.display(stats.tempo, stats.acceleration);
+  lcd_.updateStatistics(stats);
 }
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
