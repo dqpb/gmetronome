@@ -95,7 +95,7 @@ namespace audio {
     status.position = - ctrl.tempo() * time_left.count() / 60.0;
     status.tempo = ctrl.tempo();
     status.acceleration = 0.0;
-    status.next_accent = 0;
+    status.accent = -1;
     status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
     status.generator = kFillBufferGenerator;
   }
@@ -249,16 +249,12 @@ namespace audio {
 
   void RegularGenerator::updateStatus(BeatStreamController& ctrl, StreamStatus& status)
   {
-    const Meter& meter = ctrl.meter();
-    const AccentPattern& accents = meter.accents();
-
     status.position     = k_.position();
     status.tempo        = k_.tempo();
     status.mode         = effectiveMode(ctrl);
     status.acceleration = k_.acceleration();
-    // status.hold         = ;
-    // status.step         = ;
-    status.next_accent  = (accent_ + 1) % accents.size();
+    status.hold         = hold_;
+    status.accent       = accent_;
 
     const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
 
@@ -300,7 +296,18 @@ namespace audio {
       accent_ = (accent_ + 1) % accents.size();
       accent_point_ = true;
 
-      handleStepwise(ctrl);
+      // step hold value on beat position
+      if (accent_ % meter.division() == 0)
+      {
+        hold_ -= 1;
+        if (hold_ <= 0)
+        {
+          if (ctrl.mode() == TempoMode::kStepwise)
+            accelerateStepwise(ctrl);
+
+          hold_ = ctrl.hold();
+        }
+      }
 
       updateFramesLeft(ctrl);
     }
@@ -312,44 +319,27 @@ namespace audio {
 
   void RegularGenerator::recomputeStepwise(BeatStreamController& ctrl)
   {
-    int beats = (accent_point_) ? std::round(ctrl.meter().beats()) : ctrl.meter().beats();
-    int gcd = std::gcd(ctrl.hold(), beats);
+    int meter_beats    = ctrl.meter().beats();
+    int meter_division = ctrl.meter().division();
 
-    if (gcd > 1)
+    if (int gcd = std::gcd(ctrl.hold(), meter_beats); gcd > 1)
     {
-      int offset = (hold_pos_ / beats) * beats;
-      hold_pos_ = (offset + (int) k_.position()) % ctrl.hold();
+      int beat = accent_ / meter_division;                // current beat
+      int rem_beat = (meter_beats - beat);                // remaining beats in measure
+      int offset = std::remainder(rem_beat - hold_, gcd); // displacement (mod gcd)
+
+      hold_ = aux::math::modulo(hold_ + offset, ctrl.hold());
+
+      if (hold_ == 0)
+        hold_ = ctrl.hold();
     }
     else
-    {
-      hold_pos_ = hold_pos_ % ctrl.hold();
-    }
+      hold_ = std::min(hold_, ctrl.hold());
   }
 
   void RegularGenerator::resetStepwise(BeatStreamController& ctrl)
   {
-    hold_pos_ = 0;
-  }
-
-  void RegularGenerator::handleStepwise(BeatStreamController& ctrl)
-  {
-    if (ctrl.mode() != TempoMode::kStepwise)
-      return;
-
-    if (!accent_point_)
-      return;
-
-    const Meter& meter = ctrl.meter();
-
-    if (accent_ % meter.division() == 0)
-    {
-      hold_pos_ += 1;
-      if (hold_pos_ >= ctrl.hold())
-      {
-        accelerateStepwise(ctrl);
-        hold_pos_ = 0;
-      }
-    }
+    hold_ = ctrl.hold();
   }
 
   void RegularGenerator::accelerateStepwise(BeatStreamController& ctrl)
@@ -398,8 +388,8 @@ namespace audio {
 
   // DrainGenerator
   //
-  void DrainGenerator::cycle(BeatStreamController& ctrl,
-                             const void*& data, size_t& bytes)
+  void DrainBufferGenerator::cycle(BeatStreamController& ctrl,
+                                   const void*& data, size_t& bytes)
   {
     // not implemented yet
   }
