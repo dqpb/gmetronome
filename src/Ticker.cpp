@@ -602,8 +602,7 @@ namespace audio {
     if (in_ops_.test(kOpFlagTempo))
       importTempo();
 
-    if (accel_mode_ != AccelMode::kNoAccel)
-      importAccelModeParams();
+    importAccelModeParams();
 
     // Meter
     if ((in_ops_ & kOpMaskMeter).any())
