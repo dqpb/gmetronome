@@ -55,8 +55,7 @@ namespace audio {
     TempoMode    mode {TempoMode::kConstant};
     double       acceleration {0.0};
     int          hold {0};
-    double       step {0.0};
-    int          next_accent {0};
+    int          accent {0};
     microseconds next_accent_delay {0us};
     GeneratorId  generator {kInvalidGenerator};
   };
@@ -370,19 +369,19 @@ namespace audio {
   class FillBufferGenerator;
   class PreCountGenerator;
   class RegularGenerator;
-  class DrainGenerator;
+  class DrainBufferGenerator;
 
   using BeatStreamController = StreamController<
     FillBufferGenerator,
     PreCountGenerator,
     RegularGenerator,
-    DrainGenerator
+    DrainBufferGenerator
     >;
 
-  constexpr GeneratorId kFillBufferGenerator = 0;
-  constexpr GeneratorId kPreCountGenerator   = 1;
-  constexpr GeneratorId kRegularGenerator    = 2;
-  constexpr GeneratorId kDrainGenerator      = 3;
+  constexpr GeneratorId kFillBufferGenerator  = 0;
+  constexpr GeneratorId kPreCountGenerator    = 1;
+  constexpr GeneratorId kRegularGenerator     = 2;
+  constexpr GeneratorId kDrainBufferGenerator = 3;
 
   /**
    * @class FillBufferGenerator
@@ -435,7 +434,7 @@ namespace audio {
     size_t accent_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
-    int hold_pos_{0};
+    int hold_{0};
 
     void updateFramesLeft(BeatStreamController& ctrl);
     void step(BeatStreamController& ctrl, size_t frames_chunk);
@@ -448,11 +447,39 @@ namespace audio {
   };
 
   /**
-   * @class DrainGenerator
+   * @class DrainBufferGenerator
    */
-  class DrainGenerator : public StreamGenerator<BeatStreamController> {
+  class DrainBufferGenerator : public StreamGenerator<BeatStreamController> {
   public:
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
+  };
+
+  /**
+   * @class StreamTimer
+   */
+  class StreamTimer {
+  public:
+    void start(microseconds time)
+      { running_ = true; bytes_ = usecsToBytes(time, spec_); }
+    bool finished() const
+      { return running_ && bytes_ == 0; }
+    bool running() const
+      { return running_; }
+    void step(size_t bytes)
+      { bytes_ = (bytes < bytes_) ? bytes_-bytes : 0; }
+    microseconds remaining() const
+      { return bytesToUsecs(bytes_, spec_); }
+    void reset()
+      { running_ = false; bytes_ = 0; }
+    void switchStreamSpec(const StreamSpec& spec)
+      {
+        if (bytes_ != 0) bytes_ = usecsToBytes(remaining(), spec);
+        spec_ = spec;
+      }
+  private:
+    StreamSpec spec_{kDefaultSpec};
+    bool running_{false};
+    size_t bytes_{0};
   };
 
 }//namespace audio
