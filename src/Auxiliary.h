@@ -51,8 +51,16 @@ namespace aux {
      * @brief     Modulo operation that uses the largest integer value
      *            not greater than the result of the division (std::floor)
      */
-    constexpr double modulo(double x, double y)
-    { return x - y * std::floor( x / y ); }
+    template<typename T>
+    constexpr std::enable_if_t<std::is_floating_point_v<T>, T> modulo(T a, T b)
+    { return a - b * std::floor( a / b ); }
+
+    /**
+     * @brief     Overloads for integral types
+     */
+    template<typename T>
+    constexpr std::enable_if_t<std::is_integral_v<T>, T> modulo(T a, T b)
+    { return (a % b + b) % b; }
 
   }//namespace math
 }//namespace aux
