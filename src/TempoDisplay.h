@@ -101,8 +101,8 @@ public:
 
   StatusIcon() = default;
 
-  void switchIcon(StatusIcon::Image id);
-  Image currentIcon() const
+  void switchImage(StatusIcon::Image id);
+  Image image() const
     { return id_; }
 
   void enableBlink();

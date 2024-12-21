@@ -32,7 +32,7 @@
 namespace
 {
   const Glib::ustring kBlinkClassName = "blink";
-  constexpr double kDimAlpha = 0.08;
+  constexpr double kDimAlpha = 0.07;
 }//unnamed namespace
 
 NumericLabel::NumericLabel(std::size_t digits, int number, bool fill, bool dim)
@@ -236,7 +236,7 @@ void NumericLabel::get_preferred_height_vfunc(int& minimum_height,
   minimum_height = natural_height = digit_height_ + margin.get_top() + margin.get_bottom();
 }
 
-void StatusIcon::switchIcon(StatusIcon::Image id)
+void StatusIcon::switchImage(StatusIcon::Image id)
 {
   if (id == id_)
     return;
@@ -411,7 +411,7 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     if (stats.syncing || stats.mode == audio::Ticker::AccelMode::kContinuous)
     {
       tempo_frac_label_.display(tempo_frac);
-      status_icon_.switchIcon(StatusIcon::Image::kNone);
+      status_icon_.switchImage(StatusIcon::Image::kNone);
       hold_label_.reset();
     }
     else
@@ -420,11 +420,11 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     if (stats.mode == audio::Ticker::AccelMode::kContinuous)
     {
       if (stats.tempo < stats.target)
-        status_icon_.switchIcon(StatusIcon::Image::kContinuousUp);
+        status_icon_.switchImage(StatusIcon::Image::kContinuousUp);
       else if (stats.tempo > stats.target)
-        status_icon_.switchIcon(StatusIcon::Image::kContinuousDown);
+        status_icon_.switchImage(StatusIcon::Image::kContinuousDown);
       else
-        status_icon_.switchIcon(StatusIcon::Image::kTargetHit);
+        status_icon_.switchImage(StatusIcon::Image::kTargetHit);
 
       hold_label_.reset();
     }
@@ -432,35 +432,35 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     {
       if (stats.tempo < stats.target)
       {
-        if (stats.pending)
-          hold_label_.reset();
-        else
-          hold_label_.display(stats.hold);
+        // if (stats.pending)
+        //   hold_label_.reset();
+        // else
+        hold_label_.display(stats.hold);
 
-        status_icon_.switchIcon(StatusIcon::Image::kStepwiseUp);
+        status_icon_.switchImage(StatusIcon::Image::kStepwiseUp);
       }
       else if (stats.tempo > stats.target)
       {
-        if (stats.pending)
-          hold_label_.reset();
-        else
-          hold_label_.display(stats.hold);
+        // if (stats.pending)
+        //   hold_label_.reset();
+        // else
+        hold_label_.display(stats.hold);
 
-        status_icon_.switchIcon(StatusIcon::Image::kStepwiseDown);
+        status_icon_.switchImage(StatusIcon::Image::kStepwiseDown);
       }
       else
       {
         hold_label_.reset();
-        status_icon_.switchIcon(StatusIcon::Image::kTargetHit);
+        status_icon_.switchImage(StatusIcon::Image::kTargetHit);
       }
     }
     else
     {
       hold_label_.reset();
-      status_icon_.switchIcon(StatusIcon::Image::kNone);
+      status_icon_.switchImage(StatusIcon::Image::kNone);
     }
 
-    if (stats.pending)
+    if (stats.pending && status_icon_.image() != StatusIcon::Image::kTargetHit)
       status_icon_.enableBlink();
     else
       status_icon_.disableBlink();
@@ -471,7 +471,7 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     tempo_int_label_.zero();
     tempo_frac_label_.reset(true, true);
     hold_label_.reset();
-    status_icon_.switchIcon(StatusIcon::Image::kNone);
+    status_icon_.switchImage(StatusIcon::Image::kNone);
   }
 }
 
