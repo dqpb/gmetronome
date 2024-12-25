@@ -295,6 +295,7 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
+  header_bar_->set_vexpand(false);
   header_bar_->set_custom_title(lcd_);
   lcd_.set_name("lcd");
   lcd_.set_hexpand(false);
