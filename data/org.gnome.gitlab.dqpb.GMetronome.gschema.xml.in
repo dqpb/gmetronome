@@ -901,6 +901,11 @@
 	desired sound theme does not exist anymore, the default will be loaded instead.
       </description>
     </key>
+    <key name="round-tapped-tempo" type="b">
+      <default>true</default>
+      <summary>Wheter to round the tapped tempo to a whole number</summary>
+      <description></description>
+    </key>
     <key name="input-device-latency" type="d">
       <range min="0.0" max="10000.0"/>
       <default>0.0</default>

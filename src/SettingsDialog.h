@@ -72,6 +72,7 @@ private:
   Gtk::Switch* restore_profile_switch_;
   Gtk::Switch* link_sound_theme_switch_;
   Gtk::Switch* auto_adjust_volume_switch_;
+  Gtk::Switch* round_tapped_tempo_switch_;
 
   // Animation tab
   Gtk::ComboBoxText* pendulum_action_combo_box_;
