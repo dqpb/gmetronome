@@ -187,7 +187,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">10</property>
-                    <property name="label" translatable="yes">Round to a _whole number:</property>
+                    <property name="label" translatable="yes">Round tempo to a _whole number:</property>
                     <property name="use-underline">True</property>
                     <property name="mnemonic-widget">roundTappedTempoSwitch</property>
                   </object>
