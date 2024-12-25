@@ -26,7 +26,6 @@
 #include <ratio>
 #include <numeric>
 #include <cassert>
-#include <iomanip>
 
 #ifndef NDEBUG
 # include <iostream>
