@@ -31,6 +31,7 @@
 namespace
 {
   const Glib::ustring kBlinkClassName = "blink";
+  const Glib::ustring kPlaceholderClassName = "placeholder";
   constexpr double kDimAlpha = 0.07;
 }//unnamed namespace
 
@@ -470,11 +471,11 @@ void LCD::setProfileTitle(const Glib::ustring& title, bool is_placeholder)
   auto style_context = profile_label_.get_style_context();
   if (is_placeholder)
   {
-    if (!style_context->has_class("placeholder"))
-      style_context->add_class("placeholder");
+    if (!style_context->has_class(kPlaceholderClassName))
+      style_context->add_class(kPlaceholderClassName);
   }
-  else if (style_context->has_class("placeholder"))
-    style_context->remove_class("placeholder");
+  else if (style_context->has_class(kPlaceholderClassName))
+    style_context->remove_class(kPlaceholderClassName);
 
   profile_label_.set_text(title);
 
