@@ -32,22 +32,6 @@
 
 namespace physics {
 
-  namespace {
-
-    [[maybe_unused]] constexpr double bpm_2_bps(double bpm)
-    { return bpm / 60.0; }
-
-    [[maybe_unused]] constexpr double bps_2_bpm(double bps)
-    { return bps * 60.0; }
-
-    [[maybe_unused]] constexpr double bpm2_2_bps2(double bpm2)
-    { return bpm2 / 60.0 / 60.0; }
-
-    [[maybe_unused]] constexpr double bps2_2_bpm2(double bps2)
-    { return bps2 * 60.0 * 60.0; }
-
-  }//unnamed namespace
-
   void BeatKinematics::reset()
   {
     tempo_ = 0.0;
@@ -75,7 +59,7 @@ namespace physics {
 
   void BeatKinematics::setTempo(double tempo)
   {
-    tempo_ = bpm_2_bps(tempo);
+    tempo_ = tempo;
 
     osc_.resetVelocity(tempo_);
 
@@ -85,8 +69,8 @@ namespace physics {
 
   void BeatKinematics::accelerate(double accel, double target)
   {
-    accel_ = bpm2_2_bps2(accel);
-    target_ = bpm_2_bps(target);
+    accel_ = accel;
+    target_ = target;
 
     if (force_mode_ == ForceMode::kAccelForce)
       updateOscForce(ForceMode::kAccelForce);
@@ -94,10 +78,10 @@ namespace physics {
       switchForceMode(ForceMode::kAccelForce);
   }
 
-  void BeatKinematics::synchronize(double beat_dev, double tempo_dev, const seconds_dbl& time)
+  void BeatKinematics::synchronize(double beat_dev, double tempo_dev, const Time& time)
   {
     sync_beat_dev_ = beat_dev;
-    sync_tempo_dev_ = bpm_2_bps(tempo_dev);
+    sync_tempo_dev_ = tempo_dev;
     sync_start_tempo_ = osc_.velocity();
     sync_time_ = time;
 
@@ -119,15 +103,6 @@ namespace physics {
       switchForceMode(ForceMode::kNoForce);
   }
 
-  double BeatKinematics::position() const
-  { return osc_.position(); }
-
-  double BeatKinematics::tempo() const
-  { return bps_2_bpm(osc_.velocity()); }
-
-  double BeatKinematics::acceleration() const
-  { return bps2_2_bpm2(osc_.force().base); }
-
   void BeatKinematics::updateOscForce(ForceMode mode)
   {
     switch (mode) {
@@ -139,14 +114,15 @@ namespace physics {
 
     case ForceMode::kAccelForce:
     {
-      const auto& [force, time] = computeAccelForce(target_ - osc_.velocity(), accel_);
+      const auto& [force, time] = computeAccelForce<Time>(target_ - osc_.velocity(), accel_);
       osc_.resetForce(force, time);
     }
     break;
 
     case ForceMode::kSyncForce:
     {
-      const auto& [force, time] = computeSyncForce(sync_beat_dev_, sync_tempo_dev_, sync_time_);
+      const auto& [force, time] =
+        computeSyncForce<Time>(sync_beat_dev_, sync_tempo_dev_, sync_time_);
       osc_.resetForce(force, time);
     }
     break;
@@ -159,7 +135,7 @@ namespace physics {
     force_mode_ = mode;
   }
 
-  void BeatKinematics::step(seconds_dbl time)
+  void BeatKinematics::step(Time time)
   {
     // force phase
     if (force_mode_ != ForceMode::kNoForce)
@@ -167,21 +143,21 @@ namespace physics {
       time = osc_.step(time);
 
       // if force time is exceeded handle possible rounding errors
-      if (osc_.remainingForceTime() == kZeroTime)
+      if (osc_.remainingForceTime() == kZeroTime<Time>)
       {
         if (force_mode_ == ForceMode::kSyncForce)
           osc_.resetVelocity(sync_start_tempo_ + sync_tempo_dev_);
         else if (force_mode_ == ForceMode::kAccelForce)
           osc_.resetVelocity(target_);
       }
-      else if (time <= kZeroTime)
+      else if (time <= kZeroTime<Time>)
         return;
 
       switchForceMode(ForceMode::kNoForce);
     }
 
     // no force phase
-    if (time > kZeroTime)
+    if (time > kZeroTime<Time>)
       osc_.step(time);
   }
 
@@ -215,17 +191,17 @@ namespace physics {
     // of a force and updates position and velocity. If the position is never
     // reached or not reached within the time limit max_time, the time limit
     // is returned.
-    seconds_dbl arrival(double& p0, double& v0, double p,
-                        const Force& force, const seconds_dbl& max_time)
+    template<class T>
+    T arrival(double& p0, double& v0, double p, const Force<T>& force, const T& max_time)
     {
       double a3 = force.slope / 6.0;
       double a2 = force.base / 2.0;
       double a1 = v0;
       double a0 = p0 - p;
 
-      seconds_dbl time {posmin(aux::math::solveCubic(a3, a2, a1, a0))};
+      T time {posmin(aux::math::solveCubic(a3, a2, a1, a0))};
 
-      if (time > kZeroTime && time <= max_time)
+      if (time > kZeroTime<T> && time <= max_time)
       {
         applyForce(p0, v0, force, time);
         p0 = p; // handle limited fp precision
@@ -240,13 +216,13 @@ namespace physics {
 
   }//unnamed namespace
 
-  seconds_dbl BeatKinematics::arrival(double p_dev) const
+  BeatKinematics::Time BeatKinematics::arrival(double p_dev) const
   {
     double v0 = osc_.velocity();
     double p0 = osc_.position();
     double p = p0 + p_dev;
 
-    seconds_dbl time = kZeroTime;
+    Time time = kZeroTime<Time>;
 
     if (p == p0)
       return time;
@@ -254,8 +230,8 @@ namespace physics {
     // force phase
     if (force_mode_ != ForceMode::kNoForce)
     {
-      const Force& force = osc_.force();
-      const seconds_dbl& force_time = osc_.remainingForceTime();
+      const Force<Time>& force = osc_.force();
+      const Time& force_time = osc_.remainingForceTime();
       time += physics::arrival(p0, v0, p, force, force_time);
     }
 
@@ -264,83 +240,11 @@ namespace physics {
 
     // no force phase
     if ((v0 > 0.0 && p > p0) || (v0 < 0.0 && p < p0))
-      time += seconds_dbl((p - p0) / v0);
+      time += Time((p - p0) / v0);
     else
-      time = kInfiniteTime;
+      time = kInfiniteTime<Time>;
 
     return time;
-  }
-
-  std::pair<Force, seconds_dbl>
-  computeAccelForce(double v_dev, double a)
-  {
-    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, kZeroTime};
-    auto& [r_force, r_time] = r;
-
-    if (v_dev != 0.0)
-    {
-      if (a == 0.0)
-      {
-        r_time = kInfiniteTime;
-        r_force = {0.0, 0.0};
-      }
-      else if (seconds_dbl t { v_dev / a }; t > kZeroTime)
-      {
-        r_time = t;
-        r_force = {a, 0.0};
-      }
-      else
-      {
-        r_time = -t;
-        r_force = {-a, 0.0};
-      }
-    }
-    else
-    {
-      r_time = kZeroTime;
-      r_force = {a, 0.0};
-    }
-    return r;
-  }
-
-  std::pair<Force, seconds_dbl>
-  computeAccelForce(double v_dev, const seconds_dbl& time)
-  {
-    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
-    auto& [r_force, r_time] = r;
-
-    if (time != kZeroTime)
-    {
-      r_force.base = v_dev / time.count();
-    }
-    return r;
-  }
-
-  std::pair<Force, seconds_dbl>
-  computeSyncForce(double p_dev, double v_dev, const seconds_dbl& time)
-  {
-    std::pair<Force, seconds_dbl> r {{0.0, 0.0}, time};
-    auto& [r_force, r_time] = r;
-
-    if (time != kZeroTime)
-    {
-      double sync_time = time.count();
-      double sync_time_squared = sync_time * sync_time;
-      double sync_time_cubed = sync_time_squared * sync_time;
-
-      if (p_dev != 0.0)
-      {
-        r_force.base += 6.0 * p_dev / sync_time_squared;
-        r_force.slope += -12.0 * p_dev / sync_time_cubed;
-      }
-
-      if (v_dev != 0.0)
-      {
-        r_force.base += -2.0 * v_dev / sync_time;
-        r_force.slope += 6.0 * v_dev / sync_time_squared;
-      }
-    }
-    return r;
   }
 
   void PendulumKinematics::shutdown(const seconds_dbl& time)
@@ -359,7 +263,7 @@ namespace physics {
     do {
       time = osc_.step(time);
     }
-    while( time > kZeroTime );
+    while( time > kZeroTime<seconds_dbl> );
   }
 
 }//namespace physics
