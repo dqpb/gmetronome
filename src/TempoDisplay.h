@@ -107,11 +107,13 @@ public:
 
   void enableBlink();
   void disableBlink();
-  bool isBlinking() const;
+  bool isBlinking() const
+    { return blink_; }
 
 private:
   StatusIcon::Image id_{Image::kNone};
   Gtk::IconSize size_{Gtk::ICON_SIZE_SMALL_TOOLBAR};
+  bool blink_{false};
 };
 
 class LCD : public Gtk::Box {

@@ -27,7 +27,6 @@
 #include <cmath>
 #include <string>
 #include <array>
-#include <iomanip>
 
 namespace
 {
@@ -54,8 +53,8 @@ void NumericLabel::display(int number, bool fill, bool dim)
   if (!unset_ && number == number_ && fill_ == fill && dim_ == dim)
     return;
 
-  number_ = number;
   unset_ = false;
+  number_ = number;
   fill_ = fill;
   dim_ = dim;
 
@@ -68,8 +67,8 @@ void NumericLabel::reset(bool fill, bool dim)
   if (unset_ && fill_ == fill && dim_ == dim)
     return;
 
-  number_ = 0;
   unset_ = true;
+  number_ = 0;
   fill_ = fill;
   dim_ = dim;
 
@@ -80,7 +79,6 @@ void NumericLabel::reset(bool fill, bool dim)
 void NumericLabel::updateDigits()
 {
   std::string s = std::to_string( (number_ < 0) ? -number_ : number_);
-
   if (unset_)
     n_fill_ = kDigits_;
   else
@@ -280,28 +278,28 @@ void StatusIcon::switchImage(StatusIcon::Image id)
 
 void StatusIcon::enableBlink()
 {
+  if (blink_)
+    return;
+
   if (auto style_context = get_style_context(); style_context)
   {
     if (!style_context->has_class(kBlinkClassName))
       style_context->add_class(kBlinkClassName);
   }
+  blink_ = true;
 }
 
 void StatusIcon::disableBlink()
 {
+  if (!blink_)
+    return;
+
   if (auto style_context = get_style_context(); style_context)
   {
     if (style_context->has_class(kBlinkClassName))
       style_context->remove_class(kBlinkClassName);
   }
-}
-
-bool StatusIcon::isBlinking() const
-{
-  if (auto style_context = get_style_context(); style_context)
-    return style_context->has_class(kBlinkClassName);
-  else
-    return false;
+  blink_ = false;
 }
 
 LCD::LCD()
@@ -408,7 +406,7 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     auto [tempo_int, tempo_frac] = decomposeTempo(stats.tempo);
     tempo_int_label_.display(tempo_int);
 
-    if (stats.syncing || stats.mode == audio::Ticker::AccelMode::kContinuous)
+    if (tempo_frac != 0 || stats.mode == audio::Ticker::AccelMode::kContinuous || stats.syncing)
     {
       tempo_frac_label_.display(tempo_frac);
       status_icon_.switchImage(StatusIcon::Image::kNone);
@@ -432,20 +430,12 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     {
       if (stats.tempo < stats.target)
       {
-        // if (stats.pending)
-        //   hold_label_.reset();
-        // else
         hold_label_.display(stats.hold);
-
         status_icon_.switchImage(StatusIcon::Image::kStepwiseUp);
       }
       else if (stats.tempo > stats.target)
       {
-        // if (stats.pending)
-        //   hold_label_.reset();
-        // else
         hold_label_.display(stats.hold);
-
         status_icon_.switchImage(StatusIcon::Image::kStepwiseDown);
       }
       else
