@@ -140,7 +140,8 @@ namespace audio {
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
-    Ticker::Statistics getStatistics();
+    Ticker::Statistics getStatistics() const;
+    Ticker::Statistics getStatistics(bool consume = true);
 
     bool hasStatistics() const;
 
@@ -245,8 +246,8 @@ namespace audio {
     bool tryExportStatistics(bool force = false);
 
     std::unique_ptr<std::thread> audio_thread_{nullptr};
-    std::atomic<bool> stop_audio_thread_flag_{true};
-    std::atomic<bool> audio_thread_finished_flag_{false};
+    std::atomic_flag continue_audio_thread_flag_;
+    std::atomic<bool> audio_thread_finished_flag_{true};
     std::exception_ptr audio_thread_error_{nullptr};
     std::atomic<bool> audio_thread_error_flag_{false};
     std::condition_variable_any cond_var_;

@@ -258,10 +258,16 @@ namespace audio {
     in_ops_.set(kOpFlagSoundOff + accent);
   }
 
-  Ticker::Statistics Ticker::getStatistics()
+  Ticker::Statistics Ticker::getStatistics() const
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
-    has_stats_ = false;
+    return out_stats_;
+  }
+
+  Ticker::Statistics Ticker::getStatistics(bool consume)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+    has_stats_ = has_stats_ && !consume;
     return out_stats_;
   }
 
@@ -276,7 +282,7 @@ namespace audio {
     assert( audio_thread_ == nullptr );
 
     try {
-      stop_audio_thread_flag_ = false;
+      continue_audio_thread_flag_.test_and_set();
       audio_thread_finished_flag_ = false;
       state_.set(Ticker::StateFlag::kRunning);
 
@@ -286,7 +292,7 @@ namespace audio {
     {
       state_.reset(Ticker::StateFlag::kRunning);
       audio_thread_finished_flag_ = true;
-      stop_audio_thread_flag_ = true;
+      continue_audio_thread_flag_.clear();
 
       throw GMetronomeError("failed to start audio thread");
     }
@@ -296,7 +302,7 @@ namespace audio {
   {
     assert( audio_thread_ != nullptr );
 
-    stop_audio_thread_flag_ = true;
+    continue_audio_thread_flag_.clear();
 
     if (join && audio_thread_->joinable())
     {
@@ -736,7 +742,7 @@ namespace audio {
       startBackend();
 
       // enter the main loop
-      while ( ! stop_audio_thread_flag_ )
+      while (continue_audio_thread_flag_.test_and_set())
       {
         if (importBackend())
         {
