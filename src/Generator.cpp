@@ -26,6 +26,7 @@
 #include <ratio>
 #include <numeric>
 #include <cassert>
+#include <iomanip>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -129,6 +130,9 @@ namespace audio {
         k_.stopAcceleration();
       else if (old_mode == TempoMode::kSync)
         k_.stopSynchronization();
+
+      if (hold_ <= 0) // initialize hold
+        resetStepwise(ctrl);
 
       recomputeStepwise(ctrl);
       break;
