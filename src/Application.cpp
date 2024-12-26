@@ -626,6 +626,30 @@ void Application::onVolumeMute(const Glib::VariantBase& value)
   updateTickerSound(kAccentMaskAll);
 }
 
+double Application::getReferenceTempo() const
+{
+  double ref_tempo = 0.0;
+
+  if (audio::Ticker::State state = ticker_.state();
+      state.test(audio::Ticker::StateFlag::kStarted)
+      && !state.test(audio::Ticker::StateFlag::kError))
+  {
+    const auto& stats = ticker_.getStatistics();
+
+    if (stats.generator == audio::kRegularGenerator)
+    {
+      if (stats.syncing)
+        ref_tempo = -1.0;
+      else
+        ref_tempo = stats.tempo;
+    }
+  }
+  if (ref_tempo == 0.0)
+    ref_tempo =  queryTempo();
+
+  return ref_tempo;
+}
+
 void Application::onTempo(const Glib::VariantBase& value)
 {
   double in_tempo =
@@ -635,8 +659,8 @@ void Application::onTempo(const Glib::VariantBase& value)
 
   ticker_.setTempo(tempo);
 
-  auto new_state = Glib::Variant<double>::create(tempo);
-  lookupSimpleAction(kActionTempo)->set_state(new_state);
+  auto new_tempo_state = Glib::Variant<double>::create(tempo);
+  lookupSimpleAction(kActionTempo)->set_state(new_tempo_state);
 }
 
 void Application::onTempoChange(const Glib::VariantBase& value)
@@ -647,25 +671,25 @@ void Application::onTempoChange(const Glib::VariantBase& value)
   if (delta_tempo == 0.0)
     return;
 
-  double tempo_state = queryTempo();
+  double tempo = getReferenceTempo();
+  if (tempo <= 0.0)
+    return;
 
   double integral;
-  double fractional = std::modf(tempo_state, &integral);
+  double fractional = std::modf(tempo, &integral);
 
   // we just round up/down if the change value is one/minus one respectively
   if (std::abs(delta_tempo) == 1.0 && fractional != 0.0)
   {
     if (delta_tempo < 0.0)
-      tempo_state = integral;
+      tempo = integral;
     else
-      tempo_state = integral + 1.0;
+      tempo = std::round(integral + 1.0);
   }
   else
-    tempo_state += delta_tempo;
+    tempo += delta_tempo;
 
-  Glib::Variant<double> new_tempo_state
-    = Glib::Variant<double>::create(tempo_state);
-
+  auto new_tempo_state = Glib::Variant<double>::create(tempo);
   activate_action(kActionTempo, new_tempo_state);
 }
 
@@ -673,9 +697,13 @@ void Application::onTempoScale(const Glib::VariantBase& value)
 {
   double scale = Glib::VariantBase::cast_dynamic<Glib::Variant<double>>(value).get();
 
-  double new_tempo = scale * queryTempo();
+  double tempo = getReferenceTempo();
+  if (tempo <= 0.0)
+    return;
 
-  Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create(new_tempo);
+  double new_tempo = scale * tempo;
+
+  auto new_tempo_state = Glib::Variant<double>::create(new_tempo);
   activate_action(kActionTempo, new_tempo_state);
 }
 
@@ -692,7 +720,7 @@ namespace {
 
 void Application::onTempoTap(const Glib::VariantBase& value)
 {
-  auto ticker_stats = ticker_.getStatistics();
+  auto ticker_stats = ticker_.getStatistics(false);
 
   double new_tempo = ticker_stats.tempo;
 
@@ -702,6 +730,10 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   if (tap.flags.test(TapAnalyser::kValid) && !tap.flags.test(TapAnalyser::kInit))
   {
     new_tempo = std::clamp(tempo, Profile::kMinTempo, Profile::kMaxTempo);
+
+    if (settings::preferences()->get_boolean(settings::kKeyPrefsRoundTappedTempo))
+      new_tempo = std::round(new_tempo);
+
     Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
     activate_action(kActionTempo, new_tempo_state);
   }
@@ -1332,8 +1364,8 @@ void Application::stopStatsTimer()
 
 bool Application::onStatsTimer()
 {
-  audio::Ticker::State state = ticker_.state();
-  if (state.test(audio::Ticker::StateFlag::kError))
+  if (audio::Ticker::State state = ticker_.state();
+      state.test(audio::Ticker::StateFlag::kError))
   {
     // this will handle the error
     change_action_state(kActionStart, Glib::Variant<bool>::create(false));
@@ -1343,7 +1375,7 @@ bool Application::onStatsTimer()
   {
     if (ticker_.hasStatistics())
     {
-      audio::Ticker::Statistics stats = ticker_.getStatistics();
+      audio::Ticker::Statistics stats = ticker_.getStatistics(true);
       signal_ticker_statistics_.emit(stats);
     }
     return true;

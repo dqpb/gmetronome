@@ -109,6 +109,7 @@ private:
   void onVolumeMute(const Glib::VariantBase& value);
 
   // Tempo
+  double getReferenceTempo() const;
   void onTempo(const Glib::VariantBase& value);
   void onTempoChange(const Glib::VariantBase& value);
   void onTempoScale(const Glib::VariantBase& value);
