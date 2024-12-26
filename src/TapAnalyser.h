@@ -30,13 +30,14 @@ class TapAnalyser {
 public:
   enum Flag
   {
-    kValid = 0,
-    kInit = 1,
-    kTimeout = 2,
-    kOutlier = 3
+    kInit     = 0,
+    kValid    = 1,
+    kTimeout  = 2,
+    kOutlier  = 3,
+    kNumFlags
   };
 
-  using Flags = std::bitset<4>;
+  using Flags = std::bitset<kNumFlags>;
 
   struct Tap
   {
