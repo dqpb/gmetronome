@@ -712,9 +712,10 @@ namespace {
   using std::chrono::milliseconds;
   using std::literals::chrono_literals::operator""ms;
 
-  constexpr double        kMaxVolumeDrop            = 85.0; // percent
+  constexpr double        kMaxVolumeDrop            = 85.0;   // percent
   constexpr milliseconds  kDropVolumeTimerInterval  = 250ms;
-  constexpr double        kDropVolumeRecoverSpeed   = 30.0; // percent/s
+  constexpr double        kDropVolumeRecoverSpeed   = 30.0;   // percent/s
+  constexpr milliseconds  kSingleTapSyncTime        = 1000ms;
 
 }//unnamed namespace
 
@@ -724,8 +725,10 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
   double new_tempo = ticker_stats.tempo;
 
+  milliseconds sync_time = kSingleTapSyncTime;
+
   const auto& [tap, estimate] = tap_analyser_.tap(1.0);
-  auto [tempo, phase, confidence] = estimate;
+  const auto& [tempo, phase, confidence] = estimate;
 
   if (tap.flags.test(TapAnalyser::kValid) && !tap.flags.test(TapAnalyser::kInit))
   {
@@ -733,6 +736,9 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
     if (settings::preferences()->get_boolean(settings::kKeyPrefsRoundTappedTempo))
       new_tempo = std::round(new_tempo);
+
+    sync_time = milliseconds(
+      static_cast<milliseconds::rep>(std::ceil(60.0 * 1000.0 / new_tempo)));
 
     Glib::Variant<double> new_tempo_state = Glib::Variant<double>::create( new_tempo );
     activate_action(kActionTempo, new_tempo_state);
@@ -770,8 +776,21 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   double beat_dev = std::round(audible_beat) - audible_beat
     + new_tempo_bpus * (phase - tap.time).count(); // deviation from the
                                                    // estimated tap time (phase)
+
+  // If the beat deviation is large compared to the sync time, the synchronize function
+  // currently tends to produce very low (even negative) and very high intermediate tempos.
+  // To even this a bit, we add some time in the magnitude of the deviation.
+  sync_time += milliseconds(static_cast<milliseconds::rep>(std::abs(beat_dev) * 1000.0));
+
+  // But we limit the sync time to the time of two consecutive beats at the lowest
+  // possible tempo; this prevents a case, where two Ticker::synchronize() calls
+  // without and intermediate Ticker::setTempo() call (caused by a timeout in the
+  // tap analyser) lead to a drifting tempo in the generator.
+  sync_time = std::min(
+    sync_time, milliseconds(static_cast<milliseconds::rep>(60.0 * 1000.0 / Profile::kMinTempo)));
+
   // apply phase adjustment
-  ticker_.synchronize(beat_dev, 0.0);
+  ticker_.synchronize(beat_dev, 0.0, sync_time);
 
   signal_tap_.emit(confidence);
 }
