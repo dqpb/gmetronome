@@ -21,6 +21,7 @@
 #define GMetronome_TapAnalyser_h
 
 #include "Meter.h"
+
 #include <deque>
 #include <tuple>
 #include <bitset>
@@ -56,7 +57,7 @@ public:
   using Result = std::tuple<const Tap&, const Estimate&>;
 
 public:
-  TapAnalyser();
+  TapAnalyser() = default;
 
   Result tap(double value = 1.0);
 
