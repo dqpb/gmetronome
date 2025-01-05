@@ -431,13 +431,21 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     {
       if (stats.tempo < stats.target)
       {
-        hold_label_.display(stats.hold);
         status_icon_.switchImage(StatusIcon::Image::kStepwiseUp);
+
+        if (!stats.pending)
+          hold_label_.display(stats.hold);
+        else
+          hold_label_.reset();
       }
       else if (stats.tempo > stats.target)
       {
-        hold_label_.display(stats.hold);
         status_icon_.switchImage(StatusIcon::Image::kStepwiseDown);
+
+        if (!stats.pending)
+          hold_label_.display(stats.hold);
+        else
+          hold_label_.reset();
       }
       else
       {
