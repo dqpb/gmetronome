@@ -56,14 +56,14 @@
 }
 #lcd #tempoFracLabel
 {
-    margin: 0px 0px 0px 0.35em;
+    margin: 0px 0.35em;
     padding: 0px;
     font-size: 0.8em;
     font-weight: normal;
 }
 #lcd #holdLabel
 {
-    margin: 0px 2px;
+    margin: 0px 2px 0px 0px;
     padding: 0.0em;
     font-size: 1.4em;
     font-weight: normal;
