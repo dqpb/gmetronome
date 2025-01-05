@@ -29,12 +29,12 @@ GMetronomeAboutDialog::GMetronomeAboutDialog()
   set_icon_name(PACKAGE_ID);
 
   // year of last commit
-  static const int year = 2024;
+  static const int year = 2025;
 
   set_program_name(Glib::get_application_name());
   set_version(VERSION);
   set_license_type(Gtk::LICENSE_GPL_3_0);
-  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2024"});
+  set_authors({"dqpb <dqpb@mailbox.org>, 2020-2025"});
 
   //Put one translator per line, in the form
   //NAME <EMAIL>, YEAR1, YEAR2
