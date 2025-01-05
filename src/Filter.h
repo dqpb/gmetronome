@@ -142,7 +142,6 @@ namespace filter {
   };
 
   /**
-   * @function get
    * @brief Extracts the Ith filter from the pipe.
    */
   template<std::size_t I, typename PipeHead, typename FilterType>
@@ -164,7 +163,6 @@ namespace filter {
   }
 
   /**
-   * @function get
    * @brief Extracts the element from the pipe whose type is T.
    *
    * If the pipe contains more than one element of type T, the last

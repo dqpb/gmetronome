@@ -156,9 +156,9 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   // install global css provider for default screen
   registerGlobalCssProvider();
 
+  app_ = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
+
   builder_->get_widget("headerBar", header_bar_);
-  builder_->get_widget("headerBarTitleBox", header_bar_title_box_);
-  builder_->get_widget("currentProfileLabel", current_profile_label_);
   builder_->get_widget("fullScreenButton", full_screen_button_);
   builder_->get_widget("fullScreenImage", full_screen_image_);
   builder_->get_widget("mainMenuButton", main_menu_button_);
@@ -209,18 +209,25 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("subdiv3RadioButton", subdiv_3_radio_button_);
   builder_->get_widget("subdiv4RadioButton", subdiv_4_radio_button_);
   builder_->get_widget("subdivLabel", subdiv_label_);
+  builder_->get_widget("trainerStack", trainer_stack_);
+  builder_->get_widget("trainerModeButtonBox", trainer_mode_button_box_);
+  builder_->get_widget("trainerMode1RadioButton", trainer_mode_1_radio_button_);
+  builder_->get_widget("trainerMode2RadioButton", trainer_mode_2_radio_button_);
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("tempoAdjustment"));
-
-  trainer_start_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
-    ::cast_dynamic(builder_->get_object("trainerStartAdjustment"));
 
   trainer_target_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("trainerTargetAdjustment"));
 
   trainer_accel_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("trainerAccelAdjustment"));
+
+  trainer_step_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
+    ::cast_dynamic(builder_->get_object("trainerStepAdjustment"));
+
+  trainer_hold_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
+    ::cast_dynamic(builder_->get_object("trainerHoldAdjustment"));
 
   beats_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("beatsAdjustment"));
@@ -288,9 +295,14 @@ void MainWindow::initUI()
   titlebar_bin_.show();
 
   // initialize header bar
-  header_bar_title_box_->pack_start(tempo_display_, Gtk::PACK_EXPAND_WIDGET);
-  tempo_display_.set_name("tempoDisplay");
-  tempo_display_.show();
+  header_bar_->set_vexpand(false);
+  header_bar_->set_custom_title(lcd_);
+
+  // initialize LCD
+  lcd_.set_name("lcd");
+  lcd_.set_hexpand(false);
+  lcd_.show();
+
   updateCurrentTempo(audio::Ticker::Statistics{});
 
   // initialize info bar
@@ -318,8 +330,6 @@ void MainWindow::initUI()
   }
   tempo_scale_->set_round_digits(0);
 
-  auto app = Gtk::Application::get_default();
-
   // initialize meter interface
   int id_col = meter_combo_box_->get_id_column();
   meter_combo_box_->set_row_separator_func( [id_col] (const Glib::RefPtr<Gtk::TreeModel>& model,
@@ -331,37 +341,27 @@ void MainWindow::initUI()
       return id_str == "separator";
     });
 
-  Glib::ustring meter_slot;
-  app->get_action_state(kActionMeterSelect, meter_slot);
-
-  Meter meter;
-  app->get_action_state(meter_slot, meter);
-  updateMeter(meter_slot, meter);
+  Glib::ustring meter_slot = app_->queryMeterSelect();
+  updateMeter(meter_slot, app_->queryMeter(meter_slot));
 
   // initialize transport interface
   updateStartButtonLabel(false);
   updateVolumeMute(false);
 
   // initialize profile list
-  ProfileList list;
-  app->get_action_state(kActionProfileList, list);
-  updateProfileList(list);
+  updateProfileList(app_->queryProfileList());
 
   // initalize profile selection
-  Glib::ustring id;
-  app->get_action_state(kActionProfileSelect, id);
+  Glib::ustring id = app_->queryProfileSelect();
   updateProfileSelect(id);
 
   // initialize profile title
-  Glib::ustring title;
-  app->get_action_state(kActionProfileTitle, title);
+  Glib::ustring title = app_->queryProfileTitle();
   updateProfileTitle(title, !id.empty());
 }
 
 void MainWindow::initBindings()
 {
-  auto app = Glib::RefPtr<Application>::cast_dynamic(Gtk::Application::get_default());
-
   settings::preferences()->signal_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 
@@ -411,21 +411,25 @@ void MainWindow::initBindings()
     });
 
   action_bindings_
-    .push_back( bind_action(app,
+    .push_back( bind_action(app_,
                             kActionTempo,
                             tempo_adjustment_->property_value()) );
   action_bindings_
-    .push_back( bind_action(app,
-                            kActionTrainerStart,
-                            trainer_start_adjustment_->property_value()) );
-  action_bindings_
-    .push_back( bind_action(app,
+    .push_back( bind_action(app_,
                             kActionTrainerTarget,
                             trainer_target_adjustment_->property_value()) );
   action_bindings_
-    .push_back( bind_action(app,
+    .push_back( bind_action(app_,
                             kActionTrainerAccel,
                             trainer_accel_adjustment_->property_value()) );
+  action_bindings_
+    .push_back( bind_action(app_,
+                            kActionTrainerStep,
+                            trainer_step_adjustment_->property_value()) );
+  action_bindings_
+    .push_back( bind_action(app_,
+                            kActionTrainerHold,
+                            trainer_hold_adjustment_->property_value()) );
 
   meter_connections_
     .push_back( beats_adjustment_->signal_value_changed()
@@ -456,6 +460,12 @@ void MainWindow::initBindings()
                 .connect(sigc::mem_fun(*this, &MainWindow::onAccentChanged))
       );
 
+  trainer_mode_1_radio_button_->signal_clicked()
+    .connect([&]{onTrainerModeChanged(trainer_mode_1_radio_button_);});
+
+  trainer_mode_2_radio_button_->signal_clicked()
+    .connect([&]{onTrainerModeChanged(trainer_mode_2_radio_button_);});
+
   profile_tree_view_->signal_drag_begin()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileDragBegin));
 
@@ -471,16 +481,16 @@ void MainWindow::initBindings()
 
   cell_renderer->property_placeholder_text() = profile_title_placeholder_;
 
-    cell_renderer->signal_editing_started()
+  cell_renderer->signal_editing_started()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleStartEditing));
 
-    cell_renderer->signal_edited()
+  cell_renderer->signal_edited()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileTitleChanged));
 
   profile_new_button_->signal_clicked()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileNew));
 
-  app->signal_action_state_changed()
+  app_->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
 
   profile_popover_->signal_show()
@@ -489,16 +499,16 @@ void MainWindow::initBindings()
   profile_popover_->signal_hide()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileHide));
 
-  app->signalMessage()
+  app_->signalMessage()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessage));
 
   info_bar_->signal_response()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessageResponse));
 
-  app->signalTickerStatistics()
+  app_->signalTickerStatistics()
     .connect(sigc::mem_fun(*this, &MainWindow::onTickerStatistics));
 
-  app->signalTap()
+  app_->signalTap()
     .connect(sigc::mem_fun(*this, &MainWindow::onTap));
 }
 
@@ -540,7 +550,7 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
   else
   {
     header_bar_->reparent(titlebar_bin_);
-    header_bar_->unset_decoration_layout();
+    header_bar_->set_decoration_layout(":minimize,maximize,close");
     full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
                                            Gtk::ICON_SIZE_BUTTON);
     full_screen_button_->hide();
@@ -970,8 +980,6 @@ void MainWindow::onTempoQuickSet(const Glib::VariantBase& value)
 void MainWindow::activateMeterAction(const Glib::ustring& action,
                                      const Glib::VariantBase& param)
 {
-  auto app = Gtk::Application::get_default();
-
   last_meter_action_ = g_get_monotonic_time();
 
   if (pendulum_restore_connection_.empty()
@@ -996,7 +1004,7 @@ void MainWindow::activateMeterAction(const Glib::ustring& action,
       }, 100);
   }
 
-  app->activate_action(action, param);
+  app_->activate_action(action, param);
 
   if (pendulum_revealer_->get_child_revealed() && bottom_resizable_)
   {
@@ -1014,13 +1022,8 @@ void MainWindow::onMeterChanged()
 
 void MainWindow::onBeatsChanged()
 {
-  auto app = Gtk::Application::get_default();
-
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
-
-  Meter meter;
-  app->get_action_state(meter_slot, meter);
-
+  Meter meter = app_->queryMeter(meter_slot);
   int beats = std::lround(beats_adjustment_->get_value());
 
   meter.setBeats(beats);
@@ -1034,12 +1037,8 @@ void MainWindow::onSubdivChanged(Gtk::RadioButton* button, int division)
   if (!button->get_active())
     return;
 
-  auto app = Gtk::Application::get_default();
-
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
-
-  Meter meter;
-  app->get_action_state(meter_slot, meter);
+  Meter meter = app_->queryMeter(meter_slot);
 
   meter.setDivision(division);
 
@@ -1054,7 +1053,25 @@ void MainWindow::onAccentChanged(std::size_t button_index)
   auto state = Glib::Variant<Meter>::create(meter);
 
   Glib::ustring meter_slot = meter_combo_box_->get_active_id();
-  Gtk::Application::get_default()->activate_action(meter_slot, state);
+  app_->activate_action(meter_slot, state);
+}
+
+void MainWindow::onTrainerModeChanged(Gtk::RadioButton* button)
+{
+  if (button == nullptr || !button->get_active())
+    return;
+
+  Profile::TrainerMode mode;
+
+  if (button == trainer_mode_1_radio_button_)
+    mode = Profile::TrainerMode::kContinuous;
+  else if (button == trainer_mode_2_radio_button_)
+    mode = Profile::TrainerMode::kStepwise;
+  else
+    return;
+
+  auto mode_variant = Glib::Variant<Profile::TrainerMode>::create(mode);
+  app_->activate_action(kActionTrainerMode, mode_variant);
 }
 
 void MainWindow::onProfileSelectionChanged()
@@ -1068,7 +1085,7 @@ void MainWindow::onProfileSelectionChanged()
 
   auto state = Glib::Variant<Glib::ustring>::create(id);
 
-  Gtk::Application::get_default()->activate_action(kActionProfileSelect, state);
+  app_->activate_action(kActionProfileSelect, state);
 }
 
 void MainWindow::onProfileTitleStartEditing(Gtk::CellEditable* editable,
@@ -1087,20 +1104,16 @@ void MainWindow::onProfileTitleStartEditing(Gtk::CellEditable* editable,
 void MainWindow::onProfileTitleChanged(const Glib::ustring& path_string,
                                        const Glib::ustring& text)
 {
-  auto app = Gtk::Application::get_default();
-
   Gtk::TreePath path(path_string);
 
   ProfileListStore::iterator row_it = profile_list_store_->get_iter(path);
   if(row_it)
   {
-    Glib::ustring selected_id;
-    app->get_action_state(kActionProfileSelect, selected_id);
-
-    if (selected_id == (*row_it)[profile_list_store_->columns_.id_])
+    if (Glib::ustring selected_id = app_->queryProfileSelect();
+        selected_id == (*row_it)[profile_list_store_->columns_.id_])
     {
       auto state = Glib::Variant<Glib::ustring>::create(text);
-      app->activate_action(kActionProfileTitle, state);
+      app_->activate_action(kActionProfileTitle, state);
     }
 
     profile_tree_view_->get_selection()->select(path);
@@ -1126,32 +1139,18 @@ void MainWindow::onProfileDragEnd(const Glib::RefPtr<Gdk::DragContext>& context)
                    return row[profile_list_store_->columns_.id_];
                  });
 
-  Gtk::Application::get_default()
-    ->activate_action(kActionProfileReorder, Glib::Variant<ProfileIdentifierList>::create(id_list));
+  app_->activate_action(kActionProfileReorder,
+                        Glib::Variant<ProfileIdentifierList>::create(id_list));
 
-  auto app = Gtk::Application::get_default();
-  Glib::ustring id;
-  app->get_action_state(kActionProfileSelect, id);
-
-  updateProfileSelect(id);
+  updateProfileSelect(app_->queryProfileSelect());
 }
 
 void MainWindow::onProfileNew()
 {
-  auto app = Gtk::Application::get_default();
-
-  Glib::ustring id;
-  app->get_action_state(kActionProfileSelect, id);
-
-  bool has_selected_profile = !id.empty();
-
   Glib::ustring new_title;
-  if (has_selected_profile) {
-
-    Glib::ustring old_title;
-    app->get_action_state(kActionProfileTitle, old_title);
-
-    new_title = duplicateDocumentTitle(old_title,
+  if (auto id = app_->queryProfileSelect(); !id.empty())
+  {
+    new_title = duplicateDocumentTitle(app_->queryProfileTitle(),
                                        profile_title_duplicate_,
                                        profile_title_placeholder_);
   }
@@ -1159,87 +1158,65 @@ void MainWindow::onProfileNew()
     new_title = profile_title_default_;
 
   const auto new_title_variant = Glib::Variant<Glib::ustring>::create(new_title);
-  app->activate_action(kActionProfileNew, new_title_variant);
+  app_->activate_action(kActionProfileNew, new_title_variant);
 }
 
 void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
                                       const Glib::VariantBase& variant)
 {
-  auto app = Gtk::Application::get_default();
-
   if (isTempoQuickSetEditing())
     abortTempoQuickSetEditing();
 
   if (action_name.compare(0,6,"meter-") == 0)
   {
-    Glib::ustring meter_slot;
-    app->get_action_state(kActionMeterSelect, meter_slot);
-
+    Glib::ustring meter_slot = app_->queryMeterSelect();
     if (action_name == kActionMeterSelect || action_name == meter_slot)
     {
-      Meter meter;
-      app->get_action_state(meter_slot, meter);
-
-      updateMeter(meter_slot, meter);
+      updateMeter(meter_slot, app_->queryMeter(meter_slot));
     }
   }
   else if (action_name.compare(kActionTempo) == 0)
   {
-    double tempo;
-    app->get_action_state(kActionTempo, tempo);
-    updateTempo(tempo);
+    updateTempo(app_->queryTempo());
   }
   else if (action_name.compare(kActionStart) == 0)
   {
-    bool running;
-    app->get_action_state(kActionStart, running);
-    updateStart(running);
+    updateStart(app_->queryStart());
+  }
+  else if (action_name.compare(kActionTrainerMode) == 0)
+  {
+    updateTrainerMode(app_->queryTrainerMode());
   }
   else if (action_name.compare(kActionProfileList) == 0)
   {
-    ProfileList list;
-    app->get_action_state(kActionProfileList, list);
-    updateProfileList(list);
-
-    Glib::ustring id;
-    app->get_action_state(kActionProfileSelect, id);
-    updateProfileSelect(id);
+    updateProfileList(app_->queryProfileList());
+    updateProfileSelect(app_->queryProfileSelect());
 
     if (profile_popover_->is_visible())
       resizeProfilePopover(true);
   }
   else if (action_name.compare(kActionProfileSelect) == 0)
   {
-    Glib::ustring id;
-    app->get_action_state(kActionProfileSelect, id);
+    Glib::ustring id = app_->queryProfileSelect();
     updateProfileSelect(id);
 
     // switching from a profile-less state to an untitled profile does not
     // change the state of kActionProfileTitle, but requires to update
     // the title nevertheless
-    Glib::ustring title;
-    app->get_action_state(kActionProfileTitle, title);
-
-    if (title.empty())
+    if (auto title = app_->queryProfileTitle(); title.empty())
       updateProfileTitle(title, !id.empty());
   }
   else if (action_name.compare(kActionProfileTitle) == 0)
   {
-    Glib::ustring id;
-    app->get_action_state(kActionProfileSelect, id);
-
-    Glib::ustring title;
-    app->get_action_state(kActionProfileTitle, title);
+    Glib::ustring id = app_->queryProfileSelect();
+    Glib::ustring title = app_->queryProfileTitle();
 
     updateProfileTitle(title, !id.empty());
   }
   else if (action_name.compare(kActionVolumeMute) == 0)
   {
-    bool mute;
-    app->get_action_state(kActionVolumeMute, mute);
-    updateVolumeMute(mute);
+    updateVolumeMute(app_->queryVolumeMute());
   }
-
 }
 
 void MainWindow::updateMeter(const Glib::ustring& slot, const Meter& meter)
@@ -1357,23 +1334,12 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
     bool is_placeholder = title.empty() ? true : false;
     const Glib::ustring& profile_title = is_placeholder ? profile_title_placeholder_ : title;
 
-    auto style_context = current_profile_label_->get_style_context();
-    if (is_placeholder)
-    {
-      if (!style_context->has_class("placeholder"))
-        style_context->add_class("placeholder");
-    }
-    else if (style_context->has_class("placeholder"))
-      style_context->remove_class("placeholder");
-
-    current_profile_label_->set_text(profile_title);
-    current_profile_label_->show();
+    lcd_.setProfileTitle(profile_title, is_placeholder);
     Gtk::Window::set_title(Glib::get_application_name() + " - " + profile_title);
   }
   else
   {
-    current_profile_label_->hide();
-    current_profile_label_->set_text("");
+    lcd_.unsetProfileTitle();
     Gtk::Window::set_title(Glib::get_application_name());
   }
 }
@@ -1381,6 +1347,24 @@ void MainWindow::updateProfileTitle(const Glib::ustring& title, bool has_profile
 void MainWindow::updateTempo(double tempo)
 {
   // nothing
+}
+
+void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
+{
+  if (mode == Profile::TrainerMode::kContinuous)
+  {
+    if (!trainer_mode_1_radio_button_->get_active())
+      trainer_mode_1_radio_button_->set_active(true);
+
+    trainer_stack_->set_visible_child("trainerContinuousPage");
+  }
+  else if (mode == Profile::TrainerMode::kStepwise)
+  {
+    if (!trainer_mode_2_radio_button_->get_active())
+      trainer_mode_2_radio_button_->set_active(true);
+
+    trainer_stack_->set_visible_child("trainerStepwisePage");
+  }
 }
 
 void MainWindow::updateStart(bool running)
@@ -1431,7 +1415,7 @@ void MainWindow::updateVolumeMute(bool mute)
 
 void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
 {
-  tempo_display_.display(stats.tempo, stats.acceleration);
+  lcd_.updateStatistics(stats);
 }
 
 void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)

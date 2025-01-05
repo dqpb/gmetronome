@@ -28,6 +28,12 @@ struct Profile
 {
   using Identifier = std::string;
 
+  enum class TrainerMode
+  {
+    kContinuous = 1,
+    kStepwise = 2
+  };
+
   // Number of UTF-8 encoded unicode characters
   static constexpr std::size_t kTitleMaxLength = 255;
 
@@ -43,18 +49,22 @@ struct Profile
   // Default description for new profiles
   static inline const std::string kDefaultDescription      = "";
 
-  static constexpr double  kMinTempo               = 30.0;
-  static constexpr double  kMaxTempo               = 250.0;
-  static constexpr double  kDefaultTempo           = 120.0;
-  static constexpr double  kMinTrainerStart        = kMinTempo;
-  static constexpr double  kMaxTrainerStart        = kMaxTempo;
-  static constexpr double  kDefaultTrainerStart    = 80.0;
-  static constexpr double  kMinTrainerTarget       = kMinTempo;
-  static constexpr double  kMaxTrainerTarget       = kMaxTempo;
-  static constexpr double  kDefaultTrainerTarget   = 160.0;
-  static constexpr double  kMinTrainerAccel        = 1.0;
-  static constexpr double  kMaxTrainerAccel        = 1000.0;
-  static constexpr double  kDefaultTrainerAccel    = 10.0;
+  static constexpr double      kMinTempo               = 30.0;
+  static constexpr double      kMaxTempo               = 250.0;
+  static constexpr double      kDefaultTempo           = 120.0;
+  static constexpr TrainerMode kDefaultTrainerMode     = TrainerMode::kContinuous;
+  static constexpr double      kMinTrainerTarget       = kMinTempo;
+  static constexpr double      kMaxTrainerTarget       = kMaxTempo;
+  static constexpr double      kDefaultTrainerTarget   = 160.0;
+  static constexpr double      kMinTrainerAccel        = 1.0;
+  static constexpr double      kMaxTrainerAccel        = 1000.0;
+  static constexpr double      kDefaultTrainerAccel    = 10.0;
+  static constexpr double      kMinTrainerStep         = 1.0;
+  static constexpr double      kMaxTrainerStep         = 99.0;
+  static constexpr double      kDefaultTrainerStep     = 8.0;
+  static constexpr int         kMinTrainerHold         = 1;
+  static constexpr int         kMaxTrainerHold         = 99;
+  static constexpr int         kDefaultTrainerHold     = 4;
 
   struct Header
   {
@@ -83,9 +93,11 @@ struct Profile
     Meter         meter_custom     = kMeterSimple4;
 
     bool          trainer_enabled   = false;
-    double        trainer_start     = kDefaultTrainerStart;
+    TrainerMode   trainer_mode      = kDefaultTrainerMode;
     double        trainer_target    = kDefaultTrainerTarget;
     double        trainer_accel     = kDefaultTrainerAccel;
+    double        trainer_step      = kDefaultTrainerStep;
+    int           trainer_hold      = kDefaultTrainerHold;
 
     std::string   sound_theme_id    = "";
   };

@@ -21,6 +21,7 @@
 #define GMetronome_TapAnalyser_h
 
 #include "Meter.h"
+
 #include <deque>
 #include <tuple>
 #include <bitset>
@@ -30,13 +31,14 @@ class TapAnalyser {
 public:
   enum Flag
   {
-    kValid = 0,
-    kInit = 1,
-    kTimeout = 2,
-    kOutlier = 3
+    kInit     = 0,
+    kValid    = 1,
+    kTimeout  = 2,
+    kOutlier  = 3,
+    kNumFlags
   };
 
-  using Flags = std::bitset<4>;
+  using Flags = std::bitset<kNumFlags>;
 
   struct Tap
   {
@@ -55,7 +57,7 @@ public:
   using Result = std::tuple<const Tap&, const Estimate&>;
 
 public:
-  TapAnalyser();
+  TapAnalyser() = default;
 
   Result tap(double value = 1.0);
 

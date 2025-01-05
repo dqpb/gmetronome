@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -23,103 +23,89 @@
 
 namespace {
 
-  Glib::ValueBase variant_to_value(const Glib::VariantBase& variant)
+  GType getGTypeForVariantType(const Glib::VariantType& variant_type)
   {
-    Glib::ValueBase value;
-    g_dbus_gvariant_to_gvalue(const_cast<GVariant*>(variant.gobj()), value.gobj());    
-    return value;
-  }
+    GType type;
+    auto var_type_char = g_variant_type_peek_string(variant_type.gobj())[0];
 
-  Glib::VariantBase value_to_variant(const Glib::ValueBase& value)
-  {
-    const GValue* gvalue = value.gobj();
-    const GVariantType* type = nullptr;
-    
-    switch (G_VALUE_TYPE (gvalue) )
+    switch (var_type_char)
     {
-    case G_TYPE_DOUBLE:
-    case G_TYPE_FLOAT:
-      type = G_VARIANT_TYPE_DOUBLE;
-      break;      
-    case G_TYPE_UCHAR:
-    case G_TYPE_CHAR:
-      type = G_VARIANT_TYPE_BYTE;
-      break;
-    case G_TYPE_BOOLEAN:
-      type = G_VARIANT_TYPE_BOOLEAN;
-      break;
-    case G_TYPE_INT:
-      type = G_VARIANT_TYPE_INT32;
-      break;
-    case G_TYPE_UINT:
-      type = G_VARIANT_TYPE_UINT32;
-        break;
-    case G_TYPE_LONG:
-      type = G_VARIANT_TYPE_INT64;
-      break;
-    case G_TYPE_ULONG:
-      type = G_VARIANT_TYPE_UINT64;
-      break;
-    case G_TYPE_INT64:
-      type = G_VARIANT_TYPE_INT64;
-      break;
-    case G_TYPE_UINT64:
-      type = G_VARIANT_TYPE_UINT64;
-      break;
-    case G_TYPE_STRING:
-      type = G_VARIANT_TYPE_STRING;
-      break;
-    case G_TYPE_VARIANT:
-      type = G_VARIANT_TYPE_VARIANT;
-      break;
-      
-    // case G_TYPE_GTYPE:
-    //   break;
-    // case G_TYPE_CHECKSUM:
-    //   break;
-    case G_TYPE_POINTER:
-    case G_TYPE_BOXED:
-    case G_TYPE_PARAM:
-    case G_TYPE_OBJECT:
-    case G_TYPE_ENUM:
-    case G_TYPE_FLAGS:
-    case G_TYPE_INVALID:
-    case G_TYPE_NONE:
-    case G_TYPE_INTERFACE:
+    case G_VARIANT_CLASS_BOOLEAN:     type = G_TYPE_BOOLEAN; break;
+    case G_VARIANT_CLASS_BYTE:        type = G_TYPE_UCHAR;   break;
+    case G_VARIANT_CLASS_INT16:       type = G_TYPE_INT;     break;
+    case G_VARIANT_CLASS_UINT16:      type = G_TYPE_UINT;    break;
+    case G_VARIANT_CLASS_INT32:       type = G_TYPE_INT;     break;
+    case G_VARIANT_CLASS_UINT32:      type = G_TYPE_UINT;    break;
+    case G_VARIANT_CLASS_INT64:       type = G_TYPE_INT64;   break;
+    case G_VARIANT_CLASS_UINT64:      type = G_TYPE_UINT64;  break;
+    case G_VARIANT_CLASS_DOUBLE:      type = G_TYPE_DOUBLE;  break;
+    case G_VARIANT_CLASS_STRING:      type = G_TYPE_STRING;  break;
+    case G_VARIANT_CLASS_OBJECT_PATH: type = G_TYPE_STRING;  break;
+    case G_VARIANT_CLASS_SIGNATURE:   type = G_TYPE_STRING;  break;
+
+    // currently unsupported types
+    case G_VARIANT_CLASS_ARRAY:       [[fallthrough]];
+    case G_VARIANT_CLASS_HANDLE:      [[fallthrough]];
+    case G_VARIANT_CLASS_VARIANT:     [[fallthrough]];
+    case G_VARIANT_CLASS_MAYBE:       [[fallthrough]];
+    case G_VARIANT_CLASS_TUPLE:       [[fallthrough]];
+    case G_VARIANT_CLASS_DICT_ENTRY:  [[fallthrough]];
     default:
-      throw std::runtime_error("GValue to GVariant conversion not implemented for this type.");
+      type = G_TYPE_NONE;
       break;
     };
-    
-    return Glib::wrap(g_dbus_gvalue_to_gvariant(gvalue, type));
+
+    return type;
   }
-  
+
+  GType getPropertyType(const Glib::PropertyProxy_Base& prop)
+  {
+    GObjectClass* prop_object_class = G_OBJECT_GET_CLASS(prop.get_object()->gobj());
+    GParamSpec* prop_spec = g_object_class_find_property(prop_object_class, prop.get_name());
+    return G_PARAM_SPEC_VALUE_TYPE(prop_spec);
+  }
+
 }//unnamed namespace
 
 Glib::RefPtr<ActionBinding> ActionBinding::create(Glib::RefPtr<Gio::ActionGroup> action_group,
-						  const Glib::ustring& action_name,
+                                                  const Glib::ustring& action_name,
                                                   Glib::PropertyProxy_Base property)
 {
   return Glib::RefPtr<ActionBinding>( new ActionBinding(action_group, action_name, property) );
 }
 
 ActionBinding::ActionBinding(Glib::RefPtr<Gio::ActionGroup> action_group,
-			     const Glib::ustring& action_name,
+                             const Glib::ustring& action_name,
                              Glib::PropertyProxy_Base property)
   : action_group_(action_group),
     action_name_(action_name),
     property_(property)
 {
+  GType property_type = getPropertyType(property_);
 
-#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION < 60
-  GObjectClass* property_object_class = G_OBJECT_GET_CLASS(property_.get_object()->gobj());
+  property_value_.init(property_type);
 
-  GParamSpec* prop_spec = g_object_class_find_property(property_object_class,
-						       property_.get_name());
+  action_param_type_ = action_group_->get_action_parameter_type(action_name_);
 
-  property_value_.init(G_PARAM_SPEC_VALUE_TYPE(prop_spec));
-#endif    
-  
+  GType action_param_value_type = getGTypeForVariantType(action_param_type_);
+
+  if (action_param_value_type == G_TYPE_NONE)
+    throw std::runtime_error(
+      "ActionBinding: GValue to GVariant conversion not implemented for this type.");
+
+  action_param_value_.init(action_param_value_type);
+
+  bool is_compatible = g_value_type_compatible(property_type, action_param_value_type)
+    && g_value_type_compatible(action_param_value_type, property_type);
+
+  bool is_transformable = g_value_type_transformable(property_type, action_param_value_type)
+    && g_value_type_transformable(action_param_value_type, property_type);
+
+  if (!is_compatible && !is_transformable)
+    throw std::runtime_error("ActionBinding: GValue types not transformable.");
+
+  need_transform_ = !is_compatible;
+
   action_connection_ = action_group_->signal_action_state_changed(action_name_)
     .connect(sigc::mem_fun(*this, &ActionBinding::onActionStateChanged));
 
@@ -130,11 +116,17 @@ ActionBinding::ActionBinding(Glib::RefPtr<Gio::ActionGroup> action_group,
 }
 
 void ActionBinding::onActionStateChanged(const Glib::ustring& action_name,
-					 const Glib::VariantBase& variant)
+                                         const Glib::VariantBase& variant)
 {
+  g_dbus_gvariant_to_gvalue(const_cast<GVariant*>(variant.gobj()),
+                            action_param_value_.gobj());
+  if (need_transform_)
+    g_value_transform(action_param_value_.gobj(), property_value_.gobj());
+  else
+    property_value_ = action_param_value_;
+
   prop_connection_.block();
-  property_.get_object()->set_property_value(property_.get_name(),
-                                             variant_to_value(variant));
+  property_.get_object()->set_property_value(property_.get_name(), property_value_);
   prop_connection_.unblock();
 }
 
@@ -142,18 +134,23 @@ void ActionBinding::onPropertyValueChanged()
 {
   property_.get_object()->get_property_value(property_.get_name(), property_value_);
 
+  if (need_transform_)
+    g_value_transform(property_value_.gobj(), action_param_value_.gobj());
+  else
+    action_param_value_ = property_value_;
+
+  Glib::VariantBase param = Glib::wrap(
+    g_dbus_gvalue_to_gvariant(action_param_value_.gobj(), action_param_type_.gobj())
+  );
+
   action_connection_.block();
-  action_group_->activate_action(action_name_, value_to_variant(property_value_));
+  action_group_->activate_action(action_name_, param);
   action_connection_.unblock();
 }
 
-
-
 Glib::RefPtr<ActionBinding> bind_action(Glib::RefPtr<Gio::ActionGroup> action_group,
-					const Glib::ustring& action_name,
+                                        const Glib::ustring& action_name,
                                         Glib::PropertyProxy_Base property)
 {
   return ActionBinding::create(action_group, action_name, property);
 }
-
-

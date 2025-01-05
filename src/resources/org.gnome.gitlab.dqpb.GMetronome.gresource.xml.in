@@ -6,6 +6,8 @@
     <file preprocess="xml-stripblanks">ui/ShortcutDialog.glade</file>
     <file preprocess="xml-stripblanks">ui/SoundThemeEditor.glade</file>
     <file>icons/gm-access-profile-symbolic.svg</file>
+    <file>icons/gm-access-profile-symbolic-rtl.svg</file>
+    <file>icons/gm-access-menu-symbolic.svg</file>
     <file>icons/gm-access-accent-symbolic.svg</file>
     <file>icons/gm-access-trainer-symbolic.svg</file>
     <file>icons/gm-note-quarter-symbolic.svg</file>
@@ -18,21 +20,38 @@
     <file>icons/gm-snd-timbre-symbolic.svg</file>
     <file>icons/gm-snd-crossfade-symbolic.svg</file>
     <file>icons/gm-snd-volume-muted-symbolic.svg</file>
+    <file>icons/gm-snd-volume-muted-symbolic-rtl.svg</file>
     <file>icons/gm-snd-volume-zero-symbolic.svg</file>
+    <file>icons/gm-snd-volume-zero-symbolic-rtl.svg</file>
     <file>icons/gm-snd-volume-low-symbolic.svg</file>
+    <file>icons/gm-snd-volume-low-symbolic-rtl.svg</file>
     <file>icons/gm-snd-volume-medium-symbolic.svg</file>
+    <file>icons/gm-snd-volume-medium-symbolic-rtl.svg</file>
     <file>icons/gm-snd-volume-high-symbolic.svg</file>
+    <file>icons/gm-snd-volume-high-symbolic-rtl.svg</file>
     <file>icons/gm-snd-volume-full-symbolic.svg</file>
+    <file>icons/gm-snd-volume-full-symbolic-rtl.svg</file>
     <file>icons/gm-snd-balance-symbolic.svg</file>
     <file>icons/gm-snd-balance-left-symbolic.svg</file>
     <file>icons/gm-snd-balance-right-symbolic.svg</file>
+    <file>icons/gm-target-hit-symbolic.svg</file>
     <file>icons/gm-curve-keep-symbolic.svg</file>
     <file>icons/gm-curve-linear-up-symbolic.svg</file>
+    <file>icons/gm-curve-linear-up-symbolic-rtl.svg</file>
     <file>icons/gm-curve-linear-down-symbolic.svg</file>
+    <file>icons/gm-curve-linear-down-symbolic-rtl.svg</file>
+    <file>icons/gm-curve-stepwise-up-symbolic.svg</file>
+    <file>icons/gm-curve-stepwise-up-symbolic-rtl.svg</file>
+    <file>icons/gm-curve-stepwise-down-symbolic.svg</file>
+    <file>icons/gm-curve-stepwise-down-symbolic-rtl.svg</file>
     <file>icons/gm-curve-cubic-up-symbolic.svg</file>
+    <file>icons/gm-curve-cubic-up-symbolic-rtl.svg</file>
     <file>icons/gm-curve-cubic-up-flipped-symbolic.svg</file>
+    <file>icons/gm-curve-cubic-up-flipped-symbolic-rtl.svg</file>
     <file>icons/gm-curve-cubic-down-symbolic.svg</file>
+    <file>icons/gm-curve-cubic-down-symbolic-rtl.svg</file>
     <file>icons/gm-curve-cubic-down-flipped-symbolic.svg</file>
+    <file>icons/gm-curve-cubic-down-flipped-symbolic-rtl.svg</file>
     <file>icons/gm-curve-quartic-symbolic.svg</file>
     <file>css/global.css</file>
   </gresource>

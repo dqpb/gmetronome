@@ -42,15 +42,11 @@ namespace {
   using seconds_dbl = std::chrono::duration<double>;
   using minutes_dbl = std::chrono::duration<double, std::ratio<60>>;
 
-  const microseconds kTapTimeout = 2400ms; // == 25 bpm
-  const std::size_t kMaxTaps = 7;
+  constexpr microseconds kOutlierTime  = 100ms;
+  constexpr microseconds kTapTimeout   = 2000ms + kOutlierTime; // == 30 bpm + kOutlierTime
+  constexpr std::size_t  kMaxTaps      = 7;
 
 }//unnamed namespace
-
-TapAnalyser::TapAnalyser()
-{
-  // nothing to do
-}
 
 TapAnalyser::Result TapAnalyser::tap(double value)
 {
@@ -66,7 +62,8 @@ TapAnalyser::Result TapAnalyser::tap(double value)
   else if (isOutlier(tap_time))
   {
     tap_flags.set(kOutlier);
-    reset();
+    tap_flags.set(kValid);
+    taps_.erase(++taps_.begin(), taps_.end());
   }
   else
   {
@@ -108,15 +105,12 @@ bool TapAnalyser::isOutlier(const microseconds& tap_time)
 {
   if (taps_.size() >= 2)
   {
-    auto gap = tap_time - taps_.front().time;
+    const auto gap = tap_time - taps_.front().time;
+    const auto& [tempo, phase, confidence] = cached_estimate_;
+    const minutes_dbl avg_gap {1.0 / tempo};
 
-    if (auto [tempo, phase, confidence] = cached_estimate_; confidence > 0.5)
-    {
-      minutes_dbl avg_gap {1.0 / tempo};
-
-      if(std::chrono::abs(avg_gap - gap) > 150ms)
-        return true;
-    }
+    if(std::chrono::abs(avg_gap - gap) > kOutlierTime)
+      return true;
   }
 
   return false;
@@ -161,7 +155,7 @@ TapAnalyser::Estimate TapAnalyser::estimate()
 
       for (;second != taps_.end(); ++first, ++second)
       {
-        double dev = (minutes_dbl(1) / (first->time - second->time)) - tempo;
+        double dev = (minutes_dbl(1.0) / (first->time - second->time)) - tempo;
         sd += dev * dev;
         ++n;
       }

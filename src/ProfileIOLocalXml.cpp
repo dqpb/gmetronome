@@ -446,12 +446,17 @@ namespace {
             {
               if (element_name_lowercase == "enabled")
                 current_profile_->content.trainer_enabled = stringToBool(text);
-              else if (element_name_lowercase == "start")
-                current_profile_->content.trainer_start = stringToDouble(text);
+              else if (element_name_lowercase == "mode")
+                current_profile_->content.trainer_mode =
+                  static_cast<Profile::TrainerMode>(stringToInt(text));
               else if (element_name_lowercase == "target")
                 current_profile_->content.trainer_target = stringToDouble(text);
               else if (element_name_lowercase == "accel")
                 current_profile_->content.trainer_accel = stringToDouble(text);
+              else if (element_name_lowercase == "step")
+                current_profile_->content.trainer_step = stringToDouble(text);
+              else if (element_name_lowercase == "hold")
+                current_profile_->content.trainer_hold = stringToInt(text);
             }
           }
           catch(const std::exception& error)
@@ -641,15 +646,21 @@ namespace {
     ostream->write("        <enabled>");
     ostream->write(boolToString(content.trainer_enabled));
     ostream->write("</enabled>\n");
-    ostream->write("        <start>");
-    ostream->write(doubleToString(content.trainer_start));
-    ostream->write("</start>\n");
+    ostream->write("        <mode>");
+    ostream->write(intToString(static_cast<int>(content.trainer_mode)));
+    ostream->write("</mode>\n");
     ostream->write("        <target>");
     ostream->write(doubleToString(content.trainer_target));
     ostream->write("</target>\n");
     ostream->write("        <accel>");
     ostream->write(doubleToString(content.trainer_accel));
     ostream->write("</accel>\n");
+    ostream->write("        <step>");
+    ostream->write(doubleToString(content.trainer_step));
+    ostream->write("</step>\n");
+    ostream->write("        <hold>");
+    ostream->write(intToString(content.trainer_hold));
+    ostream->write("</hold>\n");
     ostream->write("      </trainer-section>\n");
     ostream->write("    </content>\n");
   }

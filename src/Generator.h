@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 The GMetronome Team
+ * Copyright (C) 2021-2024 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -30,19 +30,34 @@
 #include <tuple>
 #include <type_traits>
 #include <string>
+#include <limits>
 
 namespace audio {
 
   template<typename... Gs> class StreamController;
 
+  using GeneratorId = size_t;
+
+  constexpr GeneratorId kInvalidGenerator = std::numeric_limits<GeneratorId>::max();
+
+  enum class TempoMode
+  {
+    kConstant   = 0,
+    kContinuous = 1,
+    kStepwise   = 2,
+    kSync       = 3
+  };
+
   struct StreamStatus
   {
-    double position {0.0};
-    double tempo {0.0};
-    double acceleration {0.0};
-    int next_accent {0};
+    double       position {0.0};
+    double       tempo {0.0};
+    TempoMode    mode {TempoMode::kConstant};
+    double       acceleration {0.0};
+    int          hold {0};
+    int          accent {0};
     microseconds next_accent_delay {0us};
-    size_t state {0};
+    GeneratorId  generator {kInvalidGenerator};
   };
 
   /**
@@ -52,17 +67,13 @@ namespace audio {
   template<typename Controller>
   class StreamGenerator {
   public:
-    virtual void onTempoChanged(Controller& ctrl) {}
-    virtual void onTargetTempoChanged(Controller& ctrl) {}
-    virtual void onAccelerationChanged(Controller& ctrl) {}
-    virtual void onSynchronize(Controller& ctrl, double beat_dev, double tempo_dev) {}
-    virtual void onMeterChanged(Controller& ctrl, bool meter_enabled_changed) {}
+    virtual void onTempoChanged(Controller& ctrl, TempoMode old_mode) {}
+    virtual void onMeterChanged(Controller& ctrl, const Meter& old_meter, bool enabled_changed) {}
     virtual void onSoundChanged(Controller& ctrl, Accent a) {}
     virtual void onStart(Controller& ctrl) {}
     virtual void onStop(Controller& ctrl) {}
 
     virtual void prepare(Controller& ctrl) {}
-
     virtual void enter(Controller& ctrl) {}
     virtual void leave(Controller& ctrl) {}
     virtual void cycle(Controller& ctrl, const void*& data, size_t& bytes) {}
@@ -70,9 +81,9 @@ namespace audio {
     virtual void updateStatus(Controller& ctrl, StreamStatus& status) {}
 
   protected:
-    void switchGenerator(Controller& ctrl, size_t index);
+    void switchGenerator(Controller& ctrl, GeneratorId gen);
 
-    template<size_t I>
+    template<GeneratorId I>
     auto& generator(Controller& ctrl);
   };
 
@@ -91,19 +102,31 @@ namespace audio {
     explicit StreamController(const StreamSpec& spec = kDefaultSpec);
 
     void setTempo(double tempo);
-    void setTargetTempo(double tempo);
-    void setAcceleration(double accel);
-    void synchronize(double beat_dev, double tempo_dev);
+    void accelerate(double accel, double target);
+    void accelerate(int hold, double step, double target);
+    void synchronize(double beats, double tempo, microseconds time);
     void swapMeter(Meter& meter);
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
     double tempo() const
       { return tempo_; }
-    double targetTempo() const
-      { return target_tempo_; }
+    TempoMode mode() const
+      { return mode_; }
+    double target() const
+      { return target_; }
     double acceleration() const
       { return accel_; }
+    int hold() const
+      { return hold_; }
+    double step() const
+      { return step_; }
+    double syncBeats() const
+      { return sync_beats_; }
+    double syncTempo() const
+      { return sync_tempo_; }
+    microseconds syncTime() const
+      { return sync_time_; }
     const StreamSpec& spec() const
       { return spec_; }
     const Meter& meter() const
@@ -115,7 +138,7 @@ namespace audio {
 
     void prepare(const StreamSpec& spec);
 
-    void start(size_t index);
+    void start(GeneratorId gen);
     void stop();
     void cycle(const void*& data, size_t& bytes);
 
@@ -125,8 +148,14 @@ namespace audio {
     StreamGeneratorTuple gs_;
     StreamSpec spec_;
     double tempo_{0.0};
-    double target_tempo_{0.0};
+    TempoMode mode_{TempoMode::kConstant};
+    double target_{0.0};
     double accel_{0.0};
+    int    hold_{0};
+    double step_{0.0};
+    double sync_beats_{0.0};
+    double sync_tempo_{0.0};
+    microseconds sync_time_{0};
     Meter default_meter_{kMeter1};
     Meter meter_{kMeter1};
     bool meter_enabled_{false};
@@ -137,9 +166,9 @@ namespace audio {
     friend StreamGeneratorBase;
 
     template<size_t N=0>
-    void switchGenerator(size_t index);
+    void switchGenerator(GeneratorId gen);
 
-    template<size_t I>
+    template<GeneratorId I>
     auto& generator();
   };
 
@@ -153,13 +182,13 @@ namespace audio {
   };
 
   template<typename Controller>
-  void StreamGenerator<Controller>::switchGenerator(Controller& ctrl, size_t index)
+  void StreamGenerator<Controller>::switchGenerator(Controller& ctrl, GeneratorId gen)
   {
-    ctrl.switchGenerator(index);
+    ctrl.switchGenerator(gen);
   }
 
   template<typename Controller>
-  template<size_t I>
+  template<GeneratorId I>
   auto& StreamGenerator<Controller>::generator(Controller& ctrl)
   {
     return ctrl.template generator<I>();
@@ -192,41 +221,63 @@ namespace audio {
   template<typename...Gs>
   void StreamController<Gs...>::setTempo(double tempo)
   {
+    TempoMode old_mode = mode_;
+
     tempo_ = tempo;
-    if (g_) g_->onTempoChanged(*this);
+    mode_ = TempoMode::kConstant;
+
+    if (g_) g_->onTempoChanged(*this, old_mode);
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::setTargetTempo(double tempo)
+  void StreamController<Gs...>::accelerate(double accel, double target)
   {
-    target_tempo_ = tempo;
-    if (g_) g_->onTargetTempoChanged(*this);
-  }
+    TempoMode old_mode = mode_;
 
-  template<typename...Gs>
-  void StreamController<Gs...>::setAcceleration(double accel)
-  {
     accel_ = accel;
-    if (g_) g_->onAccelerationChanged(*this);
+    target_ = target;
+    mode_ = TempoMode::kContinuous;
+
+    if (g_) g_->onTempoChanged(*this, old_mode);
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::synchronize(double beat_dev, double tempo_dev)
+  void StreamController<Gs...>::accelerate(int hold, double step, double target)
   {
-    if (g_) g_->onSynchronize(*this, beat_dev, tempo_dev);
+    TempoMode old_mode = mode_;
+
+    hold_ = hold;
+    step_ = step;
+    target_ = target;
+    mode_ = TempoMode::kStepwise;
+
+    if (g_) g_->onTempoChanged(*this, old_mode);
+  }
+
+  template<typename...Gs>
+  void StreamController<Gs...>::synchronize(double beats, double tempo, microseconds time)
+  {
+    TempoMode old_mode = mode_;
+
+    sync_beats_ = beats;
+    sync_tempo_ = tempo;
+    sync_time_ = time;
+    mode_ = TempoMode::kSync;
+
+    if (g_) g_->onTempoChanged(*this, old_mode);
   }
 
   template<typename...Gs>
   void StreamController<Gs...>::swapMeter(Meter& meter)
   {
-    bool meter_enabled_changed = !meter_enabled_;
+    bool enabled_changed = !meter_enabled_;
     if (!meter_enabled_)
     {
       std::swap(default_meter_, meter_);
       meter_enabled_ = true;
     }
     std::swap(meter_, meter);
-    if (g_) g_->onMeterChanged(*this, meter_enabled_changed);
+    if (g_) g_->onMeterChanged(*this, meter, enabled_changed);
   }
 
   template<typename...Gs>
@@ -236,7 +287,7 @@ namespace audio {
     {
       std::swap(meter_, default_meter_);
       meter_enabled_ = false;
-      if (g_) g_->onMeterChanged(*this, true);
+      if (g_) g_->onMeterChanged(*this, default_meter_, true);
     }
   }
 
@@ -268,9 +319,9 @@ namespace audio {
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::start(size_t index)
+  void StreamController<Gs...>::start(GeneratorId gen)
   {
-    switchGenerator(index);
+    switchGenerator(gen);
     if (g_) g_->onStart(*this);
   }
 
@@ -295,21 +346,21 @@ namespace audio {
 
   template<typename...Gs>
   template<size_t N>
-  void StreamController<Gs...>::switchGenerator(size_t index)
+  void StreamController<Gs...>::switchGenerator(GeneratorId gen)
   {
-    if (N == index) {
+    if (N == gen) {
       auto* new_g = &std::get<N>(gs_);
       if (g_) g_->leave(*this);
       g_ = new_g;
       if (g_) g_->enter(*this);
     }
     if constexpr (N + 1 < std::tuple_size_v<StreamGeneratorTuple>) {
-      return switchGenerator<N + 1>(index);
+      return switchGenerator<N + 1>(gen);
     }
   }
 
   template<typename...Gs>
-  template<size_t I>
+  template<GeneratorId I>
   auto& StreamController<Gs...>::generator()
   {
     return std::get<I>(gs_);
@@ -318,19 +369,19 @@ namespace audio {
   class FillBufferGenerator;
   class PreCountGenerator;
   class RegularGenerator;
-  class DrainGenerator;
+  class DrainBufferGenerator;
 
   using BeatStreamController = StreamController<
     FillBufferGenerator,
     PreCountGenerator,
     RegularGenerator,
-    DrainGenerator
+    DrainBufferGenerator
     >;
 
-  constexpr size_t kFillBufferGenerator = 0;
-  constexpr size_t kPreCountGenerator = 1;
-  constexpr size_t kRegularGenerator = 2;
-  constexpr size_t kDrainGenerator = 3;
+  constexpr GeneratorId kFillBufferGenerator  = 0;
+  constexpr GeneratorId kPreCountGenerator    = 1;
+  constexpr GeneratorId kRegularGenerator     = 2;
+  constexpr GeneratorId kDrainBufferGenerator = 3;
 
   /**
    * @class FillBufferGenerator
@@ -338,7 +389,6 @@ namespace audio {
   class FillBufferGenerator : public StreamGenerator<BeatStreamController> {
   public:
     void prepare(BeatStreamController& ctrl) override;
-
     void enter(BeatStreamController& ctrl) override;
     void leave(BeatStreamController& ctrl) override;
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
@@ -366,14 +416,11 @@ namespace audio {
    */
   class RegularGenerator : public StreamGenerator<BeatStreamController> {
   public:
-    void onTempoChanged(BeatStreamController& ctrl) override;
-    void onTargetTempoChanged(BeatStreamController& ctrl) override;
-    void onAccelerationChanged(BeatStreamController& ctrl) override;
-    void onSynchronize(BeatStreamController& ctrl, double beat_dev, double tempo_dev) override;
-    void onMeterChanged(BeatStreamController& ctrl, bool meter_enabled_changed) override;
+    void onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode) override;
+    void onMeterChanged(BeatStreamController& ctrl,
+                        const Meter& old_meter, bool enabled_changed) override;
 
     void prepare(BeatStreamController& ctrl) override;
-
     void enter(BeatStreamController& ctrl) override;
     void leave(BeatStreamController& ctrl) override;
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
@@ -387,18 +434,52 @@ namespace audio {
     size_t accent_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
-    size_t division_saved_{0};
+    int hold_{0};
 
     void updateFramesLeft(BeatStreamController& ctrl);
     void step(BeatStreamController& ctrl, size_t frames_chunk);
+
+    void recomputeStepwise(BeatStreamController& ctrl);
+    void resetStepwise(BeatStreamController& ctrl);
+    void handleStepwise(BeatStreamController& ctrl);
+    void accelerateStepwise(BeatStreamController& ctrl);
+    TempoMode effectiveMode(const BeatStreamController& ctrl) const;
   };
 
   /**
-   * @class DrainGenerator
+   * @class DrainBufferGenerator
    */
-  class DrainGenerator : public StreamGenerator<BeatStreamController> {
+  class DrainBufferGenerator : public StreamGenerator<BeatStreamController> {
   public:
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
+  };
+
+  /**
+   * @class StreamTimer
+   */
+  class StreamTimer {
+  public:
+    void start(microseconds time)
+      { running_ = true; bytes_ = usecsToBytes(time, spec_); }
+    bool finished() const
+      { return running_ && bytes_ == 0; }
+    bool running() const
+      { return running_; }
+    void step(size_t bytes)
+      { bytes_ = (bytes < bytes_) ? bytes_-bytes : 0; }
+    microseconds remaining() const
+      { return bytesToUsecs(bytes_, spec_); }
+    void reset()
+      { running_ = false; bytes_ = 0; }
+    void switchStreamSpec(const StreamSpec& spec)
+      {
+        if (bytes_ != 0) bytes_ = usecsToBytes(remaining(), spec);
+        spec_ = spec;
+      }
+  private:
+    StreamSpec spec_{kDefaultSpec};
+    bool running_{false};
+    size_t bytes_{0};
   };
 
 }//namespace audio

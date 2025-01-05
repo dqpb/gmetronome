@@ -33,6 +33,7 @@
 #include <vector>
 #include <chrono>
 
+class Application;
 class ActionBinding;
 class ProfileListStore;
 class SettingsDialog;
@@ -51,6 +52,7 @@ public:
                                               const Glib::ustring& title_placeholder);
 private:
   Glib::RefPtr<Gtk::Builder> builder_;
+  Glib::RefPtr<Application> app_;
 
   //Bindings
   std::list<Glib::RefPtr<Glib::Binding>> bindings_;
@@ -72,9 +74,7 @@ private:
   // UI elements
   class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
   Gtk::HeaderBar* header_bar_;
-  Gtk::Box* header_bar_title_box_;
-  TempoDisplay tempo_display_;
-  Gtk::Label* current_profile_label_;
+  LCD lcd_;
   Gtk::Button* full_screen_button_;
   Gtk::Image* full_screen_image_;
   Gtk::MenuButton* main_menu_button_;
@@ -125,13 +125,18 @@ private:
   Gtk::RadioButton* subdiv_3_radio_button_;
   Gtk::RadioButton* subdiv_4_radio_button_;
   Gtk::Label* subdiv_label_;
+  Gtk::Stack* trainer_stack_;
+  Gtk::ButtonBox* trainer_mode_button_box_;
+  Gtk::RadioButton* trainer_mode_1_radio_button_;
+  Gtk::RadioButton* trainer_mode_2_radio_button_;
   AccentButtonGrid accent_button_grid_;
   Pendulum pendulum_;
 
   Glib::RefPtr<Gtk::Adjustment> tempo_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> trainer_start_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_target_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_accel_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> trainer_step_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> trainer_hold_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> beats_adjustment_;
 
   Glib::RefPtr<ProfileListStore> profile_list_store_;
@@ -194,6 +199,7 @@ private:
   void onBeatsChanged();
   void onSubdivChanged(Gtk::RadioButton* button, int division);
   void onAccentChanged(std::size_t button_index);
+  void onTrainerModeChanged(Gtk::RadioButton* button);
   void onProfileSelectionChanged();
   void onProfileTitleStartEditing(Gtk::CellEditable* editable, const Glib::ustring& path);
   void onProfileTitleChanged(const Glib::ustring& path, const Glib::ustring& new_text);
@@ -214,6 +220,7 @@ private:
   void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
   void updateStart(bool running);
+  void updateTrainerMode(Profile::TrainerMode mode);
   void updateStartButtonLabel(bool running);
   void updateVolumeMute(bool mute);
 

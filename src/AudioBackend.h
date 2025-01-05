@@ -61,20 +61,20 @@ namespace audio {
    *
    * An audio backend is always in one of the following states:
    *
-   * 1) Config:  This state is used to configure the audio::Backend
-   * 2) Open:    After configuration call open() to check configuration and
-   *             open the audio device on success.
-   * 3) Running: Call start() to reach the Running mode from the Open mode.
+   * -# Config:  This state is used to configure the audio::Backend
+   * -# Open:    After configuration use open() to check the configuration and
+   *             open the audio device.
+   * -# Running: Call start() to reach the Running mode from the Open mode.
    *             In this state you can use the blocking i/o operations (write).
    *
    * The backend state is changed with the following transitions:
    *
-   *   I)   Config  --> Config    [configure()]
-   *   II)  Config  --> Open      [open()]
-   *   III) Open    --> Running   [start()]
-   *   IV)  Running --> Open      [stop()]
-   *   V)   Open    --> Config    [close()]
-   *
+   *   -# Config  --> Config    [@ref configure()]
+   *   -# Config  --> Open      [@ref open()]
+   *   -# Open    --> Running   [@ref start()]
+   *   -# Running --> Open      [@ref stop()]
+   *   -# Open    --> Config    [@ref close()]
+
    * All other attempts to change the state result in a state transition error.
    */
   class Backend {
@@ -110,8 +110,6 @@ namespace audio {
   };
 
   /**
-   * @function availableBackends
-   *
    * Get a list of available audio backend identifiers that can be instantiated
    * with createBackend().
    *
@@ -120,7 +118,6 @@ namespace audio {
   const std::vector<BackendIdentifier>& availableBackends();
 
   /**
-   * @function createBackend
    * @brief  Create a new audio backend.
    * @param  An audio backend identifier.
    * @return  A pointer to the audio backend object or nullptr on error.

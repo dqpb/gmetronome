@@ -159,6 +159,7 @@ namespace settings {
    */
   inline const Glib::ustring  kKeyPrefsRestoreProfile             {"restore-profile"};
   inline const Glib::ustring  kKeyPrefsLinkSoundTheme             {"link-sound-theme"};
+  inline const Glib::ustring  kKeyPrefsRoundTappedTempo           {"round-tapped-tempo"};
   inline const Glib::ustring  kKeyPrefsInputDeviceLatency         {"input-device-latency"};
   inline const Glib::ustring  kKeyPrefsPendulumAction             {"pendulum-action"};
   inline const Glib::ustring  kKeyPrefsPendulumPhaseMode          {"pendulum-phase-mode"};

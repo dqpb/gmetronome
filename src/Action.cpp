@@ -181,23 +181,23 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
-  /* Action         : kActionTrainerStart
+  /* Action         : kActionTrainerMode
    * Scope          : Application
-   * Parameter type : double
-   * State type     : double
-   * State value    : kDefaultProfile.content.trainer_start
-   * State hint     : (Profile::kMinTempo,Profile::kMaxTempo)
+   * Parameter type : -
+   * State type     : Profile::TrainerMode
+   * State value    : kDefaultProfile.content.trainer_mode
+   * State hint     : [Profile::kTrainerModeContinuous, Profile::kTrainerModeStepwise]
    * Enabled        : true
    */
-  { kActionTrainerStart,
+  { kActionTrainerMode,
     {
       ActionScope::kApp,
-      Glib::Variant<double>::variant_type(),
-      Glib::Variant<double>::create(kDefaultProfile.content.trainer_start),
-      Glib::Variant<ActionStateHintRange<double>>::create(
+      Glib::Variant<Profile::TrainerMode>::variant_type(),
+      Glib::Variant<Profile::TrainerMode>::create(kDefaultProfile.content.trainer_mode),
+      Glib::Variant<std::vector<Profile::TrainerMode>>::create(
         {
-          Profile::kMinTempo,
-          Profile::kMaxTempo
+          Profile::TrainerMode::kContinuous,
+          Profile::TrainerMode::kStepwise
         }),
       true
     }
@@ -208,7 +208,7 @@ const ActionDescriptionMap kActionDescriptions =
    * Parameter type : double
    * State type     : double
    * State value    : kDefaultProfile.content.trainer_target
-   * State hint     : (Profile::kMinTempo,Profile::kMaxTempo)
+   * State hint     : (Profile::kMinTrainerTarget,Profile::kMaxTrainerTarget)
    * Enabled        : true
    */
   { kActionTrainerTarget,
@@ -218,8 +218,8 @@ const ActionDescriptionMap kActionDescriptions =
       Glib::Variant<double>::create(kDefaultProfile.content.trainer_target),
       Glib::Variant<ActionStateHintRange<double>>::create(
         {
-          Profile::kMinTempo,
-          Profile::kMaxTempo
+          Profile::kMinTrainerTarget,
+          Profile::kMaxTrainerTarget
         }),
       true
     }
@@ -242,6 +242,50 @@ const ActionDescriptionMap kActionDescriptions =
         {
           Profile::kMinTrainerAccel,
           Profile::kMaxTrainerAccel
+        }),
+      true
+    }
+  },
+
+  /* Action         : kActionTrainerStep
+   * Scope          : Application
+   * Parameter type : double
+   * State type     : double
+   * State value    : kDefaultProfile.content.trainer_step
+   * State hint     : (Profile::kMinTrainerStep,Profile::kMaxTrainerStep)
+   * Enabled        : true
+   */
+  { kActionTrainerStep,
+    {
+      ActionScope::kApp,
+      Glib::Variant<double>::variant_type(),
+      Glib::Variant<double>::create(kDefaultProfile.content.trainer_step),
+      Glib::Variant<ActionStateHintRange<double>>::create(
+        {
+          Profile::kMinTrainerStep,
+          Profile::kMaxTrainerStep
+        }),
+      true
+    }
+  },
+
+  /* Action         : kActionTrainerHold
+   * Scope          : Application
+   * Parameter type : int
+   * State type     : int
+   * State value    : kDefaultProfile.content.trainer_hold
+   * State hint     : (Profile::kMinTrainerHold,Profile::kMaxTrainerHold)
+   * Enabled        : true
+   */
+  { kActionTrainerHold,
+    {
+      ActionScope::kApp,
+      Glib::Variant<int>::variant_type(),
+      Glib::Variant<int>::create(kDefaultProfile.content.trainer_hold),
+      Glib::Variant<ActionStateHintRange<int>>::create(
+        {
+          Profile::kMinTrainerHold,
+          Profile::kMaxTrainerHold
         }),
       true
     }

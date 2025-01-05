@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
-   sodipodi:docname="gm-access-profile-symbolic.svg"
+   sodipodi:docname="gm-access-profile-symbolic-rtl.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -92,43 +92,49 @@
      id="rect8"
      width="1.8520834"
      height="0.5291667"
-     x="1.8520834"
-     y="2.9104166" />
+     x="-2.3812501"
+     y="2.9104166"
+     transform="scale(-1,1)" />
   <rect
      style="display:inline;fill:#000000;stroke-width:1.57476;stroke-linecap:round;stroke-opacity:0.369099"
      id="rect7"
      width="1.8520834"
      height="0.52916664"
-     x="1.8520834"
-     y="1.8520834" />
+     x="-2.3812501"
+     y="1.8520834"
+     transform="scale(-1,1)" />
   <rect
      style="display:inline;fill:#000000;stroke-width:1.57477;stroke-linecap:round;stroke-opacity:0.369099"
      id="rect6"
      width="1.8520834"
      height="0.52916658"
-     x="1.8520834"
-     y="0.79374999" />
+     x="-2.3812501"
+     y="0.79374999"
+     transform="scale(-1,1)" />
   <rect
      style="display:inline;fill:#000000;stroke-width:1.36949;stroke-linecap:round;stroke-opacity:0.369099"
      id="rect2"
      width="0.79375005"
      height="0.5291667"
-     x="0.5291667"
-     y="2.9104164" />
+     x="-3.7041669"
+     y="2.9104164"
+     transform="scale(-1,1)" />
   <rect
      style="display:inline;fill:#000000;stroke-width:1.04904;stroke-linecap:round;stroke-opacity:0.369099"
      id="rect3"
      width="0.79375005"
      height="0.5291667"
-     x="0.5291667"
-     y="1.8520833" />
+     x="-3.7041669"
+     y="1.8520833"
+     transform="scale(-1,1)" />
   <rect
      style="display:inline;fill:#000000;stroke-width:1.3432;stroke-linecap:round;stroke-opacity:0.369099"
      id="rect1"
      width="0.79375005"
      height="0.52916676"
-     x="0.5291667"
-     y="0.79374975" />
+     x="-3.7041669"
+     y="0.79374975"
+     transform="scale(-1,1)" />
   <metadata
      id="metadata4775">
     <rdf:RDF>

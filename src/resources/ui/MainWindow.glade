@@ -439,37 +439,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="spacing">5</property>
     <property name="show-close-button">True</property>
     <child type="title">
-      <object class="GtkBox" id="headerBarTitleBox">
-        <property name="name">headerBarTitleBox</property>
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="valign">center</property>
-        <property name="hexpand">True</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkLabel" id="currentProfileLabel">
-            <property name="name">currentProfileLabel</property>
-            <property name="can-focus">False</property>
-            <property name="label">Default</property>
-            <property name="ellipsize">end</property>
-            <property name="single-line-mode">True</property>
-            <property name="max-width-chars">30</property>
-            <property name="track-visited-links">False</property>
-            <style>
-              <class name="smaller"/>
-            </style>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack-type">end</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
+      <placeholder/>
     </child>
     <child>
       <object class="GtkMenuButton" id="profileMenuButton">
@@ -484,7 +454,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
           <object class="GtkImage">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="icon-name">view-list-symbolic</property>
+            <property name="icon-name">gm-access-profile-symbolic</property>
           </object>
         </child>
       </object>
@@ -582,7 +552,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
           <object class="GtkImage">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="icon-name">open-menu-symbolic</property>
+            <property name="icon-name">gm-access-menu-symbolic</property>
           </object>
         </child>
       </object>
@@ -606,10 +576,17 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="trainerStartAdjustment">
-    <property name="lower">30</property>
-    <property name="upper">250</property>
-    <property name="value">80</property>
+  <object class="GtkAdjustment" id="trainerHoldAdjustment">
+    <property name="lower">1</property>
+    <property name="upper">99</property>
+    <property name="value">4</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="trainerStepAdjustment">
+    <property name="lower">1</property>
+    <property name="upper">99</property>
+    <property name="value">8</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -960,6 +937,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                       <object class="GtkButtonBox" id="subdivButtonBox">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="homogeneous">True</property>
                                         <property name="layout-style">expand</property>
                                         <child>
                                           <object class="GtkRadioButton" id="subdiv1RadioButton">
@@ -1114,12 +1092,289 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="name">trainerContentBox</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="spacing">20</property>
-                            <property name="homogeneous">True</property>
-                            <child type="center">
+                            <property name="spacing">10</property>
+                            <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="halign">start</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes">Mode</property>
+                                    <style>
+                                      <class name="top-label"/>
+                                    </style>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButtonBox" id="trainerModeButtonBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="homogeneous">True</property>
+                                    <property name="layout-style">expand</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="trainerMode1RadioButton">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Continuous</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">False</property>
+                                        <property name="group">trainerMode2RadioButton</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">gm-curve-linear-up-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="trainerMode2RadioButton">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Stepwise</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">False</property>
+                                        <property name="group">trainerMode1RadioButton</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="icon-name">gm-curve-stepwise-up-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkStack" id="trainerStack">
+                                <property name="name">trainerStack</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="transition-type">slide-up-down</property>
+                                <child>
+                                  <object class="GtkBox" id="trainerContinuousBox">
+                                    <property name="name">trainerContinuousBox</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="spacing">20</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="opacity">0.80</property>
+                                            <property name="halign">start</property>
+                                            <property name="label" translatable="yes" context="Main window - Trainer">Acceleration</property>
+                                            <property name="justify">fill</property>
+                                            <style>
+                                              <class name="top-label"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkSpinButton" id="trainerAccelSpinButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Acceleration in BPM per minute</property>
+                                            <property name="halign">start</property>
+                                            <property name="max-length">4</property>
+                                            <property name="width-chars">4</property>
+                                            <property name="max-width-chars">4</property>
+                                            <property name="input-purpose">number</property>
+                                            <property name="adjustment">trainerAccelAdjustment</property>
+                                            <property name="numeric">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="name">trainerContinuousPage</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox" id="trainerStepwiseBox">
+                                    <property name="name">trainerStepwiseBox</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="spacing">10</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">1</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="opacity">0.80</property>
+                                            <property name="halign">start</property>
+                                            <property name="label" translatable="yes" context="Main window - Trainer">Hold</property>
+                                            <property name="justify">fill</property>
+                                            <style>
+                                              <class name="top-label"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkSpinButton" id="trainerHoldSpinButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Number of beats to hold the tempo</property>
+                                            <property name="halign">start</property>
+                                            <property name="max-length">3</property>
+                                            <property name="width-chars">3</property>
+                                            <property name="max-width-chars">3</property>
+                                            <property name="input-purpose">number</property>
+                                            <property name="adjustment">trainerHoldAdjustment</property>
+                                            <property name="numeric">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">end</property>
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">1</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="opacity">0.80</property>
+                                            <property name="halign">start</property>
+                                            <property name="label" translatable="yes" context="Main window - Trainer">Step</property>
+                                            <property name="justify">fill</property>
+                                            <style>
+                                              <class name="top-label"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkSpinButton" id="trainerStepSpinButton">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Tempo change in BPM</property>
+                                            <property name="halign">start</property>
+                                            <property name="max-length">3</property>
+                                            <property name="width-chars">3</property>
+                                            <property name="max-width-chars">3</property>
+                                            <property name="input-purpose">number</property>
+                                            <property name="adjustment">trainerStepAdjustment</property>
+                                            <property name="numeric">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="name">trainerStepwisePage</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="trainerTargetBox">
+                                <property name="name">trainerTargetBox</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="halign">end</property>
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
@@ -1143,7 +1398,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   <object class="GtkSpinButton" id="trainerEndSpinButton">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="tooltip-text" translatable="yes" context="Main window">Target tempo in BPM</property>
+                                    <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Target tempo in BPM</property>
                                     <property name="halign">start</property>
                                     <property name="max-length">3</property>
                                     <property name="width-chars">3</property>
@@ -1160,110 +1415,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
+                                <property name="expand">True</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">1</property>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="opacity">0.80</property>
-                                    <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window - Trainer">Start</property>
-                                    <property name="justify">fill</property>
-                                    <style>
-                                      <class name="top-label"/>
-                                    </style>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkSpinButton" id="trainerStartSpinButton">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="tooltip-text" translatable="yes" context="Main window">Start tempo in BPM</property>
-                                    <property name="halign">start</property>
-                                    <property name="max-length">3</property>
-                                    <property name="width-chars">3</property>
-                                    <property name="max-width-chars">3</property>
-                                    <property name="input-purpose">number</property>
-                                    <property name="adjustment">trainerStartAdjustment</property>
-                                    <property name="numeric">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">end</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="opacity">0.80</property>
-                                    <property name="halign">start</property>
-                                    <property name="label" translatable="yes" context="Main window - Trainer">Acceleration</property>
-                                    <property name="justify">fill</property>
-                                    <style>
-                                      <class name="top-label"/>
-                                    </style>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkSpinButton" id="trainerAccelSpinButton">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="tooltip-text" translatable="yes" context="Main window">Tempo change in BPM per minute</property>
-                                    <property name="halign">start</property>
-                                    <property name="max-length">4</property>
-                                    <property name="width-chars">4</property>
-                                    <property name="max-width-chars">4</property>
-                                    <property name="input-purpose">number</property>
-                                    <property name="adjustment">trainerAccelAdjustment</property>
-                                    <property name="numeric">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="pack-type">end</property>
-                                <property name="position">1</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                             <style>
@@ -1330,22 +1484,18 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="relief">none</property>
                             <property name="orientation">vertical</property>
                             <property name="adjustment">volumeAdjustment</property>
+                            <property name="icons">
+</property>
                             <child internal-child="plus_button">
                               <object class="GtkButton">
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
-                                <property name="relief">none</property>
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
                               </object>
                             </child>
                             <child internal-child="minus_button">
                               <object class="GtkButton">
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="halign">center</property>
-                                <property name="valign">center</property>
-                                <property name="relief">none</property>
+                                <property name="can-focus">False</property>
+                                <property name="receives-default">False</property>
                               </object>
                             </child>
                           </object>

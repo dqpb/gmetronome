@@ -36,35 +36,50 @@
 
 namespace audio {
 
-  enum TickerStateFlag
-  {
-    kStarted      = 0,
-    kRunning      = 1,
-    kError        = 2
-  };
-
-  using TickerState = std::bitset<16>;
-
   class Ticker {
   public:
-    static constexpr double kMinTempo = 30.0;
-    static constexpr double kMaxTempo = 250.0;
-    static constexpr double kMinAcceleration = 0.0;
-    static constexpr double kMaxAcceleration = 1000.0;
+    enum StateFlag
+    {
+      kStarted      = 0,
+      kRunning      = 1,
+      kError        = 2
+    };
+
+    using State = std::bitset<16>;
+
+    enum class AccelMode
+    {
+      kNoAccel,
+      kContinuous,
+      kStepwise
+    };
 
     struct Statistics
     {
       microseconds  timestamp {0us};
+
+      AccelMode     mode {AccelMode::kNoAccel};
+      bool          pending {false};
+      bool          syncing {false};
+
       double        position {0.0};
       double        tempo {0.0};
       double        acceleration {0.0};
-      int           n_beats {-1};
-      int           n_accents {-1};
-      int           next_accent {-1};
+      double        target {0.0};
+
+      int           hold {0};
+
+      bool          default_meter {true};
+      int           beats {-1};
+      int           division {-1};
+      int           accent {-1};
       microseconds  next_accent_delay {0us};
-      int           generator_state {-1};
+
+      GeneratorId   generator {kInvalidGenerator};
       microseconds  backend_latency {0us};
     };
+
+    static constexpr microseconds kDefaultSyncTime = 1s;
 
   public:
     Ticker();
@@ -82,18 +97,51 @@ namespace audio {
     void stop();
     void reset() noexcept;
 
-    TickerState state() const noexcept;
+    Ticker::State state() const noexcept;
 
+    /**
+     * @brief Set the tempo of the metronome
+     */
     void setTempo(double tempo);
-    void setTargetTempo(double target_tempo);
-    void setAccel(double accel);
+
+    /**
+     * @brief Accelerate the metronome continuously towards a target tempo
+     *
+     * @param accel  Magnitude of acceleration in BPM per minute
+     * @param target Target tempo in BPM
+     */
+    void accelerate(double accel, double target);
+
+    /**
+     * @brief Accelerate the metronome stepwise towards a target tempo
+     *
+     * @param hold   Number of beats to hold the tempo
+     * @param step   Magnitude of tempo change in BPM
+     * @param target Target tempo in BPM
+     */
+    void accelerate(int hold, double step, double target);
+
+    /**
+     * @brief Stop an ongoing acceleration
+     *
+     * This function ends an acceleration mode that was previously started
+     * by a call to one of the @ref accelerate overloads and switches back
+     * to the unaccelerated state.
+     */
+    void stopAcceleration();
+
+    /**
+     * @brief Synchronize the metronome with another oscillation
+     * @see physics::BeatKinematics::synchronize for details
+     */
+    void synchronize(double beats, double tempo, microseconds time = kDefaultSyncTime);
+
     void setMeter(Meter meter);
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
-    void synchronize(double beat_dev, double tempo_dev);
-
-    Ticker::Statistics getStatistics();
+    Ticker::Statistics getStatistics() const;
+    Ticker::Statistics getStatistics(bool consume = true);
 
     bool hasStatistics() const;
 
@@ -104,45 +152,58 @@ namespace audio {
     std::unique_ptr<Backend> dummy_{nullptr};
     DeviceConfig actual_device_config_{kDefaultConfig};
 
-    TickerState state_{0};
+    Ticker::State state_{0};
 
-    std::atomic<double> in_tempo_{0.0};
-    std::atomic<double> in_target_tempo_{0.0};
-    std::atomic<double> in_accel_{0.0};
+    // tempo
+    double in_tempo_{0.0};
+
+    // acceleration
+    double in_target_{0.0};
+    double in_accel_{0.0};
+    int    in_hold_{0};
+    double in_step_{0.0};
+
+    // synchronization
+    double in_sync_beats_{0.0};
+    double in_sync_tempo_{0.0};
+    microseconds in_sync_time_{0};
+
+    // meter
     Meter in_meter_{};
-    double in_beat_dev_{0.0};
-    double in_tempo_dev_{0.0};
-    bool reset_meter_{false};
+
+    // sound
     std::array<SoundParameters, kNumAccents> in_sounds_;
+
+    // input operations
+    enum OpFlag
+    {
+      kOpFlagTempo       = 0,
+      kOpFlagAccelCS     = 1,
+      kOpFlagAccelSW     = 2,
+      kOpFlagAccelSP     = 3,
+      kOpFlagSync        = 4,
+      kOpFlagMeter       = 5,
+      kOpFlagMeterReset  = 6,
+      kOpFlagSoundOff    = 7,
+      kOpFlagSoundWeak   = 8,
+      kOpFlagSoundMid    = 9,
+      kOpFlagSoundStrong = 10,
+      kNumOpFlags
+    };
+
+    using OpFlags = std::bitset<kNumOpFlags>;
+
+    static constexpr OpFlags kOpMaskMeter {   0b11u << kOpFlagMeter};
+    static constexpr OpFlags kOpMaskAccel {  0b111u << kOpFlagAccelCS};
+    static constexpr OpFlags kOpMaskSound { 0b1111u << kOpFlagSoundOff};
+
+    OpFlags in_ops_{0};
+
+    std::atomic_flag swap_backend_flag_;
+    mutable SpinLock spin_mutex_;
 
     Ticker::Statistics out_stats_;
     bool has_stats_{false};
-
-    std::atomic_flag tempo_imported_flag_;
-    std::atomic_flag target_tempo_imported_flag_;
-    std::atomic_flag accel_imported_flag_;
-    std::atomic_flag meter_imported_flag_;
-    std::atomic_flag sync_imported_flag_;
-    std::array<std::atomic_flag, kNumAccents> sound_imported_flags_;
-    std::atomic_flag sync_swap_backend_flag_;
-
-    mutable std::mutex std_mutex_;
-    mutable SpinLock spin_mutex_;
-
-    bool importTempo();
-    bool importTargetTempo();
-    bool importAccel();
-    bool importMeter();
-    bool importSync();
-    bool importSound(Accent accent);
-    bool syncSwapBackend();
-    void hardSwapBackend(std::unique_ptr<Backend>& backend);
-
-    void importGeneratorSettings();
-    bool importBackend();
-
-    void exportStatistics();
-    void exportBackend();
 
     void openBackend();
     void closeBackend();
@@ -150,9 +211,43 @@ namespace audio {
     void stopBackend();
     void writeBackend(const void* data, size_t bytes);
 
+    bool syncSwapBackend();
+    void hardSwapBackend(std::unique_ptr<Backend>& backend);
+
+    bool importBackend();
+
+    // current accel mode
+    AccelMode accel_mode_{AccelMode::kNoAccel};
+
+    // accel mode suspension handling
+    static constexpr microseconds kDefaultAccelDeferTime = 2s;
+
+    StreamTimer accel_defer_timer_;
+
+    void deferAccel(microseconds time = kDefaultAccelDeferTime);
+    bool tryAmendAccel(bool force = false);
+    void abortAccelDefer();
+    bool isAccelDeferred() const
+      { return accel_defer_timer_.running(); }
+    void updateAccelDeferTimer(size_t bytes)
+      { accel_defer_timer_.step(bytes); }
+    bool isAccelDeferExpired() const
+      { return accel_defer_timer_.finished(); }
+
+    void importTempo();
+    void importAccelMode();
+    void importAccelModeParams();
+    void importSync();
+    void importMeter();
+    void importSound();
+    void importSettingsInitial();
+    bool tryImportSettings(bool force = false);
+
+    bool tryExportStatistics(bool force = false);
+
     std::unique_ptr<std::thread> audio_thread_{nullptr};
-    std::atomic<bool> stop_audio_thread_flag_{true};
-    std::atomic<bool> audio_thread_finished_flag_{false};
+    std::atomic_flag continue_audio_thread_flag_;
+    std::atomic<bool> audio_thread_finished_flag_{true};
     std::exception_ptr audio_thread_error_{nullptr};
     std::atomic<bool> audio_thread_error_flag_{false};
     std::condition_variable_any cond_var_;

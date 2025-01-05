@@ -20,102 +20,48 @@
 #ifndef GMetronome_TempoDisplay_h
 #define GMetronome_TempoDisplay_h
 
+#include "Ticker.h"
+
 #include <gtkmm.h>
 #include <vector>
 #include <chrono>
 
-class DividerLabel : public Gtk::DrawingArea {
-public:
-  enum class State
-  {
-    kSpeedup,
-    kSlowdown,
-    kStable
-  };
-
-public:
-  DividerLabel();
-  ~DividerLabel();
-
-  void changeState(State s);
-
-private:
-  State state_{State::kStable};
-  int content_size_{1};
-  guint animation_tick_callback_id_{0};
-  bool animation_running_{false};
-
-  using seconds_dbl = std::chrono::duration<double>;
-
-  class TriangleMotionState {
-  public:
-    void reset(double position = 0.0);
-    void moveTo(double target);
-    bool step(const seconds_dbl& time);
-
-    double position() const
-      { return p_; }
-    bool targetReached() const
-      { return p_ == t_; }
-
-  private:
-    double p_{0.0}; // position (degreed)
-    double v_{0.0}; // velocity (degrees/s)
-    double t_{0.0}; // target position
-  };
-
-  TriangleMotionState triangle_motion_;
-
-  std::chrono::microseconds last_frame_time_{0};
-
-  void startAnimation();
-  void stopAnimation();
-  bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock);
-
-  void updateSize();
-
-  void addBulletPath(const Cairo::RefPtr<Cairo::Context>& cr);
-  void addTrianglePath(const Cairo::RefPtr<Cairo::Context>& cr);
-
-  // default signal handler
-  void on_style_updated() override;
-  bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
-  Gtk::SizeRequestMode get_request_mode_vfunc() const override;
-  void get_preferred_width_vfunc(int& minimum_width,
-                                 int& natural_width) const override;
-  void get_preferred_height_for_width_vfunc(int width,
-                                            int& minimum_height,
-                                            int& natural_height) const  override;
-  void get_preferred_height_vfunc(int& minimum_height,
-                                  int& natural_height) const override;
-  void get_preferred_width_for_height_vfunc(int height,
-                                            int& minimum_width,
-                                            int& natural_width) const override;
-};
-
 class NumericLabel : public Gtk::DrawingArea {
 public:
-  NumericLabel(int number = 0, std::size_t digits = 3, bool fill = false);
+  NumericLabel(std::size_t digits = 3, int number = 0, bool fill = false, bool dim = false);
 
-  void display(int number);
+  void display(int number, bool fill, bool dim);
+  void display(int number)
+    { display(number, kDefaultFill_, kDefaultDim_); }
 
-  void clear()
+  void zero(bool fill, bool dim)
+    { display(0, fill, dim); }
+  void zero()
     { display(0); }
+
+  void reset(bool fill, bool dim);
+  void reset()
+    { reset(kDefaultFill_, kDefaultDim_); }
 
   int number() const
     { return number_; }
   std::size_t digits() const
-    { return kDigits; }
-  bool fill() const
-    { return kFill; }
+    { return kDigits_; }
+  bool unset() const
+    { return unset_; }
 
 private:
+  const std::size_t kDigits_;
   int number_{0};
-  const std::size_t kDigits;
-  const bool kFill;
+  const bool kDefaultFill_;
+  const bool kDefaultDim_;
+  bool fill_;
+  bool dim_;
 
   std::vector<Glib::ustring> digits_;
 
+  bool unset_{true};
+  int n_fill_{0};
   int digit_width_{0};
   int digit_height_{0};
 
@@ -132,7 +78,7 @@ private:
                                  int& natural_width) const override;
   void get_preferred_height_for_width_vfunc(int width,
                                             int& minimum_height,
-                                            int& natural_height) const  override;
+                                            int& natural_height) const override;
   void get_preferred_height_vfunc(int& minimum_height,
                                   int& natural_height) const override;
   void get_preferred_width_for_height_vfunc(int height,
@@ -140,23 +86,67 @@ private:
                                             int& natural_width) const override;
 };
 
-class TempoDisplay : public Gtk::Box {
+class StatusIcon : public Gtk::Image {
 public:
-  TempoDisplay();
+  enum class Image
+  {
+    kNone,
+    kContinuousUp,
+    kContinuousDown,
+    kStepwiseUp,
+    kStepwiseDown,
+    kTargetHit,
+    kSync
+  };
 
-  void display(double tempo, double accel);
+  StatusIcon() = default;
 
-  double tempo() const
-    { return tempo_; }
-  double accel() const
-    { return accel_; }
+  void switchImage(StatusIcon::Image id);
+  Image image() const
+    { return id_; }
+
+  void enableBlink();
+  void disableBlink();
+  bool isBlinking() const
+    { return blink_; }
 
 private:
-  double tempo_{0.0};
-  double accel_{0.0};
-  DividerLabel divider_label_;
-  NumericLabel integral_label_{0,3,false};
-  NumericLabel fraction_label_{0,2,true};
+  StatusIcon::Image id_{Image::kNone};
+  Gtk::IconSize size_{Gtk::ICON_SIZE_SMALL_TOOLBAR};
+  bool blink_{false};
+};
+
+class LCD : public Gtk::Box {
+public:
+  LCD();
+
+  void updateStatistics(const audio::Ticker::Statistics& stats);
+
+  void setProfileTitle(const Glib::ustring& title, bool is_placeholder);
+
+  void unsetProfileTitle();
+
+private:
+  Gtk::Box     stat_box_;
+  Gtk::Label   profile_label_;
+  NumericLabel beat_label_{2, 0, true, true};
+  NumericLabel tempo_int_label_{3, 0, true, true};
+
+  static constexpr int kPrecision = 2;
+  NumericLabel tempo_frac_label_{kPrecision, 0, true, false};
+
+  NumericLabel hold_label_{2, 0, true, true};
+  StatusIcon   status_icon_;
+
+  std::pair<int, int> decomposeTempo(double tempo);
+
+  Gdk::RGBA getBGColor(const Gtk::Widget* widget);
+  Gdk::RGBA getFGColor(const Gtk::Widget* widget);
+
+//  void on_style_updated() override;
+  void updateCSSClass();
+  void onThemeNameChanged();
+  void onParentChanged();
 };
 
 #endif//GMetronome_TempoDisplay_h

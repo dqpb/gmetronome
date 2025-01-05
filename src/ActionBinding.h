@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2020 The GMetronome Team
- * 
+ *
  * This file is part of GMetronome.
  *
  * GMetronome is free software: you can redistribute it and/or modify
@@ -32,12 +32,12 @@ public:
   static Glib::RefPtr<ActionBinding> create(Glib::RefPtr<Gio::ActionGroup> action_group,
                                             const Glib::ustring& action_name,
                                             Glib::PropertyProxy_Base property);
-  
+
 protected:
   ActionBinding(Glib::RefPtr<Gio::ActionGroup> action_group,
-		const Glib::ustring& action_name,
+                const Glib::ustring& action_name,
                 Glib::PropertyProxy_Base property);
-  
+
 private:
   sigc::connection action_connection_;
   sigc::connection prop_connection_;
@@ -45,20 +45,23 @@ private:
   Glib::ustring action_name_;
   Glib::PropertyProxy_Base property_;
   Glib::ValueBase property_value_;
-  
+  Glib::VariantType action_param_type_;
+  Glib::ValueBase action_param_value_;
+  bool need_transform_ {false};
+
   void onActionStateChanged(const Glib::ustring& action_name,
-			    const Glib::VariantBase& variant);
-  
+                            const Glib::VariantBase& variant);
+
   void onPropertyValueChanged();
 };
 
 
 Glib::RefPtr<ActionBinding> bind_action(Glib::RefPtr<Gio::ActionGroup> action_group,
-					const Glib::ustring& action_name,
+                                        const Glib::ustring& action_name,
                                         Glib::PropertyProxy_Base property);
 template<class T>
 Glib::RefPtr<ActionBinding> bind_action(Glib::RefPtr<Gio::ActionGroup> action_group,
-					const Glib::ustring& action_name,
+                                        const Glib::ustring& action_name,
                                         Glib::Property<T>& property)
 { return bind_action(action_group, action_name, property.get_proxy()); }
 

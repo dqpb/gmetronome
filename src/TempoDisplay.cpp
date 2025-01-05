@@ -26,307 +26,71 @@
 
 #include <cmath>
 #include <string>
+#include <array>
 
-using std::chrono::seconds;
-using std::chrono::microseconds;
-
-using std::literals::chrono_literals::operator""s;
-using std::literals::chrono_literals::operator""us;
-
-namespace {
-  constexpr double kTriangleVelocity = 600.0; // degrees/s
+namespace
+{
+  const Glib::ustring kBlinkClassName = "blink";
+  const Glib::ustring kPlaceholderClassName = "placeholder";
+  constexpr double kDimAlpha = 0.07;
 }//unnamed namespace
 
-
-void DividerLabel::TriangleMotionState::reset(double position)
-{
-  p_ = t_ = aux::math::modulo(position, 360.0);
-  v_ = 0.0;
-}
-
-void DividerLabel::TriangleMotionState::moveTo(double target)
-{
-  t_ = aux::math::modulo(target, 360.0);
-  if (t_ != p_ && v_ == 0.0)
-  {
-    if (g_random_boolean())
-      v_ = kTriangleVelocity;
-    else
-      v_ = -kTriangleVelocity;
-  }
-}
-
-bool DividerLabel::TriangleMotionState::step(const seconds_dbl& time)
-{
-  double delta_p = v_ * time.count();
-  if (targetReached() || std::abs(delta_p) >= 360.0)
-  {
-    reset(t_);
-  }
-  else
-  {
-    double new_p = aux::math::modulo(p_ + delta_p, 360.0);
-    double old_dist = aux::math::modulo(t_ - p_, 360.0);
-    double new_dist = aux::math::modulo(t_ - new_p, 360.0);
-
-    if ((v_ > 0.0 && new_dist >= old_dist) || (v_ < 0.0 && new_dist <= old_dist))
-      reset(t_);
-    else
-      p_ = new_p;
-  }
-  return targetReached();
-}
-
-DividerLabel::DividerLabel()
-{ }
-
-DividerLabel::~DividerLabel()
-{
-  if (animation_running_)
-    stopAnimation();
-}
-
-void DividerLabel::changeState(State new_state)
-{
-  if (new_state == state_)
-    return;
-
-  if (state_ == State::kStable || new_state == State::kStable)
-  {
-    if (animation_running_)
-      stopAnimation();
-
-    if (new_state == State::kSlowdown)
-      triangle_motion_.reset(0.0);
-    else if (new_state == State::kSpeedup)
-      triangle_motion_.reset(180.0);
-
-    state_ = new_state;
-    Gtk::DrawingArea::queue_draw();
-  }
-  else if ((state_ == State::kSlowdown && new_state == State::kSpeedup) ||
-           (state_ == State::kSpeedup && new_state == State::kSlowdown))
-  {
-    if (new_state == State::kSlowdown)
-      triangle_motion_.moveTo(0.0);
-    else
-      triangle_motion_.moveTo(180.0);
-
-    state_ = new_state;
-
-    if (!animation_running_)
-    {
-      startAnimation();
-    }
-  }
-}
-
-void DividerLabel::startAnimation()
-{
-  if (animation_running_)
-    return;
-
-  animation_tick_callback_id_ = add_tick_callback(
-    sigc::mem_fun(*this, &DividerLabel::updateAnimation) );
-
-  last_frame_time_ = 0us;
-  animation_running_ = true;
-}
-
-void DividerLabel::stopAnimation()
-{
-  if (!animation_running_)
-    return;
-
-  remove_tick_callback(animation_tick_callback_id_);
-   animation_running_ = false;
-}
-
-bool DividerLabel::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
-{
-  if (clock)
-  {
-    microseconds frame_time {clock->get_frame_time()};
-    if (last_frame_time_ > 0us)
-    {
-      seconds_dbl delta_time = frame_time - last_frame_time_;
-      animation_running_ = !triangle_motion_.step(delta_time);
-    }
-    last_frame_time_ = frame_time;
-  }
-
-  Gtk::DrawingArea::queue_draw();
-  return animation_running_;
-}
-
-void DividerLabel::updateSize()
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  Pango::FontDescription font = style_context->get_font(widget_state);
-
-  auto pango_context = Gtk::DrawingArea::get_pango_context();
-  auto pango_metrics = pango_context->get_metrics(font);
-
-  int new_size = std::ceil(pango_metrics.get_approximate_digit_width() / (double) Pango::SCALE);
-
-  if (new_size != content_size_)
-  {
-    content_size_ = new_size;
-    Gtk::DrawingArea::queue_resize();
-  }
-}
-
-void DividerLabel::on_style_updated()
-{
-  updateSize();
-}
-
-void DividerLabel::addBulletPath(const Cairo::RefPtr<Cairo::Context>& cr)
-{
-  cr->arc(0.0, 0.0, 0.5, 0.0, 2.0 * M_PI);
-}
-
-void DividerLabel::addTrianglePath(const Cairo::RefPtr<Cairo::Context>& cr)
-{
-  static constexpr double one_third = 1.0 / 3.0;
-  static constexpr double two_third = 2.0 / 3.0;
-  static constexpr double one_third_squared = one_third * one_third;
-  static constexpr double two_third_squared = two_third * two_third;
-
-  static const double side = 2.0 * std::sqrt(one_third_squared + two_third_squared);
-  static const double side_half = side / 2.0;
-
-  // we make the bottom side a bit shorter, so this is not exactly
-  // an equilateral triangle
-  static const double bottom_side_half = 0.70 * side_half;
-
-  cr->move_to(0.0, two_third);
-  cr->line_to(bottom_side_half, -one_third);
-  cr->line_to(-bottom_side_half, -one_third);
-  cr->line_to(0.0, two_third);
-}
-
-bool DividerLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  auto margin = style_context->get_margin(widget_state);
-
-  Gdk::RGBA color = style_context->get_color(widget_state);
-
-  Gdk::Cairo::set_source_rgba(cr, color);
-
-  switch (state_) {
-  case State::kSlowdown:
-  case State::kSpeedup:
-    cr->translate(Gtk::DrawingArea::get_width() / 2.0,
-                  Gtk::DrawingArea::get_height() / 2.0);
-    cr->rotate_degrees(triangle_motion_.position());
-    cr->scale(content_size_ * 2.0 / 3.0, content_size_ * 2.0 / 3.0);
-    addTrianglePath(cr);
-    break;
-
-  case State::kStable:
-    [[fallthrough]];
-  default:
-    cr->translate(Gtk::DrawingArea::get_width() / 2.0,
-                  Gtk::DrawingArea::get_height() / 2.0);
-    cr->scale(content_size_ * 2.0 / 5.0, content_size_ * 2.0 / 5.0);
-    addBulletPath(cr);
-    break;
-  };
-
-  cr->fill();
-
-  return false;
-}
-
-Gtk::SizeRequestMode DividerLabel::get_request_mode_vfunc() const
-{
-  return Gtk::SIZE_REQUEST_CONSTANT_SIZE;
-}
-
-void DividerLabel::get_preferred_width_vfunc(int& minimum_width,
-                                             int& natural_width) const
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  auto margin = style_context->get_margin(widget_state);
-
-  minimum_width = natural_width = content_size_ + margin.get_left() + margin.get_right();
-}
-
-void DividerLabel::get_preferred_height_for_width_vfunc(int width,
-                                                        int& minimum_height,
-                                                        int& natural_height) const
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  auto margin = style_context->get_margin(widget_state);
-
-  minimum_height = natural_height = content_size_ + margin.get_top() + margin.get_bottom();
-}
-
-void DividerLabel::get_preferred_width_for_height_vfunc(int height,
-                                                        int& minimum_width,
-                                                        int& natural_width) const
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  auto margin = style_context->get_margin(widget_state);
-
-  minimum_width = natural_width = content_size_ + margin.get_left() + margin.get_right();
-}
-
-void DividerLabel::get_preferred_height_vfunc(int& minimum_height,
-                                              int& natural_height) const
-{
-  auto style_context = get_style_context();
-  Gtk::StateFlags widget_state = style_context->get_state();
-
-  auto margin = style_context->get_margin(widget_state);
-
-  minimum_height = natural_height = content_size_ + margin.get_top() + margin.get_bottom();
-}
-
-NumericLabel::NumericLabel(int number, std::size_t digits, bool fill)
-  : number_{number},
-    kDigits{digits},
-    kFill{fill},
-    digits_{kDigits}
+NumericLabel::NumericLabel(std::size_t digits, int number, bool fill, bool dim)
+  : kDigits_{digits},
+    number_{number},
+    kDefaultFill_{fill},
+    kDefaultDim_{dim},
+    fill_{kDefaultFill_},
+    dim_{kDefaultDim_},
+    digits_{kDigits_}
 {
   Gtk::DrawingArea::set_can_focus(false);
 
   updateDigits();
 }
 
-void NumericLabel::display(int number)
+void NumericLabel::display(int number, bool fill, bool dim)
 {
-  if (number == number_)
+  if (!unset_ && number == number_ && fill_ == fill && dim_ == dim)
     return;
 
+  unset_ = false;
   number_ = number;
-  updateDigits();
+  fill_ = fill;
+  dim_ = dim;
 
+  updateDigits();
+  Gtk::DrawingArea::queue_draw();
+}
+
+void NumericLabel::reset(bool fill, bool dim)
+{
+  if (unset_ && fill_ == fill && dim_ == dim)
+    return;
+
+  unset_ = true;
+  number_ = 0;
+  fill_ = fill;
+  dim_ = dim;
+
+  updateDigits();
   Gtk::DrawingArea::queue_draw();
 }
 
 void NumericLabel::updateDigits()
 {
-  std::string s = std::to_string(number_);
+  std::string s = std::to_string( (number_ < 0) ? -number_ : number_);
+  if (unset_)
+    n_fill_ = kDigits_;
+  else
+    n_fill_ = kDigits_ - s.size();
 
   auto s_it = s.rbegin();
   for (auto& digit : digits_)
   {
     if (s_it != s.rend())
       digit = *s_it++;
-    else if (kFill)
+    else if (fill_)
       digit = '0';
     else
       digit.clear();
@@ -350,7 +114,6 @@ void NumericLabel::updateDigitDimensions()
     digit_width_ = std::max(digit_width_, ink_ext.get_width());
     digit_height_ = std::max(digit_height_, ink_ext.get_height());
   }
-
 }
 
 void NumericLabel::on_style_updated()
@@ -375,7 +138,10 @@ bool NumericLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   Gtk::StateFlags widget_state = style_context->get_state();
 
   Pango::FontDescription font = style_context->get_font(widget_state);
-  Gdk::RGBA color = style_context->get_color(widget_state);
+  Gdk::RGBA text_color = style_context->get_color(widget_state);
+
+  Gdk::RGBA dim_color = text_color;
+  dim_color.set_alpha(kDimAlpha);
 
   auto pango_context = Gtk::DrawingArea::get_pango_context();
   Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(pango_context);
@@ -387,12 +153,7 @@ bool NumericLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
   static Gdk::RGBA kNegativeColor {"rgba(255, 0, 0, 1.0)"};
 
-  if (number_ < 0)
-    Gdk::Cairo::set_source_rgba(cr, kNegativeColor);
-  else
-    Gdk::Cairo::set_source_rgba(cr, color);
-
-  for (unsigned d = 0; d < kDigits; ++d)
+  for (unsigned d = 0; d < kDigits_; ++d)
   {
     if (!digits_[d].empty())
     {
@@ -408,7 +169,15 @@ bool NumericLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
       cr->move_to(x, y);
 
+      if (dim_ && d >= kDigits_ - n_fill_)
+        Gdk::Cairo::set_source_rgba(cr, dim_color);
+      else if (number_ < 0)
+        Gdk::Cairo::set_source_rgba(cr, kNegativeColor);
+      else
+        Gdk::Cairo::set_source_rgba(cr, text_color);
+
       layout->show_in_cairo_context(cr);
+      // style_context->render_layout(cr, x, y, layout);
     }
   }
 
@@ -428,7 +197,7 @@ void NumericLabel::get_preferred_width_vfunc(int& minimum_width,
 
   auto margin = style_context->get_margin(widget_state);
 
-  minimum_width = natural_width = kDigits * digit_width_ + margin.get_left() + margin.get_right();
+  minimum_width = natural_width = kDigits_ * digit_width_ + margin.get_left() + margin.get_right();
 }
 
 void NumericLabel::get_preferred_height_for_width_vfunc(int width,
@@ -452,7 +221,7 @@ void NumericLabel::get_preferred_width_for_height_vfunc(int height,
 
   auto margin = style_context->get_margin(widget_state);
 
-  minimum_width = natural_width = kDigits * digit_width_ + margin.get_left() + margin.get_right();
+  minimum_width = natural_width = kDigits_ * digit_width_ + margin.get_left() + margin.get_right();
 }
 
 void NumericLabel::get_preferred_height_vfunc(int& minimum_height,
@@ -466,68 +235,376 @@ void NumericLabel::get_preferred_height_vfunc(int& minimum_height,
   minimum_height = natural_height = digit_height_ + margin.get_top() + margin.get_bottom();
 }
 
-
-TempoDisplay::TempoDisplay()
+void StatusIcon::switchImage(StatusIcon::Image id)
 {
-  Gtk::Box::set_direction(Gtk::TEXT_DIR_LTR);
-  Gtk::Box::set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+  if (id == id_)
+    return;
+
+  switch (id) {
+
+  case Image::kContinuousUp:
+    set_from_icon_name("gm-curve-linear-up-symbolic", size_);
+    break;
+
+  case Image::kContinuousDown:
+    set_from_icon_name("gm-curve-linear-down-symbolic", size_);
+    break;
+
+  case Image::kStepwiseUp:
+    set_from_icon_name("gm-curve-stepwise-up-symbolic", size_);
+    break;
+
+  case Image::kStepwiseDown:
+    set_from_icon_name("gm-curve-stepwise-down-symbolic", size_);
+    break;
+
+  case Image::kTargetHit:
+    set_from_icon_name("gm-target-hit-symbolic", size_);
+    break;
+
+  case Image::kSync:
+    set_from_icon_name("gm-snd-bell-symbolic", size_);
+    break;
+
+  case Image::kNone:
+    [[fallthrough]];
+
+  default:
+    Gtk::Image::clear();
+    break;
+  };
+
+  id_ = id;
+}
+
+void StatusIcon::enableBlink()
+{
+  if (blink_)
+    return;
+
+  if (auto style_context = get_style_context(); style_context)
+  {
+    if (!style_context->has_class(kBlinkClassName))
+      style_context->add_class(kBlinkClassName);
+  }
+  blink_ = true;
+}
+
+void StatusIcon::disableBlink()
+{
+  if (!blink_)
+    return;
+
+  if (auto style_context = get_style_context(); style_context)
+  {
+    if (style_context->has_class(kBlinkClassName))
+      style_context->remove_class(kBlinkClassName);
+  }
+  blink_ = false;
+}
+
+LCD::LCD()
+{
+  Gtk::Box::set_orientation(Gtk::ORIENTATION_VERTICAL);
   Gtk::Box::set_spacing(0);
 
-  Gtk::Box::pack_start(integral_label_, Gtk::PACK_EXPAND_WIDGET);
-  integral_label_.set_direction(Gtk::TEXT_DIR_LTR);
-  integral_label_.set_halign(Gtk::ALIGN_END);
-  integral_label_.set_valign(Gtk::ALIGN_CENTER);
-  integral_label_.set_name("tempoIntegralLabel");
+  // configure stat box
+  stat_box_.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+  stat_box_.set_vexpand(true);
 
-  Gtk::Box::pack_end(fraction_label_, Gtk::PACK_EXPAND_WIDGET);
-  fraction_label_.set_direction(Gtk::TEXT_DIR_LTR);
-  fraction_label_.set_halign(Gtk::ALIGN_START);
-  fraction_label_.set_valign(Gtk::ALIGN_CENTER);
-  fraction_label_.set_name("tempoFractionLabel");
+  stat_box_.pack_start(beat_label_, Gtk::PACK_EXPAND_WIDGET);
+  beat_label_.set_name("beatLabel");
+  beat_label_.set_halign(Gtk::ALIGN_START);
+  beat_label_.set_valign(Gtk::ALIGN_CENTER);
 
-  Gtk::Box::set_center_widget(divider_label_);
-  divider_label_.set_direction(Gtk::TEXT_DIR_LTR);
-  divider_label_.set_halign(Gtk::ALIGN_CENTER);
-  divider_label_.set_valign(Gtk::ALIGN_CENTER);
-  divider_label_.set_name("tempoDividerLabel");
+  stat_box_.pack_end(status_icon_, Gtk::PACK_SHRINK);
+  status_icon_.set_name("statusIcon");
+  status_icon_.set_halign(Gtk::ALIGN_END);
+  status_icon_.set_valign(Gtk::ALIGN_CENTER);
+
+  stat_box_.pack_end(hold_label_, Gtk::PACK_SHRINK);
+  hold_label_.set_name("holdLabel");
+  hold_label_.set_halign(Gtk::ALIGN_END);
+  hold_label_.set_valign(Gtk::ALIGN_CENTER);
+
+  tempo_frac_label_.set_name("tempoFracLabel");
+  tempo_frac_label_.set_halign(Gtk::ALIGN_START);
+  tempo_frac_label_.set_valign(Gtk::ALIGN_CENTER);
+  tempo_frac_label_.reset(true, true);
+
+  if (get_direction() == Gtk::TEXT_DIR_RTL)
+  {
+    tempo_frac_label_.set_halign(Gtk::ALIGN_END);
+    stat_box_.pack_start(tempo_frac_label_, Gtk::PACK_EXPAND_WIDGET);
+  }
+  else
+  {
+    tempo_frac_label_.set_halign(Gtk::ALIGN_START);
+    stat_box_.pack_end(tempo_frac_label_, Gtk::PACK_EXPAND_WIDGET);
+  }
+
+  stat_box_.set_center_widget(tempo_int_label_);
+  tempo_int_label_.set_name("tempoIntLabel");
+  tempo_int_label_.set_halign(Gtk::ALIGN_CENTER);
+  tempo_int_label_.set_valign(Gtk::ALIGN_CENTER);
+  tempo_int_label_.zero();
+
+  stat_box_.show_all();
+
+  // configure profile label
+  profile_label_.set_name("profileLabel");
+  profile_label_.set_lines(1);
+  profile_label_.set_line_wrap(false);
+  profile_label_.set_ellipsize(Pango::ELLIPSIZE_END);
+  profile_label_.set_hexpand(false);
+  profile_label_.set_max_width_chars(20);
+
+  Gtk::Box::pack_start(stat_box_, Gtk::PACK_EXPAND_WIDGET);
+  Gtk::Box::pack_start(profile_label_, Gtk::PACK_SHRINK);
 
   Gtk::Box::show_all();
+
+  Gtk::Settings::get_default()->property_gtk_theme_name().signal_changed()
+    .connect(sigc::mem_fun(*this, &LCD::onThemeNameChanged));
+
+  LCD::property_parent().signal_changed()
+    .connect(sigc::mem_fun(*this, &LCD::onParentChanged));
 }
 
-void TempoDisplay::display(double tempo, double accel)
+std::pair<int, int> LCD::decomposeTempo(double tempo)
 {
-  if (tempo != tempo_)
-  {
-    static const int precision = 2;
+    static const double kPrecisionPow10 = std::pow(10.0, kPrecision);
 
-    double tempo_integral;
-    double tempo_fraction;
+    double tempo_int;
+    double tempo_frac;
 
-    tempo_fraction = std::modf(tempo, &tempo_integral);
+    tempo_frac = std::modf(tempo, &tempo_int);
 
-    int tempo_integral_int = tempo_integral;
-    int tempo_fraction_int = std::round(tempo_fraction * std::pow(10, precision));
+    int tempo_int_int = tempo_int;
+    int tempo_frac_int = std::round(tempo_frac * kPrecisionPow10);
 
-    if (tempo_fraction_int == 100)
+    if (tempo_frac_int == kPrecisionPow10)
     {
-      tempo_fraction_int = 0;
-      tempo_integral_int += 1;
+      tempo_frac_int = 0;
+      tempo_int_int += 1;
     }
 
-    integral_label_.display(tempo_integral_int);
-    fraction_label_.display(tempo_fraction_int);
-  }
-
-  if (accel != accel_)
-  {
-    if (accel == 0)
-      divider_label_.changeState(DividerLabel::State::kStable);
-    else if (accel > 0)
-      divider_label_.changeState(DividerLabel::State::kSpeedup);
-    else
-      divider_label_.changeState(DividerLabel::State::kSlowdown);
-  }
-
-  tempo_ = tempo;
-  accel_ = accel;
+    return {tempo_int_int, tempo_frac_int};
 }
+
+void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
+{
+  if (stats.generator == audio::kRegularGenerator)
+  {
+    if (!stats.default_meter)
+    {
+      int beat =  stats.accent / stats.division + 1;
+      beat_label_.display(beat);
+    }
+    else
+      beat_label_.reset();
+
+    auto [tempo_int, tempo_frac] = decomposeTempo(stats.tempo);
+    tempo_int_label_.display(tempo_int);
+
+    if (tempo_frac != 0 || stats.mode == audio::Ticker::AccelMode::kContinuous || stats.syncing)
+    {
+      tempo_frac_label_.display(tempo_frac);
+      status_icon_.switchImage(StatusIcon::Image::kNone);
+      hold_label_.reset();
+    }
+    else
+      tempo_frac_label_.reset(true, true);
+
+    if (stats.mode == audio::Ticker::AccelMode::kContinuous)
+    {
+      if (stats.tempo < stats.target)
+        status_icon_.switchImage(StatusIcon::Image::kContinuousUp);
+      else if (stats.tempo > stats.target)
+        status_icon_.switchImage(StatusIcon::Image::kContinuousDown);
+      else
+        status_icon_.switchImage(StatusIcon::Image::kTargetHit);
+
+      hold_label_.reset();
+    }
+    else if (stats.mode == audio::Ticker::AccelMode::kStepwise)
+    {
+      if (stats.tempo < stats.target)
+      {
+        hold_label_.display(stats.hold);
+        status_icon_.switchImage(StatusIcon::Image::kStepwiseUp);
+      }
+      else if (stats.tempo > stats.target)
+      {
+        hold_label_.display(stats.hold);
+        status_icon_.switchImage(StatusIcon::Image::kStepwiseDown);
+      }
+      else
+      {
+        hold_label_.reset();
+        status_icon_.switchImage(StatusIcon::Image::kTargetHit);
+      }
+    }
+    else
+    {
+      hold_label_.reset();
+      status_icon_.switchImage(StatusIcon::Image::kNone);
+    }
+
+    if (stats.pending && status_icon_.image() != StatusIcon::Image::kTargetHit)
+      status_icon_.enableBlink();
+    else
+      status_icon_.disableBlink();
+  }
+  else
+  {
+    beat_label_.reset();
+    tempo_int_label_.zero();
+    tempo_frac_label_.reset(true, true);
+    hold_label_.reset();
+    status_icon_.switchImage(StatusIcon::Image::kNone);
+  }
+}
+
+void LCD::setProfileTitle(const Glib::ustring& title, bool is_placeholder)
+{
+  auto style_context = profile_label_.get_style_context();
+  if (is_placeholder)
+  {
+    if (!style_context->has_class(kPlaceholderClassName))
+      style_context->add_class(kPlaceholderClassName);
+  }
+  else if (style_context->has_class(kPlaceholderClassName))
+    style_context->remove_class(kPlaceholderClassName);
+
+  profile_label_.set_text(title);
+
+  if (!profile_label_.is_visible())
+    profile_label_.show();
+}
+
+void LCD::unsetProfileTitle()
+{
+  profile_label_.hide();
+}
+
+Gdk::RGBA LCD::getBGColor(const Gtk::Widget* widget)
+{
+  Gdk::RGBA color;
+
+  if (widget == nullptr)
+    return color;
+
+  // To determinie a background color of the headerbar we render the background
+  // into a Cairo::ImageSurface and compute the average RGB values over all pixels.
+  // In this way we get a meaninful color, even if the theme uses background images,
+  // gradients etc.
+
+  static constexpr int kSurfaceWidth  = 50;
+  static constexpr int kSurfaceHeight = 50;
+  static constexpr int kNumPixels     = kSurfaceWidth * kSurfaceHeight;
+
+  auto surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                             kSurfaceWidth,
+                                             kSurfaceHeight);
+
+  auto cairo_context = Cairo::Context::create(surface);
+
+  if (auto style_context = widget->get_style_context(); style_context)
+  {
+    style_context->set_state(Gtk::STATE_FLAG_NORMAL);
+    style_context->render_background(cairo_context, 0, 0, kSurfaceWidth, kSurfaceHeight);
+
+    const unsigned char* data = surface->get_data();
+
+    std::array<double,4> rgba {0.0, 0.0, 0.0, 0.0};
+
+    for (int row = 0; row < kSurfaceHeight; ++row)
+    {
+      for (int col = 0; col < kSurfaceWidth; ++col)
+      {
+        int index = row * surface->get_stride() + col * 4;
+        rgba[0] += data[index + 0];
+        rgba[1] += data[index + 1];
+        rgba[2] += data[index + 2];
+        rgba[3] += data[index + 3];
+      }
+    }
+    rgba[0] /= (double) kNumPixels * 255.0;
+    rgba[1] /= (double) kNumPixels * 255.0;
+    rgba[2] /= (double) kNumPixels * 255.0;
+    rgba[3] /= (double) kNumPixels * 255.0;
+
+    color.set_rgba(rgba[0], rgba[1], rgba[2], rgba[3]);
+  }
+
+  return color;
+}
+
+Gdk::RGBA LCD::getFGColor(const Gtk::Widget* widget)
+{
+  Gdk::RGBA color;
+
+  if (widget == nullptr)
+    return color;
+
+  if (auto style_context = widget->get_style_context(); style_context)
+  {
+    style_context->set_state(Gtk::STATE_FLAG_NORMAL);
+    color = style_context->get_color(Gtk::STATE_FLAG_NORMAL);
+  }
+
+  return color;
+}
+
+void LCD::updateCSSClass()
+{
+  Gtk::Container* parent = LCD::get_parent();
+
+  if (parent == nullptr)
+    return;
+
+  Gdk::RGBA bg_color = getBGColor(LCD::get_parent());
+  Gdk::RGBA fg_color = getFGColor(LCD::get_parent());
+
+  double bg_lum =
+    0.2126 * bg_color.get_red()
+    + 0.7152 * bg_color.get_green()
+    + 0.0722 * bg_color.get_blue();
+
+  double fg_lum =
+    0.2126 * fg_color.get_red()
+    + 0.7152 * fg_color.get_green()
+    + 0.0722 * fg_color.get_blue();
+
+  if (auto style_context = get_style_context(); style_context)
+  {
+    if (fg_lum < bg_lum) {
+      // switch to light theme
+      if (!style_context->has_class("light-theme"))
+        style_context->add_class("light-theme");
+      if (style_context->has_class("dark-theme"))
+        style_context->remove_class("dark-theme");
+    }
+    else if (fg_lum > bg_lum) {
+      // switch to dark theme
+      if (!style_context->has_class("dark-theme"))
+        style_context->add_class("dark-theme");
+      if (style_context->has_class("light-theme"))
+        style_context->remove_class("light-theme");
+    }
+    else {
+      // no theme (due to error in get*Color)
+      if (style_context->has_class("light-theme"))
+        style_context->remove_class("light-theme");
+      if (style_context->has_class("dark-theme"))
+        style_context->remove_class("dark-theme");
+    }
+  }
+}
+
+void LCD::onThemeNameChanged()
+{ updateCSSClass(); }
+
+void LCD::onParentChanged()
+{ updateCSSClass(); }

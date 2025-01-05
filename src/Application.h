@@ -109,6 +109,7 @@ private:
   void onVolumeMute(const Glib::VariantBase& value);
 
   // Tempo
+  double getReferenceTempo() const;
   void onTempo(const Glib::VariantBase& value);
   void onTempoChange(const Glib::VariantBase& value);
   void onTempoScale(const Glib::VariantBase& value);
@@ -131,10 +132,13 @@ private:
   void onMeterSeek(const Glib::VariantBase& value);
 
   // Trainer
+  void configureTickerForTrainerMode(Profile::TrainerMode mode);
   void onTrainerEnabled(const Glib::VariantBase& value);
-  void onTrainerStart(const Glib::VariantBase& value);
+  void onTrainerMode(const Glib::VariantBase& value);
   void onTrainerTarget(const Glib::VariantBase& value);
   void onTrainerAccel(const Glib::VariantBase& value);
+  void onTrainerStep(const Glib::VariantBase& value);
+  void onTrainerHold(const Glib::VariantBase& value);
 
   // Profiles
   void onProfileManagerChanged();
@@ -183,14 +187,61 @@ private:
 
   // Input validation
   std::pair<double,bool> validateTempo(double value);
-  std::pair<double,bool> validateTrainerStart(double value);
+  std::pair<Profile::TrainerMode,bool> validateTrainerMode(Profile::TrainerMode value);
   std::pair<double,bool> validateTrainerTarget(double value);
   std::pair<double,bool> validateTrainerAccel(double value);
+  std::pair<double,bool> validateTrainerStep(double value);
+  std::pair<int,bool> validateTrainerHold(int value);
   std::pair<double,bool> validateVolume(double value);
   std::pair<Meter,bool> validateMeter(Meter meter);
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileTitle(Glib::ustring str);
   std::pair<Glib::ustring,bool> validateProfileDescription(Glib::ustring str);
+
+public:
+
+  // Helper to query action states
+  template<typename T>
+  T queryActionState(const Glib::ustring& action) const {
+    T value;
+    get_action_state(action, value);
+    return value;
+  }
+  bool queryStart() const
+    { return queryActionState<bool>(kActionStart); }
+  double queryTempo() const
+    { return queryActionState<double>(kActionTempo); }
+  Glib::ustring queryMeterSelect() const
+    { return queryActionState<Glib::ustring>(kActionMeterSelect); }
+  bool queryMeterEnabled() const
+    { return queryActionState<bool>(kActionMeterEnabled); }
+  Meter queryMeter(const Glib::ustring& slot) const
+    { return queryActionState<Meter>(slot); }
+  double queryTrainerTarget() const
+    { return queryActionState<double>(kActionTrainerTarget); }
+  double queryTrainerAccel() const
+    { return queryActionState<double>(kActionTrainerAccel); }
+  int queryTrainerHold() const
+    { return queryActionState<int>(kActionTrainerHold); }
+  double queryTrainerStep() const
+    { return queryActionState<double>(kActionTrainerStep); }
+  bool queryTrainerEnabled() const
+    { return queryActionState<bool>(kActionTrainerEnabled); }
+  Profile::TrainerMode queryTrainerMode() const
+    { return queryActionState<Profile::TrainerMode>(kActionTrainerMode); }
+  Glib::ustring queryProfileSelect() const
+    { return queryActionState<Glib::ustring>(kActionProfileSelect); }
+  Glib::ustring queryProfileTitle() const
+    { return queryActionState<Glib::ustring>(kActionProfileTitle); }
+  ProfileList queryProfileList() const
+    { return queryActionState<ProfileList>(kActionProfileList); }
+  bool queryVolumeMute() const
+    { return queryActionState<bool>(kActionVolumeMute); }
+
+  std::tuple<double, double> queryTrainerContinuousParams() const
+    { return {queryTrainerAccel(), queryTrainerTarget()}; }
+  std::tuple<int, double, double> queryTrainerStepwiseParams() const
+    { return {queryTrainerHold(), queryTrainerStep(), queryTrainerTarget()}; }
 };
 
 #endif//GMetronome_Application_h
