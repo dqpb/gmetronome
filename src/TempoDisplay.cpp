@@ -407,7 +407,9 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     auto [tempo_int, tempo_frac] = decomposeTempo(stats.tempo);
     tempo_int_label_.display(tempo_int);
 
-    if (tempo_frac != 0 || stats.mode == audio::Ticker::AccelMode::kContinuous || stats.syncing)
+    if (tempo_frac != 0
+        || (stats.mode == audio::Ticker::AccelMode::kContinuous && !stats.pending)
+        || stats.syncing)
     {
       tempo_frac_label_.display(tempo_frac);
       status_icon_.switchImage(StatusIcon::Image::kNone);
