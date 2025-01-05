@@ -297,9 +297,12 @@ void MainWindow::initUI()
   // initialize header bar
   header_bar_->set_vexpand(false);
   header_bar_->set_custom_title(lcd_);
+
+  // initialize LCD
   lcd_.set_name("lcd");
   lcd_.set_hexpand(false);
   lcd_.show();
+
   updateCurrentTempo(audio::Ticker::Statistics{});
 
   // initialize info bar
@@ -547,7 +550,7 @@ bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
   else
   {
     header_bar_->reparent(titlebar_bin_);
-    header_bar_->unset_decoration_layout();
+    header_bar_->set_decoration_layout(":minimize,maximize,close");
     full_screen_image_->set_from_icon_name("view-fullscreen-symbolic",
                                            Gtk::ICON_SIZE_BUTTON);
     full_screen_button_->hide();
