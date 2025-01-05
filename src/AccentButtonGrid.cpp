@@ -79,7 +79,7 @@ void AccentButtonGrid::synchronize(const audio::Ticker::Statistics& stats,
     int next_accent = (stats.accent + 1) % n_accents;
     assert(next_accent >= 0);
 
-    if (next_accent < buttons_.size())
+    if (static_cast<std::size_t>(next_accent) < buttons_.size())
     {
       microseconds time = stats.timestamp
         + stats.backend_latency
