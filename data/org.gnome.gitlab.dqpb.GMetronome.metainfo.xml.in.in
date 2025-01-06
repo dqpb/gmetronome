@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2022-2024 The GMetronome Team -->
+<!-- Copyright (C) 2022-2025 The GMetronome Team -->
 <component type="desktop-application">
   <id>@PACKAGE_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
@@ -8,14 +8,14 @@
   <developer_name>The GMetronome Team</developer_name>
   <summary>Maintain a steady tempo</summary>
   <description>
-    <p>GMetronome is a free/libre software metronome and tempo measurement tool for GNU/Linux and other Unix-like operating systems.</p>
+    <p>GMetronome is a free/libre software metronome for GNU/Linux and other Unix-like operating systems.</p>
     <p>Features:</p>
     <ul>
       <li>Tempo range from 30 to 250 BPM</li>
       <li>Customizable accent patterns with three levels of accentuation</li>
       <li>Divisible beats for simple and compound meters</li>
       <li>Predefined patterns for widely used meters and time signatures</li>
-      <li>Training function (smoothly increase or decrease tempo)</li>
+      <li>Training function (automatically increase or decrease tempo)</li>
       <li>Profile support (save/restore settings)</li>
       <li>Built-in synthesizer to customize click sounds</li>
       <li>Customizable keyboard shortcuts</li>
@@ -32,8 +32,11 @@
     </screenshot>
   </screenshots>
   <keywords>
+    <!-- Keywords to find the application in a software center -->
     <keyword>Metronome</keyword>
     <keyword>Music</keyword>
+    <keyword>Tempo</keyword>
+    <keyword>Rhythm</keyword>
   </keywords>
   <kudos>
     <kudo>HiDpiIcon</kudo>
