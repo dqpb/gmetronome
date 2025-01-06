@@ -49,6 +49,18 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.4.1" date="2025-01-06">
+      <description translate="no">
+	<ul>
+	  <li>Add LCD-like tempo display in the header bar</li>
+	  <li>Add 'stepwise' training mode</li>
+	  <li>Round tapped tempo (can be disabled in preferences)</li>
+	  <li>Tempo shortcuts use actual tempo as reference in training mode</li>
+	  <li>Remove redundant start tempo in training mode</li>
+	  <li>Add icons for RTL languages</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.3.4" date="2024-05-12">
       <description translate="no">
 	<ul>
