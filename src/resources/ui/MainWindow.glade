@@ -438,6 +438,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="can-focus">False</property>
     <property name="spacing">5</property>
     <property name="show-close-button">True</property>
+    <property name="decoration-layout">:minimize,maximize,close</property>
     <child type="title">
       <placeholder/>
     </child>
