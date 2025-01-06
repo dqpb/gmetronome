@@ -1104,7 +1104,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="halign">start</property>
-                                    <property name="label" translatable="yes">Mode</property>
+                                    <property name="label" translatable="yes" context="Main window - Trainer">Mode</property>
                                     <style>
                                       <class name="top-label"/>
                                     </style>
@@ -1126,7 +1126,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="receives-default">False</property>
-                                        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Continuous</property>
+                                        <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Continuous</property>
                                         <property name="active">True</property>
                                         <property name="draw-indicator">False</property>
                                         <property name="group">trainerMode2RadioButton</property>
@@ -1149,7 +1149,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="receives-default">False</property>
-                                        <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Stepwise</property>
+                                        <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Stepwise</property>
                                         <property name="active">True</property>
                                         <property name="draw-indicator">False</property>
                                         <property name="group">trainerMode1RadioButton</property>
@@ -1221,7 +1221,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                           <object class="GtkSpinButton" id="trainerAccelSpinButton">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Acceleration in BPM per minute</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Acceleration in BPM per minute</property>
                                             <property name="halign">start</property>
                                             <property name="max-length">4</property>
                                             <property name="width-chars">4</property>
@@ -1283,7 +1283,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                           <object class="GtkSpinButton" id="trainerHoldSpinButton">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Number of beats to hold the tempo</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Number of beats to hold the tempo</property>
                                             <property name="halign">start</property>
                                             <property name="max-length">3</property>
                                             <property name="width-chars">3</property>
@@ -1334,7 +1334,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                           <object class="GtkSpinButton" id="trainerStepSpinButton">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Tempo change in BPM</property>
+                                            <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Tempo change in BPM</property>
                                             <property name="halign">start</property>
                                             <property name="max-length">3</property>
                                             <property name="width-chars">3</property>
@@ -1398,7 +1398,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   <object class="GtkSpinButton" id="trainerEndSpinButton">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="tooltip-text" translatable="yes" context="Main window" comments="Tooltip">Target tempo in BPM</property>
+                                    <property name="tooltip-text" translatable="yes" context="Main window - Trainer" comments="Tooltip">Target tempo in BPM</property>
                                     <property name="halign">start</property>
                                     <property name="max-length">3</property>
                                     <property name="width-chars">3</property>
