@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gmetronome 0.3.4\n"
+"Project-Id-Version: gmetronome 0.4.1\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/dqpb/gmetronome/issues\n"
-"POT-Creation-Date: 2024-04-22 21:48+0200\n"
+"POT-Creation-Date: 2025-01-06 13:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:7
-#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:4
 msgid "GMetronome"
 msgstr ""
 
@@ -27,14 +27,14 @@ msgid "The GMetronome Team"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:9
-#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:6
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:5
 msgid "Maintain a steady tempo"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:11
 msgid ""
-"GMetronome is a free/libre software metronome and tempo measurement tool for "
-"GNU/Linux and other Unix-like operating systems."
+"GMetronome is a free/libre software metronome for GNU/Linux and other Unix-"
+"like operating systems."
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:12
@@ -58,7 +58,7 @@ msgid "Predefined patterns for widely used meters and time signatures"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:18
-msgid "Training function (smoothly increase or decrease tempo)"
+msgid "Training function (automatically increase or decrease tempo)"
 msgstr ""
 
 #: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:19
@@ -73,16 +73,25 @@ msgstr ""
 msgid "Customizable keyboard shortcuts"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:32
+#. Keywords to find the application in a software center
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:36
 msgid "Metronome"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:33
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:37
 msgid "Music"
 msgstr ""
 
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:38
+msgid "Tempo"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.metainfo.xml.in.in:39
+msgid "Rhythm"
+msgstr ""
+
 #. Translators: Search terms to find the application. Please do not translate or localize the semicolons. The list must also end with a semicolon.
-#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:14
+#: data/org.gnome.gitlab.dqpb.GMetronome.desktop.in.in:13
 msgid "Beats;BPM;Metronome;Practice;Rhythm;Tap;Tempo;"
 msgstr ""
 
@@ -107,19 +116,19 @@ msgid "Website"
 msgstr ""
 
 #. Default title for new profiles
-#: src/Profile.h:38
+#: src/Profile.h:44
 msgctxt "Profile"
 msgid "New Profile"
 msgstr ""
 
 #. Placeholder title for untitled profiles
-#: src/Profile.h:40
+#: src/Profile.h:46
 msgctxt "Profile"
 msgid "Untitled Profile"
 msgstr ""
 
 #. Title of duplicated profiles, %1 will be replaced by the old title
-#: src/Profile.h:42
+#: src/Profile.h:48
 msgctxt "Profile"
 msgid "%1 (copy)"
 msgstr ""
@@ -183,126 +192,172 @@ msgid "Reset the metronome"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:480
+#: src/resources/ui/MainWindow.glade:450
 msgctxt "Main window"
 msgid "Profiles menu"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:496
+#: src/resources/ui/MainWindow.glade:466
 msgctxt "Main window"
 msgid "Toggle Full Screen"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:525
+#: src/resources/ui/MainWindow.glade:495
 msgctxt "Main window"
 msgid "Toggle accentuation"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:549
+#: src/resources/ui/MainWindow.glade:519
 msgctxt "Main window"
 msgid "Toggle tempo trainer"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/MainWindow.glade:578
+#: src/resources/ui/MainWindow.glade:548
 msgctxt "Main window"
 msgid "Application menu"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:756
+#: src/resources/ui/MainWindow.glade:733
 msgctxt "Main window - Tempo"
 msgid "Tap"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:796
+#: src/resources/ui/MainWindow.glade:773
 msgctxt "Main window - Tempo"
 msgid "Tempo"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:846
+#: src/resources/ui/MainWindow.glade:823
 msgctxt "Main window - Accents"
 msgid "Beats"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:894
+#: src/resources/ui/MainWindow.glade:871
 msgctxt "Main window - Accents"
 msgid "Meter"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:911
+#: src/resources/ui/MainWindow.glade:888
 msgctxt "Main window - Accents"
 msgid "2/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:912
+#: src/resources/ui/MainWindow.glade:889
 msgctxt "Main window - Accents"
 msgid "3/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:913
+#: src/resources/ui/MainWindow.glade:890
 msgctxt "Main window - Accents"
 msgid "4/4"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:915
+#: src/resources/ui/MainWindow.glade:892
 msgctxt "Main window - Accents"
 msgid "6/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:916
+#: src/resources/ui/MainWindow.glade:893
 msgctxt "Main window - Accents"
 msgid "9/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:917
+#: src/resources/ui/MainWindow.glade:894
 msgctxt "Main window - Accents"
 msgid "12/8"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:919
+#: src/resources/ui/MainWindow.glade:896
 msgctxt "Main window - Accents"
 msgid "Custom"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:948
+#: src/resources/ui/MainWindow.glade:925
 msgctxt "Main window - Accents"
 msgid "Division"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1085
+#: src/resources/ui/MainWindow.glade:1063
 msgctxt "Main window - Accents"
 msgid "Accents"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1130
+#: src/resources/ui/MainWindow.glade:1107
 msgctxt "Main window - Trainer"
-msgid "Target"
+msgid "Mode"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1179
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1129
 msgctxt "Main window - Trainer"
-msgid "Start"
+msgid "Continuous"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1228
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1152
+msgctxt "Main window - Trainer"
+msgid "Stepwise"
+msgstr ""
+
+#: src/resources/ui/MainWindow.glade:1208
 msgctxt "Main window - Trainer"
 msgid "Acceleration"
 msgstr ""
 
-#: src/resources/ui/MainWindow.glade:1275
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1224
+msgctxt "Main window - Trainer"
+msgid "Acceleration in BPM per minute"
+msgstr ""
+
+#: src/resources/ui/MainWindow.glade:1270
+msgctxt "Main window - Trainer"
+msgid "Hold"
+msgstr ""
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1286
+msgctxt "Main window - Trainer"
+msgid "Number of beats to hold the tempo"
+msgstr ""
+
+#: src/resources/ui/MainWindow.glade:1321
+msgctxt "Main window - Trainer"
+msgid "Step"
+msgstr ""
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1337
+msgctxt "Main window - Trainer"
+msgid "Tempo change in BPM"
+msgstr ""
+
+#: src/resources/ui/MainWindow.glade:1385
+msgctxt "Main window - Trainer"
+msgid "Target"
+msgstr ""
+
+#. Tooltip
+#: src/resources/ui/MainWindow.glade:1401
+msgctxt "Main window - Trainer"
+msgid "Target tempo in BPM"
+msgstr ""
+
+#: src/resources/ui/MainWindow.glade:1432
 msgctxt "Main window - Trainer"
 msgid "Trainer"
 msgstr ""
 
-#: src/MainWindow.cpp:1404
+#: src/MainWindow.cpp:1388
 msgctxt "Main window"
 msgid "Stop"
 msgstr ""
 
-#: src/MainWindow.cpp:1406
+#: src/MainWindow.cpp:1390
 msgctxt "Main window"
 msgid "Start"
 msgstr ""
@@ -337,73 +392,78 @@ msgctxt "Preferences dialog"
 msgid "Auto-adjust _volume:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:211
+#: src/resources/ui/SettingsDialog.glade:190
+msgctxt "Preferences dialog"
+msgid "Round tempo to a _whole number:"
+msgstr ""
+
+#: src/resources/ui/SettingsDialog.glade:232
 msgctxt "Preferences dialog"
 msgid "_General"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:237
+#: src/resources/ui/SettingsDialog.glade:258
 msgctxt "Preferences dialog"
 msgid "S_tart direction:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:252
+#: src/resources/ui/SettingsDialog.glade:273
 msgctxt "Preferences dialog"
 msgid "Click sp_ot:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:267
+#: src/resources/ui/SettingsDialog.glade:288
 msgctxt "Preferences dialog"
 msgid "Left"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:268
+#: src/resources/ui/SettingsDialog.glade:289
 msgctxt "Preferences dialog"
 msgid "Right"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:282
+#: src/resources/ui/SettingsDialog.glade:303
 msgctxt "Preferences dialog"
 msgid "Center"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:283
+#: src/resources/ui/SettingsDialog.glade:304
 msgctxt "Preferences dialog"
 msgid "Real"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:284
+#: src/resources/ui/SettingsDialog.glade:305
 msgctxt "Preferences dialog"
 msgid "Edge"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:297
+#: src/resources/ui/SettingsDialog.glade:318
 msgctxt "Preferences dialog"
 msgid "Pendulum"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:312
+#: src/resources/ui/SettingsDialog.glade:333
 msgctxt "Preferences dialog"
 msgid "Accents"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:328
+#: src/resources/ui/SettingsDialog.glade:349
 msgctxt "Preferences dialog"
 msgid "Acc_ent Animation:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:354
+#: src/resources/ui/SettingsDialog.glade:375
 msgctxt "Preferences dialog"
 msgid "General"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:370
+#: src/resources/ui/SettingsDialog.glade:391
 msgctxt "Preferences dialog"
 msgid "S_ynchronization (ms):"
 msgstr ""
 
 #. Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.
-#: src/resources/ui/SettingsDialog.glade:384
+#: src/resources/ui/SettingsDialog.glade:405
 msgctxt "Preferences dialog"
 msgid ""
 "An additional static time gap between video output (animation) and the audio "
@@ -412,116 +472,116 @@ msgid ""
 "on large (absolute) values."
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:424
+#: src/resources/ui/SettingsDialog.glade:445
 msgctxt "Preferences dialog"
 msgid "_Animation"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:448
+#: src/resources/ui/SettingsDialog.glade:469
 msgctxt "Preferences dialog"
 msgid "Sound _Theme"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/SettingsDialog.glade:517
+#: src/resources/ui/SettingsDialog.glade:538
 msgctxt "Preferences dialog"
 msgid "Create a new sound theme"
 msgstr ""
 
 #. Tooltip
-#: src/resources/ui/SettingsDialog.glade:537
+#: src/resources/ui/SettingsDialog.glade:558
 msgctxt "Preferences dialog"
 msgid "Remove selected sound theme"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:559
+#: src/resources/ui/SettingsDialog.glade:580
 msgctxt "Preferences dialog"
 msgid "_Edit"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:594
+#: src/resources/ui/SettingsDialog.glade:615
 msgctxt "Preferences dialog"
 msgid "_Sound"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:621
+#: src/resources/ui/SettingsDialog.glade:642
 msgctxt "Preferences dialog"
 msgid "Audio _Device:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:636
+#: src/resources/ui/SettingsDialog.glade:657
 msgctxt "Preferences dialog"
 msgid "Audio _Backend:"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:651
+#: src/resources/ui/SettingsDialog.glade:672
 msgctxt "Preferences dialog"
 msgid "None"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:652
+#: src/resources/ui/SettingsDialog.glade:673
 msgctxt "Preferences dialog"
 msgid "ALSA"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:653
+#: src/resources/ui/SettingsDialog.glade:674
 msgctxt "Preferences dialog"
 msgid "OSS"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:654
+#: src/resources/ui/SettingsDialog.glade:675
 msgctxt "Preferences dialog"
 msgid "PulseAudio"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:671
+#: src/resources/ui/SettingsDialog.glade:692
 msgctxt "Preferences dialog"
 msgid "Default"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:685
+#: src/resources/ui/SettingsDialog.glade:706
 msgctxt "Preferences dialog"
 msgid "Audio Settings"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:713
+#: src/resources/ui/SettingsDialog.glade:734
 msgctxt "Preferences dialog"
 msgid "Audio _Device"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:759
+#: src/resources/ui/SettingsDialog.glade:780
 msgctxt "Preferences dialog"
 msgid "_Reset shortcuts"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:788
+#: src/resources/ui/SettingsDialog.glade:809
 msgctxt "Preferences dialog"
 msgid "Short_cuts"
 msgstr ""
 
-#: src/resources/ui/SettingsDialog.glade:812
+#: src/resources/ui/SettingsDialog.glade:833
 msgctxt "Preferences dialog"
 msgid "Preferences"
 msgstr ""
 
 #. Shortcuts table header title (first column)
-#: src/SettingsDialog.cpp:192
+#: src/SettingsDialog.cpp:193
 msgctxt "Preferences dialog"
 msgid "Action"
 msgstr ""
 
 #. Shortcuts table header title (second column)
-#: src/SettingsDialog.cpp:198
+#: src/SettingsDialog.cpp:199
 msgctxt "Preferences dialog"
 msgid "Shortcut"
 msgstr ""
 
-#: src/SettingsDialog.cpp:593
+#: src/SettingsDialog.cpp:596
 msgctxt "Preferences dialog"
 msgid "Presets"
 msgstr ""
 
-#: src/SettingsDialog.cpp:608
+#: src/SettingsDialog.cpp:611
 msgctxt "Preferences dialog"
 msgid "Custom"
 msgstr ""
@@ -1210,30 +1270,34 @@ msgid ""
 "instead."
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:933
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:906
+msgid "Wheter to round the tapped tempo to a whole number"
+msgstr ""
+
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:938
 msgid "Which audio backend to use"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:939
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:944
 msgid "Audio device for the ALSA backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:940
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:945
 msgid "ALSA compliant string representation for names of pcm devices"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:948
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:953
 msgid "Audio device for the OSS backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:955
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:960
 msgid "Name of a sink for the pulseaudio backend"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:972
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:977
 msgid "Selected profile"
 msgstr ""
 
-#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:977
+#: data/org.gnome.gitlab.dqpb.GMetronome.gschema.xml.in:982
 msgid "Whether to show the animated pendulum"
 msgstr ""
