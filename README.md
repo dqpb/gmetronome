@@ -1,7 +1,7 @@
 GMetronome
 ==========
-GMetronome is a free/libre software metronome and tempo measurement tool for GNU/Linux
-and other Unix-like operating systems.
+GMetronome is a free/libre software metronome for GNU/Linux and other Unix-like
+operating systems.
 
 ![Screenshot](data/screenshots/screenshot-light.png)
 
@@ -11,7 +11,7 @@ Features
 * Customizable accent patterns with three levels of accentuation
 * Divisible beats for simple and compound meters
 * Predefined patterns for widely used meters and time signatures
-* Training function (smoothly increase or decrease tempo)
+* Training function (automatically increase or decrease tempo)
 * Profile support (save/restore settings)
 * Build-in synthesizer to customize click sounds
 * Customizable keyboard shortcuts
