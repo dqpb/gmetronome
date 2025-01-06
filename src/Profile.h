@@ -61,10 +61,10 @@ struct Profile
   static constexpr double      kDefaultTrainerAccel    = 10.0;
   static constexpr double      kMinTrainerStep         = 1.0;
   static constexpr double      kMaxTrainerStep         = 99.0;
-  static constexpr double      kDefaultTrainerStep     = 8.0;
+  static constexpr double      kDefaultTrainerStep     = 2.0;
   static constexpr int         kMinTrainerHold         = 1;
   static constexpr int         kMaxTrainerHold         = 99;
-  static constexpr int         kDefaultTrainerHold     = 4;
+  static constexpr int         kDefaultTrainerHold     = 8;
 
   struct Header
   {
