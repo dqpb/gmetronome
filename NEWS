@@ -1,4 +1,14 @@
+2025-01-06  0.4.1
+
+	* Add LCD-like tempo display in the header bar
+	* Add 'stepwise' training mode
+	* Round tapped tempo (can be disabled in preferences)
+	* Tempo shortcuts use actual tempo as reference in training mode
+	* Remove redundant start tempo in training mode
+	* Add icons for RTL languages
+
 2024-05-12  0.3.4
+
 	* Fix some layout issues with RTL languages
 	* Add Brazilian Portuguese translation
 	* Animate acceleration triangle in tempo display
