@@ -338,7 +338,7 @@ msgstr "Número de batidas a sustentar o tempo"
 #: src/resources/ui/MainWindow.glade:1321
 msgctxt "Main window - Trainer"
 msgid "Step"
-msgstr "PAsso"
+msgstr "Passo"
 
 #. Tooltip
 #: src/resources/ui/MainWindow.glade:1337
