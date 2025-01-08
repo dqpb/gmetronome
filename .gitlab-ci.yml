@@ -71,9 +71,6 @@ distcheck:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_TAG != null'
   interruptible: true
-  variables:
-    # Pass "--runtime" in order to build a runtime or extension
-    EXPORT_RUNTIME: ""
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
@@ -91,7 +88,8 @@ distcheck:
     - rewrite-flatpak-manifest ${MANIFEST_PATH} ${FLATPAK_MODULE} ${CONFIG_OPTS}
     - flatpak-builder --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
+    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
+    - flatpak build-bundle repo ${BUNDLE_LOCALE} --runtime --runtime-repo=${RUNTIME_REPO} ${APP_ID}.Locale ${BRANCH}
     - tar cf repo.tar repo/
 
   artifacts:
@@ -99,6 +97,7 @@ distcheck:
     when: 'always'
     paths:
       - $BUNDLE
+      - $BUNDLE_LOCALE
       - 'repo.tar'
     expire_in: 2 hours
 
@@ -136,6 +135,7 @@ distcheck:
     APP_ID: "org.gnome.gitlab.dqpb.GMetronome"
     RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     BUNDLE: "gmetronome-git.flatpak"
+    BUNDLE_LOCALE: "gmetronome-locale-git.flatpak"
 
 # Build Flatpak for x86_64
 flatpak@x86_64:
