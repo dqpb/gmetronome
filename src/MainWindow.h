@@ -72,7 +72,7 @@ private:
   Gtk::ShortcutsWindow* shortcuts_window_;
 
   // UI elements
-  class HeaderBarBin : public Gtk::Bin {} titlebar_bin_;
+  Gtk::Box titlebar_box_;
   Gtk::HeaderBar* header_bar_;
   LCD lcd_;
   Gtk::Button* full_screen_button_;
