@@ -364,8 +364,8 @@ LCD::LCD()
 
   Gtk::Box::show_all();
 
-  Gtk::Settings::get_default()->property_gtk_theme_name().signal_changed()
-    .connect(sigc::mem_fun(*this, &LCD::onThemeNameChanged));
+  LCD::signal_style_updated()
+    .connect(sigc::mem_fun(*this, &LCD::onStyleUpdated));
 
   LCD::property_parent().signal_changed()
     .connect(sigc::mem_fun(*this, &LCD::onParentChanged));
@@ -613,7 +613,7 @@ void LCD::updateCSSClass()
   }
 }
 
-void LCD::onThemeNameChanged()
+void LCD::onStyleUpdated()
 { updateCSSClass(); }
 
 void LCD::onParentChanged()

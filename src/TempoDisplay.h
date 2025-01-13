@@ -145,7 +145,7 @@ private:
 
 //  void on_style_updated() override;
   void updateCSSClass();
-  void onThemeNameChanged();
+  void onStyleUpdated();
   void onParentChanged();
 };
 
