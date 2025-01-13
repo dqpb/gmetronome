@@ -32,6 +32,8 @@ namespace
 {
   const Glib::ustring kBlinkClassName = "blink";
   const Glib::ustring kPlaceholderClassName = "placeholder";
+  const Glib::ustring kLightThemeClassName = "light-theme";
+  const Glib::ustring kDarkThemeClassName = "dark-theme";
   constexpr double kDimAlpha = 0.07;
 }//unnamed namespace
 
@@ -522,11 +524,9 @@ Gdk::RGBA LCD::getBGColor(const Gtk::Widget* widget)
 
   if (auto style_context = widget->get_style_context(); style_context)
   {
-    style_context->set_state(Gtk::STATE_FLAG_NORMAL);
     style_context->render_background(cairo_context, 0, 0, kSurfaceWidth, kSurfaceHeight);
 
     const unsigned char* data = surface->get_data();
-
     std::array<double,4> rgba {0.0, 0.0, 0.0, 0.0};
 
     for (int row = 0; row < kSurfaceHeight; ++row)
@@ -559,10 +559,7 @@ Gdk::RGBA LCD::getFGColor(const Gtk::Widget* widget)
     return color;
 
   if (auto style_context = widget->get_style_context(); style_context)
-  {
-    style_context->set_state(Gtk::STATE_FLAG_NORMAL);
-    color = style_context->get_color(Gtk::STATE_FLAG_NORMAL);
-  }
+    color = style_context->get_color(style_context->get_state());
 
   return color;
 }
@@ -591,24 +588,24 @@ void LCD::updateCSSClass()
   {
     if (fg_lum < bg_lum) {
       // switch to light theme
-      if (!style_context->has_class("light-theme"))
-        style_context->add_class("light-theme");
-      if (style_context->has_class("dark-theme"))
-        style_context->remove_class("dark-theme");
+      if (!style_context->has_class(kLightThemeClassName))
+        style_context->add_class(kLightThemeClassName);
+      if (style_context->has_class(kDarkThemeClassName))
+        style_context->remove_class(kDarkThemeClassName);
     }
     else if (fg_lum > bg_lum) {
       // switch to dark theme
-      if (!style_context->has_class("dark-theme"))
-        style_context->add_class("dark-theme");
-      if (style_context->has_class("light-theme"))
-        style_context->remove_class("light-theme");
+      if (!style_context->has_class(kDarkThemeClassName))
+        style_context->add_class(kDarkThemeClassName);
+      if (style_context->has_class(kLightThemeClassName))
+        style_context->remove_class(kLightThemeClassName);
     }
     else {
       // no theme (due to error in get*Color)
-      if (style_context->has_class("light-theme"))
-        style_context->remove_class("light-theme");
-      if (style_context->has_class("dark-theme"))
-        style_context->remove_class("dark-theme");
+      if (style_context->has_class(kLightThemeClassName))
+        style_context->remove_class(kLightThemeClassName);
+      if (style_context->has_class(kDarkThemeClassName))
+        style_context->remove_class(kDarkThemeClassName);
     }
   }
 }
