@@ -291,9 +291,10 @@ void MainWindow::initUI()
 {
   // initialize title bar
   titlebar_box_.add(*header_bar_);
-  set_titlebar(titlebar_box_);
   titlebar_box_.set_hexpand(true);
   titlebar_box_.show();
+
+  set_titlebar(titlebar_box_);
 
   // initialize header bar
   header_bar_->set_vexpand(false);
