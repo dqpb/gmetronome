@@ -49,6 +49,14 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.4.2" date="2025-01-14">
+      <description translate="no">
+	<ul>
+	  <li>Updated Brazilian Portuguese translation</li>
+	  <li>Fixed a problem with the header bar not shown correctly with some GTK themes</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.4.1" date="2025-01-06">
       <description translate="no">
 	<ul>
