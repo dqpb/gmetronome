@@ -374,6 +374,13 @@ bool Pendulum::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   return true;
 }
 
+namespace {
+  // helper to align pixel coordinates to pixel centers
+  double alignPixelCoord(double x) {
+    return std::floor(x) + 0.5;
+  }
+}//unnamed namespace
+
 void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
                         const Gdk::RGBA& dial_color)
 {
@@ -384,6 +391,7 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
 
   // draw dial
   cr->save();
+
   cr->move_to(needle_base_[0] - inner_dial_radius * sin_dial_amplitude,
               needle_base_[1] - inner_dial_radius * cos_dial_amplitude);
 
@@ -465,12 +473,12 @@ void Pendulum::drawTogglePhaseOverlay(const Cairo::RefPtr<Cairo::Context>& cr,
   const double overlay_x = toggle_phase_overlay_rect_.x;
   const double overlay_y = toggle_phase_overlay_rect_.y;
   const double overlay_width = toggle_phase_overlay_rect_.width;
-  const double overlay_width_third = std::floor(overlay_width / 3.0) + 0.5;
-  const double overlay_width_two_third = std::floor(2.0 * overlay_width / 3.0) + 0.5;
+  const double overlay_width_third = alignPixelCoord(overlay_width / 3.0);
+  const double overlay_width_two_third = alignPixelCoord(2.0 * overlay_width / 3.0);
   const double overlay_height = toggle_phase_overlay_rect_.height;
   const double overlay_height_half = overlay_height / 2.0;
-  const double overlay_height_third = std::floor(overlay_height / 3.0) + 0.5;
-  const double overlay_height_two_third = std::floor(2.0 * overlay_height / 3.0) + 0.5;
+  const double overlay_height_third = alignPixelCoord(overlay_height / 3.0);
+  const double overlay_height_two_third = alignPixelCoord(2.0 * overlay_height / 3.0);
 
   cr->save();
   cr->move_to(overlay_x, overlay_y + overlay_height_half);
@@ -567,12 +575,12 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
 
   // update dial dimensions
   dial_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
-  dial_radius_ = std::floor(dial_radius_ - 1.0) + 0.5;
+  dial_radius_ = alignPixelCoord(dial_radius_ - 1.0);
 
   // update needle dimensions
   needle_length_ = std::round(dial_radius_ / 100.0 * kNeedleLength);
-  needle_base_[0] = std::floor(width / 2.0) + 0.5; // prevent blurred middle line
-  needle_base_[1] = std::floor((height + dial_radius_) / 2.0) + 1.5;
+  needle_base_[0] = alignPixelCoord(width / 2.0); // prevent blurred middle line
+  needle_base_[1] = alignPixelCoord((height + dial_radius_) / 2.0) + 1.0;
   needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
   needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
 
