@@ -391,12 +391,6 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
   // draw dial
   cr->save();
 
-  cr->move_to(needle_base_[0] - dial_inner_radius_ * sin_dial_amplitude,
-              needle_base_[1] - dial_inner_radius_ * cos_dial_amplitude);
-
-  cr->line_to(needle_base_[0] - dial_outer_radius_ * sin_dial_amplitude,
-              needle_base_[1] - dial_outer_radius_ * cos_dial_amplitude);
-
   cr->arc(needle_base_[0],
           needle_base_[1],
           dial_outer_radius_,
@@ -411,6 +405,8 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
                    dial_inner_radius_,
                    three_pi_half + dial_amplitude_,
                    three_pi_half - dial_amplitude_);
+
+  cr->close_path();
 
   cr->set_source_rgba(dial_color.get_red(),
                       dial_color.get_green(),
