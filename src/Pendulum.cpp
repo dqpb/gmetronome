@@ -327,7 +327,7 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       h = needle_base_[1] - y + kNeedleWidth;
 
       // This is a workaround to fix rendering artifacts that appear on some devices if the
-      // region boundry is near a point of the drawing path of the dial, especially the point
+      // region boundary is near a point of the drawing path of the dial, especially the point
       // in the lower left corner. We try to detect this case and widen the region by 2px.
       if (std::abs(x - (needle_base_[0] - dial_inner_radius_ * sin_dial_amplitude_)) <= 1.0)
       {
