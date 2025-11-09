@@ -70,7 +70,8 @@ private:
   double needle_length_{0.9};
   std::array<double,2> needle_base_{0.5, 1.0};
   std::array<double,2> needle_tip_{0.5, 0.0};
-  double dial_radius_{1.0};
+  double dial_outer_radius_{1.0};
+  double dial_inner_radius_{0.5};
   double dial_amplitude_{0.0};
 
   Cairo::RectangleInt toggle_phase_overlay_rect_{0, 0, 0, 0};

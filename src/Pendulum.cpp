@@ -387,29 +387,28 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
   static constexpr double three_pi_half = 3.0 * M_PI / 2.0;
   const double sin_dial_amplitude = std::sin(dial_amplitude_);
   const double cos_dial_amplitude = std::cos(dial_amplitude_);
-  const double inner_dial_radius = needle_length_ / 2.0;
 
   // draw dial
   cr->save();
 
-  cr->move_to(needle_base_[0] - inner_dial_radius * sin_dial_amplitude,
-              needle_base_[1] - inner_dial_radius * cos_dial_amplitude);
+  cr->move_to(needle_base_[0] - dial_inner_radius_ * sin_dial_amplitude,
+              needle_base_[1] - dial_inner_radius_ * cos_dial_amplitude);
 
-  cr->line_to(needle_base_[0] - dial_radius_ * sin_dial_amplitude,
-              needle_base_[1] - dial_radius_ * cos_dial_amplitude);
+  cr->line_to(needle_base_[0] - dial_outer_radius_ * sin_dial_amplitude,
+              needle_base_[1] - dial_outer_radius_ * cos_dial_amplitude);
 
   cr->arc(needle_base_[0],
           needle_base_[1],
-          dial_radius_,
+          dial_outer_radius_,
           three_pi_half - dial_amplitude_,
           three_pi_half + dial_amplitude_);
 
-  cr->line_to(needle_base_[0] + inner_dial_radius * sin_dial_amplitude,
-              needle_base_[1] - inner_dial_radius * cos_dial_amplitude);
+  cr->line_to(needle_base_[0] + dial_inner_radius_ * sin_dial_amplitude,
+              needle_base_[1] - dial_inner_radius_ * cos_dial_amplitude);
 
   cr->arc_negative(needle_base_[0],
                    needle_base_[1],
-                   inner_dial_radius,
+                   dial_inner_radius_,
                    three_pi_half + dial_amplitude_,
                    three_pi_half - dial_amplitude_);
 
@@ -429,7 +428,7 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
   cr->stroke();
 
   cr->move_to(needle_base_[0], needle_base_[1]);
-  cr->line_to(needle_base_[0], needle_base_[1] - dial_radius_);
+  cr->line_to(needle_base_[0], needle_base_[1] - dial_outer_radius_);
 
   static const std::vector<double> dash_pattern({4.0, 4.0});
   cr->set_dash(dash_pattern, 0);
@@ -574,26 +573,26 @@ void Pendulum::on_size_allocate(Gtk::Allocation& allocation)
     gdk_window_->move_resize(x, y, width, height);
 
   // update dial dimensions
-  dial_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
-  dial_radius_ = alignPixelCoord(dial_radius_ - 1.0);
+  dial_outer_radius_ = std::min(width / (2.0 * std::sin(needleAmplitude(0.0))), (double)height);
+  dial_outer_radius_ = alignPixelCoord(dial_outer_radius_ - 1.0);
 
   // update needle dimensions
-  needle_length_ = std::round(dial_radius_ / 100.0 * kNeedleLength);
+  needle_length_ = std::round(dial_outer_radius_ / 100.0 * kNeedleLength);
   needle_base_[0] = alignPixelCoord(width / 2.0); // prevent blurred middle line
-  needle_base_[1] = alignPixelCoord((height + dial_radius_) / 2.0) + 1.0;
+  needle_base_[1] = alignPixelCoord((height + dial_outer_radius_) / 2.0) + 1.0;
   needle_tip_[0] = needle_base_[0] - needle_length_ * std::sin(needle_theta_);
   needle_tip_[1] = needle_base_[1] - needle_length_ * std::cos(needle_theta_);
 
   // update overlay dimensions
-  const double inner_dial_radius = needle_length_ / 2.0;
+  dial_inner_radius_ = needle_length_ / 2.0;
 
   // 30 percent of the dial height
-  const double overlay_height = ((dial_radius_ - inner_dial_radius) / 100.0) * 30.0;
+  const double overlay_height = ((dial_outer_radius_ - dial_inner_radius_) / 100.0) * 30.0;
   const double overlay_width = 2.0 * overlay_height;
   const std::array<double,2> overlay_mid =
     {
       needle_base_[0],
-      needle_base_[1] - (inner_dial_radius + dial_radius_) / 2.0
+      needle_base_[1] - (dial_inner_radius_ + dial_outer_radius_) / 2.0
     };
 
   toggle_phase_overlay_rect_ =
