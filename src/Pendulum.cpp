@@ -83,7 +83,9 @@ Pendulum::Pendulum()
     Gtk::Widget(),
     action_angle_{kActionAngleReal},
     phase_mode_shift_{kPhaseModeShiftLeft},
-    dial_amplitude_{kMaxNeedleAmplitude}
+    dial_amplitude_{kMaxNeedleAmplitude},
+    sin_dial_amplitude_{std::sin(dial_amplitude_)},
+    cos_dial_amplitude_{std::cos(dial_amplitude_)}
 {
   Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
 }
@@ -280,6 +282,10 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     {
       dial_amplitude_ += kDialAmplitudeChangeRate
         * std::tanh(dial_target_amplitude - dial_amplitude_) * frame_time_delta.count();
+
+      sin_dial_amplitude_ = std::sin(dial_amplitude_);
+      cos_dial_amplitude_ = std::cos(dial_amplitude_);
+
       redraw_dial = true;
     }
 
@@ -320,9 +326,16 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       w = std::max(needle_base_[0], std::max(old_needle_tip[0], needle_tip_[0])) - x + kNeedleWidth;
       h = needle_base_[1] - y + kNeedleWidth;
 
+      // This is a workaround to fix rendering artifacts that appear on some devices if the
+      // region boundry is near a point of the drawing path of the dial, especially the point
+      // in the lower left corner. We try to detect this case and widen the region by 2px.
+      if (std::abs(x - (needle_base_[0] - dial_inner_radius_ * sin_dial_amplitude_)) <= 1.0)
+      {
+        x -= 2;
+        w += 2;
+      }
       region->do_union({x,y,w,h});
     }
-
     queue_draw_region(region);
   }
 
@@ -385,8 +398,6 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
                         const Gdk::RGBA& dial_color)
 {
   static constexpr double three_pi_half = 3.0 * M_PI / 2.0;
-  const double sin_dial_amplitude = std::sin(dial_amplitude_);
-  const double cos_dial_amplitude = std::cos(dial_amplitude_);
 
   // draw dial
   cr->save();
@@ -397,8 +408,8 @@ void Pendulum::drawDial(const Cairo::RefPtr<Cairo::Context>& cr,
           three_pi_half - dial_amplitude_,
           three_pi_half + dial_amplitude_);
 
-  cr->line_to(needle_base_[0] + dial_inner_radius_ * sin_dial_amplitude,
-              needle_base_[1] - dial_inner_radius_ * cos_dial_amplitude);
+  cr->line_to(needle_base_[0] + dial_inner_radius_ * sin_dial_amplitude_,
+              needle_base_[1] - dial_inner_radius_ * cos_dial_amplitude_);
 
   cr->arc_negative(needle_base_[0],
                    needle_base_[1],

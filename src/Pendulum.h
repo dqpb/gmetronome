@@ -73,6 +73,8 @@ private:
   double dial_outer_radius_{1.0};
   double dial_inner_radius_{0.5};
   double dial_amplitude_{0.0};
+  double sin_dial_amplitude_{0.0};
+  double cos_dial_amplitude_{1.0};
 
   Cairo::RectangleInt toggle_phase_overlay_rect_{0, 0, 0, 0};
   double toggle_phase_overlay_value_{-1.0};
