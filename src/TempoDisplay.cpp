@@ -394,24 +394,24 @@ std::pair<int, int> LCD::decomposeTempo(double tempo)
     return {tempo_int_int, tempo_frac_int};
 }
 
-void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
+void LCD::updateInfo(const audio::Ticker::Info& info)
 {
-  if (stats.generator == audio::kRegularGenerator)
+  if (info.generator == audio::kRegularGenerator)
   {
-    if (!stats.default_meter)
+    if (!info.default_meter)
     {
-      int beat =  stats.accent / stats.division + 1;
+      int beat =  info.accent / info.division + 1;
       beat_label_.display(beat);
     }
     else
       beat_label_.reset();
 
-    auto [tempo_int, tempo_frac] = decomposeTempo(stats.tempo);
+    auto [tempo_int, tempo_frac] = decomposeTempo(info.tempo);
     tempo_int_label_.display(tempo_int);
 
     if (tempo_frac != 0
-        || (stats.mode == audio::Ticker::AccelMode::kContinuous && !stats.pending)
-        || stats.syncing)
+        || (info.mode == audio::Ticker::AccelMode::kContinuous && !info.pending)
+        || info.syncing)
     {
       tempo_frac_label_.display(tempo_frac);
       status_icon_.switchImage(StatusIcon::Image::kNone);
@@ -420,34 +420,34 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
     else
       tempo_frac_label_.reset(true, true);
 
-    if (stats.mode == audio::Ticker::AccelMode::kContinuous)
+    if (info.mode == audio::Ticker::AccelMode::kContinuous)
     {
-      if (stats.tempo < stats.target)
+      if (info.tempo < info.target)
         status_icon_.switchImage(StatusIcon::Image::kContinuousUp);
-      else if (stats.tempo > stats.target)
+      else if (info.tempo > info.target)
         status_icon_.switchImage(StatusIcon::Image::kContinuousDown);
       else
         status_icon_.switchImage(StatusIcon::Image::kTargetHit);
 
       hold_label_.reset();
     }
-    else if (stats.mode == audio::Ticker::AccelMode::kStepwise)
+    else if (info.mode == audio::Ticker::AccelMode::kStepwise)
     {
-      if (stats.tempo < stats.target)
+      if (info.tempo < info.target)
       {
         status_icon_.switchImage(StatusIcon::Image::kStepwiseUp);
 
-        if (!stats.pending)
-          hold_label_.display(stats.hold);
+        if (!info.pending)
+          hold_label_.display(info.hold);
         else
           hold_label_.reset();
       }
-      else if (stats.tempo > stats.target)
+      else if (info.tempo > info.target)
       {
         status_icon_.switchImage(StatusIcon::Image::kStepwiseDown);
 
-        if (!stats.pending)
-          hold_label_.display(stats.hold);
+        if (!info.pending)
+          hold_label_.display(info.hold);
         else
           hold_label_.reset();
       }
@@ -463,7 +463,7 @@ void LCD::updateStatistics(const audio::Ticker::Statistics& stats)
       status_icon_.switchImage(StatusIcon::Image::kNone);
     }
 
-    if (stats.pending && status_icon_.image() != StatusIcon::Image::kTargetHit)
+    if (info.pending && status_icon_.image() != StatusIcon::Image::kTargetHit)
       status_icon_.enableBlink();
     else
       status_icon_.disableBlink();

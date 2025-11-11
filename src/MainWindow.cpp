@@ -306,7 +306,7 @@ void MainWindow::initUI()
   lcd_.set_hexpand(false);
   lcd_.show();
 
-  updateCurrentTempo(audio::Ticker::Statistics{});
+  updateCurrentTempo(audio::Ticker::Info{});
 
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
@@ -508,8 +508,8 @@ void MainWindow::initBindings()
   info_bar_->signal_response()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessageResponse));
 
-  app_->signalTickerStatistics()
-    .connect(sigc::mem_fun(*this, &MainWindow::onTickerStatistics));
+  app_->signalTickerInfo()
+    .connect(sigc::mem_fun(*this, &MainWindow::onTickerInfo));
 
   app_->signalTap()
     .connect(sigc::mem_fun(*this, &MainWindow::onTap));
@@ -1416,29 +1416,29 @@ void MainWindow::updateVolumeMute(bool mute)
   }
 }
 
-void MainWindow::updateCurrentTempo(const audio::Ticker::Statistics& stats)
+void MainWindow::updateCurrentTempo(const audio::Ticker::Info& info)
 {
-  lcd_.updateStatistics(stats);
+  lcd_.updateInfo(info);
 }
 
-void MainWindow::updateAccentAnimation(const audio::Ticker::Statistics& stats)
+void MainWindow::updateAccentAnimation(const audio::Ticker::Info& info)
 {
-  accent_button_grid_.synchronize(stats, animation_sync_);
+  accent_button_grid_.synchronize(info, animation_sync_);
 }
 
-void MainWindow::updatePendulum(const audio::Ticker::Statistics& stats)
+void MainWindow::updatePendulum(const audio::Ticker::Info& info)
 {
-  pendulum_.synchronize(stats, animation_sync_);
+  pendulum_.synchronize(info, animation_sync_);
 }
 
-void MainWindow::onTickerStatistics(const audio::Ticker::Statistics& stats)
+void MainWindow::onTickerInfo(const audio::Ticker::Info& info)
 {
-  updateCurrentTempo(stats);
+  updateCurrentTempo(info);
 
   if (meter_animation_)
-    updateAccentAnimation(stats);
+    updateAccentAnimation(info);
 
-  updatePendulum(stats);
+  updatePendulum(info);
 }
 
 void MainWindow::onTap(double confidence)

@@ -48,13 +48,11 @@ public:
   void start();
   void stop();
 
-  void synchronize(const audio::Ticker::Statistics& stats,
+  void synchronize(const audio::Ticker::Info& info,
                    const std::chrono::microseconds& sync);
 
   void setAction(ActionAngle angle);
-
   void setPhaseMode(PhaseMode mode);
-
   void togglePhase();
 
 private:

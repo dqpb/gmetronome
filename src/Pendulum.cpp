@@ -155,20 +155,20 @@ void Pendulum::stop()
   state_ = kShutdown;
 }
 
-void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
+void Pendulum::synchronize(const audio::Ticker::Info& info,
                            const std::chrono::microseconds& sync)
 {
   if (state_ == kStop || state_ == kShutdown)
     return;
 
-  if (stats.generator == audio::kFillBufferGenerator)
+  if (info.generator == audio::kFillBufferGenerator)
   {
     if (state_ != kFillBuffer)
     {
       state_ = kFillBuffer;
     }
   }
-  else if (stats.generator == audio::kRegularGenerator)
+  else if (info.generator == audio::kRegularGenerator)
   {
     if (state_ != kRegular) // init kinematics
     {
@@ -191,7 +191,7 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
       state_ = kRegular;
     }
 
-    target_omega_ = stats.tempo / 60.0 * M_PI;
+    target_omega_ = info.tempo / 60.0 * M_PI;
 
     double omega_dev = 0.0;
     double theta_dev = 0.0;
@@ -199,7 +199,7 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     omega_dev = target_omega_ - k_.omega();
 
     double old_beat_pos = beat_pos_;
-    beat_pos_ = stats.position;
+    beat_pos_ = info.position;
 
     double displacement = aux::math::modulo(beat_pos_ - old_beat_pos, 1.0);
     beat_pos_ = std::fmod(old_beat_pos + displacement, 2.0);
@@ -207,7 +207,7 @@ void Pendulum::synchronize(const audio::Ticker::Statistics& stats,
     double target_theta = M_PI * beat_pos_;
 
     microseconds now(g_get_monotonic_time());
-    microseconds click_time = stats.timestamp + stats.backend_latency + sync;
+    microseconds click_time = info.timestamp + info.backend_latency + sync;
     seconds_dbl time_delta = now - click_time;
 
     target_theta += target_omega_ * time_delta.count();

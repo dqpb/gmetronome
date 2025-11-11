@@ -634,14 +634,14 @@ double Application::getReferenceTempo() const
       state.test(audio::Ticker::StateFlag::kStarted)
       && !state.test(audio::Ticker::StateFlag::kError))
   {
-    const auto& stats = ticker_.getStatistics();
+    const auto& info = ticker_.getInfo();
 
-    if (stats.generator == audio::kRegularGenerator)
+    if (info.generator == audio::kRegularGenerator)
     {
-      if (stats.syncing)
+      if (info.syncing)
         ref_tempo = -1.0;
       else
-        ref_tempo = stats.tempo;
+        ref_tempo = info.tempo;
     }
   }
   if (ref_tempo == 0.0)
@@ -721,9 +721,9 @@ namespace {
 
 void Application::onTempoTap(const Glib::VariantBase& value)
 {
-  auto ticker_stats = ticker_.getStatistics(false);
+  auto ticker_info = ticker_.getInfo(false);
 
-  double new_tempo = ticker_stats.tempo;
+  double new_tempo = ticker_info.tempo;
 
   milliseconds sync_time = kSingleTapSyncTime;
 
@@ -753,25 +753,25 @@ void Application::onTempoTap(const Glib::VariantBase& value)
 
   // Synchronize the tap with the nearest audible beat:
   //
-  //      +--latency-+         stats
+  //      +--latency-+         info
   //      |          |           |
   //   ---1----------:---2-------:----:-3-------> device beat
   //   --------------1-----------:--2-:---------> audible beat (device + latency)
-  //   --s-------s-------s-------s----:--s------> device stats creation (time stamp)
+  //   --s-------s-------s-------s----:--s------> device info creation (time stamp)
   //   ->>>--time-->>>----------------|--------->
   //                                 now (tap time)
 
   // tempo in beats per microsecond
-  double current_tempo_bpus = ticker_stats.tempo / 60.0 / 1000000.0;
+  double current_tempo_bpus = ticker_info.tempo / 60.0 / 1000000.0;
   double new_tempo_bpus = new_tempo / 60.0 / 1000000.0;
 
   // device beat at tap time
-  double device_beat = ticker_stats.position
-    + current_tempo_bpus * (tap.time - ticker_stats.timestamp).count();
+  double device_beat = ticker_info.position
+    + current_tempo_bpus * (tap.time - ticker_info.timestamp).count();
 
   // audible beat at tap time
   double audible_beat = device_beat
-    - current_tempo_bpus * ticker_stats.backend_latency.count();
+    - current_tempo_bpus * ticker_info.backend_latency.count();
 
   double beat_dev = std::round(audible_beat) - audible_beat
     + new_tempo_bpus * (phase - tap.time).count(); // deviation from the
@@ -1221,11 +1221,11 @@ void Application::onStart(const Glib::VariantBase& value)
     if (new_state.get())
     {
       ticker_.start();
-      startStatsTimer();
+      startInfoTimer();
     }
     else
     {
-      stopStatsTimer();
+      stopInfoTimer();
       ticker_.stop();
     }
   }
@@ -1365,23 +1365,23 @@ void Application::onSettingsShortcutsChanged(const Glib::ustring& key)
 }
 
 namespace {
-  constexpr milliseconds kUpdateStatsTimerInterval = 60ms;
+  constexpr milliseconds kUpdateInfoTimerInterval = 60ms;
 }
 
-void Application::startStatsTimer()
+void Application::startInfoTimer()
 {
-  stats_timer_connection_ = Glib::signal_timeout()
-    .connect(sigc::mem_fun(*this, &Application::onStatsTimer),
-             kUpdateStatsTimerInterval.count());
+  info_timer_connection_ = Glib::signal_timeout()
+    .connect(sigc::mem_fun(*this, &Application::onInfoTimer),
+             kUpdateInfoTimerInterval.count());
 }
 
-void Application::stopStatsTimer()
+void Application::stopInfoTimer()
 {
-  stats_timer_connection_.disconnect();
-  signal_ticker_statistics_.emit(audio::Ticker::Statistics{});
+  info_timer_connection_.disconnect();
+  signal_ticker_info_.emit(audio::Ticker::Info{});
 }
 
-bool Application::onStatsTimer()
+bool Application::onInfoTimer()
 {
   if (audio::Ticker::State state = ticker_.state();
       state.test(audio::Ticker::StateFlag::kError))
@@ -1392,10 +1392,10 @@ bool Application::onStatsTimer()
   }
   else
   {
-    if (ticker_.hasStatistics())
+    if (ticker_.hasInfo())
     {
-      audio::Ticker::Statistics stats = ticker_.getStatistics(true);
-      signal_ticker_statistics_.emit(stats);
+      audio::Ticker::Info info = ticker_.getInfo(true);
+      signal_ticker_info_.emit(info);
     }
     return true;
   }

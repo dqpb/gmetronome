@@ -224,10 +224,10 @@ private:
   void updateStartButtonLabel(bool running);
   void updateVolumeMute(bool mute);
 
-  void updateCurrentTempo(const audio::Ticker::Statistics& stats);
-  void updateAccentAnimation(const audio::Ticker::Statistics& stats);
-  void updatePendulum(const audio::Ticker::Statistics& stats);
-  void onTickerStatistics(const audio::Ticker::Statistics& stats);
+  void updateCurrentTempo(const audio::Ticker::Info& info);
+  void updateAccentAnimation(const audio::Ticker::Info& info);
+  void updatePendulum(const audio::Ticker::Info& info);
+  void onTickerInfo(const audio::Ticker::Info& info);
   void onTap(double confidence);
 
   void startTapAnimationTimer();

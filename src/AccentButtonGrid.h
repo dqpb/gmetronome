@@ -51,7 +51,7 @@ public:
 
   void stop();
 
-  void synchronize(const audio::Ticker::Statistics& stats,
+  void synchronize(const audio::Ticker::Info& info,
                    const std::chrono::microseconds& sync);
   // signals
   sigc::signal<void(std::size_t index)> signal_accent_changed()

@@ -67,23 +67,23 @@ void AccentButtonGrid::stop()
   cancelButtonAnimations();
 }
 
-void AccentButtonGrid::synchronize(const audio::Ticker::Statistics& stats,
+void AccentButtonGrid::synchronize(const audio::Ticker::Info& info,
                                    const std::chrono::microseconds& sync)
 {
   const int beats = meter_.beats();
   const int division = meter_.division();
   const int n_accents = beats * division;
 
-  if (stats.beats == beats && stats.division == division)
+  if (info.beats == beats && info.division == division)
   {
-    int next_accent = (stats.accent + 1) % n_accents;
+    int next_accent = (info.accent + 1) % n_accents;
     assert(next_accent >= 0);
 
     if (static_cast<std::size_t>(next_accent) < buttons_.size())
     {
-      microseconds time = stats.timestamp
-        + stats.backend_latency
-        + stats.next_accent_delay
+      microseconds time = info.timestamp
+        + info.backend_latency
+        + info.next_accent_delay
         + sync;
 
       microseconds now {g_get_monotonic_time()};

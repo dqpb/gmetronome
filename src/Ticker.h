@@ -54,7 +54,7 @@ namespace audio {
       kStepwise
     };
 
-    struct Statistics
+    struct Info
     {
       microseconds  timestamp {0us};
 
@@ -140,10 +140,10 @@ namespace audio {
     void resetMeter();
     void setSound(Accent accent, const SoundParameters& params);
 
-    Ticker::Statistics getStatistics() const;
-    Ticker::Statistics getStatistics(bool consume = true);
+    Ticker::Info getInfo() const;
+    Ticker::Info getInfo(bool consume = true);
 
-    bool hasStatistics() const;
+    bool hasInfo() const;
 
   private:
     BeatStreamController stream_ctrl_;
@@ -202,8 +202,8 @@ namespace audio {
     std::atomic_flag swap_backend_flag_;
     mutable SpinLock spin_mutex_;
 
-    Ticker::Statistics out_stats_;
-    bool has_stats_{false};
+    Ticker::Info out_info_;
+    bool has_info_{false};
 
     void openBackend();
     void closeBackend();
@@ -243,7 +243,7 @@ namespace audio {
     void importSettingsInitial();
     bool tryImportSettings(bool force = false);
 
-    bool tryExportStatistics(bool force = false);
+    bool tryExportInfo(bool force = false);
 
     std::unique_ptr<std::thread> audio_thread_{nullptr};
     std::atomic_flag continue_audio_thread_flag_;

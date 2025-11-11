@@ -132,7 +132,7 @@ namespace audio {
     if (current_state.test(Ticker::StateFlag::kRunning))
       stopAudioThread(true); // join
 
-    has_stats_ = false;
+    has_info_ = false;
 
     startAudioThread();
 
@@ -258,23 +258,23 @@ namespace audio {
     in_ops_.set(kOpFlagSoundOff + accent);
   }
 
-  Ticker::Statistics Ticker::getStatistics() const
+  Ticker::Info Ticker::getInfo() const
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
-    return out_stats_;
+    return out_info_;
   }
 
-  Ticker::Statistics Ticker::getStatistics(bool consume)
+  Ticker::Info Ticker::getInfo(bool consume)
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
-    has_stats_ = has_stats_ && !consume;
-    return out_stats_;
+    has_info_ = has_info_ && !consume;
+    return out_info_;
   }
 
-  bool Ticker::hasStatistics() const
+  bool Ticker::hasInfo() const
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
-    return has_stats_;
+    return has_info_;
   }
 
   void Ticker::startAudioThread()
@@ -674,7 +674,7 @@ namespace audio {
     else return false;
   }
 
-  bool Ticker::tryExportStatistics(bool force)
+  bool Ticker::tryExportInfo(bool force)
   {
     std::unique_lock<SpinLock> lck(spin_mutex_, std::defer_lock);
 
@@ -685,40 +685,40 @@ namespace audio {
 
     if (lck.owns_lock())
     {
-      out_stats_.timestamp = microseconds(g_get_monotonic_time());
+      out_info_.timestamp = microseconds(g_get_monotonic_time());
 
-      const auto& gen_stats = stream_ctrl_.status();
+      const auto& gen_status = stream_ctrl_.status();
       const auto& meter = stream_ctrl_.meter();
 
-      out_stats_.mode         = accel_mode_;
-      out_stats_.pending      = isAccelDeferred();
-      out_stats_.syncing      = gen_stats.mode == TempoMode::kSync;
+      out_info_.mode         = accel_mode_;
+      out_info_.pending      = isAccelDeferred();
+      out_info_.syncing      = gen_status.mode == TempoMode::kSync;
 
-      out_stats_.position     = gen_stats.position;
-      out_stats_.tempo        = gen_stats.tempo;
-      out_stats_.acceleration = gen_stats.acceleration;
+      out_info_.position     = gen_status.position;
+      out_info_.tempo        = gen_status.tempo;
+      out_info_.acceleration = gen_status.acceleration;
 
       if (isAccelDeferred())
-        out_stats_.target     = in_target_;
+        out_info_.target     = in_target_;
       else
-        out_stats_.target     = stream_ctrl_.target();
+        out_info_.target     = stream_ctrl_.target();
 
-      out_stats_.hold = gen_stats.hold;
+      out_info_.hold = gen_status.hold;
 
       // Meter
-      out_stats_.default_meter     = !stream_ctrl_.isMeterEnabled();
-      out_stats_.beats             = meter.beats();
-      out_stats_.division          = meter.division();
-      out_stats_.accent            = gen_stats.accent;
-      out_stats_.next_accent_delay = gen_stats.next_accent_delay;
-      out_stats_.generator         = gen_stats.generator;
+      out_info_.default_meter     = !stream_ctrl_.isMeterEnabled();
+      out_info_.beats             = meter.beats();
+      out_info_.division          = meter.division();
+      out_info_.accent            = gen_status.accent;
+      out_info_.next_accent_delay = gen_status.next_accent_delay;
+      out_info_.generator         = gen_status.generator;
 
       if (backend_)
-        out_stats_.backend_latency = backend_->latency();
+        out_info_.backend_latency = backend_->latency();
       else
-        out_stats_.backend_latency = 0us;
+        out_info_.backend_latency = 0us;
 
-      has_stats_ = true;
+      has_info_ = true;
 
       return true;
     }
@@ -754,7 +754,7 @@ namespace audio {
           startBackend();
         }
 
-        tryExportStatistics();
+        tryExportInfo();
 
         tryImportSettings();
 
@@ -772,7 +772,7 @@ namespace audio {
         tryAmendAccel(true);
 
       stream_ctrl_.stop();
-      tryExportStatistics(true);
+      tryExportInfo(true);
       stopBackend();
     }
     catch(...)

@@ -120,7 +120,7 @@ class LCD : public Gtk::Box {
 public:
   LCD();
 
-  void updateStatistics(const audio::Ticker::Statistics& stats);
+  void updateInfo(const audio::Ticker::Info& info);
 
   void setProfileTitle(const Glib::ustring& title, bool is_placeholder);
 

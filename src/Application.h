@@ -44,8 +44,8 @@ public:
   sigc::signal<void, const Message&> signalMessage()
     { return signal_message_; }
 
-  sigc::signal<void, const audio::Ticker::Statistics&> signalTickerStatistics()
-    { return signal_ticker_statistics_; }
+  sigc::signal<void, const audio::Ticker::Info&> signalTickerInfo()
+    { return signal_ticker_info_; }
 
   sigc::signal<void, double> signalTap()
     { return signal_tap_; }
@@ -66,13 +66,13 @@ private:
 
   // Connections
   sigc::connection settings_state_connection_;
-  sigc::connection stats_timer_connection_;
+  sigc::connection info_timer_connection_;
   sigc::connection volume_timer_connection_;
   std::array<sigc::connection, kNumAccents> settings_sound_params_connections_;
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;
-  sigc::signal<void, const audio::Ticker::Statistics&> signal_ticker_statistics_;
+  sigc::signal<void, const audio::Ticker::Info&> signal_ticker_info_;
   sigc::signal<void, double> signal_tap_;
 
   // Main window
@@ -171,9 +171,9 @@ private:
   void onSettingsShortcutsChanged(const Glib::ustring& key);
 
   // Timer
-  void startStatsTimer();
-  void stopStatsTimer();
-  bool onStatsTimer();
+  void startInfoTimer();
+  void stopInfoTimer();
+  bool onInfoTimer();
 
   void startDropVolumeTimer(double drop = 50.0);
   void stopDropVolumeTimer();
