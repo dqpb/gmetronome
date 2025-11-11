@@ -54,6 +54,7 @@ noinst_HEADERS = \
 	ActionBinding.h \
 	Action.h \
 	Alsa.h \
+	Animatable.h \
 	Application.h \
 	Audio.h \
 	AudioBackend.h \
