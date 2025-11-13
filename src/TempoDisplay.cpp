@@ -479,9 +479,6 @@ void LCD::updateInfo(const audio::Ticker::Info& info)
     hold_label_.reset();
     status_icon_.switchImage(StatusIcon::Image::kNone);
   }
-  // Workaround: this should not be necessary but there seems to be a
-  // GTK compositing problem with some themes from the Greybird family.
-   stat_box_.queue_draw();
 }
 
 void LCD::setProfileTitle(const Glib::ustring& title, bool is_placeholder)
