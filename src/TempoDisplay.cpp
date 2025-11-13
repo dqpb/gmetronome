@@ -148,10 +148,14 @@ bool NumericLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
   auto pango_context = Gtk::DrawingArea::get_pango_context();
   Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(pango_context);
 
+  Gtk::Allocation allocation = get_allocation();
+  const int width = allocation.get_width();
+  const int height = allocation.get_height();
+
   auto margin = style_context->get_margin(widget_state);
 
-  double x_offset = Gtk::DrawingArea::get_width() - margin.get_right();
-  double y_offset = margin.get_top();
+  double x_offset = width - margin.get_right();
+  double y_offset = (height + margin.get_top() - margin.get_bottom() - digit_height_) / 2.0;
 
   static Gdk::RGBA kNegativeColor {"rgba(255, 0, 0, 1.0)"};
 
@@ -179,7 +183,6 @@ bool NumericLabel::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         Gdk::Cairo::set_source_rgba(cr, text_color);
 
       layout->show_in_cairo_context(cr);
-      // style_context->render_layout(cr, x, y, layout);
     }
   }
 
@@ -317,7 +320,7 @@ LCD::LCD()
   stat_box_.pack_start(beat_label_, Gtk::PACK_EXPAND_WIDGET);
   beat_label_.set_name("beatLabel");
   beat_label_.set_halign(Gtk::ALIGN_START);
-  beat_label_.set_valign(Gtk::ALIGN_CENTER);
+  beat_label_.set_valign(Gtk::ALIGN_FILL);
 
   stat_box_.pack_end(status_icon_, Gtk::PACK_SHRINK);
   status_icon_.set_name("statusIcon");
@@ -327,11 +330,11 @@ LCD::LCD()
   stat_box_.pack_end(hold_label_, Gtk::PACK_SHRINK);
   hold_label_.set_name("holdLabel");
   hold_label_.set_halign(Gtk::ALIGN_END);
-  hold_label_.set_valign(Gtk::ALIGN_CENTER);
+  hold_label_.set_valign(Gtk::ALIGN_FILL);
 
   tempo_frac_label_.set_name("tempoFracLabel");
   tempo_frac_label_.set_halign(Gtk::ALIGN_START);
-  tempo_frac_label_.set_valign(Gtk::ALIGN_CENTER);
+  tempo_frac_label_.set_valign(Gtk::ALIGN_FILL);
   tempo_frac_label_.reset(true, true);
 
   if (get_direction() == Gtk::TEXT_DIR_RTL)
@@ -348,7 +351,7 @@ LCD::LCD()
   stat_box_.set_center_widget(tempo_int_label_);
   tempo_int_label_.set_name("tempoIntLabel");
   tempo_int_label_.set_halign(Gtk::ALIGN_CENTER);
-  tempo_int_label_.set_valign(Gtk::ALIGN_CENTER);
+  tempo_int_label_.set_valign(Gtk::ALIGN_FILL);
   tempo_int_label_.zero();
 
   stat_box_.show_all();
@@ -476,6 +479,9 @@ void LCD::updateInfo(const audio::Ticker::Info& info)
     hold_label_.reset();
     status_icon_.switchImage(StatusIcon::Image::kNone);
   }
+  // Workaround: this should not be necessary but there seems to be a
+  // GTK compositing problem with some themes from the Greybird family.
+   stat_box_.queue_draw();
 }
 
 void LCD::setProfileTitle(const Glib::ustring& title, bool is_placeholder)
