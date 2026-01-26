@@ -24,8 +24,12 @@
 #include <gdkmm/frameclock.h>
 #include <chrono>
 
-// CRTP to be used with Gtk::Widget types that need exact frame timing
-// to display continuous animations.
+/**
+ * @class Animatable
+ *
+ * CRTP to be used with Gtk::Widget types that need exact frame timing
+ * to display continuous animations.
+ */
 template<typename T>
 class Animatable {
 public:
