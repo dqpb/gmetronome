@@ -397,7 +397,19 @@ std::pair<int, int> LCD::decomposeTempo(double tempo)
     return {tempo_int_int, tempo_frac_int};
 }
 
-void LCD::updateInfo(const audio::Ticker::Info& info)
+void LCD::startSynchronization()
+{}
+
+void LCD::stopSynchronization()
+{
+  beat_label_.reset();
+  tempo_int_label_.zero();
+  tempo_frac_label_.reset(true, true);
+  hold_label_.reset();
+  status_icon_.switchImage(StatusIcon::Image::kNone);
+}
+
+void LCD::synchronize(const audio::Ticker::Info& info, const std::chrono::microseconds& sync)
 {
   if (info.generator == audio::kRegularGenerator)
   {
@@ -470,14 +482,6 @@ void LCD::updateInfo(const audio::Ticker::Info& info)
       status_icon_.enableBlink();
     else
       status_icon_.disableBlink();
-  }
-  else
-  {
-    beat_label_.reset();
-    tempo_int_label_.zero();
-    tempo_frac_label_.reset(true, true);
-    hold_label_.reset();
-    status_icon_.switchImage(StatusIcon::Image::kNone);
   }
 }
 

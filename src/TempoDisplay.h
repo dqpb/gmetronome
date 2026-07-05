@@ -21,6 +21,7 @@
 #define GMetronome_TempoDisplay_h
 
 #include "Ticker.h"
+#include "Synchronizable.h"
 
 #include <gtkmm.h>
 #include <vector>
@@ -116,14 +117,16 @@ private:
   bool blink_{false};
 };
 
-class LCD : public Gtk::Box {
+class LCD : public Gtk::Box, public Synchronizable {
 public:
   LCD();
 
-  void updateInfo(const audio::Ticker::Info& info);
+  void startSynchronization() override;
+  void stopSynchronization() override;
+  void synchronize(const audio::Ticker::Info& info,
+                   const std::chrono::microseconds& sync) override;
 
   void setProfileTitle(const Glib::ustring& title, bool is_placeholder);
-
   void unsetProfileTitle();
 
 private:
