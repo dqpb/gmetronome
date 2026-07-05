@@ -15,6 +15,7 @@ gmetronome_SOURCES = \
 	Error.cpp \
 	Filter.cpp \
 	Generator.cpp \
+	LCD.cpp \
 	main.cpp \
 	MainWindow.cpp \
 	Message.cpp \
@@ -33,7 +34,6 @@ gmetronome_SOURCES = \
 	SynchronizableCtrl.cpp \
 	Synthesizer.cpp \
 	TapAnalyser.cpp \
-	TempoDisplay.cpp \
 	Ticker.cpp \
 	Wavetable.cpp \
 	WavetableLibrary.cpp
@@ -65,6 +65,7 @@ noinst_HEADERS = \
 	Error.h \
 	Filter.h \
 	Generator.h \
+	LCD.h \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
@@ -92,7 +93,6 @@ noinst_HEADERS = \
 	SynchronizableCtrl.h \
 	Synthesizer.h \
 	TapAnalyser.h \
-	TempoDisplay.h \
 	Ticker.h \
 	Wavetable.h \
 	WavetableLibrary.h

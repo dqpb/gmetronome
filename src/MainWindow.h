@@ -24,7 +24,7 @@
 #include "Ticker.h"
 #include "Message.h"
 #include "Pendulum.h"
-#include "TempoDisplay.h"
+#include "LCD.h"
 #include "AccentButtonGrid.h"
 #include "About.h"
 #include "SynchronizableCtrl.h"

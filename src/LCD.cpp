@@ -21,7 +21,7 @@
 # include <config.h>
 #endif
 
-#include "TempoDisplay.h"
+#include "LCD.h"
 #include "Auxiliary.h"
 
 #include <cmath>

@@ -17,8 +17,8 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_TempoDisplay_h
-#define GMetronome_TempoDisplay_h
+#ifndef GMetronome_LCD_h
+#define GMetronome_LCD_h
 
 #include "Ticker.h"
 #include "Synchronizable.h"
@@ -152,4 +152,4 @@ private:
   void onParentChanged();
 };
 
-#endif//GMetronome_TempoDisplay_h
+#endif//GMetronome_LCD_h
