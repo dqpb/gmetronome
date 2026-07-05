@@ -21,6 +21,7 @@
 #define GMetronome_AccentButton_h
 
 #include "Meter.h"
+#include "Animatable.h"
 #include <gtkmm.h>
 #include <set>
 
@@ -78,7 +79,8 @@ private:
 /**
  * @class AccentButtonDrawingArea
  */
-class AccentButtonDrawingArea : public Gtk::DrawingArea {
+class AccentButtonDrawingArea : public Gtk::DrawingArea,
+                                public Animatable<AccentButtonDrawingArea> {
 public:
   AccentButtonDrawingArea(Accent state = kAccentMid,
                           const Glib::ustring& label = "");
@@ -96,8 +98,7 @@ public:
     { return label_; }
 
   void scheduleAnimation(gint64 frame_time, bool clear = false);
-
-  void cancelAnimation();
+  void cancelScheduledAnimations();
 
 protected:
   Accent button_state_;
@@ -123,15 +124,9 @@ protected:
   using TimeSet = std::set<gint64, std::greater<gint64>>;
   TimeSet scheduled_animations_;
 
-  bool animation_running_{false};
-  guint animation_tick_callback_id_{0};
   gushort animation_alpha_{0};
 
-  void startAnimation();
-
-  void stopAnimation();
-
-  bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);
+  void updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&) override;
 
   Gtk::SizeRequestMode get_request_mode_vfunc() const override;
 
@@ -209,7 +204,7 @@ public:
 
   void scheduleAnimation(gint64 frame_time, bool clear = false);
 
-  void cancelAnimation();
+  void cancelScheduledAnimations();
 
   AccentButtonDrawingArea& getDrawingArea()
     { return drawing_area_; }

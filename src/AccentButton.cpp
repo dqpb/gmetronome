@@ -106,7 +106,7 @@ AccentButtonDrawingArea::AccentButtonDrawingArea(Accent state, const Glib::ustri
 
 AccentButtonDrawingArea::~AccentButtonDrawingArea()
 {
-  if (animation_running_)
+  if (isAnimationRunning())
     stopAnimation();
 }
 
@@ -155,55 +155,22 @@ void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time, bool clear)
 
   scheduled_animations_.insert( frame_time );
 
-  if (!animation_running_)
+  if (!isAnimationRunning())
     startAnimation();
 }
 
-void AccentButtonDrawingArea::cancelAnimation()
+void AccentButtonDrawingArea::cancelScheduledAnimations()
 {
   scheduled_animations_.clear();
 }
 
-void AccentButtonDrawingArea::startAnimation()
-{
-  if (animation_running_)
-    return;
-
-  animation_tick_callback_id_ = add_tick_callback(
-    sigc::mem_fun(*this, &AccentButtonDrawingArea::updateAnimation) );
-
-  animation_running_ = true;
-}
-
-void AccentButtonDrawingArea::stopAnimation()
-{
-  if (!animation_running_)
-    return;
-
-  remove_tick_callback(animation_tick_callback_id_);
-  animation_running_ = false;
-}
-
-bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
+void AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
   bool need_redraw = false;
 
   if (clock && button_state_ != kAccentOff)
   {
-    gint64 frame_time = 0;
-
-    auto timings = clock->get_current_timings();
-    if (timings)
-    {
-      frame_time = timings->get_predicted_presentation_time();
-
-      if (frame_time == 0)
-        frame_time = timings->get_presentation_time();
-    }
-
-    // no timings or (predicted) presentation time available
-    if (frame_time == 0)
-      frame_time = clock->get_frame_time();
+    gint64 frame_time = Animatable::getFrameTime(clock).count();
 
     // scheduled_animations_ contains the start times in descending order,
     // so the lower bound w.r.t. greater<T> predicate gives the first
@@ -245,7 +212,7 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
         animation_alpha_ = 0;
         need_redraw = true;
       }
-      animation_running_ = false;
+      stopAnimation();
     }
   }
   else //!clock || button_state_ == kAccentOff
@@ -255,7 +222,7 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
       animation_alpha_ = 0;
       need_redraw = true;
     }
-    animation_running_ = false;
+    stopAnimation();
   }
 
   if (need_redraw)
@@ -263,8 +230,6 @@ bool AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock
                     icon_height_ + icon_text_padding_,
                     get_allocated_width(),
                     get_allocated_height() - icon_height_ - icon_text_padding_);
-
-  return animation_running_;
 }
 
 Gtk::SizeRequestMode AccentButtonDrawingArea::get_request_mode_vfunc() const
@@ -716,9 +681,9 @@ void AccentButton::scheduleAnimation(gint64 frame_time, bool clear)
   drawing_area_.scheduleAnimation(frame_time, clear);
 }
 
-void AccentButton::cancelAnimation()
+void AccentButton::cancelScheduledAnimations()
 {
-  drawing_area_.cancelAnimation();
+  drawing_area_.cancelScheduledAnimations();
 }
 
 void AccentButton::on_clicked()
