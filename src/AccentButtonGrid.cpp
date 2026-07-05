@@ -59,10 +59,10 @@ void AccentButtonGrid::setMeter(const Meter& meter)
   meter_ = meter;
 }
 
-void AccentButtonGrid::start()
+void AccentButtonGrid::startSynchronization()
 { }
 
-void AccentButtonGrid::stop()
+void AccentButtonGrid::stopSynchronization()
 {
   cancelButtonAnimations();
 }
@@ -97,7 +97,7 @@ void AccentButtonGrid::synchronize(const audio::Ticker::Info& info,
 void AccentButtonGrid::cancelButtonAnimations()
 {
   for (auto& button : buttons_)
-    button->cancelAnimation();
+    button->cancelScheduledAnimations();
 }
 
 void AccentButtonGrid::updateAccentButtons(const Meter& meter)

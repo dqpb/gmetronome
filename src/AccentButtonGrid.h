@@ -22,12 +22,14 @@
 
 #include "AccentButton.h"
 #include "Ticker.h"
+#include "Synchronizable.h"
+
 #include <gtkmm/container.h>
 #include <sigc++/sigc++.h>
 #include <vector>
 #include <chrono>
 
-class AccentButtonGrid : public Gtk::Container {
+class AccentButtonGrid : public Gtk::Container, public Synchronizable {
 public:
   AccentButtonGrid();
 
@@ -47,12 +49,10 @@ public:
   AccentButton& operator[](std::size_t index)
     { return *buttons_[index]; }
 
-  void start();
-
-  void stop();
-
+  void startSynchronization() override;
+  void stopSynchronization() override;
   void synchronize(const audio::Ticker::Info& info,
-                   const std::chrono::microseconds& sync);
+                   const std::chrono::microseconds& sync) override;
   // signals
   sigc::signal<void(std::size_t index)> signal_accent_changed()
     { return signal_accent_changed_; }
