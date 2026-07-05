@@ -928,7 +928,7 @@
       <description></description>
     </key>
     <key name="animation-sync" type="d">
-      <range min="-10000.0" max="10000.0"/>
+      <range min="-999.0" max="9999.0"/>
       <default>0.0</default>
       <summary></summary>
       <description></description>

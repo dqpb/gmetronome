@@ -25,8 +25,8 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
   <!-- interface-name GMetronome -->
   <!-- interface-copyright 2020-2023 The GMetronome Team -->
   <object class="GtkAdjustment" id="animationSyncAdjustment">
-    <property name="lower">-10000</property>
-    <property name="upper">10000</property>
+    <property name="lower">-999</property>
+    <property name="upper">9999</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -401,8 +401,11 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                   <object class="GtkSpinButton" id="animationSyncSpinButton">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="max-length">4</property>
+                    <property name="width-chars">8</property>
                     <property name="text">0</property>
-                    <property name="primary-icon-tooltip-text" translatable="yes" context="Preferences dialog" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on large (absolute) values.</property>
+                    <property name="xalign">1</property>
+                    <property name="primary-icon-tooltip-text" translatable="yes" context="Preferences dialog" comments="Tooltip for the warning icon that appears when the user sets a custom synchronization value in the preferences dialog.">An additional static time gap between video output (animation) and the audio stream might be useful for compensating unknown external latencies. However, it may also cause major problems up to total animation failure, especially on very small (negative) values.</property>
                     <property name="input-purpose">number</property>
                     <property name="adjustment">animationSyncAdjustment</property>
                     <property name="numeric">True</property>
