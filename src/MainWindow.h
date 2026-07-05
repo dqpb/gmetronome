@@ -27,11 +27,12 @@
 #include "TempoDisplay.h"
 #include "AccentButtonGrid.h"
 #include "About.h"
+#include "SynchronizableCtrl.h"
 
 #include <gtkmm.h>
+
 #include <list>
 #include <vector>
-#include <chrono>
 
 class Application;
 class ActionBinding;
@@ -39,8 +40,7 @@ class ProfileListStore;
 class SettingsDialog;
 class AccentButtonGrid;
 
-class MainWindow : public Gtk::ApplicationWindow
-{
+class MainWindow : public Gtk::ApplicationWindow {
 public:
   MainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
   virtual ~MainWindow();
@@ -145,14 +145,12 @@ private:
   Glib::ustring profile_title_duplicate_;
   Glib::ustring profile_title_placeholder_;
 
-  // cached preferences
-  bool meter_animation_;
-  std::chrono::microseconds animation_sync_;
-
   bool tempo_quick_set_editing_{false};
   int tempo_quick_set_timer_timeout_{0};
   bool bottom_resizable_;
   gint64 last_meter_action_;
+
+  SynchronizableCtrl<GlibTimer> sync_ctrl_;
 
 private:
   // Initialization
@@ -224,9 +222,7 @@ private:
   void updateStartButtonLabel(bool running);
   void updateVolumeMute(bool mute);
 
-  void updateCurrentTempo(const audio::Ticker::Info& info);
-  void updateAccentAnimation(const audio::Ticker::Info& info);
-  void updatePendulum(const audio::Ticker::Info& info);
+  // App signal handler
   void onTickerInfo(const audio::Ticker::Info& info);
   void onTap(double confidence);
 

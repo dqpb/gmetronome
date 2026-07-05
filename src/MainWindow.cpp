@@ -36,6 +36,7 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 
 namespace {
@@ -150,7 +151,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   : Gtk::ApplicationWindow(cobject),
     builder_{builder},
     shortcuts_window_{nullptr},
-    animation_sync_{0},
     bottom_resizable_{true}
 {
   // install global css provider for default screen
@@ -306,8 +306,6 @@ void MainWindow::initUI()
   lcd_.set_hexpand(false);
   lcd_.show();
 
-  updateCurrentTempo(audio::Ticker::Info{});
-
   // initialize info bar
   info_overlay_->add_overlay(*info_revealer_);
   info_revealer_->set_reveal_child(false);
@@ -361,6 +359,11 @@ void MainWindow::initUI()
   // initialize profile title
   Glib::ustring title = app_->queryProfileTitle();
   updateProfileTitle(title, !id.empty());
+
+  // register synchronizables
+  sync_ctrl_.registerSynchronizable(&lcd_);
+  sync_ctrl_.registerSynchronizable(&pendulum_);
+  sync_ctrl_.registerSynchronizable(&accent_button_grid_);
 }
 
 void MainWindow::initBindings()
@@ -1373,15 +1376,10 @@ void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
 void MainWindow::updateStart(bool running)
 {
   if (running)
-  {
-    pendulum_.start();
-    accent_button_grid_.start();
-  }
+    sync_ctrl_.start();
   else
-  {
-    pendulum_.stop();
-    accent_button_grid_.stop();
-  }
+    sync_ctrl_.stop();
+
   updateStartButtonLabel(running);
 }
 
@@ -1416,29 +1414,9 @@ void MainWindow::updateVolumeMute(bool mute)
   }
 }
 
-void MainWindow::updateCurrentTempo(const audio::Ticker::Info& info)
-{
-  lcd_.updateInfo(info);
-}
-
-void MainWindow::updateAccentAnimation(const audio::Ticker::Info& info)
-{
-  accent_button_grid_.synchronize(info, animation_sync_);
-}
-
-void MainWindow::updatePendulum(const audio::Ticker::Info& info)
-{
-  pendulum_.synchronize(info, animation_sync_);
-}
-
 void MainWindow::onTickerInfo(const audio::Ticker::Info& info)
 {
-  updateCurrentTempo(info);
-
-  if (meter_animation_)
-    updateAccentAnimation(info);
-
-  updatePendulum(info);
+  sync_ctrl_.enrollTickerInfo(info);
 }
 
 void MainWindow::onTap(double confidence)
@@ -1581,11 +1559,22 @@ void MainWindow::updatePrefPendulumPhaseMode()
 
 void MainWindow::updatePrefMeterAnimation()
 {
-  meter_animation_ = settings::preferences()->get_boolean(settings::kKeyPrefsMeterAnimation);
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsMeterAnimation))
+  {
+    if (!sync_ctrl_.isRegistered(&accent_button_grid_))
+      sync_ctrl_.registerSynchronizable(&accent_button_grid_);
+  }
+  else
+  {
+    if (sync_ctrl_.isRegistered(&accent_button_grid_))
+      sync_ctrl_.unregisterSynchronizable(&accent_button_grid_);
+  }
 }
 
 void MainWindow::updatePrefAnimationSync()
 {
-  animation_sync_ = std::chrono::microseconds(
-    std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync) * 1000.));
+  std::chrono::milliseconds sync_time(
+    std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync)));
+
+  sync_ctrl_.setSynchronization(sync_time);
 }
