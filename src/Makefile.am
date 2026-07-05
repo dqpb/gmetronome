@@ -30,6 +30,7 @@ gmetronome_SOURCES = \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
 	SoundThemeEditor.cpp \
+	SynchronizableCtrl.cpp \
 	Synthesizer.cpp \
 	TapAnalyser.cpp \
 	TempoDisplay.cpp \
@@ -87,6 +88,8 @@ noinst_HEADERS = \
 	SoundTheme.h \
 	SoundThemeEditor.h \
 	SpinLock.h \
+	Synchronizable.h \
+	SynchronizableCtrl.h \
 	Synthesizer.h \
 	TapAnalyser.h \
 	TempoDisplay.h \
