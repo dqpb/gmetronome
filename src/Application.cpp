@@ -1378,7 +1378,6 @@ void Application::startInfoTimer()
 void Application::stopInfoTimer()
 {
   info_timer_connection_.disconnect();
-  signal_ticker_info_.emit(audio::Ticker::Info{});
 }
 
 bool Application::onInfoTimer()
