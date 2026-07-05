@@ -19,7 +19,7 @@ Features
 
 Download, Building and Installation
 -----------------------------------
-GMetronome is distributed as compressed source tarball and can be downloaded from
+GMetronome is released as compressed source tarball and can be downloaded from
 our [releases page](https://gitlab.gnome.org/dqpb/gmetronome/-/releases).
 
 To build GMetronome you need a couple of packages:
