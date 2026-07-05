@@ -20,13 +20,16 @@
 #ifndef GMetronome_Pendulum_h
 #define GMetronome_Pendulum_h
 
+#include "Ticker.h"
+#include "Physics.h"
+#include "Synchronizable.h"
+#include "Animatable.h"
+
 #include <gtkmm.h>
 #include <array>
 #include <chrono>
-#include "Ticker.h"
-#include "Physics.h"
 
-class Pendulum : public Gtk::Widget {
+class Pendulum : public Gtk::Widget, public Synchronizable, public Animatable<Pendulum> {
 public:
   enum class ActionAngle
   {
@@ -45,11 +48,10 @@ public:
   Pendulum();
   ~Pendulum() override = default;
 
-  void start();
-  void stop();
-
+  void startSynchronization() override;
+  void stopSynchronization() override;
   void synchronize(const audio::Ticker::Info& info,
-                   const std::chrono::microseconds& sync);
+                   const std::chrono::microseconds& sync) override;
 
   void setAction(ActionAngle angle);
   void setPhaseMode(PhaseMode mode);
@@ -87,8 +89,7 @@ private:
 
   State state_{kStop};
 
-  void startAnimation();
-  bool updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&);
+  void updateAnimation(const Glib::RefPtr<Gdk::FrameClock>&) override;
 
   Gdk::RGBA getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;
   Gdk::RGBA getSecondaryColor(Glib::RefPtr<Gtk::StyleContext> context) const;

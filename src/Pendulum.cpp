@@ -124,7 +124,7 @@ void Pendulum::togglePhase()
     toggle_phase_overlay_value_ = 1.0;
 }
 
-void Pendulum::start()
+void Pendulum::startSynchronization()
 {
   switch (phase_mode_)
   {
@@ -143,12 +143,13 @@ void Pendulum::start()
   if (state_ == kStop)
   {
     k_.reset(phase_mode_shift_, 0.0);
+    last_frame_time_ = 0us;
     startAnimation();
   }
   state_ = kStartup;
 }
 
-void Pendulum::stop()
+void Pendulum::stopSynchronization()
 {
   k_.shutdown(kShutdownTime);
   target_omega_ = 0.0;
@@ -222,40 +223,21 @@ void Pendulum::synchronize(const audio::Ticker::Info& info,
   }
 }
 
-void Pendulum::startAnimation()
-{
-  last_frame_time_ = 0us;
-  add_tick_callback(sigc::mem_fun(*this, &Pendulum::updateAnimation));
-}
-
-bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
+void Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
 {
   if (clock)
   {
-    microseconds frame_time {0};
-
-    auto timings = clock->get_current_timings();
-    if (timings)
-    {
-      frame_time = microseconds(timings->get_predicted_presentation_time());
-
-      if (frame_time.count() == 0)
-        frame_time = microseconds(timings->get_presentation_time());
-    }
-
-    // no timings or (predicted) presentation time available
-    if (frame_time.count() == 0)
-      frame_time = microseconds(clock->get_frame_time());
+    microseconds frame_time = Animatable::getFrameTime(clock);
 
     if (frame_time == last_frame_time_)
-      return true;
+      return;
 
     seconds_dbl frame_time_delta = (frame_time - last_frame_time_);
 
     if (frame_time_delta > 0.5s)
     {
       last_frame_time_ = frame_time;
-      return true;
+      return;
     }
 
     last_frame_time_ = frame_time;
@@ -347,9 +329,10 @@ bool Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     || center_deviation > 0.0001;
 
   if (!continue_animation)
+  {
+    stopAnimation();
     state_ = kStop;
-
-  return continue_animation;
+  }
 }
 
 Gdk::RGBA Pendulum::getPrimaryColor(Glib::RefPtr<Gtk::StyleContext> context) const
