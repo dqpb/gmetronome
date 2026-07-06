@@ -65,6 +65,9 @@ struct Profile
   static constexpr int         kMinTrainerHold         = 1;
   static constexpr int         kMaxTrainerHold         = 99;
   static constexpr int         kDefaultTrainerHold     = 8;
+  static constexpr int         kMinCountIn             = 0;
+  static constexpr int         kMaxCountIn             = 99;
+  static constexpr int         kDefaultCountIn         = 0;
 
   struct Header
   {
@@ -98,6 +101,8 @@ struct Profile
     double        trainer_accel     = kDefaultTrainerAccel;
     double        trainer_step      = kDefaultTrainerStep;
     int           trainer_hold      = kDefaultTrainerHold;
+
+    int           count_in          = kDefaultCountIn;
 
     std::string   sound_theme_id    = "";
   };
