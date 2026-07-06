@@ -481,6 +481,28 @@ const ActionDescriptionMap kActionDescriptions =
     }
   },
 
+  /* Action         : kActionCountIn
+   * Scope          : Application
+   * Parameter type : int
+   * State type     : int
+   * State value    : kDefaultProfile.content.count_in
+   * State hint     : (Profile::kMinCountIn,Profile::kMaxCountIn)
+   * Enabled        : true
+   */
+  { kActionCountIn,
+    {
+      ActionScope::kApp,
+      Glib::Variant<int>::variant_type(),
+      Glib::Variant<int>::create(kDefaultProfile.content.count_in),
+      Glib::Variant<ActionStateHintRange<int>>::create(
+        {
+          Profile::kMinCountIn,
+          Profile::kMaxCountIn
+        }),
+      true
+    }
+  },
+
   /* Action         : kActionProfileList
    * Scope          : Application
    * Parameter type : -
