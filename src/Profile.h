@@ -66,7 +66,7 @@ struct Profile
   static constexpr int         kMaxTrainerHold         = 99;
   static constexpr int         kDefaultTrainerHold     = 8;
   static constexpr int         kMinCountIn             = 0;
-  static constexpr int         kMaxCountIn             = 99;
+  static constexpr int         kMaxCountIn             = 12;
   static constexpr int         kDefaultCountIn         = 0;
 
   struct Header

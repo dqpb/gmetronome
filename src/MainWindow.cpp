@@ -213,6 +213,18 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("trainerModeButtonBox", trainer_mode_button_box_);
   builder_->get_widget("trainerMode1RadioButton", trainer_mode_1_radio_button_);
   builder_->get_widget("trainerMode2RadioButton", trainer_mode_2_radio_button_);
+  builder_->get_widget("countInNumberLabel", count_in_number_label_);
+  builder_->get_widget("countInPopover", count_in_popover_);
+
+  // populate count-in radio button vector
+  for (int i = 0; i <= 12; ++i) {
+    std::string id = std::string("countIn") + (i < 10 ? "0" : "")
+      + std::to_string(i) + "RadioButton";
+
+    Gtk::RadioButton* rb = nullptr;
+    if (builder->get_widget(id, rb); rb)
+      count_in_radio_buttons_.push_back(rb);
+  }
 
   tempo_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("tempoAdjustment"));
@@ -495,6 +507,14 @@ void MainWindow::initBindings()
 
   profile_new_button_->signal_clicked()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileNew));
+
+  // connect count-in radio buttons to handler
+  std::size_t button_id = 0;
+  for (const auto& button : count_in_radio_buttons_)
+    count_in_rb_connections_.push_back(
+      button->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(*this, &MainWindow::onCountInChanged), button_id++))
+      );
 
   app_->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
@@ -1080,6 +1100,18 @@ void MainWindow::onTrainerModeChanged(Gtk::RadioButton* button)
   app_->activate_action(kActionTrainerMode, mode_variant);
 }
 
+void MainWindow::onCountInChanged(std::size_t id)
+{
+  if (count_in_radio_buttons_[id]->get_active())
+  {
+    auto count_in = Glib::Variant<int>::create(id);
+    app_->activate_action(kActionCountIn, count_in);
+
+    if (count_in_popover_->is_visible())
+      count_in_popover_->popdown();
+  }
+}
+
 void MainWindow::onProfileSelectionChanged()
 {
   Glib::ustring id;
@@ -1192,6 +1224,10 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   else if (action_name.compare(kActionTrainerMode) == 0)
   {
     updateTrainerMode(app_->queryTrainerMode());
+  }
+  else if (action_name.compare(kActionCountIn) == 0)
+  {
+    updateCountIn(app_->queryCountIn());
   }
   else if (action_name.compare(kActionProfileList) == 0)
   {
@@ -1370,6 +1406,24 @@ void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
       trainer_mode_2_radio_button_->set_active(true);
 
     trainer_stack_->set_visible_child("trainerStepwisePage");
+  }
+}
+
+void MainWindow::updateCountIn(int id)
+{
+  if (id >= 0 && id < count_in_radio_buttons_.size())
+  {
+    for (auto& connection : count_in_rb_connections_)
+      connection.block();
+
+    if (auto& button = count_in_radio_buttons_[id]; !button->get_active())
+      button->set_active(true);
+
+    for (auto& connection : count_in_rb_connections_)
+      connection.unblock();
+
+    const Glib::ustring text = std::to_string(id);
+    count_in_number_label_->set_text(text);
   }
 }
 

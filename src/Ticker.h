@@ -105,6 +105,11 @@ namespace audio {
     void setTempo(double tempo);
 
     /**
+     * @brief Set the count-in of the metronome
+     */
+    void setCountIn(int count_in);
+
+    /**
      * @brief Accelerate the metronome continuously towards a target tempo
      *
      * @param accel  Magnitude of acceleration in BPM per minute
@@ -136,8 +141,16 @@ namespace audio {
      */
     void synchronize(double beats, double tempo, microseconds time = kDefaultSyncTime);
 
+    /**
+     * @brief Set the meter of the metronome
+     */
     void setMeter(Meter meter);
+
+    /**
+     * @brief Reset the meter of the metronome
+     */
     void resetMeter();
+
     void setSound(Accent accent, const SoundParameters& params);
 
     Ticker::Info getInfo() const;
@@ -156,6 +169,9 @@ namespace audio {
 
     // tempo
     double in_tempo_{0.0};
+
+    // count-in
+    int in_count_in_{0};
 
     // acceleration
     double in_target_{0.0};
@@ -178,16 +194,17 @@ namespace audio {
     enum OpFlag
     {
       kOpFlagTempo       = 0,
-      kOpFlagAccelCS     = 1,
-      kOpFlagAccelSW     = 2,
-      kOpFlagAccelSP     = 3,
-      kOpFlagSync        = 4,
-      kOpFlagMeter       = 5,
-      kOpFlagMeterReset  = 6,
-      kOpFlagSoundOff    = 7,
-      kOpFlagSoundWeak   = 8,
-      kOpFlagSoundMid    = 9,
-      kOpFlagSoundStrong = 10,
+      kOpFlagCountIn     = 1,
+      kOpFlagAccelCS     = 2,
+      kOpFlagAccelSW     = 3,
+      kOpFlagAccelSP     = 4,
+      kOpFlagSync        = 5,
+      kOpFlagMeter       = 6,
+      kOpFlagMeterReset  = 7,
+      kOpFlagSoundOff    = 8,
+      kOpFlagSoundWeak   = 9,
+      kOpFlagSoundMid    = 10,
+      kOpFlagSoundStrong = 11,
       kNumOpFlags
     };
 
@@ -235,6 +252,7 @@ namespace audio {
       { return accel_defer_timer_.finished(); }
 
     void importTempo();
+    void importCountIn();
     void importAccelMode();
     void importAccelModeParams();
     void importSync();

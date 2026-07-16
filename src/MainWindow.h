@@ -60,6 +60,7 @@ private:
 
   // Connections
   std::vector<sigc::connection> meter_connections_;
+  std::vector<sigc::connection> count_in_rb_connections_;
   sigc::connection profile_selection_changed_connection_;
   sigc::connection profile_popover_show_connection_;
   sigc::connection pendulum_restore_connection_;
@@ -129,6 +130,9 @@ private:
   Gtk::ButtonBox* trainer_mode_button_box_;
   Gtk::RadioButton* trainer_mode_1_radio_button_;
   Gtk::RadioButton* trainer_mode_2_radio_button_;
+  Gtk::Label* count_in_number_label_;
+  Gtk::Popover* count_in_popover_;
+  std::vector<Gtk::RadioButton*> count_in_radio_buttons_;
   AccentButtonGrid accent_button_grid_;
   Pendulum pendulum_;
 
@@ -206,6 +210,7 @@ private:
   void onProfileNew();
   void onProfileShow();
   void onProfileHide();
+  void onCountInChanged(std::size_t id);
 
   // Action handler
   void onActionStateChanged(const Glib::ustring& action_name,
@@ -219,6 +224,7 @@ private:
   void updateTempo(double tempo);
   void updateStart(bool running);
   void updateTrainerMode(Profile::TrainerMode mode);
+  void updateCountIn(int id);
   void updateStartButtonLabel(bool running);
   void updateVolumeMute(bool mute);
 

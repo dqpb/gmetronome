@@ -189,6 +189,13 @@ namespace audio {
     in_ops_.set   (kOpFlagTempo);
   }
 
+  void Ticker::setCountIn(int count_in)
+  {
+    std::lock_guard<SpinLock> guard(spin_mutex_);
+    in_count_in_ = count_in;
+    in_ops_.set   (kOpFlagCountIn);
+  }
+
   void Ticker::accelerate(double accel, double target)
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
@@ -519,6 +526,12 @@ namespace audio {
     in_ops_.reset(kOpFlagTempo);
   }
 
+  void Ticker::importCountIn()
+  {
+    stream_ctrl_.setCountIn(in_count_in_);
+    in_ops_.reset(kOpFlagCountIn);
+  }
+
   void Ticker::importAccelMode()
   {
     if (in_ops_.test(kOpFlagAccelCS))
@@ -601,6 +614,10 @@ namespace audio {
     if (in_ops_.test(kOpFlagSync))
       in_ops_.reset(kOpFlagSync);
 
+    // Count-in
+    if (in_ops_.test(kOpFlagCountIn))
+      importCountIn();
+
     // Accel and Tempo
     if ((in_ops_ & kOpMaskAccel).any())
       importAccelMode();
@@ -632,6 +649,10 @@ namespace audio {
     {
       if (in_ops_.any())
       {
+        // Count-in
+        if (in_ops_.test(kOpFlagCountIn))
+          importCountIn();
+
         // Tempo
         if (in_ops_.test(kOpFlagTempo))
         {

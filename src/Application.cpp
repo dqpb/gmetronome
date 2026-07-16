@@ -146,6 +146,8 @@ void Application::initActions()
       {kActionMeterCustom,     sigc::mem_fun(*this, &Application::onMeterChanged_Custom)},
       {kActionMeterSeek,       sigc::mem_fun(*this, &Application::onMeterSeek)},
 
+      {kActionCountIn,         sigc::mem_fun(*this, &Application::onCountIn)},
+
       {kActionProfileList,         sigc::mem_fun(*this, &Application::onProfileList)},
       {kActionProfileSelect,       sigc::mem_fun(*this, &Application::onProfileSelect)},
       {kActionProfileNew,          sigc::mem_fun(*this, &Application::onProfileNew)},
@@ -608,6 +610,18 @@ void Application::onMeterSeek(const Glib::VariantBase& value)
   // not implemented yet
 }
 
+void Application::onCountIn(const Glib::VariantBase& value)
+{
+  int in_count_in = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(value).get();
+  auto [count_in, valid] = validateCountIn(in_count_in);
+
+  // logic not implemented yet
+  std::cout << "Count-In: " << count_in << std::endl;
+
+  auto new_state = Glib::Variant<int>::create(count_in);
+  lookupSimpleAction(kActionCountIn)->set_state(new_state);
+}
+
 void Application::onVolumeChange(const Glib::VariantBase& value)
 {
   double delta_volume =
@@ -1024,6 +1038,7 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionTrainerAccel, content.trainer_accel);
   get_action_state(kActionTrainerStep, content.trainer_step);
   get_action_state(kActionTrainerHold, content.trainer_hold);
+  get_action_state(kActionCountIn, content.count_in);
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     content.sound_theme_id = settings::soundThemes()->selected();
@@ -1063,6 +1078,8 @@ void Application::convertProfileToAction(const Profile::Content& content)
                   Glib::Variant<double>::create(content.trainer_step) );
   activate_action(kActionTrainerHold,
                   Glib::Variant<int>::create(content.trainer_hold) );
+  activate_action(kActionCountIn,
+                  Glib::Variant<int>::create(content.count_in) );
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
   {
@@ -1478,6 +1495,13 @@ std::pair<int,bool> Application::validateTrainerHold(int value)
 {
   ActionStateHintRange<int> range;
   get_action_state_hint(kActionTrainerHold, range);
+  return validateActionState(value, range);
+}
+
+std::pair<int,bool> Application::validateCountIn(int value)
+{
+  ActionStateHintRange<int> range;
+  get_action_state_hint(kActionCountIn, range);
   return validateActionState(value, range);
 }
 

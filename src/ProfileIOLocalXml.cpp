@@ -422,6 +422,8 @@ namespace {
             {
               if (element_name_lowercase == "tempo")
                 current_profile_->content.tempo = stringToDouble(text);
+              else if (element_name_lowercase == "count-in")
+                current_profile_->content.count_in = stringToInt(text);
             }
             else if (current_block_.top() == "sound-theme")
             {
@@ -622,6 +624,9 @@ namespace {
     ostream->write("      <tempo>");
     ostream->write(doubleToString(content.tempo));
     ostream->write("</tempo>\n");
+    ostream->write("      <count-in>");
+    ostream->write(intToString(content.count_in));
+    ostream->write("</count-in>\n");
     ostream->write("      <meter-section>\n");
     ostream->write("        <enabled>");
     ostream->write(boolToString(content.meter_enabled));

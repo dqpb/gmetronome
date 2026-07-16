@@ -131,6 +131,9 @@ private:
                                Meter&& meter);
   void onMeterSeek(const Glib::VariantBase& value);
 
+  // Count-In
+  void onCountIn(const Glib::VariantBase& value);
+
   // Trainer
   void configureTickerForTrainerMode(Profile::TrainerMode mode);
   void onTrainerEnabled(const Glib::VariantBase& value);
@@ -192,6 +195,7 @@ private:
   std::pair<double,bool> validateTrainerAccel(double value);
   std::pair<double,bool> validateTrainerStep(double value);
   std::pair<int,bool> validateTrainerHold(int value);
+  std::pair<int,bool> validateCountIn(int value);
   std::pair<double,bool> validateVolume(double value);
   std::pair<Meter,bool> validateMeter(Meter meter);
   std::pair<Glib::ustring,bool> validateMeterSlot(Glib::ustring str);
@@ -229,6 +233,8 @@ public:
     { return queryActionState<bool>(kActionTrainerEnabled); }
   Profile::TrainerMode queryTrainerMode() const
     { return queryActionState<Profile::TrainerMode>(kActionTrainerMode); }
+  int queryCountIn() const
+    { return queryActionState<int>(kActionCountIn); }
   Glib::ustring queryProfileSelect() const
     { return queryActionState<Glib::ustring>(kActionProfileSelect); }
   Glib::ustring queryProfileTitle() const

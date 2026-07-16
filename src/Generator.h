@@ -68,6 +68,7 @@ namespace audio {
   class StreamGenerator {
   public:
     virtual void onTempoChanged(Controller& ctrl, TempoMode old_mode) {}
+    virtual void onCountInChanged(Controller& ctrl) {}
     virtual void onMeterChanged(Controller& ctrl, const Meter& old_meter, bool enabled_changed) {}
     virtual void onSoundChanged(Controller& ctrl, Accent a) {}
     virtual void onStart(Controller& ctrl) {}
@@ -102,6 +103,7 @@ namespace audio {
     explicit StreamController(const StreamSpec& spec = kDefaultSpec);
 
     void setTempo(double tempo);
+    void setCountIn(int count_in);
     void accelerate(double accel, double target);
     void accelerate(int hold, double step, double target);
     void synchronize(double beats, double tempo, microseconds time);
@@ -111,6 +113,8 @@ namespace audio {
 
     double tempo() const
       { return tempo_; }
+    int countIn() const
+      { return count_in_; }
     TempoMode mode() const
       { return mode_; }
     double target() const
@@ -148,6 +152,7 @@ namespace audio {
     StreamGeneratorTuple gs_;
     StreamSpec spec_;
     double tempo_{0.0};
+    int count_in_{0};
     TempoMode mode_{TempoMode::kConstant};
     double target_{0.0};
     double accel_{0.0};
@@ -227,6 +232,13 @@ namespace audio {
     mode_ = TempoMode::kConstant;
 
     if (g_) g_->onTempoChanged(*this, old_mode);
+  }
+
+  template<typename...Gs>
+  void StreamController<Gs...>::setCountIn(int count_in)
+  {
+    count_in_ = count_in;
+    if (g_) g_->onCountInChanged(*this);
   }
 
   template<typename...Gs>
