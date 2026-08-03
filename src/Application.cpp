@@ -615,8 +615,7 @@ void Application::onCountIn(const Glib::VariantBase& value)
   int in_count_in = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(value).get();
   auto [count_in, valid] = validateCountIn(in_count_in);
 
-  // logic not implemented yet
-  std::cout << "Count-In: " << count_in << std::endl;
+  ticker_.setCountIn(count_in);
 
   auto new_state = Glib::Variant<int>::create(count_in);
   lookupSimpleAction(kActionCountIn)->set_state(new_state);
