@@ -263,8 +263,11 @@ namespace physics {
      *
      * The current position will be recomputed to fit the new module
      * (see @ref Oscillator::remodule).
+     *
+     * If the rollover flag is set, the position of the oscillator is recomputed so
+     * that the next full beat will be zero.
      */
-    void setBeats(double beats, bool turnover = false);
+    void setBeats(double beats, bool rollover = false);
 
     /**
      * @brief Set the current tempo of the oscillation
@@ -324,6 +327,8 @@ namespace physics {
     bool isSynchronizing() const
       { return (force_mode_ == ForceMode::kSyncForce); }
 
+    double beats() const
+      { return osc_.module(); }
     double position() const
       { return osc_.position(); }
     double tempo() const

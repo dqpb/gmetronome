@@ -42,11 +42,11 @@ namespace physics {
     switchForceMode(ForceMode::kNoForce);
   }
 
-  void BeatKinematics::setBeats(double beats, bool turnover)
+  void BeatKinematics::setBeats(double beats, bool rollover)
   {
     osc_.remodule(beats);
 
-    if (turnover)
+    if (rollover)
     {
       double integral;
       double fractional = std::modf(osc_.position(), &integral);
