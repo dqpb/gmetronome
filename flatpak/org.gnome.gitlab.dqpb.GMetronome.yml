@@ -30,8 +30,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/mm-common/1.0/mm-common-1.0.6.tar.xz",
-                    "sha256": "b55c46037dbcdabc5cee3b389ea11cc3910adb68ebe883e9477847aa660862e7"
+                    "url": "https://download.gnome.org/sources/mm-common/1.0/mm-common-1.0.8.tar.xz",
+                    "sha256": "b189ee636e839d12c00dabefae099fd488ab2358dec24d264761c011950b02a9"
                 }
             ],
             "cleanup": [
@@ -65,8 +65,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://www.cairographics.org/releases/cairomm-1.14.5.tar.xz",
-                    "sha256": "70136203540c884e89ce1c9edfb6369b9953937f6cd596d97c78c9758a5d48db"
+                    "url": "https://www.cairographics.org/releases/cairomm-1.14.6.tar.xz",
+                    "sha256": "7e0d5c7f29175d573a03ab5c45aef63f48dd91a5caf335a404cd763e4b7cea4a"
                 }
             ]
         },
@@ -84,8 +84,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.7.tar.xz",
-                    "sha256": "fe02c1e5f5825940d82b56b6ec31a12c06c05c1583cfe62f934d0763e1e542b3"
+                    "url": "https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.9.tar.xz",
+                    "sha256": "5a026e5602085307c7dcb72b71b07261c40f80914277bef5f8d7f2ecab739bec"
                 }
             ]
         },
@@ -101,8 +101,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.4.tar.xz",
-                    "sha256": "b92016661526424de4b9377f1512f59781f41fb16c9c0267d6133ba1cd68db22"
+                    "url": "https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.5.tar.xz",
+                    "sha256": "38ca0b050b065de4e3da0c182df657437757063bbf0c4b6c9567ddba019b1d68"
                 }
             ]
         },
@@ -118,8 +118,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.4.tar.xz",
-                    "sha256": "0a142a8128f83c001efb8014ee463e9a766054ef84686af953135e04d28fdab3"
+                    "url": "https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.5.tar.xz",
+                    "sha256": "ae449192a582a2582a95e0602b15d792bbd639e836339b81ef916aa87540ac5c"
                 }
             ]
         },
