@@ -130,6 +130,7 @@ private:
   Gtk::ButtonBox* trainer_mode_button_box_;
   Gtk::RadioButton* trainer_mode_1_radio_button_;
   Gtk::RadioButton* trainer_mode_2_radio_button_;
+  Gtk::MenuButton* count_in_menu_button_;
   Gtk::Label* count_in_number_label_;
   Gtk::Popover* count_in_popover_;
   std::vector<Gtk::RadioButton*> count_in_radio_buttons_;
@@ -210,6 +211,7 @@ private:
   void onProfileNew();
   void onProfileShow();
   void onProfileHide();
+  bool onCountInScroll(GdkEventScroll* event);
   void onCountInChanged(std::size_t id);
 
   // Action handler

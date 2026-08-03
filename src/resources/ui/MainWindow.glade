@@ -1735,7 +1735,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkMenuButton">
+                          <object class="GtkMenuButton" id="countInMenuButton">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="focus-on-click">False</property>

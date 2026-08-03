@@ -213,6 +213,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("trainerModeButtonBox", trainer_mode_button_box_);
   builder_->get_widget("trainerMode1RadioButton", trainer_mode_1_radio_button_);
   builder_->get_widget("trainerMode2RadioButton", trainer_mode_2_radio_button_);
+  builder_->get_widget("countInMenuButton", count_in_menu_button_);
   builder_->get_widget("countInNumberLabel", count_in_number_label_);
   builder_->get_widget("countInPopover", count_in_popover_);
 
@@ -507,6 +508,10 @@ void MainWindow::initBindings()
 
   profile_new_button_->signal_clicked()
     .connect(sigc::mem_fun(*this, &MainWindow::onProfileNew));
+
+  count_in_menu_button_->add_events(Gdk::SCROLL_MASK);
+  count_in_menu_button_->signal_scroll_event()
+    .connect(sigc::mem_fun(*this, &MainWindow::onCountInScroll));
 
   // connect count-in radio buttons to handler
   std::size_t button_id = 0;
@@ -1100,12 +1105,27 @@ void MainWindow::onTrainerModeChanged(Gtk::RadioButton* button)
   app_->activate_action(kActionTrainerMode, mode_variant);
 }
 
+bool MainWindow::onCountInScroll(GdkEventScroll* event)
+{
+  int count_in = app_->queryCountIn();
+
+  if (event->direction == GDK_SCROLL_UP) {
+    auto count_in_var = Glib::Variant<int>::create(++count_in);
+    app_->activate_action(kActionCountIn, count_in_var);
+  }
+  else if (event->direction == GDK_SCROLL_DOWN) {
+    auto count_in_var = Glib::Variant<int>::create(--count_in);
+    app_->activate_action(kActionCountIn, count_in_var);
+  }
+  return true;
+}
+
 void MainWindow::onCountInChanged(std::size_t id)
 {
   if (count_in_radio_buttons_[id]->get_active())
   {
-    auto count_in = Glib::Variant<int>::create(id);
-    app_->activate_action(kActionCountIn, count_in);
+    auto count_in_var = Glib::Variant<int>::create(id);
+    app_->activate_action(kActionCountIn, count_in_var);
 
     if (count_in_popover_->is_visible())
       count_in_popover_->popdown();
