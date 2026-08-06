@@ -415,8 +415,7 @@ void LCD::synchronize(const audio::Ticker::Info& info, const std::chrono::micros
   {
     if (info.generator == audio::kPreCountGenerator)
     {
-      int beat =  info.count_in + info.accent + 1;
-      beat_label_.display(beat);
+      beat_label_.display(info.accent + 1);
     }
     else if (!info.default_meter)
     {

@@ -624,18 +624,24 @@ void MainWindow::stopSynchronization()
 void MainWindow::synchronize(const audio::Ticker::Info& info,
                              const std::chrono::microseconds& sync)
 {
-  // We use the info.accent(s) < -1 and info.next_accent_delay to schedule
-  // the pre-count animations. Afterwards the accent button grid starts to
-  // schedule the animations of the accent buttons.
-
-  if (info.accent < -1)
+  if ((info.generator == audio::kFillBufferGenerator ||
+       info.generator == audio::kPreCountGenerator))
   {
-    std::chrono::microseconds time = info.timestamp
-      + info.backend_latency
-      + info.next_accent_delay
-      + sync;
+    if (info.accent < info.count_in - 1)
+    {
+      std::chrono::microseconds time = info.timestamp
+        + info.backend_latency
+        + info.next_accent_delay
+        + sync;
 
-    count_in_menu_button_label_.scheduleAnimation(time.count());
+      count_in_menu_button_label_.scheduleAnimation(time.count());
+    }
+    else {
+      // Prevent animation if the count-in is reduced after starting the metronome
+      // but an animation has already been scheduled.
+      if (count_in_menu_button_label_.hasScheduledAnimation())
+        count_in_menu_button_label_.cancelScheduledAnimations();
+    }
   }
 }
 

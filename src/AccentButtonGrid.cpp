@@ -74,12 +74,25 @@ void AccentButtonGrid::synchronize(const audio::Ticker::Info& info,
   const int division = meter_.division();
   const int n_accents = beats * division;
 
-  // check plausibility and ignore pre-counts < -1
-  if (info.beats == beats && info.division == division && info.accent >= -1)
-  {
-    int next_accent = (info.accent + 1) % n_accents;
-    assert(next_accent >= 0);
+  int next_accent = -1;
 
+  if (info.generator == audio::kRegularGenerator)
+  {
+    // check plausibility
+    if (info.beats == beats && info.division == division)
+      next_accent = (info.accent + 1) % n_accents;
+  }
+  else if (info.generator == audio::kFillBufferGenerator ||
+           info.generator == audio::kPreCountGenerator)
+  {
+    if (info.accent >= info.count_in - 1)
+      next_accent = 0;
+    else if (buttons_.size() >= 1 && buttons_.front()->hasScheduledAnimation())
+      buttons_.front()->cancelScheduledAnimations();
+  }
+
+  if (next_accent >= 0)
+  {
     if (static_cast<std::size_t>(next_accent) < buttons_.size())
     {
       microseconds time = info.timestamp
