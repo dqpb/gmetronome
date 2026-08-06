@@ -170,7 +170,16 @@ void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time, bool clear)
 
 void AccentButtonDrawingArea::cancelScheduledAnimations()
 {
-  scheduled_animations_.clear();
+  if (auto clock = get_frame_clock(); clock && isAnimationRunning())
+  {
+    gint64 frame_time = Animatable::getFrameTime(clock).count();
+
+    // erase only scheduled animations that are not currently running
+    auto it = scheduled_animations_.lower_bound(frame_time);
+    scheduled_animations_.erase( scheduled_animations_.begin(), it);
+  }
+  else // fallback: erase all animations
+    scheduled_animations_.clear();
 }
 
 void AccentButtonDrawingArea::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
