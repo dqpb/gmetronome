@@ -712,7 +712,7 @@ namespace audio {
       const auto& meter = stream_ctrl_.meter();
 
       out_info_.mode         = accel_mode_;
-      out_info_.pending      = isAccelDeferred();
+      out_info_.pending      = isAccelDeferred() || gen_status.generator == kPreCountGenerator;
       out_info_.syncing      = gen_status.mode == TempoMode::kSync;
 
       out_info_.position     = gen_status.position;
@@ -724,7 +724,8 @@ namespace audio {
       else
         out_info_.target     = stream_ctrl_.target();
 
-      out_info_.hold = gen_status.hold;
+      out_info_.hold         = gen_status.hold;
+      out_info_.count_in     = stream_ctrl_.countIn();
 
       // Meter
       out_info_.default_meter     = !stream_ctrl_.isMeterEnabled();

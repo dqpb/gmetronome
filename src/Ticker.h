@@ -66,8 +66,9 @@ namespace audio {
       double        tempo {0.0};
       double        acceleration {0.0};
       double        target {0.0};
-
       int           hold {0};
+
+      int           count_in {0};
 
       bool          default_meter {true};
       int           beats {-1};
