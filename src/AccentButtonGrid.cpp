@@ -74,7 +74,8 @@ void AccentButtonGrid::synchronize(const audio::Ticker::Info& info,
   const int division = meter_.division();
   const int n_accents = beats * division;
 
-  if (info.beats == beats && info.division == division)
+  // check plausibility and ignore pre-counts < -1
+  if (info.beats == beats && info.division == division && info.accent >= -1)
   {
     int next_accent = (info.accent + 1) % n_accents;
     assert(next_accent >= 0);
