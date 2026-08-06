@@ -139,6 +139,10 @@ namespace audio {
       { return meter_enabled_; }
     const ByteBuffer& sound(Accent a)
       { return sounds_[a]; }
+    physics::BeatKinematics& kinematics()
+      { return k_; }
+    const physics::BeatKinematics& kinematics() const
+      { return k_; }
 
     void prepare(const StreamSpec& spec);
 
@@ -165,6 +169,7 @@ namespace audio {
     Meter meter_{kMeter1};
     bool meter_enabled_{false};
     SoundLibrary sounds_;
+    physics::BeatKinematics k_;
     StreamStatus stream_status_;
     StreamGeneratorBase* g_{nullptr};
 
@@ -419,8 +424,25 @@ namespace audio {
    */
   class PreCountGenerator : public StreamGenerator<BeatStreamController> {
   public:
+    void onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode) override;
+    void onCountInChanged(BeatStreamController& ctrl) override;
+
+    void prepare(BeatStreamController& ctrl) override;
     void enter(BeatStreamController& ctrl) override;
     void leave(BeatStreamController& ctrl) override;
+    void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
+
+    void updateStatus(BeatStreamController& ctrl, StreamStatus& status) override;
+
+  private:
+    size_t max_chunk_frames_{0};
+    size_t avg_chunk_frames_{0};
+    size_t beat_{0};
+    size_t frames_left_{0};
+    bool accent_point_{false};
+
+    void updateFramesLeft(BeatStreamController& ctrl);
+    void step(BeatStreamController& ctrl, size_t frames_chunk);
   };
 
   /**
@@ -440,7 +462,6 @@ namespace audio {
     void updateStatus(BeatStreamController& ctrl, StreamStatus& status) override;
 
   private:
-    physics::BeatKinematics k_;
     size_t max_chunk_frames_{0};
     size_t avg_chunk_frames_{0};
     size_t accent_{0};

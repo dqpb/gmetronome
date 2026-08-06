@@ -64,7 +64,9 @@ namespace audio {
   }
 
   void FillBufferGenerator::leave(BeatStreamController& ctrl)
-  { }
+  {
+    // nothing
+  }
 
   void FillBufferGenerator::cycle(BeatStreamController& ctrl,
                                   const void*& data, size_t& bytes)
@@ -92,43 +94,184 @@ namespace audio {
 
     physics::seconds_dbl time_left {(double)frames_left / ctrl.spec().rate};
 
-    status.position = - ctrl.tempo() * time_left.count() / 60.0;
+    status.position = - ctrl.countIn() - ctrl.tempo() * time_left.count() / 60.0;
     status.tempo = ctrl.tempo();
     status.acceleration = 0.0;
-    status.accent = -1;
+    status.accent = -ctrl.countIn() - 1;
     status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
     status.generator = kFillBufferGenerator;
   }
 
-  // PreCountGenerator (not implemented yet)
+  // PreCountGenerator
   //
+  void PreCountGenerator::onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode)
+  {
+    auto& k = ctrl.kinematics();
+
+    switch (ctrl.mode()) {
+    case TempoMode::kConstant:
+      k.setTempo(ctrl.tempo());
+      break;
+    case TempoMode::kSync:
+      k.synchronize(ctrl.syncBeats(), ctrl.syncTempo(), ctrl.syncTime());
+      break;
+    case TempoMode::kContinuous:
+      [[fallthrough]];
+    case TempoMode::kStepwise:
+      [[fallthrough]];
+    default:
+      return;
+      break;
+    };
+
+    updateFramesLeft(ctrl);
+  }
+
+  void PreCountGenerator::onCountInChanged(BeatStreamController& ctrl)
+  {
+    // nothing
+  }
+
+  void PreCountGenerator::prepare(BeatStreamController& ctrl)
+  {
+    max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
+                                 ctrl.sound(kAccentOff).frames());
+
+    avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
+
+    updateFramesLeft(ctrl);
+  }
+
   void PreCountGenerator::enter(BeatStreamController& ctrl)
   {
-    switchGenerator(ctrl, kRegularGenerator); // skip this generator
+    auto& k = ctrl.kinematics();
+
+    k.reset();
+
+    if (ctrl.countIn() > 0)
+    {
+      k.setTempo(ctrl.tempo());
+      k.setBeats(100);
+      accent_point_ = true;
+      updateFramesLeft(ctrl);
+    }
+    else
+    {
+      switchGenerator(ctrl, kRegularGenerator); // skip this generator
+    }
   }
 
   void PreCountGenerator::leave(BeatStreamController& ctrl)
   { }
 
+  void PreCountGenerator::cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes)
+  {
+    auto& k = ctrl.kinematics();
+
+    size_t frames_chunk = 0;
+    if (accent_point_) // play sound
+    {
+      const auto& sound_buffer = ctrl.sound(kAccentMid);
+
+      frames_chunk = std::min(sound_buffer.frames(), frames_left_);
+      data = sound_buffer.data();
+      bytes = frames_chunk * frameSize(ctrl.spec());
+    }
+    else // play silence
+    {
+      const auto& sound_buffer = ctrl.sound(kAccentOff);
+
+      if (frames_left_ <= max_chunk_frames_)
+        frames_chunk = frames_left_;
+      else
+        frames_chunk = frames_left_ / std::lround( (double) frames_left_ / avg_chunk_frames_ );
+
+      frames_chunk = std::min(sound_buffer.frames(), frames_chunk);
+      data = sound_buffer.data();
+      bytes = frames_chunk * frameSize(ctrl.spec());
+    }
+
+    // update kinematice, frames_left_, ...
+    step(ctrl, frames_chunk);
+
+    if (accent_point_ && std::round(k.position()) >= ctrl.countIn())
+      switchGenerator(ctrl, kRegularGenerator);
+  }
+
+  void PreCountGenerator::updateFramesLeft(BeatStreamController& ctrl)
+  {
+    auto& k = ctrl.kinematics();
+
+    // compensate for rounding errors
+    double beat_position = accent_point_ ? std::round(k.position()) : std::floor(k.position());
+
+    double next_beat_position = (beat_position + 1.0); // in beat units
+    double distance = next_beat_position - k.position();
+
+    physics::seconds_dbl arrival_time = k.arrival(distance);
+    frames_left_ = std::lround(ctrl.spec().rate * arrival_time.count());
+  }
+
+  void PreCountGenerator::step(BeatStreamController& ctrl, size_t frames_chunk)
+  {
+    auto& k = ctrl.kinematics();
+
+    k.step(framesToUsecs(frames_chunk, ctrl.spec()));
+
+    assert(frames_left_ >= frames_chunk);
+    frames_left_ -= frames_chunk;
+
+    if (frames_left_ == 0)
+    {
+      accent_point_ = true;
+      updateFramesLeft(ctrl);
+    }
+    else
+    {
+      accent_point_ = false;
+    }
+  }
+
+  void PreCountGenerator::updateStatus(BeatStreamController& ctrl, StreamStatus& status)
+  {
+    auto& k = ctrl.kinematics();
+
+    status.position     = -ctrl.countIn() + k.position();
+    status.tempo        = k.tempo();
+    status.mode         = k.isSynchronizing() ? TempoMode::kSync : TempoMode::kConstant;
+    status.acceleration = k.acceleration();
+    status.hold         = 0;
+    status.accent       = -ctrl.countIn() +
+      (accent_point_ ? std::round(k.position()) : std::floor(k.position()));
+
+    const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
+
+    status.next_accent_delay
+      = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio));
+
+    status.generator = kPreCountGenerator;
+  }
+
   // RegularGenerator
   //
   void RegularGenerator::onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode)
   {
-    switch (ctrl.mode()) {
+    auto& k = ctrl.kinematics();
 
+    switch (ctrl.mode()) {
     case TempoMode::kConstant:
-      k_.setTempo(ctrl.tempo());
+      k.setTempo(ctrl.tempo());
       break;
 
     case TempoMode::kContinuous:
-      k_.accelerate(ctrl.acceleration(), ctrl.target());
+      k.accelerate(ctrl.acceleration(), ctrl.target());
       break;
 
     case TempoMode::kStepwise:
       if (old_mode == TempoMode::kContinuous)
-        k_.stopAcceleration();
+        k.stopAcceleration();
       else if (old_mode == TempoMode::kSync)
-        k_.stopSynchronization();
+        k.stopSynchronization();
 
       if (hold_ <= 0) // initialize hold
         resetStepwise(ctrl);
@@ -137,7 +280,7 @@ namespace audio {
       break;
 
     case TempoMode::kSync:
-      k_.synchronize(ctrl.syncBeats(), ctrl.syncTempo(), ctrl.syncTime());
+      k.synchronize(ctrl.syncBeats(), ctrl.syncTempo(), ctrl.syncTime());
       break;
     };
 
@@ -147,11 +290,14 @@ namespace audio {
   void RegularGenerator::onMeterChanged(BeatStreamController& ctrl,
                                         const Meter& old_meter, bool enabled_changed)
   {
+    auto& k = ctrl.kinematics();
     const Meter& meter = ctrl.meter();
 
     // play the accent pattern from the beginning, when accentuation was enabled
-    bool turnover = enabled_changed && ctrl.isMeterEnabled();
-    k_.setBeats(meter.beats(), turnover);
+    if (bool rollover = enabled_changed && ctrl.isMeterEnabled(); rollover)
+      k.setBeats(meter.beats(), physics::BeatKinematics::PositionMode::kRollover);
+    else
+      k.setBeats(meter.beats());
 
     // If accent_point_ == true (i.e. we are about to play an accent), we check
     // if there is a matching accent in the new meter and set the current accent
@@ -159,12 +305,12 @@ namespace audio {
     bool accent_match = (accent_ * meter.division()) % old_meter.division() == 0;
     if (accent_point_ && accent_match)
     {
-      accent_ = std::fmod(std::round(k_.position() * meter.division()),
+      accent_ = std::fmod(std::round(k.position() * meter.division()),
                           meter.division() * meter.beats());
     }
     else
     {
-      accent_ = std::trunc(k_.position() * meter.division());
+      accent_ = std::trunc(k.position() * meter.division());
       accent_point_ = false;
     }
 
@@ -186,18 +332,22 @@ namespace audio {
 
   void RegularGenerator::enter(BeatStreamController& ctrl)
   {
-    k_.reset();
-    k_.setBeats(ctrl.meter().beats());
-    k_.setTempo(ctrl.tempo());
+    auto& k = ctrl.kinematics();
+
+    k.setBeats(ctrl.meter().beats(), physics::BeatKinematics::PositionMode::kZero);
 
     switch (ctrl.mode()) {
     case TempoMode::kContinuous:
+      k.setTempo(ctrl.tempo());
       if (ctrl.target() != ctrl.tempo())
-        k_.accelerate(ctrl.acceleration(), ctrl.target());
+        k.accelerate(ctrl.acceleration(), ctrl.target());
       break;
 
     case TempoMode::kStepwise:
     case TempoMode::kConstant:
+      k.setTempo(ctrl.tempo());
+      break;
+
     case TempoMode::kSync:
       [[fallthrough]];
     default:
@@ -215,8 +365,7 @@ namespace audio {
   void RegularGenerator::leave(BeatStreamController& ctrl)
   { }
 
-  void RegularGenerator::cycle(BeatStreamController& ctrl,
-                               const void*& data, size_t& bytes)
+  void RegularGenerator::cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes)
   {
     const Meter& meter = ctrl.meter();
     const AccentPattern& accents = meter.accents();
@@ -246,16 +395,18 @@ namespace audio {
       bytes = frames_chunk * frameSize(ctrl.spec());
     }
 
-    // update k_, frames_left_, ...
+    // update kinematics, frames_left_, ...
     step(ctrl, frames_chunk);
   }
 
   void RegularGenerator::updateStatus(BeatStreamController& ctrl, StreamStatus& status)
   {
-    status.position     = k_.position();
-    status.tempo        = k_.tempo();
+    auto& k = ctrl.kinematics();
+
+    status.position     = k.position();
+    status.tempo        = k.tempo();
     status.mode         = effectiveMode(ctrl);
-    status.acceleration = k_.acceleration();
+    status.acceleration = k.acceleration();
     status.hold         = hold_;
     status.accent       = accent_;
 
@@ -269,27 +420,29 @@ namespace audio {
 
   void RegularGenerator::updateFramesLeft(BeatStreamController& ctrl)
   {
+    const auto& k = ctrl.kinematics();
     const Meter& meter = ctrl.meter();
 
     double accent_position = 0.0; // in accent units
     if (accent_point_)
-      accent_position = std::round(k_.position() * meter.division());
+      accent_position = std::round(k.position() * meter.division());
     else
-      accent_position = std::floor(k_.position() * meter.division());
+      accent_position = std::floor(k.position() * meter.division());
 
     double next_accent_position = (accent_position + 1.0) / meter.division(); // in beat units
-    double distance = next_accent_position - k_.position();
+    double distance = next_accent_position - k.position();
 
-    physics::seconds_dbl arrival_time = k_.arrival(distance);
+    physics::seconds_dbl arrival_time = k.arrival(distance);
     frames_left_ = std::lround(ctrl.spec().rate * arrival_time.count());
   }
 
   void RegularGenerator::step(BeatStreamController& ctrl, size_t frames_chunk)
   {
+    auto& k = ctrl.kinematics();
     const Meter& meter = ctrl.meter();
     const AccentPattern& accents = meter.accents();
 
-    k_.step(framesToUsecs(frames_chunk, ctrl.spec()));
+    k.step(framesToUsecs(frames_chunk, ctrl.spec()));
 
     assert(frames_left_ >= frames_chunk);
     frames_left_ -= frames_chunk;
@@ -347,37 +500,39 @@ namespace audio {
 
   void RegularGenerator::accelerateStepwise(BeatStreamController& ctrl)
   {
-    double tempo = k_.tempo();
+    auto& k = ctrl.kinematics();
+
+    double tempo = k.tempo();
     double tempo_diff = ctrl.target() - tempo;
 
     if (std::abs(ctrl.step()) <= std::abs(tempo_diff))
     {
       double step = std::copysign(ctrl.step() , tempo_diff);
-      k_.setTempo(tempo + step);
+      k.setTempo(tempo + step);
     }
     else
     {
-      k_.setTempo(ctrl.target());
+      k.setTempo(ctrl.target());
     }
   }
 
   TempoMode RegularGenerator::effectiveMode(const BeatStreamController& ctrl) const
   {
+    const auto& k = ctrl.kinematics();
     TempoMode m = TempoMode::kConstant;
 
-    switch (ctrl.mode())
-    {
+    switch (ctrl.mode()) {
     case TempoMode::kConstant:
       // nothing
       break;
 
     case TempoMode::kSync:
-      if (k_.isSynchronizing())
+      if (k.isSynchronizing())
         m = TempoMode::kSync;
       break;
 
     case TempoMode::kContinuous:
-      if (k_.isAccelerating())
+      if (k.isAccelerating())
         m = TempoMode::kContinuous;
       break;
 
