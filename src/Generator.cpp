@@ -97,7 +97,7 @@ namespace audio {
     status.position = - ctrl.countIn() - ctrl.tempo() * time_left.count() / 60.0;
     status.tempo = ctrl.tempo();
     status.acceleration = 0.0;
-    status.accent = -ctrl.countIn() - 1;
+    status.accent = -1;
     status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
     status.generator = kFillBufferGenerator;
   }
@@ -236,13 +236,21 @@ namespace audio {
   {
     auto& k = ctrl.kinematics();
 
-    status.position     = -ctrl.countIn() + k.position();
+    if (k.position() <= ctrl.countIn())
+    {
+      status.position = k.position() - ctrl.countIn();
+    }
+    else // if the position already exceeded the requested count-in
+    {
+      double p_int;
+      double p_frac = std::modf(k.position(), &p_int);
+      status.position = p_frac - 1.0;
+    }
     status.tempo        = k.tempo();
     status.mode         = k.isSynchronizing() ? TempoMode::kSync : TempoMode::kConstant;
     status.acceleration = k.acceleration();
     status.hold         = 0;
-    status.accent       = -ctrl.countIn() +
-      (accent_point_ ? std::round(k.position()) : std::floor(k.position()));
+    status.accent       = accent_point_ ? std::round(k.position()) : std::floor(k.position());
 
     const double kMicrosecondsFramesRatio = (double) std::micro::den / ctrl.spec().rate;
 
