@@ -437,7 +437,6 @@ namespace audio {
   private:
     size_t max_chunk_frames_{0};
     size_t avg_chunk_frames_{0};
-    size_t beat_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
 
