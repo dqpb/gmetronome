@@ -80,8 +80,9 @@ private:
   double toggle_phase_overlay_value_{-1.0};
 
   enum State {
-    kShutdown   = 0,
-    kStop       = 1,
+    // keep order
+    kStop       = 0,
+    kShutdown   = 1,
     kStartup    = 2,
     kFillBuffer = 3,
     kRegular    = 4
