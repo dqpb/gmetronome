@@ -411,9 +411,14 @@ void LCD::stopSynchronization()
 
 void LCD::synchronize(const audio::Ticker::Info& info, const std::chrono::microseconds& sync)
 {
-  if (info.generator == audio::kRegularGenerator)
+  if (info.generator == audio::kRegularGenerator || info.generator == audio::kPreCountGenerator)
   {
-    if (!info.default_meter)
+    if (info.generator == audio::kPreCountGenerator)
+    {
+      int beat =  info.count_in + info.accent + 1;
+      beat_label_.display(beat);
+    }
+    else if (!info.default_meter)
     {
       int beat =  info.accent / info.division + 1;
       beat_label_.display(beat);
