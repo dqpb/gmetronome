@@ -165,18 +165,15 @@ void Pendulum::synchronize(const audio::Ticker::Info& info,
   if (info.generator == audio::kFillBufferGenerator)
   {
     if (state_ != kFillBuffer)
-    {
       state_ = kFillBuffer;
-    }
   }
   else if (info.generator == audio::kRegularGenerator)
   {
     if (state_ != kRegular) // init kinematics
     {
-      double amplitude = std::max(needle_amplitude_, kMinNeedleAmplitude);
+      needle_amplitude_ = std::max(needle_amplitude_, kMinNeedleAmplitude); // rad
 
-      double new_theta = std::asin(needle_theta_ / amplitude);
-      needle_amplitude_ = amplitude;
+      double new_theta = std::asin(needle_theta_ / needle_amplitude_); // [-Pi/2, Pi/2]
 
       double start_theta = phase_mode_shift_;
       double alt_theta = M_PI - new_theta;
@@ -257,7 +254,7 @@ void Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
     }
 
     double dial_target_amplitude
-      = (state_ != kRegular) ? needleAmplitude(0.0) : needleAmplitude(target_omega_);
+      = (state_ == kRegular) ? needleAmplitude(target_omega_) : needleAmplitude(0.0);
 
     bool redraw_dial = false;
     if (std::abs(dial_target_amplitude - dial_amplitude_) > 0.001)
@@ -271,10 +268,7 @@ void Pendulum::updateAnimation(const Glib::RefPtr<Gdk::FrameClock>& clock)
       redraw_dial = true;
     }
 
-    double needle_target_amplitude = dial_target_amplitude;
-
-    if (state_ != kRegular)
-      needle_target_amplitude = 0.0;
+    double needle_target_amplitude = (state_ == kRegular) ? dial_target_amplitude : 0.0;
 
     needle_amplitude_ += kNeedleAmplitudeChangeRate
       * std::tanh(needle_target_amplitude - needle_amplitude_) * frame_time_delta.count();
