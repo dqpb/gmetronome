@@ -255,7 +255,21 @@ namespace physics {
     using Time = minutes_dbl;
 
     /**
+     * kSimpleWrap: the new position is the old position modulo the new number of beats
+     * kRollover:   the position of the oscillator is recomputed so that the next full
+     *              beat will be zero
+     * kNearZero:   the new position will be as near as possible (modulo) to zero
+     * kZero:       the postition is reset to zero
      */
+    enum class PositionMode
+    {
+      kSimpleWrap,
+      kRollover,
+      kNearZero,
+      kZero,
+    };
+
+    /** */
     void reset();
 
     /**
@@ -264,10 +278,9 @@ namespace physics {
      * The current position will be recomputed to fit the new module
      * (see @ref Oscillator::remodule).
      *
-     * If the rollover flag is set, the position of the oscillator is recomputed so
-     * that the next full beat will be zero.
+     * For a description of the position modes see @ref BeatKinematics::PositionMode.
      */
-    void setBeats(double beats, bool rollover = false);
+    void setBeats(double beats, PositionMode mode = PositionMode::kSimpleWrap);
 
     /**
      * @brief Set the current tempo of the oscillation

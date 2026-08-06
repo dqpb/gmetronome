@@ -42,18 +42,39 @@ namespace physics {
     switchForceMode(ForceMode::kNoForce);
   }
 
-  void BeatKinematics::setBeats(double beats, bool rollover)
+  void BeatKinematics::setBeats(double beats, PositionMode mode)
   {
     osc_.remodule(beats);
 
-    if (rollover)
+    switch(mode) {
+    case PositionMode::kRollover:
+    {
+      double integral;
+      double fractional = std::modf(osc_.position(), &integral);
+      double new_position = osc_.module() - 1.0 + fractional;
+      osc_.resetPosition(new_position);
+    }
+    break;
+
+    case PositionMode::kNearZero:
     {
       double integral;
       double fractional = std::modf(osc_.position(), &integral);
 
-      double new_position = osc_.module() - 1.0 + fractional;
+      if (fractional >= 0.5)
+        osc_.resetPosition(osc_.module() - 1 + fractional);
+      else
+        osc_.resetPosition(fractional);
+    }
+    break;
 
-      osc_.resetPosition(new_position);
+    case PositionMode::kZero:
+      osc_.resetPosition(0.0);
+      break;
+
+    default:
+      // nothing
+      break;
     }
   }
 
