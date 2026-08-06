@@ -214,7 +214,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("trainerMode1RadioButton", trainer_mode_1_radio_button_);
   builder_->get_widget("trainerMode2RadioButton", trainer_mode_2_radio_button_);
   builder_->get_widget("countInMenuButton", count_in_menu_button_);
-  builder_->get_widget("countInNumberLabel", count_in_number_label_);
+  builder_->get_widget("countInMenuButtonBox", count_in_menu_button_box_);
   builder_->get_widget("countInPopover", count_in_popover_);
 
   // populate count-in radio button vector
@@ -359,6 +359,12 @@ void MainWindow::initUI()
   updateMeter(meter_slot, app_->queryMeter(meter_slot));
 
   // initialize transport interface
+  count_in_menu_button_label_.showIcon(false);
+  count_in_menu_button_label_.set_valign(Gtk::ALIGN_CENTER);
+  count_in_menu_button_label_.set_halign(Gtk::ALIGN_CENTER);
+  count_in_menu_button_label_.show();
+  count_in_menu_button_box_->pack_start(count_in_menu_button_label_);
+  updateCountIn(0);
   updateStartButtonLabel(false);
   updateVolumeMute(false);
 
@@ -374,6 +380,7 @@ void MainWindow::initUI()
   updateProfileTitle(title, !id.empty());
 
   // register synchronizables
+  sync_ctrl_.registerSynchronizable(this);
   sync_ctrl_.registerSynchronizable(&lcd_);
   sync_ctrl_.registerSynchronizable(&pendulum_);
   sync_ctrl_.registerSynchronizable(&accent_button_grid_);
@@ -602,6 +609,34 @@ bool MainWindow::on_configure_event(GdkEventConfigure* configure_event)
     resizeProfilePopover();
 
   return false;
+}
+
+void MainWindow::startSynchronization()
+{
+  // nothing
+}
+
+void MainWindow::stopSynchronization()
+{
+  count_in_menu_button_label_.cancelScheduledAnimations();
+}
+
+void MainWindow::synchronize(const audio::Ticker::Info& info,
+                             const std::chrono::microseconds& sync)
+{
+  // We use the info.accent(s) < -1 and info.next_accent_delay to schedule
+  // the pre-count animations. Afterwards the accent button grid starts to
+  // schedule the animations of the accent buttons.
+
+  if (info.accent < -1)
+  {
+    std::chrono::microseconds time = info.timestamp
+      + info.backend_latency
+      + info.next_accent_delay
+      + sync;
+
+    count_in_menu_button_label_.scheduleAnimation(time.count());
+  }
 }
 
 namespace {
@@ -1443,7 +1478,7 @@ void MainWindow::updateCountIn(int id)
       connection.unblock();
 
     const Glib::ustring text = std::to_string(id);
-    count_in_number_label_->set_text(text);
+    count_in_menu_button_label_.setLabel(text);
   }
 }
 
@@ -1635,11 +1670,17 @@ void MainWindow::updatePrefMeterAnimation()
 {
   if (settings::preferences()->get_boolean(settings::kKeyPrefsMeterAnimation))
   {
+    if (!sync_ctrl_.isRegistered(this))
+      sync_ctrl_.registerSynchronizable(this);
+
     if (!sync_ctrl_.isRegistered(&accent_button_grid_))
       sync_ctrl_.registerSynchronizable(&accent_button_grid_);
   }
   else
   {
+    if (sync_ctrl_.isRegistered(this))
+      sync_ctrl_.unregisterSynchronizable(this);
+
     if (sync_ctrl_.isRegistered(&accent_button_grid_))
       sync_ctrl_.unregisterSynchronizable(&accent_button_grid_);
   }

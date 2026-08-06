@@ -1744,12 +1744,12 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="direction">up</property>
                             <property name="popover">countInPopover</property>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkBox" id="countInMenuButtonBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="spacing">2</property>
                                 <child>
-                                  <object class="GtkImage">
+                                  <object class="GtkImage" id="countInMenuButtonIcon">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="icon-name">gm-count-in-symbolic</property>
@@ -1761,20 +1761,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="countInNumberLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label">0</property>
-                                    <property name="width-chars">2</property>
-                                    <property name="single-line-mode">True</property>
-                                    <property name="max-width-chars">2</property>
-                                    <property name="track-visited-links">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
-                                  </packing>
+                                  <placeholder/>
                                 </child>
                               </object>
                             </child>

@@ -20,13 +20,14 @@
 #ifndef GMetronome_MainWindow_h
 #define GMetronome_MainWindow_h
 
+#include "LCD.h"
+#include "About.h"
 #include "Action.h"
 #include "Ticker.h"
 #include "Message.h"
 #include "Pendulum.h"
-#include "LCD.h"
+#include "AccentButton.h"
 #include "AccentButtonGrid.h"
-#include "About.h"
 #include "SynchronizableCtrl.h"
 
 #include <gtkmm.h>
@@ -38,9 +39,8 @@ class Application;
 class ActionBinding;
 class ProfileListStore;
 class SettingsDialog;
-class AccentButtonGrid;
 
-class MainWindow : public Gtk::ApplicationWindow {
+class MainWindow : public Gtk::ApplicationWindow, public Synchronizable {
 public:
   MainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
   virtual ~MainWindow();
@@ -131,8 +131,9 @@ private:
   Gtk::RadioButton* trainer_mode_1_radio_button_;
   Gtk::RadioButton* trainer_mode_2_radio_button_;
   Gtk::MenuButton* count_in_menu_button_;
-  Gtk::Label* count_in_number_label_;
+  Gtk::Box* count_in_menu_button_box_;
   Gtk::Popover* count_in_popover_;
+  AccentButtonDrawingArea count_in_menu_button_label_;
   std::vector<Gtk::RadioButton*> count_in_radio_buttons_;
   AccentButtonGrid accent_button_grid_;
   Pendulum pendulum_;
@@ -167,6 +168,12 @@ private:
   bool on_window_state_event(GdkEventWindowState* window_state_event) override;
   bool on_configure_event(GdkEventConfigure* configure_event) override;
   bool on_key_press_event(GdkEventKey* key_event) override;
+
+  // Synchronizable interface
+  void startSynchronization() override;
+  void stopSynchronization() override;
+  void synchronize(const audio::Ticker::Info& info,
+                   const std::chrono::microseconds& sync) override;
 
   // Tempo 'quick-set' mode handler
   void startTempoQuickSetTimer();
