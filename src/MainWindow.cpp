@@ -1466,7 +1466,7 @@ void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
 
 void MainWindow::updateCountIn(int id)
 {
-  if (id >= 0 && id < count_in_radio_buttons_.size())
+  if (id >= 0 && id < static_cast<int>(count_in_radio_buttons_.size()))
   {
     for (auto& connection : count_in_rb_connections_)
       connection.block();
