@@ -97,16 +97,22 @@ public:
   const Glib::ustring& getLabel() const
     { return label_; }
 
+  void showIcon(bool show = true);
+
+  bool hasIcon() const
+    { return !show_icon_; }
+
   void scheduleAnimation(gint64 frame_time, bool clear = false);
   void cancelScheduledAnimations();
 
 protected:
-  Accent button_state_;
-  Glib::ustring label_;
-
   static constexpr int kIconWidth = 16;
   static constexpr int kIconHeight = 20;
   static constexpr int kPadding = 2;
+
+  Accent button_state_;
+  Glib::ustring label_;
+  bool show_icon_{true};
 
   // cache
   mutable int icon_width_{kIconWidth};

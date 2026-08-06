@@ -110,15 +110,6 @@ AccentButtonDrawingArea::~AccentButtonDrawingArea()
     stopAnimation();
 }
 
-void AccentButtonDrawingArea::setLabel(const Glib::ustring& label)
-{
-  if (label.raw() != label_.raw())
-  {
-    label_ = label;
-    queue_resize();
-  }
-}
-
 bool AccentButtonDrawingArea::setAccentState(Accent state)
 {
   if (state != button_state_)
@@ -128,6 +119,24 @@ bool AccentButtonDrawingArea::setAccentState(Accent state)
     return true;
   }
   else return false;
+}
+
+void AccentButtonDrawingArea::setLabel(const Glib::ustring& label)
+{
+  if (label.raw() != label_.raw())
+  {
+    label_ = label;
+    queue_resize();
+  }
+}
+
+void AccentButtonDrawingArea::showIcon(bool show)
+{
+  if (show == show_icon_)
+    return;
+
+  show_icon_ = show;
+  queue_resize();
 }
 
 void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time, bool clear)
@@ -270,8 +279,8 @@ void AccentButtonDrawingArea::get_preferred_height_vfunc(int& minimum_height,
 
 void AccentButtonDrawingArea::recalculateDimensions() const
 {
-  icon_width_  = kIconWidth; //icon_surface->get_width();
-  icon_height_ = kIconHeight; //icon_surface->get_height();
+  icon_width_  = show_icon_ ? kIconWidth : 0; //icon_surface->get_width();
+  icon_height_ = show_icon_ ? kIconHeight : 0; //icon_surface->get_height();
   text_width_  = 0;
   text_height_ = 0;
   icon_text_padding_ = 0;
@@ -294,7 +303,7 @@ void AccentButtonDrawingArea::recalculateDimensions() const
     }
   }
 
-  if (text_height_ > 0)
+  if (text_height_ > 0 && icon_height_ > 0)
     icon_text_padding_ = kPadding;
 
   min_width_ = std::max( std::max(text_width_, text_height_), icon_width_);
@@ -550,7 +559,10 @@ Gdk::RGBA AccentButtonDrawingArea::getSecondaryColor(Glib::RefPtr<Gtk::StyleCont
 bool AccentButtonDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
   draw_animation(cr);
-  draw_icon(cr);
+
+  if (show_icon_)
+    draw_icon(cr);
+
   draw_text(cr);
 
   return false;
