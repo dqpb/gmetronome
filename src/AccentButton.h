@@ -103,6 +103,10 @@ public:
     { return !show_icon_; }
 
   void scheduleAnimation(gint64 frame_time, bool clear = false);
+
+  bool hasScheduledAnimation() const
+    { return ! scheduled_animations_.empty(); }
+
   void cancelScheduledAnimations();
 
 protected:
@@ -209,6 +213,9 @@ public:
     { return drawing_area_.getLabel(); }
 
   void scheduleAnimation(gint64 frame_time, bool clear = false);
+
+  bool hasScheduledAnimation() const
+    { return drawing_area_.hasScheduledAnimation(); }
 
   void cancelScheduledAnimations();
 
