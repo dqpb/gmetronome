@@ -323,9 +323,9 @@ namespace audio {
   constexpr bool operator>=(const Decibel& lhs, const Decibel& rhs)
   { return lhs > rhs || lhs == rhs; }
 
-  constexpr Decibel operator "" _dB(unsigned long long value)
+  constexpr Decibel operator ""_dB(unsigned long long value)
   { return Decibel(value); }
-  constexpr Decibel operator "" _dB(long double value)
+  constexpr Decibel operator ""_dB(long double value)
   { return Decibel(value); }
 
   constexpr double kMinVolume = 0.0;  // percent
