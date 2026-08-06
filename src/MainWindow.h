@@ -26,8 +26,10 @@
 #include "Ticker.h"
 #include "Message.h"
 #include "Pendulum.h"
+#include "Application.h"
 #include "AccentButton.h"
 #include "AccentButtonGrid.h"
+#include "ProfileListStore.h"
 #include "SynchronizableCtrl.h"
 
 #include <gtkmm.h>
@@ -35,9 +37,7 @@
 #include <list>
 #include <vector>
 
-class Application;
 class ActionBinding;
-class ProfileListStore;
 class SettingsDialog;
 
 class MainWindow : public Gtk::ApplicationWindow, public Synchronizable {
