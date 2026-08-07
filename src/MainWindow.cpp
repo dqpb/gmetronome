@@ -640,7 +640,7 @@ void MainWindow::synchronize(const audio::Ticker::Info& info,
       // Prevent animation if the count-in is reduced after starting the metronome
       // but an animation has already been scheduled.
       if (count_in_menu_button_label_.hasScheduledAnimation())
-        count_in_menu_button_label_.cancelScheduledAnimations();
+        count_in_menu_button_label_.cancelScheduledAnimations(true);
     }
   }
 }

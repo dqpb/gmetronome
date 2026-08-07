@@ -107,7 +107,7 @@ public:
   bool hasScheduledAnimation() const
     { return ! scheduled_animations_.empty(); }
 
-  void cancelScheduledAnimations();
+  void cancelScheduledAnimations(bool keep_active = false);
 
 protected:
   static constexpr int kIconWidth = 16;
@@ -202,22 +202,26 @@ class AccentButton : public Gtk::Button {
 public:
   AccentButton(Accent state = kAccentMid, const Glib::ustring& label = "");
 
-  bool setAccentState(Accent state);
+  bool setAccentState(Accent state)
+    { return drawing_area_.setAccentState(state); }
 
   Accent getAccentState() const
     { return drawing_area_.getAccentState(); }
 
-  void setLabel(const Glib::ustring& label);
+  void setLabel(const Glib::ustring& label)
+    { drawing_area_.setLabel(label); }
 
   const Glib::ustring& getLabel() const
     { return drawing_area_.getLabel(); }
 
-  void scheduleAnimation(gint64 frame_time, bool clear = false);
+  void scheduleAnimation(gint64 frame_time, bool clear = false)
+    { drawing_area_.scheduleAnimation(frame_time, clear); }
 
   bool hasScheduledAnimation() const
     { return drawing_area_.hasScheduledAnimation(); }
 
-  void cancelScheduledAnimations();
+  void cancelScheduledAnimations(bool keep_active = false)
+    { drawing_area_.cancelScheduledAnimations(keep_active); }
 
   AccentButtonDrawingArea& getDrawingArea()
     { return drawing_area_; }

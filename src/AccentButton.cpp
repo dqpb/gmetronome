@@ -168,9 +168,9 @@ void AccentButtonDrawingArea::scheduleAnimation(gint64 frame_time, bool clear)
     startAnimation();
 }
 
-void AccentButtonDrawingArea::cancelScheduledAnimations()
+void AccentButtonDrawingArea::cancelScheduledAnimations(bool keep_active)
 {
-  if (auto clock = get_frame_clock(); clock && isAnimationRunning())
+  if (auto clock = get_frame_clock(); keep_active && clock && isAnimationRunning())
   {
     gint64 frame_time = Animatable::getFrameTime(clock).count();
 
@@ -685,26 +685,6 @@ AccentButton::AccentButton(Accent state, const Glib::ustring& label)
   drawing_area_.show();
 
   add_events(Gdk::SCROLL_MASK);
-}
-
-bool AccentButton::setAccentState(Accent state)
-{
-  return drawing_area_.setAccentState(state);
-}
-
-void AccentButton::setLabel(const Glib::ustring& label)
-{
-  drawing_area_.setLabel(label);
-}
-
-void AccentButton::scheduleAnimation(gint64 frame_time, bool clear)
-{
-  drawing_area_.scheduleAnimation(frame_time, clear);
-}
-
-void AccentButton::cancelScheduledAnimations()
-{
-  drawing_area_.cancelScheduledAnimations();
 }
 
 void AccentButton::on_clicked()
