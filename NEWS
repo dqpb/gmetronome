@@ -1,5 +1,6 @@
-2026-??-??  0.4.3
+2026-??-??  0.5.1
 
+	* Add count-in
 	* Better AV synchronization in high latency environments
 	* Fix rendering artifacts on some older devices
 	* Update German translation
