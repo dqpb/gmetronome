@@ -231,7 +231,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">start</property>
-            <property name="label" translatable="yes" context="Main window - Count-in popover">Count-In</property>
+            <property name="label" translatable="yes" context="Main window - Count-in" comments="Count-in popover">Count-in</property>
             <property name="single-line-mode">True</property>
           </object>
           <packing>
@@ -242,7 +242,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
         </child>
         <child>
           <object class="GtkRadioButton" id="countIn00RadioButton">
-            <property name="label" translatable="yes" context="Main window - Count-in popover">Off</property>
+            <property name="label" translatable="yes" context="Main window - Count-in" comments="Count-in popover">Off</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">False</property>
@@ -1740,6 +1740,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="can-focus">True</property>
                             <property name="focus-on-click">False</property>
                             <property name="receives-default">True</property>
+                            <property name="tooltip-text" translatable="yes" context="Main window - Count-in" comments="Tooltip">Count-in</property>
                             <property name="halign">center</property>
                             <property name="direction">up</property>
                             <property name="popover">countInPopover</property>
