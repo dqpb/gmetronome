@@ -22,11 +22,8 @@
 #endif
 
 #include "MainWindow.h"
-#include "Application.h"
 #include "ActionBinding.h"
-#include "ProfileListStore.h"
 #include "SettingsDialog.h"
-#include "AccentButton.h"
 #include "Settings.h"
 #include "Shortcut.h"
 
@@ -258,7 +255,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   profile_title_placeholder_ =
     g_dpgettext2(NULL, "Profile", Profile::kDefaultTitlePlaceholder.c_str());
 
-  profile_list_store_ = ProfileListStore::create();
+  profile_list_store_ = MainWindow::ProfileListStore::create();
   profile_tree_view_->set_model(profile_list_store_);
   profile_tree_view_->append_column_editable("Title", profile_list_store_->columns_.title_);
   profile_tree_view_->get_column(0)->set_sizing(Gtk::TREE_VIEW_COLUMN_AUTOSIZE);
@@ -1698,4 +1695,9 @@ void MainWindow::updatePrefAnimationSync()
     std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync)));
 
   sync_ctrl_.setSynchronization(sync_time);
+}
+
+Glib::RefPtr<MainWindow::ProfileListStore> MainWindow::ProfileListStore::create()
+{
+  return Glib::RefPtr<ProfileListStore>( new ProfileListStore() );
 }

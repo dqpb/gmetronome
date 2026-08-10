@@ -29,7 +29,6 @@
 #include "Application.h"
 #include "AccentButton.h"
 #include "AccentButtonGrid.h"
-#include "ProfileListStore.h"
 #include "SynchronizableCtrl.h"
 
 #include <gtkmm.h>
@@ -51,6 +50,35 @@ public:
                                               const Glib::ustring& title_duplicate_fmt,
                                               const Glib::ustring& title_placeholder);
 private:
+  class ProfileListStore : public Gtk::ListStore {
+  protected:
+    ProfileListStore() { set_column_types(columns_); }
+
+  public:
+    //Tree model columns
+    class ModelColumns : public Gtk::TreeModel::ColumnRecord {
+    public:
+      ModelColumns()
+        {
+          add(id_);
+          add(title_);
+          add(description_);
+          add(draggable_);
+          add(receivesdrags_);
+        }
+
+      Gtk::TreeModelColumn<Glib::ustring> id_;
+      Gtk::TreeModelColumn<Glib::ustring> title_;
+      Gtk::TreeModelColumn<Glib::ustring> description_;
+      Gtk::TreeModelColumn<bool> draggable_;
+      Gtk::TreeModelColumn<bool> receivesdrags_;
+    };
+
+    ModelColumns columns_;
+
+    static Glib::RefPtr<ProfileListStore> create();
+  };
+
   Glib::RefPtr<Gtk::Builder> builder_;
   Glib::RefPtr<Application> app_;
 

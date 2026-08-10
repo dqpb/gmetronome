@@ -21,7 +21,7 @@
 # include <config.h>
 #endif
 
-#include "ProfileIOLocalXml.h"
+#include "ProfileListStoreXML.h"
 #include "Error.h"
 #include <iterator>
 #include <charconv>
@@ -34,7 +34,7 @@
 # include <sstream>
 #endif
 
-ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
+ProfileListStoreXML::ProfileListStoreXML(Glib::RefPtr<Gio::File> file)
   : file_{file},
     pmap_{},
     porder_{},
@@ -44,42 +44,42 @@ ProfileIOLocalXml::ProfileIOLocalXml(Glib::RefPtr<Gio::File> file)
     export_error_ {false}
 {}
 
-ProfileIOLocalXml::~ProfileIOLocalXml()
+ProfileListStoreXML::~ProfileListStoreXML()
 {
   if (pending_export_)
   {
     try { exportProfiles(); }
     catch (const GMetronomeError& e) {
 #ifndef NDEBUG
-      std::cerr << "ProfileIOLocalXml: failed to save profiles "
+      std::cerr << "ProfileListStoreXML: failed to save profiles "
                 << "('" << e.what() << "')" << std::endl;
 #endif
     }
     catch (...) {
 #ifndef NDEBUG
-      std::cerr << "ProfileIOLocalXml: failed to save profiles" << std::endl;
+      std::cerr << "ProfileListStoreXML: failed to save profiles" << std::endl;
 #endif
     }
   }
 }
 
-std::vector<Profile::Primer> ProfileIOLocalXml::list()
+auto ProfileListStoreXML::list() -> std::vector<Primer> 
 {
   if (pending_import_ && !import_error_)
     importProfiles();
 
-  std::vector<Profile::Primer> primers;
+  std::vector<Primer> primers;
   primers.reserve(porder_.size());
 
   std::transform(porder_.begin(), porder_.end(), std::back_inserter(primers),
-                 [this] (const auto& id) -> Profile::Primer {
+                 [this] (const auto& id) -> Primer {
                    return {id, pmap_[id].header};
                  });
 
   return primers;
 }
 
-Profile ProfileIOLocalXml::load(Profile::Identifier id)
+Profile ProfileListStoreXML::load(Profile::Identifier id)
 {
   if (pending_import_ && !import_error_)
     importProfiles();
@@ -92,7 +92,7 @@ Profile ProfileIOLocalXml::load(Profile::Identifier id)
   }
 }
 
-void ProfileIOLocalXml::store(Profile::Identifier id, const Profile& profile)
+void ProfileListStoreXML::store(Profile::Identifier id, const Profile& profile)
 {
   if (pending_import_ && !import_error_)
     importProfiles();
@@ -110,7 +110,7 @@ void ProfileIOLocalXml::store(Profile::Identifier id, const Profile& profile)
   pending_export_ = true;
 }
 
-void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
+void ProfileListStoreXML::reorder(const std::vector<Profile::Identifier>& order)
 {
   if (pending_import_ && !import_error_)
     importProfiles();
@@ -144,7 +144,7 @@ void ProfileIOLocalXml::reorder(const std::vector<Profile::Identifier>& order)
   pending_export_ = true;
 }
 
-void ProfileIOLocalXml::remove(Profile::Identifier id)
+void ProfileListStoreXML::remove(Profile::Identifier id)
 {
   if (pending_import_ && !import_error_)
     importProfiles();
@@ -158,7 +158,7 @@ void ProfileIOLocalXml::remove(Profile::Identifier id)
   pending_export_ = true;
 }
 
-void ProfileIOLocalXml::flush()
+void ProfileListStoreXML::flush()
 {
   if (pending_export_)
   {
@@ -169,7 +169,7 @@ void ProfileIOLocalXml::flush()
   }
 }
 
-Glib::RefPtr<Gio::File> ProfileIOLocalXml::defaultFile()
+Glib::RefPtr<Gio::File> ProfileListStoreXML::defaultFile()
 {
   auto path = Glib::build_filename( Glib::get_user_data_dir(),
                                     PACKAGE,
@@ -263,7 +263,7 @@ namespace {
       return true;
   }
 
-  using ProfileMap = ProfileIOLocalXml::ProfileMap;
+  using ProfileMap = ProfileListStoreXML::ProfileMap;
 
   class MarkupParser : public Glib::Markup::Parser {
   public:
@@ -498,7 +498,7 @@ namespace {
 
 }//unnamed namespace
 
-void ProfileIOLocalXml::importProfiles()
+void ProfileListStoreXML::importProfiles()
 {
   MarkupParser parser;
   Glib::Markup::ParseContext context(parser);
@@ -685,7 +685,7 @@ namespace {
 
 }//unnamed namespace
 
-void ProfileIOLocalXml::exportProfiles()
+void ProfileListStoreXML::exportProfiles()
 {
   Glib::RefPtr<Gio::FileOutputStream> ostream;
   try {

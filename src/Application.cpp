@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "MainWindow.h"
-#include "ProfileIOLocalXml.h"
+#include "ProfileListStoreXML.h"
 #include "Meter.h"
 #include "Shortcut.h"
 #include "Settings.h"
@@ -197,7 +197,7 @@ void Application::initProfiles()
   profile_manager_.signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onProfileManagerChanged));
 
-  profile_manager_.setIOModule(std::make_unique<ProfileIOLocalXml>());
+  profile_manager_.setIOModule(std::make_unique<ProfileListStoreXML>());
 
   auto profile_list = profile_manager_.profileList();
 
@@ -1103,7 +1103,7 @@ void Application::onProfileNew(const Glib::VariantBase& value)
 
   convertActionToProfile(content);
 
-  Profile::Primer primer = profile_manager_.newProfile(header, content);
+  auto primer = profile_manager_.newProfile(header, content);
 
   auto id = Glib::Variant<Glib::ustring>::create(primer.id);
 

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <glib.h>
 
-ProfileManager::ProfileManager(std::unique_ptr<ProfileIOBase> ptr)
+ProfileManager::ProfileManager(std::unique_ptr<ListStoreType> ptr)
   : io_(std::move(ptr))
 {}
 
@@ -33,21 +33,21 @@ ProfileManager::ProfileManager(ProfileManager&& pmgr)
 ProfileManager::~ProfileManager()
 {}
 
-void ProfileManager::setIOModule(std::unique_ptr<ProfileIOBase> ptr)
+void ProfileManager::setIOModule(std::unique_ptr<ListStoreType> ptr)
 {
   io_ = std::move(ptr);
   signal_changed_.emit();
 }
 
-Profile::Primer ProfileManager::newProfile(const Profile::Header& header,
-                                           const Profile::Content& content)
+auto ProfileManager::newProfile(const Profile::Header& header,
+                                const Profile::Content& content) -> ListStoreType::Primer
 {
   gchar* uuid = g_uuid_string_random();
   Profile::Identifier id {uuid};
   g_free(uuid);
 
   Profile p { header, content };
-  
+
   try {
     io_->store(id, p);
     signal_changed_.emit();
@@ -77,7 +77,7 @@ void ProfileManager::deleteProfile(const Profile::Identifier& id)
   }
 }
 
-std::vector<Profile::Primer> ProfileManager::profileList()
+auto ProfileManager::profileList() -> std::vector<ListStoreType::Primer>
 {
   try {
     return io_->list();

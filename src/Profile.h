@@ -75,12 +75,6 @@ struct Profile
     std::string  description  = kDefaultDescription;
   };
 
-  struct Primer
-  {
-    Profile::Identifier id;
-    Profile::Header     header;
-  };
-
   struct Content
   {
     double        tempo             = kDefaultTempo;

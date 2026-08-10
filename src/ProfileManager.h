@@ -20,28 +20,29 @@
 #ifndef GMetronome_ProfileManager_h
 #define GMetronome_ProfileManager_h
 
-#include "ProfileIOBase.h"
+#include "Profile.h"
+#include "ListStore.h"
 #include <sigc++/sigc++.h>
 #include <memory>
 
 class ProfileManager {
-
 public:
+  using ListStoreType = ListStore<Profile, Profile::Identifier, Profile::Header>;
 
-  ProfileManager(std::unique_ptr<ProfileIOBase> ptr = nullptr);
+  ProfileManager(std::unique_ptr<ListStoreType> ptr = nullptr);
 
   ProfileManager(ProfileManager&& pmgr);
 
   ~ProfileManager();
 
-  void setIOModule(std::unique_ptr<ProfileIOBase> ptr);
+  void setIOModule(std::unique_ptr<ListStoreType> ptr);
 
-  Profile::Primer newProfile(const Profile::Header& header = {},
-                             const Profile::Content& content = {});
+  ListStoreType::Primer newProfile(const Profile::Header& header = {},
+                                   const Profile::Content& content = {});
 
   void deleteProfile(const Profile::Identifier& id);
 
-  std::vector<Profile::Primer> profileList();
+  std::vector<ListStoreType::Primer> profileList();
 
   Profile getProfile(const Profile::Identifier& id);
 
@@ -62,7 +63,7 @@ public:
 
 private:
   sigc::signal<void> signal_changed_;
-  std::unique_ptr<ProfileIOBase> io_;
+  std::unique_ptr<ListStoreType> io_;
 };
 
 #endif//GMetronome_ProfileManager_h

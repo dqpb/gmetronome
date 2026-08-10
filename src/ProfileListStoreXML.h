@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020,2026 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -17,36 +17,37 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GMetronome_ProfileIOLocalXml_h
-#define GMetronome_ProfileIOLocalXml_h
+#ifndef GMetronome_ProfileListStoreXML_h
+#define GMetronome_ProfileListStoreXML_h
 
-#include "ProfileIOBase.h"
+#include "Profile.h"
+#include "ListStore.h"
 #include <gtkmm.h>
 #include <map>
 
-class ProfileIOLocalXml : public ProfileIOBase
+class ProfileListStoreXML : public ListStore<Profile, Profile::Identifier, Profile::Header>
 {
 public:
-  ProfileIOLocalXml(Glib::RefPtr<Gio::File> file = defaultFile());
+  ProfileListStoreXML(Glib::RefPtr<Gio::File> file = defaultFile());
 
-  ~ProfileIOLocalXml() override;
+  ~ProfileListStoreXML() override;
 
-  std::vector<Profile::Primer> list() override;
+  std::vector<Primer> list() override;
 
-  Profile load(Profile::Identifier id) override;
+  Profile load(Identifier id) override;
 
-  void store(Profile::Identifier id, const Profile& profile) override;
+  void store(Identifier id, const Profile& profile) override;
 
-  void reorder(const std::vector<Profile::Identifier>& order) override;
+  void reorder(const std::vector<Identifier>& order) override;
 
-  void remove(Profile::Identifier id) override;
+  void remove(Identifier id) override;
 
   void flush() override;
 
 public:
   static Glib::RefPtr<Gio::File> defaultFile();
 
-  using ProfileMap = std::map<Profile::Identifier, Profile>;
+  using ProfileMap = std::map<Identifier, Profile>;
 
   const ProfileMap& profileMap() const
     { return pmap_; }
@@ -54,7 +55,7 @@ public:
 protected:
   Glib::RefPtr<Gio::File> file_;
   ProfileMap pmap_;
-  std::vector<Profile::Identifier> porder_;
+  std::vector<Identifier> porder_;
   bool pending_import_;
   bool import_error_;
   bool pending_export_;
@@ -64,4 +65,4 @@ protected:
   void exportProfiles();
 };
 
-#endif//GMetronome_ProfileIOLocalXml_h
+#endif//GMetronome_ProfileListStoreXML_h

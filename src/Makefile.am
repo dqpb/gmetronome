@@ -23,9 +23,7 @@ gmetronome_SOURCES = \
 	Pendulum.cpp \
 	Physics.cpp \
 	Profile.cpp \
-	ProfileIOBase.cpp \
-	ProfileIOLocalXml.cpp \
-	ProfileListStore.cpp \
+	ProfileListStoreXML.cpp \
 	ProfileManager.cpp \
 	Settings.cpp \
 	SettingsDialog.cpp \
@@ -66,6 +64,7 @@ noinst_HEADERS = \
 	Filter.h \
 	Generator.h \
 	LCD.h \
+	ListStore.h \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
@@ -75,9 +74,7 @@ noinst_HEADERS = \
 	Pendulum.h \
 	Physics.h \
 	Profile.h \
-	ProfileIOBase.h \
-	ProfileIOLocalXml.h \
-	ProfileListStore.h \
+	ProfileListStoreXML.h \
 	ProfileManager.h \
 	ProfileVariant.h \
 	PulseAudio.h \
