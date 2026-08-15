@@ -178,9 +178,9 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     tone_attack_shape_button_{ShapeButton::Mode::kAttack},
     tone_hold_shape_button_{ShapeButton::Mode::kHold},
     tone_decay_shape_button_{ShapeButton::Mode::kDecay},
-    percussion_attack_shape_button_{ShapeButton::Mode::kAttack},
-    percussion_hold_shape_button_{ShapeButton::Mode::kHold},
-    percussion_decay_shape_button_{ShapeButton::Mode::kDecay}
+    noise_attack_shape_button_{ShapeButton::Mode::kAttack},
+    noise_hold_shape_button_{ShapeButton::Mode::kHold},
+    noise_decay_shape_button_{ShapeButton::Mode::kDecay}
 {
   builder_->get_widget("mainBox", main_box_);
   builder_->get_widget("parametersFrame", parameters_frame_);
@@ -192,9 +192,9 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("toneAttackBox", tone_attack_box_);
   builder_->get_widget("toneHoldBox", tone_hold_box_);
   builder_->get_widget("toneDecayBox", tone_decay_box_);
-  builder_->get_widget("percussionAttackBox", percussion_attack_box_);
-  builder_->get_widget("percussionHoldBox", percussion_hold_box_);
-  builder_->get_widget("percussionDecayBox", percussion_decay_box_);
+  builder_->get_widget("noiseAttackBox", noise_attack_box_);
+  builder_->get_widget("noiseHoldBox", noise_hold_box_);
+  builder_->get_widget("noiseDecayBox", noise_decay_box_);
   builder_->get_widget("panScale", pan_scale_);
   builder_->get_widget("volumeScale", volume_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
@@ -211,14 +211,14 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneHoldAdjustment"));
   tone_decay_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("toneDecayAdjustment"));
-  percussion_cutoff_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionCutoffAdjustment"));
-  percussion_attack_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionAttackAdjustment"));
-  percussion_hold_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionHoldAdjustment"));
-  percussion_decay_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("percussionDecayAdjustment"));
+  noise_cutoff_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("noiseCutoffAdjustment"));
+  noise_attack_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("noiseAttackAdjustment"));
+  noise_hold_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("noiseHoldAdjustment"));
+  noise_decay_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("noiseDecayAdjustment"));
   mix_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("mixAdjustment"));
   pan_adjustment_ =
@@ -229,16 +229,16 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   tone_attack_box_->pack_start(tone_attack_shape_button_, Gtk::PACK_SHRINK);
   tone_hold_box_->pack_start(tone_hold_shape_button_, Gtk::PACK_SHRINK);
   tone_decay_box_->pack_start(tone_decay_shape_button_, Gtk::PACK_SHRINK);
-  percussion_attack_box_->pack_start(percussion_attack_shape_button_, Gtk::PACK_SHRINK);
-  percussion_hold_box_->pack_start(percussion_hold_shape_button_, Gtk::PACK_SHRINK);
-  percussion_decay_box_->pack_start(percussion_decay_shape_button_, Gtk::PACK_SHRINK);
+  noise_attack_box_->pack_start(noise_attack_shape_button_, Gtk::PACK_SHRINK);
+  noise_hold_box_->pack_start(noise_hold_shape_button_, Gtk::PACK_SHRINK);
+  noise_decay_box_->pack_start(noise_decay_shape_button_, Gtk::PACK_SHRINK);
 
   tone_attack_shape_button_.show();
   tone_hold_shape_button_.show();
   tone_decay_shape_button_.show();
-  percussion_attack_shape_button_.show();
-  percussion_hold_shape_button_.show();
-  percussion_decay_shape_button_.show();
+  noise_attack_shape_button_.show();
+  noise_hold_shape_button_.show();
+  noise_decay_shape_button_.show();
 
   strong_accent_drawing_.setAccentState(kAccentStrong);
   mid_accent_drawing_.setAccentState(kAccentMid);
@@ -376,20 +376,20 @@ void SoundThemeEditor::bindSoundProperties()
                           tone_decay_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemeToneDecayShape,
                           tone_decay_shape_button_.property_shape());
-    sound_settings_->bind(settings::kKeySoundThemePercussionCutoff,
-                          percussion_cutoff_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemePercussionAttack,
-                          percussion_attack_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemePercussionAttackShape,
-                          percussion_attack_shape_button_.property_shape());
-    sound_settings_->bind(settings::kKeySoundThemePercussionHold,
-                          percussion_hold_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemePercussionHoldShape,
-                          percussion_hold_shape_button_.property_shape());
-    sound_settings_->bind(settings::kKeySoundThemePercussionDecay,
-                          percussion_decay_adjustment_->property_value());
-    sound_settings_->bind(settings::kKeySoundThemePercussionDecayShape,
-                          percussion_decay_shape_button_.property_shape());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseCutoff,
+                          noise_cutoff_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseAttack,
+                          noise_attack_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseAttackShape,
+                          noise_attack_shape_button_.property_shape());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseHold,
+                          noise_hold_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseHoldShape,
+                          noise_hold_shape_button_.property_shape());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseDecay,
+                          noise_decay_adjustment_->property_value());
+    sound_settings_->bind(settings::kKeySoundThemeNoiseDecayShape,
+                          noise_decay_shape_button_.property_shape());
     sound_settings_->bind(settings::kKeySoundThemeMix,
                           mix_adjustment_->property_value());
     sound_settings_->bind(settings::kKeySoundThemePan,
@@ -416,13 +416,13 @@ void SoundThemeEditor::unbindSoundProperties()
   unbindProperty(tone_hold_shape_button_.property_shape());
   unbindProperty(tone_decay_adjustment_->property_value());
   unbindProperty(tone_decay_shape_button_.property_shape());
-  unbindProperty(percussion_cutoff_adjustment_->property_value());
-  unbindProperty(percussion_attack_adjustment_->property_value());
-  unbindProperty(percussion_attack_shape_button_.property_shape());
-  unbindProperty(percussion_hold_adjustment_->property_value());
-  unbindProperty(percussion_hold_shape_button_.property_shape());
-  unbindProperty(percussion_decay_adjustment_->property_value());
-  unbindProperty(percussion_decay_shape_button_.property_shape());
+  unbindProperty(noise_cutoff_adjustment_->property_value());
+  unbindProperty(noise_attack_adjustment_->property_value());
+  unbindProperty(noise_attack_shape_button_.property_shape());
+  unbindProperty(noise_hold_adjustment_->property_value());
+  unbindProperty(noise_hold_shape_button_.property_shape());
+  unbindProperty(noise_decay_adjustment_->property_value());
+  unbindProperty(noise_decay_shape_button_.property_shape());
   unbindProperty(mix_adjustment_->property_value());
   unbindProperty(pan_adjustment_->property_value());
   unbindProperty(volume_adjustment_->property_value());
@@ -501,13 +501,13 @@ namespace {
     {settings::kKeySoundThemeToneDecay,       G_TYPE_DOUBLE},
     {settings::kKeySoundThemeToneDecayShape,  G_TYPE_ENUM},
 
-    {settings::kKeySoundThemePercussionCutoff,      G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionAttack,      G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionAttackShape, G_TYPE_ENUM},
-    {settings::kKeySoundThemePercussionHold,        G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionHoldShape,   G_TYPE_ENUM},
-    {settings::kKeySoundThemePercussionDecay,       G_TYPE_DOUBLE},
-    {settings::kKeySoundThemePercussionDecayShape,  G_TYPE_ENUM},
+    {settings::kKeySoundThemeNoiseCutoff,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeNoiseAttack,      G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeNoiseAttackShape, G_TYPE_ENUM},
+    {settings::kKeySoundThemeNoiseHold,        G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeNoiseHoldShape,   G_TYPE_ENUM},
+    {settings::kKeySoundThemeNoiseDecay,       G_TYPE_DOUBLE},
+    {settings::kKeySoundThemeNoiseDecayShape,  G_TYPE_ENUM},
 
     {settings::kKeySoundThemeMix,    G_TYPE_DOUBLE},
     {settings::kKeySoundThemePan,    G_TYPE_DOUBLE},

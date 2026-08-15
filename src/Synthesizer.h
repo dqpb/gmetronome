@@ -59,18 +59,23 @@ namespace audio {
     float             tone_decay        {10.0f};                       // [0.0f, 20.0f] (ms)
     EnvelopeRampShape tone_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float             percussion_cutoff       {1000.0f};               // [40.0f, 10000.0f] (hertz)
-    float             percussion_attack       {10.0f};                 // [0.0f, 20.0f] (ms)
-    EnvelopeRampShape percussion_attack_shape {EnvelopeRampShape::kLinear};
-    float             percussion_hold         {10.0};                  // [0.0f, 20.0f] (ms)
-    EnvelopeHoldShape percussion_hold_shape   {EnvelopeHoldShape::kKeep};
-    float             percussion_decay        {10.0f};                 // [0.0f, 20.0f] (ms)
-    EnvelopeRampShape percussion_decay_shape  {EnvelopeRampShape::kLinear};
+    float             noise_cutoff       {1000.0f};                    // [40.0f, 10000.0f] (hertz)
+    float             noise_attack       {10.0f};                      // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape noise_attack_shape {EnvelopeRampShape::kLinear};
+    float             noise_hold         {10.0};                       // [0.0f, 20.0f] (ms)
+    EnvelopeHoldShape noise_hold_shape   {EnvelopeHoldShape::kKeep};
+    float             noise_decay        {10.0f};                      // [0.0f, 20.0f] (ms)
+    EnvelopeRampShape noise_decay_shape  {EnvelopeRampShape::kLinear};
 
     float mix     {-100.0f}; // [-100.0f, 100.0f] (percent)
     float pan     {0.0f};    // [-100.0f, 100.0f] (percent)
     float volume  {75.0f};   // [   0.0f, 100.0f] (percent)
   };
+
+  // clamp SoundParameter values to the valid range
+  void clampSoundParameters(SoundParameters& params);
+  void clampEnvelopeRampShape(EnvelopeRampShape& shape);
+  void clampEnvelopeHoldShape(EnvelopeHoldShape& shape);
 
   /**
    * Without mixing capabilities the time gap between two consecutive clicks

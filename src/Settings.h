@@ -206,13 +206,13 @@ namespace settings {
   inline const Glib::ustring  kKeySoundThemeToneHoldShape         {"tone-hold-shape"};
   inline const Glib::ustring  kKeySoundThemeToneDecay             {"tone-decay"};
   inline const Glib::ustring  kKeySoundThemeToneDecayShape        {"tone-decay-shape"};
-  inline const Glib::ustring  kKeySoundThemePercussionCutoff      {"percussion-cutoff"};
-  inline const Glib::ustring  kKeySoundThemePercussionAttack      {"percussion-attack"};
-  inline const Glib::ustring  kKeySoundThemePercussionAttackShape {"percussion-attack-shape"};
-  inline const Glib::ustring  kKeySoundThemePercussionHold        {"percussion-hold"};
-  inline const Glib::ustring  kKeySoundThemePercussionHoldShape   {"percussion-hold-shape"};
-  inline const Glib::ustring  kKeySoundThemePercussionDecay       {"percussion-decay"};
-  inline const Glib::ustring  kKeySoundThemePercussionDecayShape  {"percussion-decay-shape"};
+  inline const Glib::ustring  kKeySoundThemeNoiseCutoff           {"percussion-cutoff"};
+  inline const Glib::ustring  kKeySoundThemeNoiseAttack           {"percussion-attack"};
+  inline const Glib::ustring  kKeySoundThemeNoiseAttackShape      {"percussion-attack-shape"};
+  inline const Glib::ustring  kKeySoundThemeNoiseHold             {"percussion-hold"};
+  inline const Glib::ustring  kKeySoundThemeNoiseHoldShape        {"percussion-hold-shape"};
+  inline const Glib::ustring  kKeySoundThemeNoiseDecay            {"percussion-decay"};
+  inline const Glib::ustring  kKeySoundThemeNoiseDecayShape       {"percussion-decay-shape"};
   inline const Glib::ustring  kKeySoundThemeMix                   {"mix"};
   inline const Glib::ustring  kKeySoundThemePan                   {"pan"};
   inline const Glib::ustring  kKeySoundThemeVolume                {"volume"};
@@ -263,8 +263,7 @@ namespace settings {
 
 }//namespace settings
 
-#include "SettingsList.h"
-#include "SoundTheme.h"
+#include "SoundThemeSettingsList.h"
 
 namespace settings {
   /*

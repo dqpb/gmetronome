@@ -30,35 +30,35 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="panAdjustment">
-    <property name="lower">-100</property>
-    <property name="upper">100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="percussionAttackAdjustment">
+  <object class="GtkAdjustment" id="noiseAttackAdjustment">
     <property name="upper">20</property>
     <property name="value">5</property>
     <property name="step-increment">1</property>
     <property name="page-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="percussionCutoffAdjustment">
+  <object class="GtkAdjustment" id="noiseCutoffAdjustment">
     <property name="lower">40</property>
     <property name="upper">10000</property>
     <property name="step-increment">1</property>
     <property name="page-increment">100</property>
   </object>
-  <object class="GtkAdjustment" id="percussionDecayAdjustment">
+  <object class="GtkAdjustment" id="noiseDecayAdjustment">
     <property name="upper">20</property>
     <property name="value">5</property>
     <property name="step-increment">1</property>
     <property name="page-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="percussionHoldAdjustment">
+  <object class="GtkAdjustment" id="noiseHoldAdjustment">
     <property name="upper">20</property>
     <property name="value">5</property>
     <property name="step-increment">1</property>
     <property name="page-increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="panAdjustment">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="toneAttackAdjustment">
     <property name="upper">20</property>
@@ -452,7 +452,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="halign">start</property>
                             <property name="label" translatable="yes" context="Sound theme editor">Attack:</property>
                             <property name="use-underline">True</property>
-                            <property name="mnemonic-widget">percussionAttackScale</property>
+                            <property name="mnemonic-widget">noiseAttackScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -466,7 +466,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="halign">start</property>
                             <property name="label" translatable="yes" context="Sound theme editor">Decay:</property>
                             <property name="use-underline">True</property>
-                            <property name="mnemonic-widget">percussionDecayScale</property>
+                            <property name="mnemonic-widget">noiseDecayScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -480,7 +480,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="halign">start</property>
                             <property name="label" translatable="yes" context="Sound theme editor">Cutoff:</property>
                             <property name="use-underline">True</property>
-                            <property name="mnemonic-widget">percussionCutoffScale</property>
+                            <property name="mnemonic-widget">noiseCutoffScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -488,12 +488,12 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkScale" id="percussionCutoffScale">
+                          <object class="GtkScale" id="noiseCutoffScale">
                             <property name="width-request">180</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="hexpand">True</property>
-                            <property name="adjustment">percussionCutoffAdjustment</property>
+                            <property name="adjustment">noiseCutoffAdjustment</property>
                             <property name="restrict-to-fill-level">False</property>
                             <property name="fill-level">1</property>
                             <property name="round-digits">1</property>
@@ -506,15 +506,15 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="percussionAttackBox">
+                          <object class="GtkBox" id="noiseAttackBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale" id="percussionAttackScale">
+                              <object class="GtkScale" id="noiseAttackScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="adjustment">percussionAttackAdjustment</property>
+                                <property name="adjustment">noiseAttackAdjustment</property>
                                 <property name="restrict-to-fill-level">False</property>
                                 <property name="fill-level">1</property>
                                 <property name="round-digits">1</property>
@@ -537,15 +537,15 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="percussionDecayBox">
+                          <object class="GtkBox" id="noiseDecayBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale" id="percussionDecayScale">
+                              <object class="GtkScale" id="noiseDecayScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="adjustment">percussionDecayAdjustment</property>
+                                <property name="adjustment">noiseDecayAdjustment</property>
                                 <property name="restrict-to-fill-level">False</property>
                                 <property name="fill-level">1</property>
                                 <property name="round-digits">1</property>
@@ -571,7 +571,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes" context="Sound theme editor">Percussion</property>
+                            <property name="label" translatable="yes" context="Sound theme editor">Noise</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
                             </attributes>
@@ -583,15 +583,15 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="percussionHoldBox">
+                          <object class="GtkBox" id="noiseHoldBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkScale" id="percussionHoldScale">
+                              <object class="GtkScale" id="noiseHoldScale">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="adjustment">percussionHoldAdjustment</property>
+                                <property name="adjustment">noiseHoldAdjustment</property>
                                 <property name="restrict-to-fill-level">False</property>
                                 <property name="fill-level">0</property>
                                 <property name="round-digits">1</property>
@@ -620,7 +620,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                             <property name="halign">start</property>
                             <property name="label" translatable="yes" context="Sound theme editor">Hold:</property>
                             <property name="use-underline">True</property>
-                            <property name="mnemonic-widget">percussionHoldScale</property>
+                            <property name="mnemonic-widget">noiseHoldScale</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>

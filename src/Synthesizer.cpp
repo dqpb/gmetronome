@@ -34,6 +34,62 @@
 
 namespace audio {
 
+  void clampSoundParameters(SoundParameters& p)
+  {
+    p.tone_pitch  = std::clamp(p.tone_pitch,      40.0f, 10000.0f);     // hertz
+    p.tone_timbre = std::clamp(p.tone_timbre,      0.0f,     3.0f);     //
+    p.tone_detune = std::clamp(p.tone_detune,      0.0f,   100.0f);     // cents
+
+    p.tone_attack = std::clamp(p.tone_attack,      0.0f,    20.0f);     // ms
+    clampEnvelopeRampShape(p.tone_attack_shape);
+
+    p.tone_hold   = std::clamp(p.tone_hold,        0.0f,    20.0f);     // ms
+    clampEnvelopeHoldShape(p.tone_hold_shape);
+
+    p.tone_decay  = std::clamp(p.tone_decay,       0.0f,    20.0f);     // ms
+    clampEnvelopeRampShape(p.tone_decay_shape);
+
+    p.noise_cutoff = std::clamp(p.noise_cutoff,   40.0f, 10000.0f);     // hertz
+
+    p.noise_attack = std::clamp(p.noise_attack,    0.0f,    20.0f);     // ms
+    clampEnvelopeRampShape(p.noise_attack_shape);
+
+    p.noise_hold   = std::clamp(p.noise_hold,      0.0f,    20.0f);     // ms
+    clampEnvelopeHoldShape(p.noise_hold_shape);
+
+    p.noise_decay  = std::clamp(p.noise_decay,     0.0f,    20.0f);     // ms
+    clampEnvelopeRampShape(p.noise_decay_shape);
+
+    p.mix    = std::clamp(p.mix,   -100.0f, 100.0f);   // percent
+    p.pan    = std::clamp(p.pan,   -100.0f, 100.0f);   // percent
+    p.volume = std::clamp(p.volume,   0.0f, 100.0f);   // percent
+  }
+
+  void clampEnvelopeRampShape(EnvelopeRampShape& shape)
+  {
+    switch (shape) {
+    case EnvelopeRampShape::kLinear:
+    case EnvelopeRampShape::kCubic:
+    case EnvelopeRampShape::kCubicFlipped:
+      break;
+    default:
+      shape = EnvelopeRampShape::kLinear;
+      break;
+    }
+  }
+
+  void clampEnvelopeHoldShape(EnvelopeHoldShape& shape)
+  {
+    switch (shape) {
+    case EnvelopeHoldShape::kKeep:
+    case EnvelopeHoldShape::kQuartic:
+      break;
+    default:
+      shape = EnvelopeHoldShape::kKeep;
+      break;
+    }
+  }
+
   Synthesizer::Synthesizer(const StreamSpec& spec)
     : spec_{SampleFormat::kUnknown, 0, 0}
   {
@@ -107,13 +163,13 @@ namespace audio {
     float osc_decay          = std::clamp(params.tone_decay, 0.0f, 20.0f);
     auto  osc_decay_shape    = params.tone_decay_shape;
 
-    float noise_cutoff       = std::clamp(params.percussion_cutoff, 40.0f, 10000.0f);
-    float noise_attack       = std::clamp(params.percussion_attack, 0.0f, 20.0f);
-    auto  noise_attack_shape = params.percussion_attack_shape;
-    float noise_hold         = std::clamp(params.percussion_hold, 0.0f, 20.0f);
-    auto  noise_hold_shape   = params.percussion_hold_shape;
-    float noise_decay        = std::clamp(params.percussion_decay, 0.0f, 20.0f);
-    auto  noise_decay_shape  = params.percussion_decay_shape;
+    float noise_cutoff       = std::clamp(params.noise_cutoff, 40.0f, 10000.0f);
+    float noise_attack       = std::clamp(params.noise_attack, 0.0f, 20.0f);
+    auto  noise_attack_shape = params.noise_attack_shape;
+    float noise_hold         = std::clamp(params.noise_hold, 0.0f, 20.0f);
+    auto  noise_hold_shape   = params.noise_hold_shape;
+    float noise_decay        = std::clamp(params.noise_decay, 0.0f, 20.0f);
+    auto  noise_decay_shape  = params.noise_decay_shape;
 
     float mix    = std::clamp(params.mix, -100.0f, 100.0f);
     float pan    = std::clamp(params.pan, -100.0f, 100.0f);
