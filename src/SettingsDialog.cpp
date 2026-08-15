@@ -415,15 +415,16 @@ void SettingsDialog::onSoundThemeAdd()
       // duplicate the selected sound theme
       auto theme = settings::soundThemes()->get(theme_id);
 
-      theme.title = MainWindow::duplicateDocumentTitle(theme.title,
-                                                       sound_theme_title_duplicate_,
-                                                       sound_theme_title_placeholder_);
+      theme.header.title = MainWindow::duplicateDocumentTitle(theme.header.title,
+                                                              sound_theme_title_duplicate_,
+                                                              sound_theme_title_placeholder_);
 
       theme_id = settings::soundThemes()->append(theme);
     }
     else
     {
-      SoundTheme new_theme {sound_theme_title_new_};
+      SoundTheme new_theme;
+      new_theme.header.title = {sound_theme_title_new_};
       theme_id = settings::soundThemes()->append(new_theme);
     }
 
