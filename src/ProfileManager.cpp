@@ -40,7 +40,7 @@ void ProfileManager::setIOModule(std::unique_ptr<ListStoreType> ptr)
 }
 
 auto ProfileManager::newProfile(const Profile::Header& header,
-                                const Profile::Content& content) -> ListStoreType::Primer
+                                const Profile::Content& content) -> Primer
 {
   gchar* uuid = g_uuid_string_random();
   Profile::Identifier id {uuid};
@@ -77,7 +77,7 @@ void ProfileManager::deleteProfile(const Profile::Identifier& id)
   }
 }
 
-auto ProfileManager::profileList() -> std::vector<ListStoreType::Primer>
+auto ProfileManager::profileList() -> std::vector<Primer>
 {
   try {
     return io_->list();

@@ -28,6 +28,7 @@
 class ProfileManager {
 public:
   using ListStoreType = ListStore<Profile, Profile::Identifier, Profile::Header>;
+  using Primer = ListStoreType::Primer;
 
   ProfileManager(std::unique_ptr<ListStoreType> ptr = nullptr);
 
@@ -37,12 +38,12 @@ public:
 
   void setIOModule(std::unique_ptr<ListStoreType> ptr);
 
-  ListStoreType::Primer newProfile(const Profile::Header& header = {},
-                                   const Profile::Content& content = {});
+  Primer newProfile(const Profile::Header& header = {},
+                    const Profile::Content& content = {});
 
   void deleteProfile(const Profile::Identifier& id);
 
-  std::vector<ListStoreType::Primer> profileList();
+  std::vector<Primer> profileList();
 
   Profile getProfile(const Profile::Identifier& id);
 
