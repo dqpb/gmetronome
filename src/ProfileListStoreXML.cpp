@@ -37,12 +37,11 @@
 
 namespace {
 
-  constexpr int kConvBufSize = 50;
-
   template<class T>
   std::string numberToString(const T& value)
   {
 #ifdef HAVE_CPP_LIB_TO_CHARS
+    constexpr int kConvBufSize = 50;
     std::array<char,kConvBufSize> str;
     if(auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), value);
        ec == std::errc())
