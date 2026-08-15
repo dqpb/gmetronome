@@ -831,6 +831,105 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkPopover" id="volumePopover">
+    <property name="can-focus">False</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-start">2</property>
+        <property name="margin-end">2</property>
+        <property name="margin-top">2</property>
+        <property name="margin-bottom">2</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkButton" id="volumePlusButton">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">list-add-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="volumeScale">
+            <property name="height-request">100</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="orientation">vertical</property>
+            <property name="adjustment">volumeAdjustment</property>
+            <property name="inverted">True</property>
+            <property name="restrict-to-fill-level">False</property>
+            <property name="fill-level">0</property>
+            <property name="round-digits">2</property>
+            <property name="draw-value">False</property>
+            <property name="has-origin">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="volumeMinusButton">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">list-remove-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkToggleButton" id="volumeMuteButton">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">app.volume-mute</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">gm-snd-volume-muted-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkApplicationWindow" id="mainWindow">
     <property name="name">mainWindow</property>
     <property name="can-focus">False</property>
@@ -1705,25 +1804,56 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkVolumeButton" id="volumeButton">
+                          <object class="GtkMenuButton" id="volumeMenuButton">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="focus-on-click">False</property>
                             <property name="receives-default">True</property>
                             <property name="relief">none</property>
-                            <property name="orientation">vertical</property>
-                            <property name="adjustment">volumeAdjustment</property>
-                            <property name="icons">
-</property>
-                            <child internal-child="plus_button">
-                              <object class="GtkButton">
+                            <property name="direction">up</property>
+                            <property name="popover">volumePopover</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="receives-default">False</property>
-                              </object>
-                            </child>
-                            <child internal-child="minus_button">
-                              <object class="GtkButton">
-                                <property name="can-focus">False</property>
-                                <property name="receives-default">False</property>
+                                <property name="spacing">2</property>
+                                <child>
+                                  <object class="GtkImage" id="volumeButtonIcon">
+                                    <property name="name">volumeButtonIcon</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">gm-snd-volume-muted-symbolic</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkRevealer" id="volumeButtonRevealer">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="transition-type">slide-left</property>
+                                    <child>
+                                      <object class="GtkLabel" id="volumeButtonLabel">
+                                        <property name="name">volumeButtonLabel</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label">100</property>
+                                        <property name="justify">center</property>
+                                        <property name="width-chars">3</property>
+                                        <property name="max-width-chars">3</property>
+                                        <property name="track-visited-links">False</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                             </child>
                           </object>

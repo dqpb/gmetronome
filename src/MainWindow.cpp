@@ -184,7 +184,13 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   builder_->get_widget("infoDetailsLabel", info_details_label_);
   builder_->get_widget("infoDetailsExpander", info_details_expander_);
   builder_->get_widget("mainContentBox", main_content_box_);
-  builder_->get_widget("volumeButton", volume_button_);
+  builder_->get_widget("volumeMenuButton", volume_menu_button_);
+  builder_->get_widget("volumeButtonRevealer", volume_button_revealer_);
+  builder_->get_widget("volumeButtonIcon", volume_button_icon_);
+  builder_->get_widget("volumeButtonLabel", volume_button_label_);
+  builder_->get_widget("volumePopover", volume_popover_);
+  builder_->get_widget("volumePlusButton", volume_plus_button_);
+  builder_->get_widget("volumeMinusButton", volume_minus_button_);
   builder_->get_widget("startButton", start_button_);
   builder_->get_widget("trainerToggleButton", trainer_toggle_button_);
   builder_->get_widget("accentToggleButton", accent_toggle_button_);
@@ -244,6 +250,9 @@ MainWindow::MainWindow(BaseObjectType* cobject,
 
   beats_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
     ::cast_dynamic(builder_->get_object("beatsAdjustment"));
+
+  volume_adjustment_ = Glib::RefPtr<Gtk::Adjustment>
+    ::cast_dynamic(builder_->get_object("volumeAdjustment"));
 
   accent_button_grid_.set_name("accentButtonGrid");
   accent_button_grid_.set_margin_start(20);
@@ -366,7 +375,9 @@ void MainWindow::initUI()
   count_in_menu_button_box_->pack_start(count_in_menu_button_label_);
   updateCountIn(0);
   updateStartButtonLabel(false);
-  updateVolumeMute(false);
+  updateVolume(app_->queryVolume());
+  updateVolumeMute(app_->queryVolumeMute());
+  volume_button_revealer_->set_reveal_child(false);
 
   // initialize profile list
   updateProfileList(app_->queryProfileList());
@@ -392,7 +403,7 @@ void MainWindow::initBindings()
     .connect(sigc::mem_fun(*this, &MainWindow::onSettingsPrefsChanged));
 
   settings::sound()->bind(settings::kKeySoundVolume,
-                          volume_button_,
+                          volume_adjustment_.get(),
                           "value",
                           Gio::SETTINGS_BIND_DEFAULT);
 
@@ -527,6 +538,25 @@ void MainWindow::initBindings()
       button->signal_toggled().connect(
         sigc::bind(sigc::mem_fun(*this, &MainWindow::onCountInChanged), button_id++))
       );
+
+  volume_plus_button_->signal_clicked()
+    .connect(sigc::mem_fun(*this, &MainWindow::onVolumePlus));
+
+  volume_minus_button_->signal_clicked()
+    .connect(sigc::mem_fun(*this, &MainWindow::onVolumeMinus));
+
+  volume_menu_button_->add_events(Gdk::SCROLL_MASK);
+
+  volume_menu_button_->signal_scroll_event()
+    .connect(sigc::mem_fun(*this, &MainWindow::onVolumeScroll));
+
+  volume_menu_button_->signal_toggled().connect(
+    [this] () {
+      if (volume_menu_button_->get_active())
+        volume_button_revealer_->set_reveal_child(true);
+      else if (!volume_label_hide_timer_connection_.connected())
+        volume_button_revealer_->set_reveal_child(false);
+    });
 
   app_->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
@@ -1173,6 +1203,61 @@ void MainWindow::onCountInChanged(std::size_t id)
   }
 }
 
+void MainWindow::onVolumePlus()
+{
+  double volume = app_->queryVolume();
+  double page_increment = volume_adjustment_->property_page_increment();
+  volume_adjustment_->set_value(volume + page_increment);
+}
+
+void MainWindow::onVolumeMinus()
+{
+  double volume = app_->queryVolume();
+  double page_increment = volume_adjustment_->property_page_increment();
+  volume_adjustment_->set_value(volume - page_increment);
+}
+
+bool MainWindow::onVolumeScroll(GdkEventScroll* event)
+{
+  double volume = app_->queryVolume();
+  double increment = 1; //volume_adjustment_->property_page_increment();
+
+  if (event->direction == GDK_SCROLL_UP)
+  {
+    if (volume_adjustment_->get_value() >= settings::kMaxVolume)
+      revealVolumeLabel();
+    else
+      volume_adjustment_->set_value(volume + increment);
+  }
+  else if (event->direction == GDK_SCROLL_DOWN)
+  {
+    if (volume_adjustment_->get_value() <= settings::kMinVolume)
+      revealVolumeLabel();
+    else
+      volume_adjustment_->set_value(volume - increment);
+  }
+  return true;
+}
+
+void MainWindow::revealVolumeLabel()
+{
+  volume_button_revealer_->set_reveal_child(true);
+
+  volume_label_hide_timer_connection_.disconnect();
+  volume_label_hide_timer_connection_ = Glib::signal_timeout().connect(
+    [this]() -> bool {
+
+      std::cout << "Timer fired!" << std::endl;
+
+      if (!volume_menu_button_->get_active())
+        volume_button_revealer_->set_reveal_child(false);
+
+      return false;
+    },
+    2000 // ms
+    );
+}
+
 void MainWindow::onProfileSelectionChanged()
 {
   Glib::ustring id;
@@ -1315,6 +1400,10 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
     Glib::ustring title = app_->queryProfileTitle();
 
     updateProfileTitle(title, !id.empty());
+  }
+  else if (action_name.compare(kActionVolume) == 0)
+  {
+    updateVolume(app_->queryVolume());
   }
   else if (action_name.compare(kActionVolumeMute) == 0)
   {
@@ -1506,26 +1595,52 @@ void MainWindow::updateStartButtonLabel(bool running)
     start_button_->set_label(C_("Main window", "Start"));
 }
 
+void MainWindow::updateVolume(double volume)
+{
+  volume_adjustment_->set_value(volume);
+
+  int volume_int = static_cast<int>(std::round(volume));
+  volume_button_label_->set_text(Glib::ustring::format(volume_int));
+
+  if (volume_int >= settings::kMaxVolume) {
+    volume_minus_button_->set_sensitive(true);
+    volume_plus_button_->set_sensitive(false);
+
+    volume_button_icon_->set_from_icon_name("gm-snd-volume-full-symbolic",
+                                            Gtk::ICON_SIZE_BUTTON);
+  }
+  else if (volume_int <= settings::kMinVolume) {
+    volume_minus_button_->set_sensitive(false);
+    volume_plus_button_->set_sensitive(true);
+
+    volume_button_icon_->set_from_icon_name("gm-snd-volume-zero-symbolic",
+                                            Gtk::ICON_SIZE_BUTTON);
+  }
+  else {
+    volume_minus_button_->set_sensitive(true);
+    volume_plus_button_->set_sensitive(true);
+
+    if (volume > 100 / 3 * 2)
+      volume_button_icon_->set_from_icon_name("gm-snd-volume-high-symbolic",
+                                              Gtk::ICON_SIZE_BUTTON);
+    else if (volume > 100 / 3)
+      volume_button_icon_->set_from_icon_name("gm-snd-volume-medium-symbolic",
+                                              Gtk::ICON_SIZE_BUTTON);
+    else if (volume > 0)
+      volume_button_icon_->set_from_icon_name("gm-snd-volume-low-symbolic",
+                                              Gtk::ICON_SIZE_BUTTON);
+  }
+  revealVolumeLabel();
+}
+
 void MainWindow::updateVolumeMute(bool mute)
 {
-  static const std::vector<Glib::ustring> icons_muted = {
-    "gm-snd-volume-muted-symbolic"
-  };
-  static const std::vector<Glib::ustring> icons_unmuted = {
-    "gm-snd-volume-zero-symbolic",
-    "gm-snd-volume-full-symbolic",
-    "gm-snd-volume-low-symbolic",
-    "gm-snd-volume-medium-symbolic",
-    "gm-snd-volume-high-symbolic"
-  };
-
-  if (mute)
-  {
-    volume_button_->set_icons(icons_muted);
-  }
-  else
-  {
-    volume_button_->set_icons(icons_unmuted);
+  if (mute) {
+    volume_button_icon_->set_from_icon_name("gm-snd-volume-muted-symbolic",
+                                            Gtk::ICON_SIZE_BUTTON);
+  } else {
+    double volume = app_->queryVolume();
+    updateVolume(volume);
   }
 }
 
