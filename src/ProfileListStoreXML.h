@@ -20,49 +20,79 @@
 #ifndef GMetronome_ProfileListStoreXML_h
 #define GMetronome_ProfileListStoreXML_h
 
+#include "ListStoreXML.h"
 #include "Profile.h"
-#include "ListStore.h"
-#include <gtkmm.h>
-#include <map>
+#include "Meter.h"
 
-class ProfileListStoreXML : public ListStore<Profile, Profile::Identifier, Profile::Header>
+#include <glibmm/ustring.h>
+#include <string>
+#include <stack>
+
+/**
+ * @class ProfileParser
+ */
+class ProfileParser : public ListStoreXMLParser<Profile, Profile::Identifier> {
+public:
+  ProfileParser() = default;
+  ProfileParser(ProfileParser&& other) = default;
+  ProfileParser& operator=(ProfileParser&& other) = default;
+  ~ProfileParser() override = default;
+
+  EntryMap moveMap() override
+    { return std::move(pmap_); }
+  OrderVector moveOrder() override
+    { return std::move(porder_); }
+
+private:
+  EntryMap pmap_;
+  OrderVector porder_;
+  Profile* current_profile_{nullptr};
+  Meter* current_meter_{nullptr};
+  int current_meter_division_{0};
+  int current_meter_beats_{0};
+  AccentPattern current_meter_accents_;
+  std::stack<Glib::ustring> current_block_;
+
+private:
+  void on_start_element (Glib::Markup::ParseContext& context,
+                         const Glib::ustring& element_name,
+                         const AttributeMap& attributes) override;
+
+  void on_end_element (Glib::Markup::ParseContext& context,
+                       const Glib::ustring& element_name) override;
+
+  void on_text (Glib::Markup::ParseContext& context,
+                const Glib::ustring& text) override;
+};
+
+/**
+ * @class ProfileWriter
+ */
+class ProfileWriter : public ListStoreXMLWriter<Profile, Profile::Identifier> {
+public:
+  const std::string& topLevelElementName() const override
+    { return kTopLevelElementName; }
+
+  void writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                  const Profile& profile,
+                  const Identifier& id) override;
+private:
+  inline static const std::string kTopLevelElementName {"profiles"};
+};
+
+/**
+ * @class ProfileListStoreXML
+ */
+struct ProfileListStoreXML
+  : public ListStoreXML<Profile,
+                        Profile::Identifier,
+                        Profile::Header,
+                        ProfileParser,
+                        ProfileWriter>
 {
-public:
-  ProfileListStoreXML(Glib::RefPtr<Gio::File> file = defaultFile());
-
-  ~ProfileListStoreXML() override;
-
-  std::vector<Primer> list() override;
-
-  Profile load(Identifier id) override;
-
-  void store(Identifier id, const Profile& profile) override;
-
-  void reorder(const std::vector<Identifier>& order) override;
-
-  void remove(Identifier id) override;
-
-  void flush() override;
-
-public:
-  static Glib::RefPtr<Gio::File> defaultFile();
-
-  using ProfileMap = std::map<Identifier, Profile>;
-
-  const ProfileMap& profileMap() const
-    { return pmap_; }
-
-protected:
-  Glib::RefPtr<Gio::File> file_;
-  ProfileMap pmap_;
-  std::vector<Identifier> porder_;
-  bool pending_import_;
-  bool import_error_;
-  bool pending_export_;
-  bool export_error_;
-
-  void importProfiles();
-  void exportProfiles();
+  ProfileListStoreXML(std::string path, std::string import_path = "")
+    : ListStoreXML(path, import_path)
+  { /* nothing */ }
 };
 
 #endif//GMetronome_ProfileListStoreXML_h
