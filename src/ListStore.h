@@ -24,7 +24,7 @@
 #include <sigc++/sigc++.h>
 
 /**
- * @brief  Generic interface for persistent list stores.
+ * @brief  Generic interface for persistent lists.
  *
  * @tparam T  The item type to be stored
  * @tparam I  An identifier type
@@ -34,7 +34,6 @@
 template<typename T, typename I, typename H>
 class ListStore {
 public:
-
   using Type = T;
   using Header = H;
   using Identifier = I;
