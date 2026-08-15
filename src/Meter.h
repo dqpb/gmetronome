@@ -35,6 +35,7 @@ constexpr int kNumAccents = 4;
 
 using AccentFlags = std::bitset<kNumAccents>;
 
+constexpr AccentFlags kAccentMaskNone   {0b0000};
 constexpr AccentFlags kAccentMaskOff    {0b0001};
 constexpr AccentFlags kAccentMaskWeak   {0b0010};
 constexpr AccentFlags kAccentMaskMid    {0b0100};
