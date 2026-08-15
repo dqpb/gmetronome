@@ -23,10 +23,12 @@
 
 #include "Application.h"
 #include "MainWindow.h"
-#include "ProfileListStoreXML.h"
 #include "Meter.h"
 #include "Shortcut.h"
 #include "Settings.h"
+#include "SoundThemeSettingsList.h"
+#include "ProfileListStoreXML.h"
+#include "File.h"
 
 #include <chrono>
 #include <cassert>
@@ -197,7 +199,9 @@ void Application::initProfiles()
   profile_manager_.signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onProfileManagerChanged));
 
-  profile_manager_.setIOModule(std::make_unique<ProfileListStoreXML>());
+  auto list_store = std::make_unique<ProfileListStoreXML>(file::userProfilesPath(),
+                                                          file::lookupProfilesPath());
+  profile_manager_.setIOModule(std::move(list_store));
 
   auto profile_list = profile_manager_.profileList();
 
