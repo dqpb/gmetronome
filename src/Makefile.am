@@ -13,6 +13,7 @@ gmetronome_SOURCES = \
 	AudioBuffer.cpp \
 	Auxiliary.cpp \
 	Error.cpp \
+	File.cpp \
 	Filter.cpp \
 	Generator.cpp \
 	LCD.cpp \
@@ -29,6 +30,8 @@ gmetronome_SOURCES = \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
 	SoundThemeEditor.cpp \
+	SoundThemeListStoreXML.cpp \
+	SoundThemeManager.cpp \
 	SynchronizableCtrl.cpp \
 	Synthesizer.cpp \
 	TapAnalyser.cpp \
@@ -61,10 +64,12 @@ noinst_HEADERS = \
 	AudioBuffer.h \
 	Auxiliary.h \
 	Error.h \
+	File.h \
 	Filter.h \
 	Generator.h \
 	LCD.h \
 	ListStore.h \
+	ListStoreXML.h \
 	MainWindow.h \
 	Message.h \
 	Meter.h \
@@ -84,7 +89,10 @@ noinst_HEADERS = \
 	Shortcut.h \
 	SoundLibrary.h \
 	SoundTheme.h \
+	SoundThemeSettingsList.h \
 	SoundThemeEditor.h \
+	SoundThemeListStoreXML.h \
+	SoundThemeManager.h \
 	SpinLock.h \
 	Synchronizable.h \
 	SynchronizableCtrl.h \
