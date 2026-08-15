@@ -241,6 +241,8 @@ public:
     { return queryActionState<Glib::ustring>(kActionProfileTitle); }
   ProfileList queryProfileList() const
     { return queryActionState<ProfileList>(kActionProfileList); }
+  double queryVolume() const
+    { return queryActionState<double>(kActionVolume); }
   bool queryVolumeMute() const
     { return queryActionState<bool>(kActionVolumeMute); }
 
