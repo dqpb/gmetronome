@@ -49,6 +49,16 @@
   </provides>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.5.1" date="2026-08-14">
+      <description translate="no">
+	<ul>
+	  <li>Added count-in functionality</li>
+	  <li>Improved AV synchronization for high latency environments</li>
+	  <li>Fixed rendering artifacts on some older devices</li>
+	  <li>Updated German translation</li>
+	</ul>
+      </description>
+    </release>
     <release version="0.4.2" date="2025-01-14">
       <description translate="no">
 	<ul>

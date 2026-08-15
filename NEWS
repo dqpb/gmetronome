@@ -1,9 +1,9 @@
-2026-??-??  0.5.1
+2026-08-14  0.5.1
 
-	* Add count-in
-	* Better AV synchronization in high latency environments
-	* Fix rendering artifacts on some older devices
-	* Update German translation
+	* Added count-in functionality
+	* Improved AV synchronization for high latency environments
+	* Fixed rendering artifacts on some older devices
+	* Updated German translation
 
 2025-01-14  0.4.2
 

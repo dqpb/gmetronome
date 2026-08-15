@@ -29,6 +29,12 @@ AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
 AC_PROG_CXX
 
+AC_PATH_PROG([XMLLINT], [xmllint])
+AS_IF([test -n "$XMLLINT"],
+      [XML_STRIPBLANKS='xml-stripblanks'],
+      [XML_STRIPBLANKS=''])
+AC_SUBST([XML_STRIPBLANKS])
+
 #
 # Compiler
 #
