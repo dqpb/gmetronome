@@ -554,9 +554,14 @@ void MainWindow::initBindings()
     [this] () {
       if (volume_menu_button_->get_active())
         volume_button_revealer_->set_reveal_child(true);
-      else if (!volume_label_hide_timer_connection_.connected())
+      else {
         volume_button_revealer_->set_reveal_child(false);
+        volume_label_hide_timer_connection_.disconnect();
+      }
     });
+
+  volume_popover_->signal_scroll_event()
+    .connect(sigc::mem_fun(*this, &MainWindow::onVolumeScroll));
 
   app_->signal_action_state_changed()
     .connect(sigc::mem_fun(*this, &MainWindow::onActionStateChanged));
@@ -1220,10 +1225,11 @@ void MainWindow::onVolumeMinus()
 bool MainWindow::onVolumeScroll(GdkEventScroll* event)
 {
   double volume = app_->queryVolume();
-  double increment = 1; //volume_adjustment_->property_page_increment();
+  double increment = 1;
 
   if (event->direction == GDK_SCROLL_UP)
   {
+    // Reveal the volume label even if the volume value does not change
     if (volume_adjustment_->get_value() >= settings::kMaxVolume)
       revealVolumeLabel();
     else
@@ -1246,8 +1252,6 @@ void MainWindow::revealVolumeLabel()
   volume_label_hide_timer_connection_.disconnect();
   volume_label_hide_timer_connection_ = Glib::signal_timeout().connect(
     [this]() -> bool {
-
-      std::cout << "Timer fired!" << std::endl;
 
       if (!volume_menu_button_->get_active())
         volume_button_revealer_->set_reveal_child(false);
