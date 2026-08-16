@@ -343,7 +343,7 @@ namespace audio {
   };
 
   inline
-  double amplitudeToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
+  double amplitudeToVolume(double amp, VolumeMapping map = VolumeMapping::kQuadratic)
   {
     switch (map) {
     case VolumeMapping::kQuadratic:
@@ -362,7 +362,7 @@ namespace audio {
   }
 
   inline
-  double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kCubic)
+  double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kQuadratic)
   {
     vol = vol / 100.0;
 
@@ -390,11 +390,11 @@ namespace audio {
   { return dec.amplitude(); }
 
   inline
-  Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
+  Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kQuadratic)
   { return amplitudeToDecibel(volumeToAmplitude(vol, map)); }
 
   inline
-  double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kCubic)
+  double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kQuadratic)
   { return amplitudeToVolume(decibelToAmplitude(dec), map); }
 
 }//namespace audio
