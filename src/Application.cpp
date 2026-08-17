@@ -120,16 +120,23 @@ void Application::initActions()
   const ActionHandlerList kAppActionHandler =
     {
       {kActionQuit,            sigc::mem_fun(*this, &Application::onQuit)},
-
-      {kActionVolume,          kActionNoSlot, settings::sound()},
-      {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
-      {kActionVolumeMute,      sigc::mem_fun(*this, &Application::onVolumeMute)},
-
       {kActionStart,           sigc::mem_fun(*this, &Application::onStart)},
       {kActionTempo,           sigc::mem_fun(*this, &Application::onTempo)},
       {kActionTempoChange,     sigc::mem_fun(*this, &Application::onTempoChange)},
       {kActionTempoScale,      sigc::mem_fun(*this, &Application::onTempoScale)},
-      {kActionTempoTap,        sigc::mem_fun(*this, &Application::onTempoTap)},
+      {
+        kActionTempoTap,
+        sigc::mem_fun(*this, &Application::onTempoTap),
+        ActionSlotType::kActivate
+      }, {
+        kActionVolume,
+        kActionNoSlot,
+        ActionSlotType::kAuto,
+        settings::sound()
+      },
+      {kActionVolumeChange,    sigc::mem_fun(*this, &Application::onVolumeChange)},
+      {kActionVolumeMute,      sigc::mem_fun(*this, &Application::onVolumeMute)},
+
       {kActionTrainerEnabled,  sigc::mem_fun(*this, &Application::onTrainerEnabled)},
       {kActionTrainerMode,     sigc::mem_fun(*this, &Application::onTrainerMode)},
       {kActionTrainerTarget,   sigc::mem_fun(*this, &Application::onTrainerTarget)},
@@ -809,7 +816,8 @@ void Application::onTempoTap(const Glib::VariantBase& value)
   // apply phase adjustment
   ticker_.synchronize(beat_dev, 0.0, sync_time);
 
-  signal_tap_.emit(confidence);
+  auto new_state = Glib::Variant<double>::create(confidence);
+  lookupSimpleAction(kActionTempoTap)->set_state(new_state);
 }
 
 void Application::configureTickerForTrainerMode(Profile::TrainerMode mode)

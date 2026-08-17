@@ -272,6 +272,7 @@ private:
   void updateProfileSelect(const Glib::ustring& id);
   void updateProfileTitle(const Glib::ustring& title, bool has_profile = true);
   void updateTempo(double tempo);
+  void updateTempoTap(double confidence);
   void updateStart(bool running);
   void updateTrainerMode(Profile::TrainerMode mode);
   void updateCountIn(int id);
@@ -281,7 +282,6 @@ private:
 
   // App signal handler
   void onTickerInfo(const audio::Ticker::Info& info);
-  void onTap(double confidence);
 
   void startTapAnimationTimer();
   void stopTapAnimationTimer();

@@ -17,7 +17,15 @@
  * along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "Action.h"
+
+#ifndef NDEBUG
+# include <iostream>
+#endif
 
 const ActionDescriptionMap kActionDescriptions =
 {
@@ -156,12 +164,20 @@ const ActionDescriptionMap kActionDescriptions =
   /* Action         : kActionTempoTap
    * Scope          : Application
    * Parameter type : -
-   * State type     : -
-   * State value    : -
+   * State type     : double
+   * State value    : 0.0
    * State hint     : -
    * Enabled        : true
    */
-  { kActionTempoTap, { ActionScope::kApp, {}, {}, {}, true } },
+  { kActionTempoTap,
+    {
+      ActionScope::kApp,
+      {},
+      Glib::Variant<double>::create(0.0),
+      {},
+      true
+    }
+  },
 
   /* Action         : kActionTrainerEnabled
    * Scope          : Application
@@ -788,7 +804,8 @@ namespace {
   Glib::RefPtr<Gio::SimpleAction>
   create_simple_action(const Glib::ustring& action_name,
                        const ActionDescription& action_descr,
-                       const ActionHandlerSlot& action_slot)
+                       const ActionHandlerSlot& action_slot,
+                       ActionSlotType slot_type)
   {
     Glib::RefPtr<Gio::SimpleAction> action = create_simple_action(action_name, action_descr);
 
@@ -796,10 +813,37 @@ namespace {
     {
       const auto& slot = action_slot.value();
 
-      if (action->get_state_variant())
-        action->signal_change_state().connect(slot);
-      else // stateless action
+      switch(slot_type)
+      {
+      case ActionSlotType::kAuto:
+        if (action->get_state_variant())
+          action->signal_change_state().connect(slot);
+        else // stateless action
+          action->signal_activate().connect(slot);
+        break;
+
+      case ActionSlotType::kActivate:
         action->signal_activate().connect(slot);
+        break;
+
+      case ActionSlotType::kChangeState:
+#ifndef NDEBUG
+        if (!action->get_state_variant())
+          std::cerr << "Action: connecting slot to change-state signal of non-stateful action '"
+                    << action_name << "'" << std::endl;
+#endif
+        action->signal_change_state().connect(slot);
+        break;
+
+        case ActionSlotType::kSettingChanged:
+#ifndef NDEBUG
+        if (!action->get_state_variant())
+          std::cerr << "Action: wrong slot type for non-setting action '" << action_name << "'"
+                    << std::endl;
+#endif
+      default:
+        break;
+      }
     }
     return action;
   }
@@ -807,19 +851,22 @@ namespace {
   Glib::RefPtr<Gio::Action>
   create_settings_action(const Glib::ustring& action_name,
                          const ActionHandlerSlot& action_slot,
+                         ActionSlotType slot_type,
                          Glib::RefPtr<Gio::Settings> settings)
   {
     Glib::RefPtr<Gio::Action> action;
     if (settings)
     {
-      if (action = settings->create_action(action_name); action)
+      if (action = settings->create_action(action_name); action && action_slot.has_value())
       {
-        if (action_slot.has_value()) {
-          const auto& slot = action_slot.value();
-
-          action->property_state().signal_changed().connect(
-            [action, slot] () { slot(action->get_state_variant()); });
-        }
+#ifndef NDEBUG
+        if (slot_type != ActionSlotType::kAuto && slot_type != ActionSlotType::kSettingChanged)
+          std::cerr << "Action: wrong slot type for setting action '" << action_name << "'"
+                    << std::endl;
+#endif
+        const auto& slot = action_slot.value();
+        action->property_state().signal_changed().connect(
+          [action, slot] () { slot(action->get_state_variant()); });
       }
     }
     return action;
@@ -829,14 +876,15 @@ namespace {
                       const Glib::ustring action_name,
                       const ActionDescription& action_descr,
                       const ActionHandlerSlot& action_slot,
+                      ActionSlotType slot_type,
                       Glib::RefPtr<Gio::Settings> settings)
   {
     Glib::RefPtr<Gio::Action> action;
 
     if (settings)
-      action = create_settings_action(action_name, action_slot, settings);
+      action = create_settings_action(action_name, action_slot, slot_type, settings);
     else
-      action = create_simple_action(action_name, action_descr, action_slot);
+      action = create_simple_action(action_name, action_descr, action_slot, slot_type);
 
     if (action)
       action_map.add_action(action);
@@ -846,12 +894,17 @@ namespace {
 
 void install_actions(Gio::ActionMap& action_map, const ActionHandlerList& handler)
 {
-  for (const auto& [action_name, action_slot, settings] : handler)
+  for (const auto& [action_name, action_slot, slot_type, settings] : handler)
   {
     if (auto action_descr_it = kActionDescriptions.find(action_name);
         action_descr_it != kActionDescriptions.end())
     {
-      install_action(action_map, action_name, action_descr_it->second, action_slot, settings);
+      install_action(action_map,
+                     action_name,
+                     action_descr_it->second,
+                     action_slot,
+                     slot_type,
+                     settings);
     }
   }
 }

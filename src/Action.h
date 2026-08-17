@@ -146,6 +146,14 @@ using ActionDescriptionMap = std::map<Glib::ustring, ActionDescription>;
 
 extern const ActionDescriptionMap kActionDescriptions;
 
+enum class ActionSlotType
+{
+  kAuto,
+  kActivate,
+  kChangeState,
+  kSettingChanged
+};
+
 // There are two posibilities to setup and install actions:
 //
 // 1) simple action:         Creates a Gio::SimpleAction according to the parameters given
@@ -171,6 +179,7 @@ struct ActionHandlerListEntry
 {
   Glib::ustring action_name;
   ActionHandlerSlot slot;
+  ActionSlotType slot_type {ActionSlotType::kAuto};
   Glib::RefPtr<Gio::Settings> settings;
 };
 

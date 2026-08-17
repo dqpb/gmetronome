@@ -47,14 +47,6 @@ public:
   sigc::signal<void, const audio::Ticker::Info&> signalTickerInfo()
     { return signal_ticker_info_; }
 
-  sigc::signal<void, double> signalTap()
-    { return signal_tap_; }
-
-protected:
-  // Overrides of default signal handlers:
-  void on_startup() override;
-  void on_activate() override;
-
 private:
   audio::Ticker ticker_;
   TapAnalyser tap_analyser_;
@@ -73,7 +65,6 @@ private:
   // Signals
   sigc::signal<void, const Message&> signal_message_;
   sigc::signal<void, const audio::Ticker::Info&> signal_ticker_info_;
-  sigc::signal<void, double> signal_tap_;
 
   // Main window
   MainWindow* main_window_;
@@ -98,6 +89,10 @@ private:
                       const Glib::VariantBase& target_value,
                       const Glib::ustring& accel);
 private:
+  // Overrides of default signal handlers
+  void on_startup() override;
+  void on_activate() override;
+
   /*
    * signal and action handler
    */
@@ -215,6 +210,8 @@ public:
     { return queryActionState<bool>(kActionStart); }
   double queryTempo() const
     { return queryActionState<double>(kActionTempo); }
+  double queryTempoTap() const
+    { return queryActionState<double>(kActionTempoTap); }
   Glib::ustring queryMeterSelect() const
     { return queryActionState<Glib::ustring>(kActionMeterSelect); }
   bool queryMeterEnabled() const

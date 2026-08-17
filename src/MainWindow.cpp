@@ -296,6 +296,7 @@ void MainWindow::initActions()
       {
         kActionShowPendulum,
         sigc::mem_fun(*this, &MainWindow::onShowPendulum),
+        ActionSlotType::kAuto,
         settings::state()
       },
       {kActionFullScreen,              sigc::mem_fun(*this, &MainWindow::onToggleFullScreen)},
@@ -429,10 +430,10 @@ void MainWindow::initBindings()
   tap_event_box_->add_events(Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK);
 
   tap_event_box_->signal_button_press_event().connect(
-    [&] (GdkEventButton* button_event) {
+    [this] (GdkEventButton* button_event) {
       if (button_event->type != GDK_2BUTTON_PRESS && button_event->type != GDK_3BUTTON_PRESS)
       {
-        Gtk::Application::get_default()->activate_action(kActionTempoTap);
+        app_->activate_action(kActionTempoTap);
         tap_box_->set_state_flags(Gtk::STATE_FLAG_ACTIVE);
       }
       return true;
@@ -577,9 +578,6 @@ void MainWindow::initBindings()
 
   app_->signalTickerInfo()
     .connect(sigc::mem_fun(*this, &MainWindow::onTickerInfo));
-
-  app_->signalTap()
-    .connect(sigc::mem_fun(*this, &MainWindow::onTap));
 }
 
 MainWindow::~MainWindow()
@@ -1363,15 +1361,7 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   if (isTempoQuickSetEditing())
     abortTempoQuickSetEditing();
 
-  if (action_name.compare(0,6,"meter-") == 0)
-  {
-    Glib::ustring meter_slot = app_->queryMeterSelect();
-    if (action_name == kActionMeterSelect || action_name == meter_slot)
-    {
-      updateMeter(meter_slot, app_->queryMeter(meter_slot));
-    }
-  }
-  else if (action_name.compare(kActionTempo) == 0)
+  if (action_name.compare(kActionTempo) == 0)
   {
     updateTempo(app_->queryTempo());
   }
@@ -1386,6 +1376,18 @@ void MainWindow::onActionStateChanged(const Glib::ustring& action_name,
   else if (action_name.compare(kActionCountIn) == 0)
   {
     updateCountIn(app_->queryCountIn());
+  }
+  else if (action_name.compare(kActionTempoTap) == 0)
+  {
+    updateTempoTap(app_->queryTempoTap());
+  }
+  else if (action_name.compare(0,6,"meter-") == 0)
+  {
+    Glib::ustring meter_slot = app_->queryMeterSelect();
+    if (action_name == kActionMeterSelect || action_name == meter_slot)
+    {
+      updateMeter(meter_slot, app_->queryMeter(meter_slot));
+    }
   }
   else if (action_name.compare(kActionProfileList) == 0)
   {
@@ -1553,6 +1555,14 @@ void MainWindow::updateTempo(double tempo)
   // nothing
 }
 
+void MainWindow::updateTempoTap(double confidence)
+{
+  tap_level_bar_->set_value(confidence);
+
+  if (!isTapAnimationTimerRunning())
+    startTapAnimationTimer();
+}
+
 void MainWindow::updateTrainerMode(Profile::TrainerMode mode)
 {
   if (mode == Profile::TrainerMode::kContinuous)
@@ -1659,14 +1669,6 @@ void MainWindow::updateVolumeMute(bool mute)
 void MainWindow::onTickerInfo(const audio::Ticker::Info& info)
 {
   sync_ctrl_.enrollTickerInfo(info);
-}
-
-void MainWindow::onTap(double confidence)
-{
-  tap_level_bar_->set_value(confidence);
-
-  if (!isTapAnimationTimerRunning())
-    startTapAnimationTimer();
 }
 
 namespace {
