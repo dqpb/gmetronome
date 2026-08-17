@@ -1224,6 +1224,17 @@ void MainWindow::onVolumeMinus()
 
 bool MainWindow::onVolumeScroll(GdkEventScroll* event)
 {
+  // This handler is connected to the scroll event of the volume menu button and
+  // the volume popover (which is necessary to catch the scroll events if the
+  // popover is realized). To prevent scrolling twice if the popover is open
+  // we compare the event's window field and the event window of the menu button.
+
+  if (auto win = volume_menu_button_->get_event_window();
+      win && event->window != win->gobj())
+  {
+    return false;
+  }
+
   double volume = app_->queryVolume();
   double increment = 1;
 
