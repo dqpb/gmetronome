@@ -94,6 +94,7 @@ private:
   sigc::connection pendulum_restore_connection_;
   sigc::connection tempo_quick_set_timer_connection_;
   sigc::connection tap_animation_timer_connection_;
+  sigc::connection volume_label_hide_timer_connection_;
 
   // Dialogs
   SettingsDialog* preferences_dialog_;
@@ -129,7 +130,13 @@ private:
   Gtk::Label* info_details_label_;
   Gtk::Expander* info_details_expander_;
   Gtk::Box* main_content_box_;
-  Gtk::VolumeButton* volume_button_;
+  Gtk::MenuButton* volume_menu_button_;
+  Gtk::Revealer* volume_button_revealer_;
+  Gtk::Image* volume_button_icon_;
+  Gtk::Label* volume_button_label_;
+  Gtk::Popover* volume_popover_;
+  Gtk::Button* volume_plus_button_;
+  Gtk::Button* volume_minus_button_;
   Gtk::ToggleButton* start_button_;
   Gtk::ToggleButton* trainer_toggle_button_;
   Gtk::ToggleButton* accent_toggle_button_;
@@ -172,6 +179,7 @@ private:
   Glib::RefPtr<Gtk::Adjustment> trainer_step_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> trainer_hold_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> beats_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> volume_adjustment_;
 
   Glib::RefPtr<ProfileListStore> profile_list_store_;
 
@@ -248,6 +256,11 @@ private:
   void onProfileHide();
   bool onCountInScroll(GdkEventScroll* event);
   void onCountInChanged(std::size_t id);
+  void onVolumePlus();
+  void onVolumeMinus();
+  bool onVolumeScroll(GdkEventScroll* event);
+
+  void revealVolumeLabel();
 
   // Action handler
   void onActionStateChanged(const Glib::ustring& action_name,
@@ -263,6 +276,7 @@ private:
   void updateTrainerMode(Profile::TrainerMode mode);
   void updateCountIn(int id);
   void updateStartButtonLabel(bool running);
+  void updateVolume(double volume);
   void updateVolumeMute(bool mute);
 
   // App signal handler

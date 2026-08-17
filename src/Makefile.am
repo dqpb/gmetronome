@@ -158,6 +158,7 @@ resources = \
 	$(resourcesdir)/icons/gm-curve-cubic-down-flipped-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-curve-quartic-symbolic.svg \
 	$(resourcesdir)/icons/gm-count-in-symbolic.svg \
+	$(resourcesdir)/icons/gm-count-in-symbolic-rtl.svg \
 	$(resourcesdir)/css/global.css
 
 gresource_xml_file = resources/@PACKAGE_ID@.gresource.xml

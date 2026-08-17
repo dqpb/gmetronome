@@ -54,6 +54,7 @@
     <file>icons/gm-curve-cubic-down-flipped-symbolic-rtl.svg</file>
     <file>icons/gm-curve-quartic-symbolic.svg</file>
     <file>icons/gm-count-in-symbolic.svg</file>
+    <file>icons/gm-count-in-symbolic-rtl.svg</file>
     <file>css/global.css</file>
   </gresource>
 </gresources>
