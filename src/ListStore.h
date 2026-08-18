@@ -62,7 +62,7 @@ public:
    * @param id Identifier of the item.
    * @return The loaded item.
    */
-  virtual Type load(Identifier id) = 0;
+  virtual Type load(const Identifier& id) = 0;
 
   /**
    * Store an item in the underlying data storage.
@@ -70,7 +70,7 @@ public:
    * @param id The item identifier.
    * @param item The item to store.
    */
-  virtual void store(Identifier id, const Type& item) = 0;
+  virtual void store(const Identifier& id, const Type& item) = 0;
 
   /**
    * Change the order of the stored items.
@@ -84,7 +84,7 @@ public:
    *
    * @param id The identifier of the item to delete.
    */
-  virtual void remove(Identifier id) = 0;
+  virtual void remove(const Identifier& id) = 0;
 
   /**
    * Realize all pending changes.

@@ -103,10 +103,10 @@ public:
 
   // Interface
   std::vector<Primer> list() override;
-  Type load(Identifier id) override;
-  void store(Identifier id, const Type& entry) override;
+  Type load(const Identifier& id) override;
+  void store(const Identifier& id, const Type& entry) override;
   void reorder(const std::vector<Identifier>& order) override;
-  void remove(Identifier id) override;
+  void remove(const Identifier& id) override;
   void flush() override;
 
 private:
@@ -166,7 +166,7 @@ auto ListStoreXML<T,I,H,P,W>::list() -> std::vector<Primer>
 
 template<typename T, typename I, typename H, typename P, typename W>
 typename ListStoreXML<T,I,H,P,W>::Type
-ListStoreXML<T,I,H,P,W>::load(Identifier id)
+ListStoreXML<T,I,H,P,W>::load(const Identifier& id)
 {
   if (pending_import_ && !import_error_)
     importData();
@@ -180,7 +180,7 @@ ListStoreXML<T,I,H,P,W>::load(Identifier id)
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::store(Identifier id, const Type& entry)
+void ListStoreXML<T,I,H,P,W>::store(const Identifier& id, const Type& entry)
 {
   if (pending_import_ && !import_error_)
     importData();
@@ -214,7 +214,7 @@ void ListStoreXML<T,I,H,P,W>::reorder(const std::vector<Identifier>& order)
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::remove(Identifier id)
+void ListStoreXML<T,I,H,P,W>::remove(const Identifier& id)
 {
   if (pending_import_ && !import_error_)
     importData();
