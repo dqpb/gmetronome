@@ -208,16 +208,13 @@ void Application::initProfiles()
 
   auto list_store = std::make_unique<ProfileListStoreXML>(file::userProfilesPath(),
                                                           file::lookupProfilesPath());
-  profile_manager_.setIOModule(std::move(list_store));
+  profile_manager_.setListStore(std::move(list_store)); // emits signal_changed
 
   auto profile_list = profile_manager_.profileList();
 
   Glib::ustring restore_profile_id;
   if (settings::preferences()->get_boolean(settings::kKeyPrefsRestoreProfile))
-  {
-    restore_profile_id =
-      restore_profile_id = settings::state()->get_string(settings::kKeyStateProfileSelect);
-  }
+    restore_profile_id = settings::state()->get_string(settings::kKeyStateProfileSelect);
 
   if (settings::state()->get_boolean(settings::kKeyStateFirstLaunch) && profile_list.empty())
   {
@@ -1015,8 +1012,12 @@ void Application::onProfileSelect(const Glib::VariantBase& value)
       profile_title = Glib::Variant<Glib::ustring>::create( title );
       profile_description = Glib::Variant<Glib::ustring>::create( description );
     }
+    else {
+#ifndef NDEBUG
+      std::cerr << "Application: Profile '" << in_state.get() << "' not found." << std::endl;
+#endif
+    }
   }
-
   lookupSimpleAction(kActionProfileSelect)->set_state(out_state);
   lookupSimpleAction(kActionProfileTitle)->set_state(profile_title);
   lookupSimpleAction(kActionProfileDescription)->set_state(profile_description);
@@ -1110,16 +1111,14 @@ void Application::onProfileNew(const Glib::VariantBase& value)
 
   auto [title,valid] = validateProfileTitle(in_title.get());
 
-  Profile::Header header = {title, ""};
-  Profile::Content content;
+  Profile new_profile { {title, ""} };
+  convertActionToProfile(new_profile.content);
 
-  convertActionToProfile(content);
-
-  auto primer = profile_manager_.newProfile(header, content);
-
-  auto id = Glib::Variant<Glib::ustring>::create(primer.id);
-
-  activate_action(kActionProfileSelect, id);
+  if (auto primer = profile_manager_.newProfile(new_profile); !primer.id.empty())
+  {
+    auto id = Glib::Variant<Glib::ustring>::create(primer.id);
+    activate_action(kActionProfileSelect, id);
+  }
 }
 
 void Application::loadSelectedProfile()
@@ -1127,10 +1126,12 @@ void Application::loadSelectedProfile()
   Glib::ustring id = queryProfileSelect();
   bool has_selected_id = !id.empty();
 
-  if (has_selected_id)
-  {
+  if (has_selected_id) {
     Profile::Content content = profile_manager_.getProfileContent(id);
     convertProfileToAction(content);
+  }
+  else {
+    convertProfileToAction(kDefaultProfile.content);
   }
   lookupSimpleAction(kActionProfileDelete)->set_enabled(has_selected_id);
   lookupSimpleAction(kActionProfileTitle)->set_enabled(has_selected_id);
@@ -1356,7 +1357,7 @@ void Application::onSettingsSoundChanged(const Glib::ustring& key)
   }
   else if (key == settings::kKeySettingsListSelectedEntry)
   {
-    // store sound theme to selected profile
+    // store sound theme to selected profile immediately
     if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
     {
       if (Glib::ustring id = queryProfileSelect(); !id.empty())

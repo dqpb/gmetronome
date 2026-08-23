@@ -20,11 +20,12 @@
 #ifndef GMetronome_Application_h
 #define GMetronome_Application_h
 
-#include "ProfileManager.h"
 #include "Action.h"
 #include "Ticker.h"
-#include "TapAnalyser.h"
 #include "Message.h"
+#include "ProfileManager.h"
+#include "SoundThemeManager.h"
+#include "TapAnalyser.h"
 #include "Meter.h"
 
 #include <gtkmm.h>
