@@ -83,6 +83,7 @@ noinst_HEADERS = \
 	ProfileManager.h \
 	ProfileVariant.h \
 	PulseAudio.h \
+	Result.h \
 	Settings.h \
 	SettingsDialog.h \
 	SettingsList.h \

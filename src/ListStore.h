@@ -20,102 +20,10 @@
 #ifndef GMetronome_ListStore_h
 #define GMetronome_ListStore_h
 
+#include "Result.h"
 #include <vector>
 #include <string>
 #include <sigc++/sigc++.h>
-
-template<typename T, typename E>
-class Result {
-public:
-  using Type = T;
-  using Error = E;
-
-public:
-  Result() : has_value_{true}
-    { /* nothing */ }
-
-  template<class U,
-           std::enable_if_t<
-             std::is_constructible_v<Type, U&&> &&
-             !std::is_constructible_v<Error, U&&>, int> = 0>
-  Result(U&& value) : has_value_{true}, value_{std::forward<U>(value)}
-    { /* nothing */ }
-
-  template<class G,
-           std::enable_if_t<
-             std::is_constructible_v<Error, G&&> &&
-             !std::is_constructible_v<Type, G&&>, int> = 0>
-  Result(G&& error) : error_{std::forward<G>(error)}
-    { /* nothing */ }
-
-  explicit operator bool() const
-    { return has_value_; }
-
-  bool hasValue() const
-    { return has_value_; }
-
-  const Type& value() const &
-    { return value_; }
-  Type& value() &
-    { return value_; }
-  Type&& value() &&
-    { return std::move(value_); }
-
-  const Type& operator*() const &
-    { return value_; }
-  Type& operator*() &
-    { return value_; }
-
-  const Type* operator->() const
-    { return &value_; }
-  Type* operator->()
-    { return &value_; }
-
-  const Error& error() const &
-    { return error_; }
-  Error& error() &
-    { return error_; }
-  Error&& error() &&
-    { return std::move(error_); }
-
-private:
-  bool has_value_{false};
-  Type value_;
-  Error error_;
-};
-
-/** Partial specialization */
-template<typename E>
-class Result<void,E> {
-public:
-  using Type = void;
-  using Error = E;
-
-public:
-  Result() : has_value_{true}
-    { /* nothing */ }
-
-  template<class G, std::enable_if_t<std::is_constructible_v<Error, G&&>, int> = 0>
-  Result(G&& error) : error_{std::forward<G>(error)}
-    { /* nothing */ }
-
-  explicit operator bool() const
-    { return has_value_; }
-
-  bool hasValue() const
-    { return has_value_; }
-
-  const Error& error() const &
-    { return error_; }
-  Error& error() &
-    { return error_; }
-  Error&& error() &&
-    { return std::move(error_); }
-
-private:
-  bool has_value_{false};
-  Error error_;
-};
 
 /**
  * @brief  Generic interface for persistent lists.
