@@ -185,6 +185,7 @@ namespace settings {
   /*
    * .preferences.sound keys
    */
+  inline const Glib::ustring  kKeySoundThemeSelect                {"sound-theme-select"};
   inline const Glib::ustring  kKeySoundVolume                     {"volume"};
   inline const Glib::ustring  kKeySoundAutoAdjustVolume           {"auto-adjust-volume"};
   inline const Glib::ustring  kKeySoundThemeList                  {"theme-list"};

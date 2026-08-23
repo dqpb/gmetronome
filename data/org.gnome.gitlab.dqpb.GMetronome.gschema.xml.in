@@ -706,6 +706,11 @@
 
   <schema id="@PACKAGE_ID@.preferences.sound"
 	  path="@PACKAGE_ID_PATH@/preferences/sound/">
+    <key name="sound-theme-select" type="s">
+      <default>'preset-01'</default>
+      <summary>Selected sound theme</summary>
+      <description></description>
+    </key>
     <key name="volume" type="d">
       <range min="0.0" max="100.0"/>
       <default>75.0</default>
