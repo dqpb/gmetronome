@@ -24,8 +24,11 @@
 #include "ListStore.h"
 #include "Meter.h"
 
-#include <memory>
 #include <sigc++/sigc++.h>
+
+#include <memory>
+#include <utility>
+#include <optional>
 
 class SoundThemeManager {
 public:
@@ -36,48 +39,81 @@ public:
   using ListStoreType = ListStore<SoundTheme, Identifier, Header>;
   using Primer = ListStoreType::Primer;
 
+  struct Patch : public ListStoreType::Patch
+  {
+    std::optional<std::string> title;
+    std::optional<std::string> description;
+    std::optional<audio::SoundParameters> strong_params;
+    std::optional<audio::SoundParameters> mid_params;
+    std::optional<audio::SoundParameters> weak_params;
+
+    void apply(SoundTheme& theme) const override
+      {
+        if (title) theme.header.title = *title;
+        if (description) theme.header.description = *description;
+        if (strong_params) theme.content.strong_params = *strong_params;
+        if (mid_params) theme.content.mid_params = *mid_params;
+        if (weak_params) theme.content.weak_params = *weak_params;
+      }
+  };
+
 public:
   // Construction and destruction
   SoundThemeManager(std::unique_ptr<ListStoreType> store = nullptr,
-                    std::unique_ptr<ListStoreType> preset_store = nullptr);
+                    std::unique_ptr<ListStoreType> preset_store = nullptr) noexcept
+    : store_(std::move(store)), preset_store_(std::move(preset_store))
+    { /* nothing */ }
+
   SoundThemeManager(SoundThemeManager&& other) = default;
   SoundThemeManager& operator=(SoundThemeManager&& other) = default;
-  ~SoundThemeManager();
+  ~SoundThemeManager() = default;
 
   // Interface
   void setStore(std::unique_ptr<ListStoreType> store);
   void setPresetStore(std::unique_ptr<ListStoreType> store);
 
-  std::vector<Primer> list();
-  std::vector<Primer> presets();
+  std::vector<Primer> list() noexcept;
+  std::vector<Primer> presets() noexcept;
 
-  SoundTheme get(const Identifier& id);
-  SoundTheme getPreset(const Identifier& id);
+  std::optional<SoundTheme> get(const Identifier& id);
 
-  Primer create(const SoundTheme& theme);
-  Primer create(const Content& content);
-  Primer create(const Header& header = {}, const Content& content = {});
+  std::optional<Primer> create(const SoundTheme& theme);
+  std::optional<Primer> create(const Header& header = {}, const Content& content = {})
+    { return create(SoundTheme{header, content}); }
+  std::optional<Primer> create(const Content& content)
+    { return create(SoundTheme{{}, content}); }
 
-  void remove(const Identifier& id);
+  bool remove(const Identifier& id);
 
-  void update(const Identifier& id, const SoundTheme& theme,
-              const AccentFlags& flags = kAccentMaskAll);
-  void update(const Identifier& id, const Content& content,
-              const AccentFlags& flags = kAccentMaskAll);
-  void update(const Identifier& id, const Header& header)
-    { update(id, {header, {}}, kAccentMaskNone); }
+  bool update(const Identifier& id, const Patch& patch);
 
-  void reorder(const std::vector<Identifier>& order);
+  bool reorder(const std::vector<Identifier>& order);
 
-  sigc::signal<void> signal_store_changed()
+  // selection state currently not supported
+  bool select(const Identifier& id) = delete;
+  bool unselect() = delete;
+  const Identifier& selected() const = delete;
+
+  // Signals
+  sigc::signal<void(const Identifier&)> signalCreated()
+    { return signal_created_; }
+  sigc::signal<void(const Identifier&)> signalRemoved()
+    { return signal_removed_; }
+  sigc::signal<void(const Identifier&, const Patch&)> signalUpdated()
+    { return signal_updated_; }
+  sigc::signal<void(const std::vector<Identifier>&)> signalReordered()
+    { return signal_reordered_; }
+  sigc::signal<void> signalStoreChanged()
     { return signal_store_changed_; }
+  sigc::signal<void> signalPresetStoreChanged()
+    { return signal_preset_store_changed_; }
 
 private:
   // Signals
-  sigc::signal<void(bool, const AccentFlags&)> signal_updated_;
-  sigc::signal<void> signal_removed_;
-  sigc::signal<void> signal_created_;
-  sigc::signal<void> signal_reordered_;
+  sigc::signal<void(const Identifier&)> signal_created_;
+  sigc::signal<void(const Identifier&)> signal_removed_;
+  sigc::signal<void(const Identifier&, const Patch&)> signal_updated_;
+  sigc::signal<void(const std::vector<Identifier>&)> signal_reordered_;
   sigc::signal<void> signal_store_changed_;
   sigc::signal<void> signal_preset_store_changed_;
 
