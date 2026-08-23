@@ -21,7 +21,101 @@
 #define GMetronome_ListStore_h
 
 #include <vector>
+#include <string>
 #include <sigc++/sigc++.h>
+
+template<typename T, typename E>
+class Result {
+public:
+  using Type = T;
+  using Error = E;
+
+public:
+  Result() : has_value_{true}
+    { /* nothing */ }
+
+  template<class U,
+           std::enable_if_t<
+             std::is_constructible_v<Type, U&&> &&
+             !std::is_constructible_v<Error, U&&>, int> = 0>
+  Result(U&& value) : has_value_{true}, value_{std::forward<U>(value)}
+    { /* nothing */ }
+
+  template<class G,
+           std::enable_if_t<
+             std::is_constructible_v<Error, G&&> &&
+             !std::is_constructible_v<Type, G&&>, int> = 0>
+  Result(G&& error) : error_{std::forward<G>(error)}
+    { /* nothing */ }
+
+  explicit operator bool() const
+    { return has_value_; }
+
+  bool hasValue() const
+    { return has_value_; }
+
+  const Type& value() const &
+    { return value_; }
+  Type& value() &
+    { return value_; }
+  Type&& value() &&
+    { return std::move(value_); }
+
+  const Type& operator*() const &
+    { return value_; }
+  Type& operator*() &
+    { return value_; }
+
+  const Type* operator->() const
+    { return &value_; }
+  Type* operator->()
+    { return &value_; }
+
+  const Error& error() const &
+    { return error_; }
+  Error& error() &
+    { return error_; }
+  Error&& error() &&
+    { return std::move(error_); }
+
+private:
+  bool has_value_{false};
+  Type value_;
+  Error error_;
+};
+
+/** Partial specialization */
+template<typename E>
+class Result<void,E> {
+public:
+  using Type = void;
+  using Error = E;
+
+public:
+  Result() : has_value_{true}
+    { /* nothing */ }
+
+  template<class G, std::enable_if_t<std::is_constructible_v<Error, G&&>, int> = 0>
+  Result(G&& error) : error_{std::forward<G>(error)}
+    { /* nothing */ }
+
+  explicit operator bool() const
+    { return has_value_; }
+
+  bool hasValue() const
+    { return has_value_; }
+
+  const Error& error() const &
+    { return error_; }
+  Error& error() &
+    { return error_; }
+  Error&& error() &&
+    { return std::move(error_); }
+
+private:
+  bool has_value_{false};
+  Error error_;
+};
 
 /**
  * @brief  Generic interface for persistent lists.
@@ -44,6 +138,33 @@ public:
     Header header;
   };
 
+  struct Patch {
+    virtual ~Patch() = default;
+    virtual void apply(T& item) const = 0;
+  };
+
+  struct Error {
+    enum class Category
+    {
+      kNone,
+      kNotFound,
+      kIO,
+      kParse,
+      kSerialization,
+      kValidation,
+      kConflict,
+      kUnavailable,
+      kUnknown
+    };
+    Category category {Category::kNone};
+    std::string what;
+    std::string detail;
+  };
+
+  template<typename R>
+  using Result = Result<R,Error>;
+
+public:
   virtual ~ListStore() {}
 
   /**
@@ -53,7 +174,7 @@ public:
    *
    * @return A vector of item primers.
    */
-  virtual std::vector<Primer> list() = 0;
+  virtual Result<std::vector<Primer>> list() = 0;
 
   /**
    * Load the item with the identifier id from the underlying data storage.
@@ -62,7 +183,7 @@ public:
    * @param id Identifier of the item.
    * @return The loaded item.
    */
-  virtual Type load(const Identifier& id) = 0;
+  virtual Result<Type> load(const Identifier& id) = 0;
 
   /**
    * Store an item in the underlying data storage.
@@ -70,21 +191,29 @@ public:
    * @param id The item identifier.
    * @param item The item to store.
    */
-  virtual void store(const Identifier& id, const Type& item) = 0;
-
-  /**
-   * Change the order of the stored items.
-   *
-   * @param  A vector of item identifiers.
-   */
-  virtual void reorder(const std::vector<Identifier>& order) = 0;
+  virtual Result<void> store(const Identifier& id, const Type& item) = 0;
 
   /**
    * Remove an item from the underlying data storage.
    *
    * @param id The identifier of the item to delete.
    */
-  virtual void remove(const Identifier& id) = 0;
+  virtual Result<void> remove(const Identifier& id) = 0;
+
+  /**
+   * Update an item in the underlying data storage.
+   *
+   * @param id The item identifier.
+   * @param patch The patch to apply to the item.
+   */
+  virtual Result<void> update(const Identifier& id, const Patch& patch) = 0;
+
+  /**
+   * Change the order of the stored items.
+   *
+   * @param  A vector of item identifiers.
+   */
+  virtual Result<void> reorder(const std::vector<Identifier>& order) = 0;
 
   /**
    * Realize all pending changes.
@@ -93,7 +222,7 @@ public:
    * and update the underlying data storage later. This method forces the
    * synchronization between the internal module data and the data storage.
    */
-  virtual void flush() {};
+  virtual Result<void> flush() { return {}; }
 
   /**
    * Implementations of this interface should emit this signal if a modification

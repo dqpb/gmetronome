@@ -37,6 +37,7 @@
 #include <utility>
 #include <array>
 #include <cassert>
+#include <random>
 
 #ifndef NDEBUG
 # include <iostream>
@@ -50,10 +51,10 @@ class ListStoreXMLParser : public Glib::Markup::Parser {
 public:
   using Type = T;
   using Identifier = I;
-  using EntryMap = std::map<Identifier, Type>;
+  using ItemMap = std::map<Identifier, Type>;
   using OrderVector = std::vector<Identifier>;
 
-  virtual EntryMap moveMap() = 0;
+  virtual ItemMap moveMap() = 0;
   virtual OrderVector moveOrder() = 0;
 };
 
@@ -68,13 +69,15 @@ public:
 
   virtual const std::string& topLevelElementName() const = 0;
 
-  virtual void writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
-                          const Type& entry,
-                          const Identifier& id) = 0;
+  virtual void writeItem(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                         const Type& item,
+                         const Identifier& id) = 0;
 };
 
 /**
  * @class ListStoreXML
+ *
+ * Implements a cached list store with xml file persistence.
  */
 template<typename T, typename I, typename H, typename P, typename W>
 class ListStoreXML : public ListStore<T,I,H> {
@@ -88,6 +91,12 @@ public:
   using typename ListStore<T,I,H>::Header;
   using typename ListStore<T,I,H>::Identifier;
   using typename ListStore<T,I,H>::Primer;
+  using typename ListStore<T,I,H>::Patch;
+
+  template<typename R>
+  using Result = typename ListStore<T,I,H>::template Result<R>;
+
+  using typename ListStore<T,I,H>::Error;
 
   using Parser = P;
   using Writer = W;
@@ -102,17 +111,19 @@ public:
   ~ListStoreXML() override;
 
   // Interface
-  std::vector<Primer> list() override;
-  Type load(const Identifier& id) override;
-  void store(const Identifier& id, const Type& entry) override;
-  void reorder(const std::vector<Identifier>& order) override;
-  void remove(const Identifier& id) override;
-  void flush() override;
+  Result<std::vector<Primer>> list() override;
+  Result<Type> load(const Identifier& id) override;
+  Result<void> store(const Identifier& id, const Type& item) override;
+  Result<void> remove(const Identifier& id) override;
+  Result<void> update(const Identifier& id, const Patch& patch) override;
+  Result<void> reorder(const std::vector<Identifier>& order) override;
+  Result<void> flush() override;
 
 private:
-  using EntryMap = std::map<Identifier, Type>;
-  EntryMap t_map_;
-  std::vector<Identifier> t_order_;
+  using ItemMap = std::map<Identifier, Type>;
+  using OrderVector = std::vector<Identifier>;
+  ItemMap t_map_;
+  OrderVector t_order_;
 
   std::string path_;
   std::string import_path_;
@@ -123,32 +134,30 @@ private:
   bool pending_export_{false};
   bool export_error_{false};
 
-  void importData();
-  void exportData();
+  Result<void> importData() noexcept;
+  Result<void> exportData() noexcept;
+
+  Result<Glib::RefPtr<Gio::FileInputStream>>
+  openFileInputStream(const std::string& path) noexcept;
+
+  Result<std::pair<ItemMap,OrderVector>>
+  parseStream(Glib::RefPtr<Gio::FileInputStream> istream) noexcept;
+
+  Result<Glib::RefPtr<Gio::FileOutputStream>>
+  openFileOutputStream(const std::string& path, bool backup = false) noexcept;
+
+  Result<void> writeStream(Glib::RefPtr<Gio::FileOutputStream> ostream) noexcept;
+
+  void printError(const std::string& msg, const Error& e = {}) const;
+  void printMessage(const std::string& msg) const;
 };
 
 template<typename T, typename I, typename H, typename P, typename W>
 ListStoreXML<T,I,H,P,W>::~ListStoreXML()
-{
-  if (pending_export_)
-  {
-    try { exportData(); }
-    catch (const GMetronomeError& e) {
-#ifndef NDEBUG
-      std::cerr << "ListStoreXML: failed to save entry "
-                << "('" << e.what() << "')" << std::endl;
-#endif
-    }
-    catch (...) {
-#ifndef NDEBUG
-      std::cerr << "ListStoreXML: failed to save entry" << std::endl;
-#endif
-    }
-  }
-}
+{ flush(); }
 
 template<typename T, typename I, typename H, typename P, typename W>
-auto ListStoreXML<T,I,H,P,W>::list() -> std::vector<Primer>
+auto ListStoreXML<T,I,H,P,W>::list() -> Result<std::vector<Primer>>
 {
   if (pending_import_ && !import_error_)
     importData();
@@ -165,56 +174,36 @@ auto ListStoreXML<T,I,H,P,W>::list() -> std::vector<Primer>
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-typename ListStoreXML<T,I,H,P,W>::Type
-ListStoreXML<T,I,H,P,W>::load(const Identifier& id)
+auto ListStoreXML<T,I,H,P,W>::load(const Identifier& id) -> Result<Type>
 {
   if (pending_import_ && !import_error_)
     importData();
 
-  try {
-    return t_map_.at(id);
-  }
+  try { return t_map_.at(id); }
   catch (...) {
-    throw GMetronomeError {"ListStoreXML: entry with id '" + id + "' does not exist"};
+    return Error {Error::Category::kNotFound, "Item '" + id + "' not found."};
   }
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::store(const Identifier& id, const Type& entry)
+auto ListStoreXML<T,I,H,P,W>::store(const Identifier& id, const Type& item) -> Result<void>
 {
   if (pending_import_ && !import_error_)
     importData();
 
-  if (auto it = t_map_.find(id); it != t_map_.end())
-  {
-    it->second = entry;
+  if (auto it = t_map_.find(id); it != t_map_.end()) {
+    it->second = item;
   }
-  else
-  {
-    t_map_[id] = entry;
+  else {
+    t_map_[id] = item;
     t_order_.push_back(id);
   }
-
   pending_export_ = true;
+  return {};
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::reorder(const std::vector<Identifier>& order)
-{
-  if (pending_import_ && !import_error_)
-    importData();
-
-  assert(order.size() == t_order_.size());
-
-  assert(std::is_permutation(t_order_.begin(), t_order_.end(),
-                             order.begin(), order.end()));
-
-  t_order_ = order;
-  pending_export_ = true;
-}
-
-template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::remove(const Identifier& id)
+auto ListStoreXML<T,I,H,P,W>::remove(const Identifier& id) -> Result<void>
 {
   if (pending_import_ && !import_error_)
     importData();
@@ -226,122 +215,241 @@ void ListStoreXML<T,I,H,P,W>::remove(const Identifier& id)
   }
   t_map_.erase(id);
   pending_export_ = true;
+  return {};
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::flush()
+auto ListStoreXML<T,I,H,P,W>::update(const Identifier& id, const Patch& patch) -> Result<void>
+{
+  if (pending_import_ && !import_error_)
+    importData();
+
+  try {
+    patch.apply( t_map_.at(id) );
+  }
+  catch (const std::out_of_range&) {
+    return Error {Error::Category::kNotFound, "Item not found."};
+  }
+  catch(...) {
+    return Error {Error::Category::kUnknown, "Failed to apply patch."};
+  }
+  return {};
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::reorder(const std::vector<Identifier>& order) -> Result<void>
+{
+  if (pending_import_ && !import_error_)
+    importData();
+
+  if (!std::is_permutation(t_order_.begin(), t_order_.end(), order.begin(), order.end()))
+    return Error {Error::Category::kValidation, "Order is not a permutation."};
+
+  t_order_ = order;
+  pending_export_ = true;
+  return {};
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::flush() -> Result<void>
 {
   if (pending_export_)
-  {
-    if (pending_import_ && !import_error_)
-      importData();
+    return exportData();
+  else
+    return {};
+}
 
-    exportData();
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::openFileInputStream(const std::string& path) noexcept
+  -> Result<Glib::RefPtr<Gio::FileInputStream>>
+{
+  try {
+    return Gio::File::create_for_path(path)->read();
+  }
+  catch (const Gio::Error& e) {
+    // ignore 'not found' (file might not have been created yet)
+    if (e.code() == Gio::Error::NOT_FOUND)
+      return {};
+    else
+      return Error { Error::Category::kIO, "I/O error.", e.what() };
+  }
+  catch (...) {
+    return Error { Error::Category::kIO, "I/O error."};
   }
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::importData()
+auto ListStoreXML<T,I,H,P,W>::parseStream(Glib::RefPtr<Gio::FileInputStream> istream) noexcept
+  -> Result<std::pair<ItemMap,OrderVector>>
 {
-  Parser parser;
-  Glib::Markup::ParseContext context(parser);
-
-  std::array<char, 4096> buffer;
-
   try {
-    bool dedicated_import = !import_path_.empty();
-    Glib::RefPtr<Gio::File> file;
+    Parser parser;
+    Glib::Markup::ParseContext context(parser);
+    std::array<char, 4096> buffer;
 
-    if (dedicated_import)
-      file = Gio::File::create_for_path(import_path_);
-    else
-      file = Gio::File::create_for_path(path_);
-
-    auto input_stream = file->read();
-    for (auto bytes_read = input_stream->read(buffer.data(), buffer.size());
+    for (auto bytes_read = istream->read(buffer.data(), buffer.size());
          bytes_read > 0;
-         bytes_read = input_stream->read(buffer.data(), buffer.size()))
+         bytes_read = istream->read(buffer.data(), buffer.size()))
     {
       context.parse(buffer.data(), buffer.data() + bytes_read);
     }
     context.end_parse();
-    t_map_ = parser.moveMap();
-    t_order_ = parser.moveOrder();
-  }
-  catch(const Gio::Error& e)
-  {
-    switch (e.code()) {
-    case Gio::Error::NOT_FOUND:
-      // ignore (file might not have been created yet)
-      break;
-    default:
-      import_error_ = true;
-      throw GMetronomeError { e.what() };
-      break;
-    }
-  }
-  catch(const Glib::MarkupError& e)
-  {
-    import_error_ = true;
-    throw GMetronomeError { e.what() };
-  }
-  catch(...)
-  {
-    import_error_ = true;
-    throw;
-  }
 
-  if (!import_path_.empty())
-    import_path_.clear();
-
-  pending_import_ = false;
+    return std::make_pair(parser.moveMap(), parser.moveOrder());
+  }
+  catch (const Gio::Error& e) {
+    return Error { Error::Category::kIO, "I/O error.", e.what() };
+  }
+  catch (const Glib::MarkupError& e) {
+    return Error { Error::Category::kParse, "Markup error.", e.what() };
+  }
+  catch (...) {
+    return Error { Error::Category::kUnknown, "Unknown error."};
+  }
 }
 
 template<typename T, typename I, typename H, typename P, typename W>
-void ListStoreXML<T,I,H,P,W>::exportData()
+auto ListStoreXML<T,I,H,P,W>::importData() noexcept -> Result<void>
 {
-  auto file = Gio::File::create_for_path(path_);
+  bool dedicated_import = !import_path_.empty();
+  const std::string& path = (dedicated_import) ? import_path_ : path_;
 
-  // Create parent directories, if necessary.
-  if ( auto parent = file->get_parent(); parent) {
+  if (auto istream_result = openFileInputStream(path); istream_result)
+  {
+    if (auto istream = istream_result.value(); istream)
+    {
+      if (auto parse_result = parseStream(istream); parse_result)
+      {
+        t_map_ = std::move(parse_result->first);
+        t_order_ = std::move(parse_result->second);
+      }
+      else {
+        printError("Failed to parse '" + path + "'.", parse_result.error());
+        import_error_ = true;
+        return parse_result.error();
+      }
+    }
+    else {} // Ok, file not found.
+  }
+  else {
+    printError("Failed to open '" + path + "'.", istream_result.error());
+    import_error_ = true;
+    return istream_result.error();
+  }
+
+  pending_import_ = false;
+  return {};
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::openFileOutputStream(const std::string& path, bool backup) noexcept
+  -> Result<Glib::RefPtr<Gio::FileOutputStream>>
+{
+  auto file = Gio::File::create_for_path(path_); // never fails
+
+  try {
     try {
-      parent->make_directory_with_parents();
+      // Create parent directories, if necessary.
+      if ( auto parent = file->get_parent(); parent)
+        parent->make_directory_with_parents();
     }
     catch (const Gio::Error& e) {
       if (e.code() != Gio::Error::EXISTS)
-      {
-        export_error_ = true;
-        throw GMetronomeError { e.what() };
-      }
+        throw;
     }
-  }
-  // Open output stream, replacing the file if it already exists.
-  Glib::RefPtr<Gio::FileOutputStream> ostream;
-  static const Gio::FileCreateFlags flags = Gio::FILE_CREATE_PRIVATE;
-  try {
-    ostream = file->replace(std::string(), false, flags);
+    // Open output stream and replace the file or create a new one.
+    // If backup is true, we try to make a backup. If that fails we try
+    // again without the backup flag set.
+    return file->replace(std::string(), backup, Gio::FILE_CREATE_PRIVATE);
   }
   catch (const Gio::Error& e) {
-    export_error_ = true;
-    throw GMetronomeError { e.what() };
+    if (e.code() == Gio::Error::CANT_CREATE_BACKUP) {
+      try {
+        return file->replace(std::string(), false, Gio::FILE_CREATE_PRIVATE);
+      }
+      catch (const Gio::Error& retry_e) {
+        return Error { Error::Category::kIO, "I/O error.", retry_e.what() };
+      }
+    }
+    else return Error { Error::Category::kIO, "I/O error.", e.what() };
   }
+  catch (...) {
+    return Error { Error::Category::kUnknown, "Unknown error." };
+  }
+}
 
-  Writer writer;
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::writeStream(Glib::RefPtr<Gio::FileOutputStream> ostream) noexcept
+  -> Result<void>
+{
+  try {
+    Writer writer;
 
-  std::string tl_name = std::string(PACKAGE) + "-" + writer.topLevelElementName();
-  std::string tl_open_tag = std::string("<") + tl_name + " version=\"" + PACKAGE_VERSION + "\">";
-  std::string tl_close_tag = std::string("</") + tl_name + ">";
+    std::string tl_name = std::string(PACKAGE) + "-" + writer.topLevelElementName();
+    std::string tl_open_tag = std::string("<") + tl_name + " version=\"" + PACKAGE_VERSION + "\">";
+    std::string tl_close_tag = std::string("</") + tl_name + ">";
 
-  assert(ostream);
-  ostream->write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-  ostream->write(tl_open_tag + "\n");
-  for (const auto& id : t_order_)
+    assert(ostream);
+    ostream->write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    ostream->write(tl_open_tag + "\n");
+    for (const auto& id : t_order_)
+    {
+      writer.writeItem(ostream, t_map_[id], id);
+    }
+    ostream->write(tl_close_tag + "\n");
+    ostream->flush();
+    ostream->close();
+
+    return {};
+  }
+  catch (const Gio::Error& e) {
+    return Error { Error::Category::kSerialization, "Serialization error.", e.what() };
+  }
+  catch (...) {
+    return Error { Error::Category::kUnknown, "Unknown error."};
+  }
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+auto ListStoreXML<T,I,H,P,W>::exportData() noexcept -> Result<void>
+{
+  // Open the backing file and try to make a backup if an import error
+  // occured previously. Then replace the file with the new content.
+  if (auto ostream_result = openFileOutputStream(path_, import_error_); !ostream_result)
   {
-    writer.writeEntry(ostream, t_map_[id], id);
+    printError("Failed to open '" + path_ + "'.", ostream_result.error());
+    export_error_ = true;
+    return ostream_result.error();
   }
-  ostream->write(tl_close_tag + "\n");
-  ostream->flush();
-  ostream->close();
+  else if (auto write_result = writeStream(*ostream_result); !write_result)
+  {
+    printError("Failed to write '" + path_ + "'.",  write_result.error());
+    export_error_ = true;
+    return write_result.error();
+  }
+  pending_export_ = false;
+  return {};
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+void ListStoreXML<T,I,H,P,W>::printError(const std::string& msg, const Error& e) const
+{
+#ifndef NDEBUG
+  std::cerr << "ListStoreXML: " << msg;
+  if (!e.what.empty())
+    std::cerr << " (" << e.what << ")";
+  std::cerr << std::endl;
+  if (!e.detail.empty())
+    std::cerr << "ListStoreXML: Detail: " << e.detail << std::endl;
+#endif
+}
+
+template<typename T, typename I, typename H, typename P, typename W>
+void ListStoreXML<T,I,H,P,W>::printMessage(const std::string& msg) const
+{
+#ifndef NDEBUG
+  std::cout << "ListStoreXML: " << msg << std::endl;
+#endif
 }
 
 #endif//GMetronome_ListStoreXML_h
