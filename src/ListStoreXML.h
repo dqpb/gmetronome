@@ -271,10 +271,10 @@ auto ListStoreXML<T,I,H,P,W>::openFileInputStream(const std::string& path) noexc
     if (e.code() == Gio::Error::NOT_FOUND)
       return {};
     else
-      return Error { Error::Category::kIO, "I/O error.", e.what() };
+      return Error { Error::Category::kIO, "I/O error, read.", e.what() };
   }
   catch (...) {
-    return Error { Error::Category::kIO, "I/O error."};
+    return Error { Error::Category::kIO, "I/O error, read."};
   }
 }
 
@@ -313,6 +313,8 @@ auto ListStoreXML<T,I,H,P,W>::importData() noexcept -> Result<void>
 {
   bool dedicated_import = !import_path_.empty();
   const std::string& path = (dedicated_import) ? import_path_ : path_;
+
+  if (path.empty()) return {};
 
   if (auto istream_result = openFileInputStream(path); istream_result)
   {
@@ -368,10 +370,10 @@ auto ListStoreXML<T,I,H,P,W>::openFileOutputStream(const std::string& path, bool
         return file->replace(std::string(), false, Gio::FILE_CREATE_PRIVATE);
       }
       catch (const Gio::Error& retry_e) {
-        return Error { Error::Category::kIO, "I/O error.", retry_e.what() };
+        return Error { Error::Category::kIO, "I/O error, write.", retry_e.what() };
       }
     }
-    else return Error { Error::Category::kIO, "I/O error.", e.what() };
+    else return Error { Error::Category::kIO, "I/O error, write.", e.what() };
   }
   catch (...) {
     return Error { Error::Category::kUnknown, "Unknown error." };
