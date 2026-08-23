@@ -417,9 +417,9 @@ namespace {
   }
 }//unnamed namespace
 
-void ProfileWriter::writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
-                               const Profile& profile,
-                               const Identifier& id)
+void ProfileWriter::writeItem(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                              const Profile& profile,
+                              const Identifier& id)
 {
   ostream->write("  <profile id=\"");
   ostream->write(id);

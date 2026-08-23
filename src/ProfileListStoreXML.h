@@ -38,13 +38,13 @@ public:
   ProfileParser& operator=(ProfileParser&& other) = default;
   ~ProfileParser() override = default;
 
-  EntryMap moveMap() override
+  ItemMap moveMap() override
     { return std::move(pmap_); }
   OrderVector moveOrder() override
     { return std::move(porder_); }
 
 private:
-  EntryMap pmap_;
+  ItemMap pmap_;
   OrderVector porder_;
   Profile* current_profile_{nullptr};
   Meter* current_meter_{nullptr};
@@ -73,9 +73,9 @@ public:
   const std::string& topLevelElementName() const override
     { return kTopLevelElementName; }
 
-  void writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
-                  const Profile& profile,
-                  const Identifier& id) override;
+  void writeItem(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                 const Profile& profile,
+                 const Identifier& id) override;
 private:
   inline static const std::string kTopLevelElementName {"profiles"};
 };
@@ -92,7 +92,7 @@ struct ProfileListStoreXML
 {
   ProfileListStoreXML(std::string path, std::string import_path = "")
     : ListStoreXML(path, import_path)
-  { /* nothing */ }
+    { /* nothing */ }
 };
 
 #endif//GMetronome_ProfileListStoreXML_h

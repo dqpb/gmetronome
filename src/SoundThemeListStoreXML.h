@@ -37,13 +37,13 @@ public:
   SoundThemeParser& operator=(SoundThemeParser&& other) = default;
   ~SoundThemeParser() override = default;
 
-  EntryMap moveMap() override
+  ItemMap moveMap() override
     { return std::move(t_map_); }
   OrderVector moveOrder() override
     { return std::move(t_order_); }
 
 private:
-  EntryMap t_map_;
+  ItemMap t_map_;
   OrderVector t_order_;
   std::stack<Glib::ustring> current_block_;
   SoundTheme* current_theme_{nullptr};
@@ -69,9 +69,9 @@ public:
   const std::string& topLevelElementName() const override
     { return kTopLevelElementName; }
 
-  void writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
-                  const SoundTheme& theme,
-                  const Identifier& id) override;
+  void writeItem(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                 const SoundTheme& theme,
+                 const Identifier& id) override;
 private:
   inline static const std::string kTopLevelElementName {"sound-themes"};
 };
@@ -88,7 +88,7 @@ struct SoundThemeListStoreXML
 {
   SoundThemeListStoreXML(std::string path, std::string import_path = "")
     : ListStoreXML(path, import_path)
-  { /* nothing */ }
+    { /* nothing */ }
 };
 
 #endif//GMetronome_SoundThemeListStoreXML_h

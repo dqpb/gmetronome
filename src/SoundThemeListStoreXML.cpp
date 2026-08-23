@@ -432,8 +432,8 @@ namespace {
   }
 }//unnamed namespace
 
-void SoundThemeWriter::writeEntry(Glib::RefPtr<Gio::FileOutputStream> ostream,
-                                  const SoundTheme& theme, const Identifier& id)
+void SoundThemeWriter::writeItem(Glib::RefPtr<Gio::FileOutputStream> ostream,
+                                 const SoundTheme& theme, const Identifier& id)
 {
   ostream->write("  <sound-theme id=\"");
   ostream->write(Glib::Markup::escape_text(id));
