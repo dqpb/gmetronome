@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The GMetronome Team
+ * Copyright (C) 2020,2026 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -22,39 +22,39 @@
 
 #include "Profile.h"
 #include "ListStore.h"
+
 #include <sigc++/sigc++.h>
 #include <memory>
 
 class ProfileManager {
 public:
+  // Type aliases
   using ListStoreType = ListStore<Profile, Profile::Identifier, Profile::Header>;
   using Primer = ListStoreType::Primer;
 
-  ProfileManager(std::unique_ptr<ListStoreType> ptr = nullptr);
+public:
+  ProfileManager(std::unique_ptr<ListStoreType> ptr = nullptr) : store_(std::move(ptr))
+    { /* nothing */ }
+  ProfileManager(ProfileManager&&) = default;
+  ProfileManager& operator=(ProfileManager&&) = default;
+  ~ProfileManager() = default;
 
-  ProfileManager(ProfileManager&& pmgr);
+  void setListStore(std::unique_ptr<ListStoreType> ptr);
 
-  ~ProfileManager();
-
-  void setIOModule(std::unique_ptr<ListStoreType> ptr);
-
-  Primer newProfile(const Profile::Header& header = {},
-                    const Profile::Content& content = {});
+  Primer newProfile(const Profile& profile = {});
 
   void deleteProfile(const Profile::Identifier& id);
 
   std::vector<Primer> profileList();
 
   Profile getProfile(const Profile::Identifier& id);
+  Profile::Content getProfileContent(const Profile::Identifier& id)
+    { return getProfile(id).content; }
+  Profile::Header getProfileHeader(const Profile::Identifier& id)
+    { return getProfile(id).header; }
 
   void setProfile(const Profile::Identifier& id, const Profile& profile);
-
-  Profile::Content getProfileContent(const Profile::Identifier& id);
-
   void setProfileContent(const Profile::Identifier& id, const Profile::Content& content);
-
-  Profile::Header getProfileHeader(const Profile::Identifier& id);
-
   void setProfileHeader(const Profile::Identifier& id, const Profile::Header& header);
 
   void reorderProfiles(const std::vector<Profile::Identifier>& order);
@@ -64,7 +64,9 @@ public:
 
 private:
   sigc::signal<void> signal_changed_;
-  std::unique_ptr<ListStoreType> io_;
+  std::unique_ptr<ListStoreType> store_;
+
+  void printError(const std::string& msg, const ListStoreType::Error& e = {});
 };
 
 #endif//GMetronome_ProfileManager_h
