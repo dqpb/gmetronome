@@ -22,102 +22,14 @@
 #endif
 
 #include "ProfileListStoreXML.h"
+#include "Convert.h"
 
 #include <algorithm>
+#include <string>
 #include <iterator>
-#include <charconv>
 #include <iostream>
-#include <cassert>
-#include <array>
-#include <cmath>
-
-#ifndef HAVE_CPP_LIB_TO_CHARS
-# include <sstream>
-#endif
 
 namespace {
-
-  template<class T>
-  std::string numberToString(const T& value)
-  {
-#ifdef HAVE_CPP_LIB_TO_CHARS
-    constexpr int kConvBufSize = 50;
-    std::array<char,kConvBufSize> str;
-    if(auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), value);
-       ec == std::errc())
-      return std::string(str.data(), p - str.data());
-    else
-      throw std::runtime_error {"failed to convert number to string"};
-#else
-    std::stringstream sstr;
-    sstr.imbue(std::locale::classic());
-    sstr << value;
-
-    std::string s;
-    sstr >> s;
-
-    if (sstr.fail())
-      throw std::runtime_error {"failed to convert number to string"};
-
-    return s;
-#endif
-  }
-
-  template<class T>
-  T stringToNumber(const std::string& str)
-  {
-#ifdef HAVE_CPP_LIB_TO_CHARS
-    T value;
-    if(auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
-       ec == std::errc())
-      return value;
-    else
-      throw std::runtime_error {"failed to convert string to number"};
-#else
-    std::stringstream sstr;
-    sstr.imbue(std::locale::classic());
-    sstr << str;
-
-    T value;
-    sstr >> value;
-
-    if (sstr.fail())
-      throw std::runtime_error {"failed to convert string to number"};
-
-    return value;
-#endif
-  }
-
-  std::string doubleToString(double value)
-  { return numberToString(std::round(value * 100.0) / 100.0); }
-
-  double stringToDouble(const std::string& str)
-  { return std::round(stringToNumber<double>(str) * 100.0) / 100.0; }
-
-  std::string intToString(int value)
-  { return numberToString(value); }
-
-  int stringToInt(const std::string& str)
-  { return stringToNumber<int>(str); }
-
-  std::string boolToString(bool value)
-  {
-    return value ? "true" : "false";
-  }
-
-  bool stringToBool(const Glib::ustring& text)
-  {
-    auto text_lowercase = text.lowercase();
-    if (text_lowercase == "true")
-      return true;
-    else if (text_lowercase == "false")
-      return false;
-    else if (std::stoi(text) == 0)
-      return false;
-    else
-      return true;
-  }
-
   std::string makeErrorMessage(Glib::Markup::ParseContext& context, const std::string& msg)
   {
     return "error on line " + std::to_string(context.get_line_number())
@@ -279,7 +191,7 @@ void ProfileParser::on_text (Glib::Markup::ParseContext& context,
       else if (current_block_.top() == "meter-section")
       {
         if (element_name_lowercase == "enabled")
-          current_profile_->content.meter_enabled = stringToBool(text);
+          current_profile_->content.meter_enabled = stringToBool(text.lowercase());
         else if (element_name_lowercase == "meter-select")
           current_profile_->content.meter_select = text;
       }
@@ -293,7 +205,7 @@ void ProfileParser::on_text (Glib::Markup::ParseContext& context,
       else if (current_block_.top() == "trainer-section")
       {
         if (element_name_lowercase == "enabled")
-          current_profile_->content.trainer_enabled = stringToBool(text);
+          current_profile_->content.trainer_enabled = stringToBool(text.lowercase());
         else if (element_name_lowercase == "mode")
           current_profile_->content.trainer_mode =
             static_cast<Profile::TrainerMode>(stringToInt(text));

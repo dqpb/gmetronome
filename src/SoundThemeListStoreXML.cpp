@@ -22,125 +22,16 @@
 #endif
 
 #include "SoundThemeListStoreXML.h"
+#include "Convert.h"
 #include "Error.h"
 
 #include <iterator>
-#include <charconv>
 #include <iostream>
-#include <cassert>
-#include <stack>
-#include <array>
+#include <string>
 #include <string_view>
 #include <utility>
 
-#ifndef HAVE_CPP_LIB_TO_CHARS
-# include <sstream>
-#endif
-
 namespace {
-
-  template<class T>
-  std::string numberToString(const T& value)
-  {
-#ifdef HAVE_CPP_LIB_TO_CHARS
-    constexpr int kConvBufSize = 50;
-    std::array<char,kConvBufSize> str;
-    if(auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), value);
-       ec == std::errc())
-      return std::string(str.data(), p - str.data());
-    else
-      throw std::runtime_error {"failed to convert number to string"};
-#else
-    std::stringstream sstr;
-    sstr.imbue(std::locale::classic());
-    sstr << value;
-
-    std::string s;
-    sstr >> s;
-
-    if (sstr.fail())
-      throw std::runtime_error {"failed to convert number to string"};
-
-    return s;
-#endif
-  }
-
-  template<class T>
-  T stringToNumber(const std::string& str)
-  {
-#ifdef HAVE_CPP_LIB_TO_CHARS
-    T value;
-    if(auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
-       ec == std::errc())
-      return value;
-    else
-      throw std::runtime_error {"failed to convert string to number"};
-#else
-    std::stringstream sstr;
-    sstr.imbue(std::locale::classic());
-    sstr << str;
-
-    T value;
-    sstr >> value;
-
-    if (sstr.fail())
-      throw std::runtime_error {"failed to convert string to number"};
-
-    return value;
-#endif
-  }
-
-  std::string doubleToString(double value)
-  { return numberToString(std::round(value * 100.0) / 100.0); }
-
-  double stringToDouble(const std::string& str)
-  { return std::round(stringToNumber<double>(str) * 100.0) / 100.0; }
-
-#define RAMP_SHAPE_LIST                                         \
-  X(audio::EnvelopeRampShape::kLinear,       "linear")          \
-  X(audio::EnvelopeRampShape::kCubic,        "cubic")           \
-  X(audio::EnvelopeRampShape::kCubicFlipped, "cubic-flipped")
-
-  std::string rampShapeToString(audio::EnvelopeRampShape shape)
-  {
-    switch (shape) {
-#define X(entry, entry_str) case entry: return entry_str;
-      RAMP_SHAPE_LIST
-#undef X
-    default: return "";
-    }
-  }
-
-  audio::EnvelopeRampShape stringToRampShape(const Glib::ustring& str)
-  {
-#define X(entry, entry_str) if (str.lowercase() == entry_str) { return entry; }
-    RAMP_SHAPE_LIST
-#undef X
-      return audio::EnvelopeRampShape::kLinear;
-  }
-
-#define HOLD_SHAPE_LIST                                 \
-  X(audio::EnvelopeHoldShape::kKeep,    "keep")         \
-  X(audio::EnvelopeHoldShape::kQuartic, "quartic")
-
-  std::string holdShapeToString(audio::EnvelopeHoldShape shape)
-  {
-    switch (shape) {
-#define X(entry, entry_str) case entry: return entry_str;
-      HOLD_SHAPE_LIST
-#undef X
-    default: return "";
-    }
-  }
-
-  audio::EnvelopeHoldShape stringToHoldShape(const Glib::ustring& str)
-  {
-#define X(entry, entry_str) if (str.lowercase() == entry_str) { return entry; }
-    HOLD_SHAPE_LIST
-#undef X
-      return audio::EnvelopeHoldShape::kKeep;
-  }
-
   // Split sound key of form "<category>/<id>" to a pair {<category>, <id>}
   std::pair<std::string_view, std::string_view> splitSoundKey(std::string_view key)
   {
@@ -294,15 +185,15 @@ void SoundThemeParser::on_text(Glib::Markup::ParseContext& context,
         else if (element_name_lc == "attack")
           current_params_->tone_attack = stringToDouble(text);
         else if (element_name_lc == "attack-shape")
-          current_params_->tone_attack_shape = stringToRampShape(text);
+          current_params_->tone_attack_shape = stringToRampShape(text.lowercase());
         else if (element_name_lc == "hold")
           current_params_->tone_hold = stringToDouble(text);
         else if (element_name_lc == "hold-shape")
-          current_params_->tone_hold_shape = stringToHoldShape(text);
+          current_params_->tone_hold_shape = stringToHoldShape(text.lowercase());
         else if (element_name_lc == "decay")
           current_params_->tone_decay = stringToDouble(text);
         else if (element_name_lc == "decay-shape")
-          current_params_->tone_decay_shape = stringToRampShape(text);
+          current_params_->tone_decay_shape = stringToRampShape(text.lowercase());
       }
       else if (current_block_.top() == "noise" && current_params_ != nullptr)
       {
@@ -311,15 +202,15 @@ void SoundThemeParser::on_text(Glib::Markup::ParseContext& context,
         else if (element_name_lc == "attack")
           current_params_->noise_attack = stringToDouble(text);
         else if (element_name_lc == "attack-shape")
-          current_params_->noise_attack_shape = stringToRampShape(text);
+          current_params_->noise_attack_shape = stringToRampShape(text.lowercase());
         else if (element_name_lc == "hold")
           current_params_->noise_hold = stringToDouble(text);
         else if (element_name_lc == "hold-shape")
-          current_params_->noise_hold_shape = stringToHoldShape(text);
+          current_params_->noise_hold_shape = stringToHoldShape(text.lowercase());
         else if (element_name_lc == "decay")
           current_params_->noise_decay = stringToDouble(text);
         else if (element_name_lc == "decay-shape")
-          current_params_->noise_decay_shape = stringToRampShape(text);
+          current_params_->noise_decay_shape = stringToRampShape(text.lowercase());
       }
     }
     catch(const std::exception& error)
