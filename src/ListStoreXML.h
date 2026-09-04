@@ -226,6 +226,7 @@ auto ListStoreXML<T,I,H,P,W>::update(const Identifier& id, const Patch& patch) -
 
   try {
     patch.apply( t_map_.at(id) );
+    pending_export_ = true;
   }
   catch (const std::out_of_range&) {
     return Error {Error::Category::kNotFound, "Item not found."};
