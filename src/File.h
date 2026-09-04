@@ -32,8 +32,8 @@ namespace file {
   const std::vector<std::string>& systemDataDirectories();
 
   inline const std::string kProfilesFileName = "profiles.xml";
-  inline const std::string kSoundThemesFileName = "sound_themes.xml";
-  inline const std::string kSoundThemesPresetsFileName = "sound_themes_presets.xml";
+  inline const std::string kSoundThemesFileName = "sounds.xml";
+  inline const std::string kSoundThemesPresetsFileName = "presets.xml";
 
   // E.g. ~/.share/gmetronome/profiles.xml
   const std::string& userProfilesPath();
