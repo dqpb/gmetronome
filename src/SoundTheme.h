@@ -57,4 +57,6 @@ struct SoundTheme
   Content content;
 };
 
+inline const SoundTheme kDefaultSoundTheme;
+
 #endif//GMetronome_SoundTheme_h
