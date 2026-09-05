@@ -28,6 +28,7 @@
 #include "Pendulum.h"
 #include "Application.h"
 #include "AccentButton.h"
+#include "SettingsDialog.h"
 #include "AccentButtonGrid.h"
 #include "SynchronizableCtrl.h"
 
@@ -35,14 +36,13 @@
 
 #include <list>
 #include <vector>
+#include <memory>
 
 class ActionBinding;
-class SettingsDialog;
 
 class MainWindow : public Gtk::ApplicationWindow, public Synchronizable {
 public:
   MainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
-  virtual ~MainWindow();
 
   static MainWindow* create();
 
@@ -97,9 +97,9 @@ private:
   sigc::connection volume_label_hide_timer_connection_;
 
   // Dialogs
-  SettingsDialog* preferences_dialog_;
+  std::unique_ptr<SettingsDialog> preferences_dialog_;
   GMetronomeAboutDialog about_dialog_;
-  Gtk::ShortcutsWindow* shortcuts_window_;
+  std::unique_ptr<Gtk::ShortcutsWindow> shortcuts_window_;
 
   // UI elements
   Gtk::Box titlebar_box_;

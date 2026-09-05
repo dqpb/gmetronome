@@ -147,7 +147,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
                        const Glib::RefPtr<Gtk::Builder>& builder)
   : Gtk::ApplicationWindow(cobject),
     builder_{builder},
-    shortcuts_window_{nullptr},
     bottom_resizable_{true}
 {
   // install global css provider for default screen
@@ -271,7 +270,7 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   profile_tree_view_->enable_model_drag_source();
   profile_tree_view_->enable_model_drag_dest();
 
-  preferences_dialog_ = SettingsDialog::create(*this);
+  preferences_dialog_ = std::unique_ptr<SettingsDialog>(SettingsDialog::create(*this));
 
   initActions();
   initUI();
@@ -578,15 +577,6 @@ void MainWindow::initBindings()
 
   app_->signalTickerInfo()
     .connect(sigc::mem_fun(*this, &MainWindow::onTickerInfo));
-}
-
-MainWindow::~MainWindow()
-{
-  if (preferences_dialog_ != nullptr)
-    delete preferences_dialog_;
-
-  if (shortcuts_window_ != nullptr)
-    delete shortcuts_window_;
 }
 
 bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
@@ -1033,13 +1023,9 @@ void MainWindow::onShowShortcuts(const Glib::VariantBase& parameter)
 
   Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create_from_string(ui);
 
-  if (shortcuts_window_ != nullptr)
-  {
-    delete shortcuts_window_;
-    shortcuts_window_ = nullptr;
-  }
-
-  builder->get_widget("shortcutsWindow", shortcuts_window_);
+  Gtk::ShortcutsWindow* new_window;
+  builder->get_widget("shortcutsWindow", new_window);
+  shortcuts_window_.reset(new_window);
 
   shortcuts_window_->unset_view_name();
   shortcuts_window_->property_section_name() = "shortcuts";
