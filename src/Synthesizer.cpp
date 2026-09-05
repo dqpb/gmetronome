@@ -39,30 +39,31 @@ namespace audio {
     p.tone_pitch  = std::clamp(p.tone_pitch,      40.0f, 10000.0f);     // hertz
     p.tone_timbre = std::clamp(p.tone_timbre,      0.0f,     3.0f);     //
     p.tone_detune = std::clamp(p.tone_detune,      0.0f,   100.0f);     // cents
-
     p.tone_attack = std::clamp(p.tone_attack,      0.0f,    20.0f);     // ms
     clampEnvelopeRampShape(p.tone_attack_shape);
-
     p.tone_hold   = std::clamp(p.tone_hold,        0.0f,    20.0f);     // ms
     clampEnvelopeHoldShape(p.tone_hold_shape);
-
     p.tone_decay  = std::clamp(p.tone_decay,       0.0f,    20.0f);     // ms
     clampEnvelopeRampShape(p.tone_decay_shape);
 
     p.noise_cutoff = std::clamp(p.noise_cutoff,   40.0f, 10000.0f);     // hertz
-
     p.noise_attack = std::clamp(p.noise_attack,    0.0f,    20.0f);     // ms
     clampEnvelopeRampShape(p.noise_attack_shape);
-
     p.noise_hold   = std::clamp(p.noise_hold,      0.0f,    20.0f);     // ms
     clampEnvelopeHoldShape(p.noise_hold_shape);
-
     p.noise_decay  = std::clamp(p.noise_decay,     0.0f,    20.0f);     // ms
     clampEnvelopeRampShape(p.noise_decay_shape);
 
     p.mix    = std::clamp(p.mix,   -100.0f, 100.0f);   // percent
     p.pan    = std::clamp(p.pan,   -100.0f, 100.0f);   // percent
-    p.volume = std::clamp(p.volume,   0.0f, 100.0f);   // percent
+    p.volume = std::clamp(p.volume,   0.0f, 150.0f);   // percent
+  }
+
+  SoundParameters clampSoundParameters(const SoundParameters& params)
+  {
+    SoundParameters p = params;
+    clampSoundParameters(p);
+    return p;
   }
 
   void clampEnvelopeRampShape(EnvelopeRampShape& shape)
@@ -113,21 +114,21 @@ namespace audio {
     wavetables_.apply();
 
     // configure filter pipes
-    filter::get<1>(osc_pipe_).setWavetable(&wavetables_[kSineTable]);
-    filter::get<2>(osc_pipe_).setWavetable(&wavetables_[kTriangleTable]);
-    filter::get<3>(osc_pipe_).setWavetable(&wavetables_[kSawtoothTable]);
-    filter::get<4>(osc_pipe_).setWavetable(&wavetables_[kSquareTable]);
+    filter::get<1>(tone_pipe_).setWavetable(&wavetables_[kSineTable]);
+    filter::get<2>(tone_pipe_).setWavetable(&wavetables_[kTriangleTable]);
+    filter::get<3>(tone_pipe_).setWavetable(&wavetables_[kSawtoothTable]);
+    filter::get<4>(tone_pipe_).setWavetable(&wavetables_[kSquareTable]);
 
     // resize audio buffers
     const StreamSpec filter_buffer_spec =
       { filter::kDefaultSampleFormat, spec.rate, 2 };
 
     noise_buffer_.resize(filter_buffer_spec, kSoundDuration);
-    osc_buffer_.resize(filter_buffer_spec, kSoundDuration);
+    tone_buffer_.resize(filter_buffer_spec, kSoundDuration);
 
     // prepare filter pipes
     noise_pipe_.prepare(filter_buffer_spec);
-    osc_pipe_.prepare(filter_buffer_spec);
+    tone_pipe_.prepare(filter_buffer_spec);
 
     spec_ = spec;
   }
@@ -141,10 +142,6 @@ namespace audio {
 
   void Synthesizer::update(ByteBuffer& buffer, const SoundParameters& params)
   {
-    assert(!std::isnan(params.tone_timbre));
-    assert(!std::isnan(params.tone_pitch));
-    //...
-
     if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
     {
 #ifndef NDEBUG
@@ -153,98 +150,86 @@ namespace audio {
       buffer.resize(spec_, kSoundDuration);
     }
 
-    float osc_pitch          = std::clamp(params.tone_pitch, 40.0f, 10000.0f);
-    float osc_timbre         = std::clamp(params.tone_timbre, 0.0f, 3.0f);
-    float osc_detune         = std::clamp(params.tone_detune, 0.0f, 100.0f);
-    float osc_attack         = std::clamp(params.tone_attack, 0.0f, 20.0f);
-    auto  osc_attack_shape   = params.tone_attack_shape;
-    float osc_hold           = std::clamp(params.tone_hold, 0.0f, 20.0f);
-    auto  osc_hold_shape     = params.tone_hold_shape;
-    float osc_decay          = std::clamp(params.tone_decay, 0.0f, 20.0f);
-    auto  osc_decay_shape    = params.tone_decay_shape;
+    SoundParameters p = clampSoundParameters(params);
 
-    float noise_cutoff       = std::clamp(params.noise_cutoff, 40.0f, 10000.0f);
-    float noise_attack       = std::clamp(params.noise_attack, 0.0f, 20.0f);
-    auto  noise_attack_shape = params.noise_attack_shape;
-    float noise_hold         = std::clamp(params.noise_hold, 0.0f, 20.0f);
-    auto  noise_hold_shape   = params.noise_hold_shape;
-    float noise_decay        = std::clamp(params.noise_decay, 0.0f, 20.0f);
-    auto  noise_decay_shape  = params.noise_decay_shape;
+    float gain = volumeToAmplitude(p.volume);
 
-    float mix    = std::clamp(params.mix, -100.0f, 100.0f);
-    float pan    = std::clamp(params.pan, -100.0f, 100.0f);
-    float volume = std::clamp(params.volume, 0.0f, 125.0f);
+    float tone_gain  = std::cos( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );
+    float noise_gain = std::sin( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );
 
-    float gain = volumeToAmplitude(volume);
+    float sine_gain     = tone_gain * std::clamp( 1.0f - std::abs(0.0f - p.tone_timbre), 0.0f, 1.0f);
+    float triangle_gain = tone_gain * std::clamp( 1.0f - std::abs(1.0f - p.tone_timbre), 0.0f, 1.0f);
+    float sawtooth_gain = tone_gain * std::clamp( 1.0f - std::abs(2.0f - p.tone_timbre), 0.0f, 1.0f);
+    float square_gain   = tone_gain * std::clamp( 1.0f - std::abs(3.0f - p.tone_timbre), 0.0f, 1.0f);
 
-    float osc_gain   = std::cos( (M_PI / 2.0) * (100.0 + mix) / 200.0 );
-    float noise_gain = std::sin( (M_PI / 2.0) * (100.0 + mix) / 200.0 );
+    auto tone_envelope = buildEnvelope(
+      p.tone_attack,
+      p.tone_attack_shape,
+      p.tone_hold,
+      p.tone_hold_shape,
+      p.tone_decay,
+      p.tone_decay_shape);
 
-    float sine_gain     = osc_gain * std::clamp( 1.0f - std::abs(0.0f - osc_timbre), 0.0f, 1.0f);
-    float triangle_gain = osc_gain * std::clamp( 1.0f - std::abs(1.0f - osc_timbre), 0.0f, 1.0f);
-    float sawtooth_gain = osc_gain * std::clamp( 1.0f - std::abs(2.0f - osc_timbre), 0.0f, 1.0f);
-    float square_gain   = osc_gain * std::clamp( 1.0f - std::abs(3.0f - osc_timbre), 0.0f, 1.0f);
-
-    auto osc_envelope
-      = buildEnvelope(osc_attack, osc_attack_shape, osc_hold, osc_hold_shape,
-                      osc_decay, osc_decay_shape);
-
-    auto noise_envelope
-      = buildEnvelope(noise_attack, noise_attack_shape, noise_hold, noise_hold_shape,
-                      noise_decay, noise_decay_shape);
+    auto noise_envelope = buildEnvelope(
+      p.noise_attack,
+      p.noise_attack_shape,
+      p.noise_hold,
+      p.noise_hold_shape,
+      p.noise_decay,
+      p.noise_decay_shape);
 
     filter::std::Wave::Parameters sine_params =
       {
-        osc_pitch,
+        p.tone_pitch,
         sine_gain,
         0.0f,
-        osc_detune
+        p.tone_detune
       };
     filter::std::Wave::Parameters triangle_params =
       {
-        osc_pitch,
+        p.tone_pitch,
         triangle_gain,
         0.0f,
-        osc_detune
+        p.tone_detune
       };
     filter::std::Wave::Parameters sawtooth_params =
       {
-        osc_pitch,
+        p.tone_pitch,
         sawtooth_gain,
         0.0f,
-        osc_detune
+        p.tone_detune
       };
     filter::std::Wave::Parameters square_params =
       {
-        osc_pitch,
+        p.tone_pitch,
         square_gain,
         0.0f,
-        osc_detune
+        p.tone_detune
       };
 
     // configure noise pipe
     filter::get<filter::std::Noise>   (noise_pipe_).setAmplitude (noise_gain);
-    filter::get<filter::std::Lowpass> (noise_pipe_).setCutoff (noise_cutoff);
+    filter::get<filter::std::Lowpass> (noise_pipe_).setCutoff (p.noise_cutoff);
     filter::get<filter::std::Gain>    (noise_pipe_).setEnvelope (std::move(noise_envelope));
 
     // apply noise pipe
     noise_pipe_.process(noise_buffer_);
 
     // configure oscillator pipe
-    filter::get<1> /* Wave */ (osc_pipe_).setParameters(sine_params);
-    filter::get<2> /* Wave */ (osc_pipe_).setParameters(triangle_params);
-    filter::get<3> /* Wave */ (osc_pipe_).setParameters(sawtooth_params);
-    filter::get<4> /* Wave */ (osc_pipe_).setParameters(square_params);
-    filter::get<5> /* Gain */ (osc_pipe_).setEnvelope(std::move(osc_envelope));
-    filter::get<6> /* Mix  */ (osc_pipe_).setBuffer(&noise_buffer_);
-    filter::get<6>            (osc_pipe_).setGain(gain);
-    filter::get<6>            (osc_pipe_).setPan( pan / 100.0f );
+    filter::get<1> /* Wave */ (tone_pipe_).setParameters(sine_params);
+    filter::get<2> /* Wave */ (tone_pipe_).setParameters(triangle_params);
+    filter::get<3> /* Wave */ (tone_pipe_).setParameters(sawtooth_params);
+    filter::get<4> /* Wave */ (tone_pipe_).setParameters(square_params);
+    filter::get<5> /* Gain */ (tone_pipe_).setEnvelope(std::move(tone_envelope));
+    filter::get<6> /* Mix  */ (tone_pipe_).setBuffer(&noise_buffer_);
+    filter::get<6>            (tone_pipe_).setGain(gain);
+    filter::get<6>            (tone_pipe_).setPan( p.pan / 100.0f );
 
     // apply oscillator pipe
-    osc_pipe_.process(osc_buffer_);
+    tone_pipe_.process(tone_buffer_);
 
     // resample from floating point to target format
-    resample(osc_buffer_, buffer);
+    resample(tone_buffer_, buffer);
   }
 
   namespace {

@@ -69,11 +69,12 @@ namespace audio {
 
     float mix     {-100.0f}; // [-100.0f, 100.0f] (percent)
     float pan     {0.0f};    // [-100.0f, 100.0f] (percent)
-    float volume  {75.0f};   // [   0.0f, 100.0f] (percent)
+    float volume  {75.0f};   // [   0.0f, 150.0f] (percent)
   };
 
   // clamp SoundParameter values to the valid range
   void clampSoundParameters(SoundParameters& params);
+  SoundParameters clampSoundParameters(const SoundParameters& params);
   void clampEnvelopeRampShape(EnvelopeRampShape& shape);
   void clampEnvelopeHoldShape(EnvelopeHoldShape& shape);
 
@@ -111,7 +112,7 @@ namespace audio {
 
   private:
     StreamSpec spec_;
-    ByteBuffer osc_buffer_;
+    ByteBuffer tone_buffer_;
     ByteBuffer noise_buffer_;
 
     // wavetable library keys
@@ -141,7 +142,7 @@ namespace audio {
       | filter::std::Mix()
     );
 
-    OscFilterPipe osc_pipe_;
+    OscFilterPipe tone_pipe_;
 
     filter::Automation buildEnvelope(float attack, EnvelopeRampShape attack_shape,
                                      float hold, EnvelopeHoldShape hold_shape,
