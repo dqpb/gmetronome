@@ -32,14 +32,14 @@ namespace file {
   const std::vector<std::string>& systemDataDirectories();
 
   inline const std::string kProfilesFileName = "profiles.xml";
-  inline const std::string kSoundThemesFileName = "sounds.xml";
-  inline const std::string kSoundThemesPresetsFileName = "presets.xml";
+  inline const std::string kSoundsFileName = "sounds.xml";
+  inline const std::string kPresetsFileName = "presets.xml";
 
   // E.g. ~/.share/gmetronome/profiles.xml
   const std::string& userProfilesPath();
 
-  // E.g. ~/.share/gmetronome/sound_themes.xml
-  const std::string& userSoundThemesPath();
+  // E.g. ~/.share/gmetronome/sounds.xml
+  const std::string& userSoundsPath();
 
   // Search for a resource file beginning with user data directory (~/share/gmetronome)
   // followed by system-wide data direcories (/usr/local/share/gmetronome, ...)
@@ -48,9 +48,9 @@ namespace file {
   // Search and cache profiles file path.
   const std::string& lookupProfilesPath();
   // Search and cache sound themes file path.
-  const std::string& lookupSoundThemesPath();
+  const std::string& lookupSoundsPath();
   // Search and cache sound themes presets file path.
-  const std::string& lookupSoundThemesPresetsPath();
+  const std::string& lookupPresetsPath();
 
 }//namespace file
 #endif//GMetronome_File_h

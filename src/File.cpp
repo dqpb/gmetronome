@@ -59,9 +59,9 @@ namespace file {
     return path;
   }
 
-  const std::string& userSoundThemesPath()
+  const std::string& userSoundsPath()
   {
-    static const std::string path = Glib::build_filename(userDataDirectory(), kSoundThemesFileName);
+    static const std::string path = Glib::build_filename(userDataDirectory(), kSoundsFileName);
     return path;
   }
 
@@ -87,14 +87,14 @@ namespace file {
     static const std::string path = lookupResourceFile(kProfilesFileName);
     return path;
   }
-  const std::string& lookupSoundThemesPath()
+  const std::string& lookupSoundsPath()
   {
-    static const std::string path = lookupResourceFile(kSoundThemesFileName);
+    static const std::string path = lookupResourceFile(kSoundsFileName);
     return path;
   }
-  const std::string& lookupSoundThemesPresetsPath()
+  const std::string& lookupPresetsPath()
   {
-    static const std::string path = lookupResourceFile(kSoundThemesPresetsFileName);
+    static const std::string path = lookupResourceFile(kPresetsFileName);
     return path;
   }
 }//namspace file
