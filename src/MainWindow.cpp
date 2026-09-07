@@ -100,13 +100,13 @@ MainWindow* MainWindow::create()
   Gtk::IconTheme::get_default()->add_resource_path(icons_resource_path);
 
   // Load the Builder file and instantiate its widgets.
-  auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/MainWindow.glade";
+  auto win_resource_path = Glib::ustring(PACKAGE_ID_PATH) + "/ui/MainWindow.ui";
   auto builder_ = Gtk::Builder::create_from_resource(win_resource_path);
 
   MainWindow* window = nullptr;
   builder_->get_widget_derived("mainWindow", window);
   if (!window)
-    throw std::runtime_error("No \"mainWindow\" object in MainWindow.glade");
+    throw std::runtime_error("No \"mainWindow\" object in MainWindow.ui");
 
   return window;
 }
