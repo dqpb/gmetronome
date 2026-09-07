@@ -104,3 +104,7 @@ EXTRA_DIST = \
 	icons/256x256/org.gnome.gitlab.dqpb.GMetronome.png \
 	icons/scalable/org.gnome.gitlab.dqpb.GMetronome.svg \
 	icons/scalable/org.gnome.gitlab.dqpb.GMetronome-symbolic.svg
+
+# Install presets.xml
+pkgdatadir = $(datadir)/$(PACKAGE)
+dist_pkgdata_DATA = presets.xml

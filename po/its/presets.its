@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<its:rules xmlns:its="http://www.w3.org/2005/11/its"
+	   xmlns:gt="https://www.gnu.org/s/gettext/ns/its/extensions/1.0"
+	   version="2.0">
+
+  <its:translateRule
+      selector="/gmetronome-sound-themes"
+      translate="no"/>
+
+  <its:translateRule
+      selector="/gmetronome-sound-themes/sound-theme/header/title"
+      translate="yes"/>
+  <gt:contextRule
+      selector="/gmetronome-sound-themes/sound-theme/header/title"
+      contextPointer="@context"/>
+  <its:locNoteRule
+      selector="/gmetronome-sound-themes/sound-theme/header/title"
+      locNoteType="description"
+      locNotePointer="../description"/>
+  <gt:escapeRule
+      selector="/gmetronome-sound-themes/sound-theme/header/title"
+      escape="no"/>
+
+  <its:translateRule
+      selector="/gmetronome-sound-themes/sound-theme/header/description"
+      translate="yes"/>
+  <gt:contextRule
+      selector="/gmetronome-sound-themes/sound-theme/header/description"
+      contextPointer="@context"/>
+  <gt:escapeRule
+      selector="/gmetronome-sound-themes/sound-theme/header/description"
+      escape="no"/>
+
+</its:rules>

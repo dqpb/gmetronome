@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<locatingRules>
+       <locatingRule name="GMetronomePresets" pattern="presets.xml">
+	       <documentRule localName="gmetronome-sound-themes" target="presets.its"/>
+       </locatingRule>
+</locatingRules>
