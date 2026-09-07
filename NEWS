@@ -1,6 +1,8 @@
 2026-??-??  0.5.2
 
 	* Revised volume control
+	* Migrated sound themes from gsettings to xml file
+	* Added reordering of custom sound themes
 
 2026-08-14  0.5.1
 
