@@ -12,6 +12,7 @@ gmetronome_SOURCES = \
 	AudioBackendDummy.cpp \
 	AudioBuffer.cpp \
 	Auxiliary.cpp \
+	Convert.cpp \
 	Error.cpp \
 	File.cpp \
 	Filter.cpp \
@@ -29,6 +30,7 @@ gmetronome_SOURCES = \
 	Settings.cpp \
 	SettingsDialog.cpp \
 	Shortcut.cpp \
+	SoundMigration.cpp \
 	SoundThemeEditor.cpp \
 	SoundThemeListStoreXML.cpp \
 	SoundThemeManager.cpp \
@@ -63,6 +65,7 @@ noinst_HEADERS = \
 	AudioBackendDummy.h \
 	AudioBuffer.h \
 	Auxiliary.h \
+	Convert.h \
 	Error.h \
 	File.h \
 	Filter.h \
@@ -89,12 +92,14 @@ noinst_HEADERS = \
 	SettingsList.h \
 	Shortcut.h \
 	SoundLibrary.h \
+	SoundMigration.h \
 	SoundTheme.h \
 	SoundThemeSettingsList.h \
 	SoundThemeEditor.h \
 	SoundThemeListStoreXML.h \
 	SoundThemeManager.h \
 	SpinLock.h \
+	StateButton.h \
 	Synchronizable.h \
 	SynchronizableCtrl.h \
 	Synthesizer.h \
@@ -106,10 +111,10 @@ noinst_HEADERS = \
 resourcesdir = $(top_srcdir)/src/resources
 
 resources = \
-	$(resourcesdir)/ui/ShortcutDialog.glade \
-	$(resourcesdir)/ui/MainWindow.glade \
-	$(resourcesdir)/ui/SettingsDialog.glade \
-	$(resourcesdir)/ui/SoundThemeEditor.glade \
+	$(resourcesdir)/ui/ShortcutDialog.ui \
+	$(resourcesdir)/ui/MainWindow.ui \
+	$(resourcesdir)/ui/SettingsDialog.ui \
+	$(resourcesdir)/ui/SoundThemeEditor.ui \
 	$(resourcesdir)/icons/gm-access-profile-symbolic.svg \
 	$(resourcesdir)/icons/gm-access-profile-symbolic-rtl.svg \
 	$(resourcesdir)/icons/gm-access-menu-symbolic.svg \
