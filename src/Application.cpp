@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 The GMetronome Team
+ * Copyright (C) 2020-2026 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -26,8 +26,10 @@
 #include "Meter.h"
 #include "Shortcut.h"
 #include "Settings.h"
+#include "SoundMigration.h"
 #include "SoundThemeSettingsList.h"
 #include "ProfileListStoreXML.h"
+#include "SoundThemeListStoreXML.h"
 #include "File.h"
 
 #include <chrono>
@@ -80,6 +82,8 @@ void Application::on_startup()
   initSettings();
   // initialize application actions
   initActions();
+  // initialize sound themes
+  initSounds();
   // initialize UI (i.e.MainWindow)
   initUI();
   // initialize ticker
@@ -95,9 +99,6 @@ void Application::on_activate()
 
 void Application::initSettings()
 {
-  settings::soundThemes()->settings()->signal_changed()
-    .connect(sigc::mem_fun(*this, &Application::onSettingsSoundChanged));
-
   settings::preferences()->signal_changed()
     .connect(sigc::mem_fun(*this, &Application::onSettingsPrefsChanged));
 
@@ -236,9 +237,66 @@ void Application::initProfiles()
   }
 }
 
+void Application::initSounds()
+{
+  if (sound_migration::check()) {
+#ifndef NDEBUG
+      std::cout << "Application: Migrate custom sounds to user file." << std::endl;
+#endif
+      if (sound_migration::transfer()) {
+#ifndef NDEBUG
+        if (sound_migration::validate())
+          std::cout << "Application: Sound migration successful." << std::endl;
+        else
+          std::cerr << "Application: Failed to validate sounds after migration." << std::endl;
+#endif
+      }
+      else {
+#ifndef NDEBUG
+        std::cerr << "Application: Failed to migrate custom sounds." << std::endl;
+#endif
+      }
+  }
+
+  auto preset_path = file::lookupPresetsPath();
+  auto custom_path = file::userSoundsPath();
+  auto custom_preset_path = file::lookupSoundsPath();
+
+#ifndef NDEBUG
+  if (preset_path.empty())
+    std::cout << "Application: No sound preset file found." << std::endl;
+#endif
+
+  auto preset_store =
+    std::make_unique<SoundThemeListStoreXML>(std::move(preset_path));
+  auto custom_store =
+    std::make_unique<SoundThemeListStoreXML>(std::move(custom_path),
+                                             std::move(custom_preset_path));
+#ifndef NDEBUG
+  std::size_t num_sounds = 0;
+  std::size_t num_presets = 0;
+
+  if (auto result = custom_store->list()) num_sounds = result->size();
+  if (auto result = preset_store->list()) num_presets = result->size();
+
+  std::cout << "Application: Found "
+            << num_sounds << " user sound(s) and "
+            << num_presets << " preset(s)." << std::endl;
+#endif
+
+  sound_theme_manager_.setPresetStore(std::move(preset_store));
+  sound_theme_manager_.setStore(std::move(custom_store));
+
+  sound_theme_manager_.signalUpdated().connect(
+    sigc::mem_fun(*this, &Application::onSoundThemeUpdated));
+
+  sound_theme_manager_.signalSelected().connect(
+    sigc::mem_fun(*this, &Application::onSoundThemeSelected));
+}
+
 void Application::initTicker()
 {
-  loadSelectedSoundTheme();
+  updateTickerSound();
   configureAudioBackend();
 }
 
@@ -285,51 +343,6 @@ namespace {
   }
 }//unnamed namespace
 
-void Application::loadSelectedSoundTheme()
-{
-  std::for_each(settings_sound_params_connections_.begin(),
-                settings_sound_params_connections_.end(),
-                [] (auto& connection) { connection.disconnect(); });
-
-  std::for_each(settings_sound_params_.begin(),
-                settings_sound_params_.end(),
-                [] (auto& settings) { settings.reset(); });
-
-  if (auto theme_id = settings::soundThemes()->selected(); !theme_id.empty())
-  {
-    try {
-      auto& theme_settings = settings::soundThemes()->settings(theme_id);
-
-      for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
-      {
-        const auto& path = settings::kSchemaPathSoundThemeParamsBasenameMap.at(accent);
-        settings_sound_params_[accent] = theme_settings.children.at(path).settings;
-
-        if (settings_sound_params_[accent])
-        {
-          settings_sound_params_connections_[accent] =
-            settings_sound_params_[accent]->signal_changed().connect(
-              [accent, this] (const Glib::ustring& key) {
-                updateTickerSound(accent);
-              });
-        }
-      }
-    }
-    catch(...) {
-#ifndef NDEBUG
-      std::cerr << "Application: failed to load sound theme '" << theme_id << "'" << std::endl;
-#endif
-    }
-  }
-  else {
-#ifndef NDEBUG
-      std::cerr << "Application: no sound theme selected" << std::endl;
-#endif
-  }
-
-  updateTickerSound(kAccentMaskAll);
-}
-
 // Helper to compute the currently effective volume, i.e. it takes into account
 // the current global volume, mute state and auto volume dropping when tapping.
 double Application::getCurrentVolume() const
@@ -348,34 +361,22 @@ double Application::getCurrentVolume() const
     return global_volume;
 }
 
-void Application::updateTickerSound(Accent accent, double volume)
+void Application::updateTickerSound()
 {
-  if (accent == kAccentOff)
-    return;
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 
-  if (volume <= 0.0)
-    volume = getCurrentVolume();
+  auto selected_theme = sound_theme_manager_.getSelected();
+  SoundTheme theme = (selected_theme) ? *selected_theme : kDefaultSoundTheme;
 
-  audio::SoundParameters params;
+  double volume = getCurrentVolume();
 
-  if (settings_sound_params_[accent])
-    SettingsListDelegate<SoundTheme>::loadParameters(settings_sound_params_[accent], params);
+  theme.content.weak_params.volume *= volume / 100.0;
+  theme.content.mid_params.volume *= volume / 100.0;
+  theme.content.strong_params.volume *= volume / 100.0;
 
-  params.volume *= volume / 100.0;
-  ticker_.setSound(accent, params);
-}
-
-void Application::updateTickerSound(const AccentFlags& flags, double volume)
-{
-  if (flags.none())
-    return;
-
-  if (volume <= 0.0)
-    volume = getCurrentVolume();
-
-  for (auto accent : {kAccentWeak, kAccentMid, kAccentStrong})
-    if (flags[accent])
-      updateTickerSound(accent, volume);
+  ticker_.setSound(kAccentWeak, theme.content.weak_params);
+  ticker_.setSound(kAccentMid, theme.content.mid_params);
+  ticker_.setSound(kAccentStrong, theme.content.strong_params);
 }
 
 void Application::configureAudioBackend()
@@ -520,6 +521,52 @@ void Application::onQuit(const Glib::VariantBase& parameter)
   quit();
 }
 
+
+void Application::onSoundThemeUpdated(const SoundThemeManager::Identifier& id,
+                                      const SoundThemeManager::Patch& patch)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  if (id != sound_theme_manager_.selected())
+    return;
+
+  double volume = getCurrentVolume();
+  audio::SoundParameters params;
+
+  if (patch.weak_params) {
+    params = *patch.weak_params;
+    params.volume *= volume / 100.0;
+    ticker_.setSound(kAccentWeak, params);
+  }
+  if (patch.mid_params) {
+    params = *patch.mid_params;
+    params.volume *= volume / 100.0;
+    ticker_.setSound(kAccentMid, params);
+  }
+  if (patch.strong_params) {
+    params = *patch.strong_params;
+    params.volume *= volume / 100.0;
+    ticker_.setSound(kAccentStrong, params);
+  }
+}
+
+void Application::onSoundThemeSelected(const SoundThemeManager::Identifier& theme_id)
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+  // link sound theme with selected profile
+  if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
+  {
+    if (Glib::ustring profile_id = queryProfileSelect(); !profile_id.empty())
+    {
+      Profile::Content content = profile_manager_.getProfileContent(profile_id);
+      content.sound_theme_id = theme_id;
+      profile_manager_.setProfileContent(profile_id, content);
+    }
+  }
+  updateTickerSound();
+}
+
 void Application::onMeterEnabled(const Glib::VariantBase& value)
 {
   Glib::Variant<bool> new_state
@@ -644,7 +691,7 @@ void Application::onVolumeChange(const Glib::VariantBase& value)
 void Application::onVolumeMute(const Glib::VariantBase& value)
 {
   lookupSimpleAction(kActionVolumeMute)->set_state(value);
-  updateTickerSound(kAccentMaskAll);
+  updateTickerSound();
 }
 
 double Application::getReferenceTempo() const
@@ -1053,7 +1100,7 @@ void Application::convertActionToProfile(Profile::Content& content)
   get_action_state(kActionCountIn, content.count_in);
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
-    content.sound_theme_id = settings::soundThemes()->selected();
+    content.sound_theme_id = sound_theme_manager_.selected();
 }
 
 void Application::convertProfileToAction(const Profile::Content& content)
@@ -1095,12 +1142,8 @@ void Application::convertProfileToAction(const Profile::Content& content)
 
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
   {
-    if (content.sound_theme_id.empty()
-        || !settings::soundThemes()->select(content.sound_theme_id))
-    {
-      if (auto theme_list_settings = settings::soundThemes()->settings(); theme_list_settings)
-        theme_list_settings->reset(settings::kKeySettingsListSelectedEntry);
-    }
+    if (content.sound_theme_id.empty() || !sound_theme_manager_.select(content.sound_theme_id))
+      sound_theme_manager_.selectDefault();
   }
 }
 
@@ -1317,9 +1360,8 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
     {
       if (Glib::ustring id = queryProfileSelect(); !id.empty())
       {
-        if (Profile::Content content = profile_manager_.getProfileContent(id);
-            !content.sound_theme_id.empty())
-          settings::soundThemes()->select(content.sound_theme_id);
+        if (auto content = profile_manager_.getProfileContent(id); !content.sound_theme_id.empty())
+          sound_theme_manager_.select(content.sound_theme_id);
       }
     }
   }
@@ -1348,30 +1390,14 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
 
 void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
+  std::cout << __PRETTY_FUNCTION__ << " key: " << key << std::endl;
+
   if (key == settings::kKeySoundVolume)
   {
     if (queryVolumeMute())
       activate_action(kActionVolumeMute);
     else
-      updateTickerSound(kAccentMaskAll);
-  }
-  else if (key == settings::kKeySettingsListSelectedEntry)
-  {
-    // store sound theme to selected profile immediately
-    if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
-    {
-      if (Glib::ustring id = queryProfileSelect(); !id.empty())
-      {
-        Profile::Content content = profile_manager_.getProfileContent(id);
-        content.sound_theme_id = settings::soundThemes()->selected();
-        profile_manager_.setProfileContent(id, content);
-      }
-    }
-    loadSelectedSoundTheme();
-  }
-  else if (key == settings::kKeySettingsListEntries)
-  {
-    /* nothing */
+      updateTickerSound();
   }
 }
 
@@ -1465,7 +1491,7 @@ bool Application::onDropVolumeTimer()
 void Application::setVolumeDrop(double drop)
 {
   volume_drop_ = std::clamp(drop, 0.0, 100.0);
-  updateTickerSound(kAccentMaskAll);
+  updateTickerSound();
 }
 
 std::pair<double,bool> Application::validateTempo(double value)

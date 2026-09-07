@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The GMetronome Team
+ * Copyright (C) 2022-2026 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -22,50 +22,38 @@
 
 #include "Settings.h"
 #include "AccentButton.h"
+#include "SoundThemeManager.h"
+#include "Application.h"
+#include "StateButton.h"
+
 #include <gtkmm.h>
-
-class ShapeButton : public Gtk::Button
-{
-public:
-  enum class Mode { kAttack, kHold, kDecay };
-
-public:
-  ShapeButton(Mode mode = Mode::kAttack);
-
-  virtual ~ShapeButton();
-
-  Glib::PropertyProxy<Glib::ustring> property_shape()
-    { return property_shape_.get_proxy(); }
-
-private:
-  Glib::Property<Glib::ustring> property_shape_;
-  Mode mode_;
-
-  void next(bool cycle = true);
-  void prev(bool cycle = true);
-
-  void on_clicked() override;
-  bool on_scroll_event(GdkEventScroll *scroll_event) override;
-  void onShapeChanged();
-};
+#include <string>
 
 /**
- * Sound Theme Editor dialog
+ * Sound Theme Editor
  */
-class SoundThemeEditor : public Gtk::Window
-{
+class SoundThemeEditor : public Gtk::Window {
+public:
+  //Type aliases
+  using RampShapeButton = StateButton<audio::EnvelopeRampShape>;
+  using HoldShapeButton = StateButton<audio::EnvelopeHoldShape>;
+
 public:
   SoundThemeEditor(BaseObjectType* obj,
                    const Glib::RefPtr<Gtk::Builder>& builder,
-                   Glib::ustring theme_id);
+                   SoundThemeManager::Identifier theme_id);
 
   ~SoundThemeEditor();
 
-  static SoundThemeEditor* create(Gtk::Window& parent, Glib::ustring theme_id);
+  static SoundThemeEditor* create(Gtk::Window& parent, SoundThemeManager::Identifier theme_id);
 
 private:
   Glib::RefPtr<Gtk::Builder> builder_;
-  Glib::ustring theme_id_;
+  Glib::RefPtr<Application> app_;
+  SoundThemeManager& sound_theme_manager_;
+
+  SoundThemeManager::Identifier theme_id_;
+  audio::SoundParameters current_params_;
 
   Gtk::Box* main_box_;
   Gtk::Frame* parameters_frame_;
@@ -80,12 +68,14 @@ private:
   Gtk::Box* noise_attack_box_;
   Gtk::Box* noise_hold_box_;
   Gtk::Box* noise_decay_box_;
-  ShapeButton tone_attack_shape_button_;
-  ShapeButton tone_hold_shape_button_;
-  ShapeButton tone_decay_shape_button_;
-  ShapeButton noise_attack_shape_button_;
-  ShapeButton noise_hold_shape_button_;
-  ShapeButton noise_decay_shape_button_;
+
+  RampShapeButton tone_attack_shape_button_;
+  HoldShapeButton tone_hold_shape_button_;
+  RampShapeButton tone_decay_shape_button_;
+  RampShapeButton noise_attack_shape_button_;
+  HoldShapeButton noise_hold_shape_button_;
+  RampShapeButton noise_decay_shape_button_;
+
   Gtk::Scale* pan_scale_;
   Gtk::Scale* volume_scale_;
   Glib::RefPtr<Gtk::Adjustment> tone_pitch_adjustment_;
@@ -108,20 +98,31 @@ private:
   AccentButtonDrawingArea mid_accent_drawing_;
   AccentButtonDrawingArea weak_accent_drawing_;
 
-  Glib::ustring title_new_;
-  Glib::ustring title_duplicate_;
+  sigc::connection title_connection_;
+  std::vector<sigc::connection> parameter_connections_;
+
   Glib::ustring title_placeholder_;
 
 private:
-  Glib::RefPtr<Gio::Settings> sound_settings_;
-
   bool onKeyPressEvent(GdkEventKey* event);
-  void unbindSoundProperties();
-  void bindSoundProperties();
-  void updateThemeBindings();
-  void onSettingsListChanged(const Glib::ustring& key);
 
-  // drag and drop handler
+  void onTitleChanged();
+  void onParametersChanged();
+
+  void loadTitle(const std::string& title);
+  void loadSoundTheme();
+  void loadParameters(const audio::SoundParameters& params);
+
+  void setAvailableMode(bool available = true);
+  bool isAvailableMode() const;
+
+  // Sound Theme Manager signal handlers
+  void updateSoundThemeSelected(const SoundThemeManager::Identifier& id);
+  void updateSoundThemeCreated(const SoundThemeManager::Identifier& id);
+  void updateSoundThemeRemoved(const SoundThemeManager::Identifier& id);
+  void updateSoundThemeUpdated(const SoundThemeManager::Identifier& id,
+                               const SoundThemeManager::Patch& patch);
+  // Drag and drop handler
   void onParamsDragBegin (const Glib::RefPtr<Gdk::DragContext>&);
   void onParamsDragDataGet (Gtk::RadioButton*,
                             const Glib::RefPtr<Gdk::DragContext>&,
@@ -129,6 +130,27 @@ private:
   void onParamsDragDataReceived (Gtk::RadioButton*,
                                  const Glib::RefPtr<Gdk::DragContext>&,
                                  const Gtk::SelectionData&, guint);
+  // Helper
+  template<typename P>
+  void connectParameter(const Glib::RefPtr<Gtk::Adjustment>& adj, P& param) {
+    parameter_connections_.push_back(
+      adj->signal_value_changed().connect(
+        [this, &adj, &param] () {
+          param = adj->get_value();
+          onParametersChanged();
+        })
+      );
+  }
+  template<typename S>
+  void connectParameter(StateButton<S>& button, S& param) {
+    parameter_connections_.push_back(
+      button.signalStateChanged().connect(
+        [this, &param] (const auto& state) {
+          param = state;
+          onParametersChanged();
+        })
+      );
+  }
 };
 
 #endif//GMetronome_SoundThemeEditor_h

@@ -34,8 +34,7 @@
 
 class MainWindow;
 
-class Application : public Gtk::Application
-{
+class Application : public Gtk::Application {
 public:
   Application();
   ~Application();
@@ -48,20 +47,20 @@ public:
   sigc::signal<void, const audio::Ticker::Info&> signalTickerInfo()
     { return signal_ticker_info_; }
 
+  SoundThemeManager& soundThemeManager()
+    { return sound_theme_manager_; }
+
 private:
   audio::Ticker ticker_;
   TapAnalyser tap_analyser_;
   ProfileManager profile_manager_;
+  SoundThemeManager sound_theme_manager_;
   double volume_drop_{0.0};
-
-  // Current sound theme parameter settings
-  std::array<Glib::RefPtr<Gio::Settings>, kNumAccents> settings_sound_params_;
 
   // Connections
   sigc::connection settings_state_connection_;
   sigc::connection info_timer_connection_;
   sigc::connection volume_timer_connection_;
-  std::array<sigc::connection, kNumAccents> settings_sound_params_connections_;
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;
@@ -73,13 +72,13 @@ private:
   void initSettings();
   void initActions();
   void initProfiles();
+  void initSounds();
   void initUI();
   void initTicker();
 
-  void loadSelectedSoundTheme();
   double getCurrentVolume() const;
   void updateTickerSound(Accent accent, double volume = -1.0);
-  void updateTickerSound(const AccentFlags& flags, double volume = -1.0);
+  void updateTickerSound();
   void configureAudioBackend();
   void configureAudioDevice();
 
@@ -95,10 +94,16 @@ private:
   void on_activate() override;
 
   /*
-   * signal and action handler
+   * Signal and action handler
    */
   void onHideWindow(Gtk::Window* window);
   void onQuit(const Glib::VariantBase& parameter);
+
+  // Sound Theme Manager
+  void onSoundThemeUpdated(const SoundThemeManager::Identifier& id,
+                           const SoundThemeManager::Patch& patch);
+
+  void onSoundThemeSelected(const SoundThemeManager::Identifier& id);
 
   // Volume
   void onVolumeChange(const Glib::VariantBase& value);
