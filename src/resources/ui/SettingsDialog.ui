@@ -508,6 +508,7 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                                 <property name="can-focus">True</property>
                                 <property name="headers-visible">False</property>
                                 <property name="headers-clickable">False</property>
+                                <property name="reorderable">True</property>
                                 <property name="search-column">2</property>
                                 <property name="level-indentation">5</property>
                                 <child internal-child="selection">
