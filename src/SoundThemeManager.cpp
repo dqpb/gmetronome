@@ -22,10 +22,29 @@
 #endif
 
 #include "SoundThemeManager.h"
+#include "Settings.h"
+
+#include <glibmm/ustring.h>
+#include <iterator>
 
 #ifndef NDEBUG
 # include <iostream>
 #endif
+
+SoundThemeManager::SoundThemeManager(std::unique_ptr<ListStoreType> store,
+                                     std::unique_ptr<ListStoreType> preset_store) noexcept
+  : store_(std::move(store)),
+    preset_store_(std::move(preset_store))
+{
+  selected_connection_ =
+    settings::sound()->signal_changed(settings::kKeySoundThemeSelect).connect(
+      [this] (const Glib::ustring&) { signal_selected_.emit(selected()); });
+}
+
+SoundThemeManager::~SoundThemeManager()
+{
+  selected_connection_.disconnect();
+}
 
 void SoundThemeManager::setStore(std::unique_ptr<ListStoreType> store)
 {
@@ -71,6 +90,9 @@ std::vector<SoundThemeManager::Primer> SoundThemeManager::presets() noexcept
 
 std::optional<SoundTheme> SoundThemeManager::get(const Identifier& id)
 {
+  if (id == kEmptyIdentifier)
+    return {};
+
   if (preset_store_) {
     if (auto result = preset_store_->load(id))
       return *result;
@@ -80,7 +102,7 @@ std::optional<SoundTheme> SoundThemeManager::get(const Identifier& id)
       return *result;
   }
 #ifndef NDEBUG
-    std::cerr << "SoundThemeManager: Sound theme '"  << id << "' not found." << std::endl;
+  std::cerr << "SoundThemeManager: Sound theme '"  << id << "' not found." << std::endl;
 #endif
   return {};
 }
@@ -110,8 +132,24 @@ std::optional<SoundThemeManager::Primer> SoundThemeManager::create(const SoundTh
 bool SoundThemeManager::remove(const Identifier& id)
 {
   if (store_) {
-    if (auto result = store_->remove(id)) {
+    // Find the next id to be selected
+    Identifier next_id = id;
+    if (id == selected())
+    {
+      if (const auto [list, it, result] = find(id); result != SearchResult::kNotFound)
+      {
+        if (std::next(it) != list.end())
+          next_id = std::next(it)->id;
+        else if (it != list.begin())
+          next_id = std::prev(it)->id;
+        else
+          next_id = kDefaultIdentifier;
+      }
+    }
+    if (auto result = store_->remove(id))
+    {
       signal_removed_.emit(id);
+      select(next_id);
       return true;
     }
     else {
@@ -152,10 +190,56 @@ bool SoundThemeManager::reorder(const std::vector<Identifier>& order)
     }
     else {
 #ifndef NDEBUG
-    std::cerr << "SoundThemeManager: Failed to reorder sound themes." << std::endl;
-    std::cerr << "SoundThemeManager: Reason" << result.error().what << std::endl;
+      std::cerr << "SoundThemeManager: Failed to reorder sound themes." << std::endl;
+      std::cerr << "SoundThemeManager: Reason" << result.error().what << std::endl;
 #endif
     }
   }
   return false;
+}
+
+bool SoundThemeManager::select(const Identifier& id)
+{
+  if (id == selected())
+    return true;
+
+  if (id != kEmptyIdentifier) {
+    if (const auto& [list, it, result] = find(id); result == SearchResult::kNotFound)
+    {
+#ifndef NDEBUG
+      std::cerr << "SoundThemeManager: Selected id '" << id << "' not found." << std::endl;
+#endif
+      return false;
+    }
+  }
+  settings::sound()->set_string(settings::kKeySoundThemeSelect, id); // applies and emits
+  return true;
+}
+
+auto SoundThemeManager::selected() const -> Identifier
+{
+  settings::sound()->apply();
+  return settings::sound()->get_string(settings::kKeySoundThemeSelect);
+}
+
+auto SoundThemeManager::find(const Identifier& id)
+  -> std::tuple<PrimerList, PrimerList::iterator, SearchResult>
+{
+  if (preset_store_) {
+    if (auto result = preset_store_->list()) {
+      auto it = std::find_if(result->begin(), result->end(),
+                             [&id] (const auto& primer) { return (primer.id == id); });
+      if (it != result->end())
+        return {std::move(*result), it, SearchResult::kPreset};
+    }
+  }
+  if (store_) {
+    if (auto result = store_->list()) {
+      auto it = std::find_if(result->begin(), result->end(),
+                             [&id] (const auto& primer) { return (primer.id == id); });
+      if (it != result->end())
+        return {std::move(*result), it, SearchResult::kCustom};
+    }
+  }
+  return {{}, {}, SearchResult::kNotFound};
 }

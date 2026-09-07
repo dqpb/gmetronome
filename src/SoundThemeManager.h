@@ -27,8 +27,9 @@
 #include <sigc++/sigc++.h>
 
 #include <memory>
-#include <utility>
+#include <string>
 #include <optional>
+#include <tuple>
 
 class SoundThemeManager {
 public:
@@ -38,7 +39,13 @@ public:
   using Identifier = SoundTheme::Identifier;
   using ListStoreType = ListStore<SoundTheme, Identifier, Header>;
   using Primer = ListStoreType::Primer;
+  using PrimerList = std::vector<Primer>;
 
+  static inline const Identifier kEmptyIdentifier {};
+  static inline const Identifier kDefaultIdentifier {"preset-01"};
+
+public:
+  // Sound theme patch to be used with @ref update().
   struct Patch : public ListStoreType::Patch
   {
     std::optional<std::string> title;
@@ -60,22 +67,21 @@ public:
 public:
   // Construction and destruction
   SoundThemeManager(std::unique_ptr<ListStoreType> store = nullptr,
-                    std::unique_ptr<ListStoreType> preset_store = nullptr) noexcept
-    : store_(std::move(store)), preset_store_(std::move(preset_store))
-    { /* nothing */ }
-
-  SoundThemeManager(SoundThemeManager&& other) = default;
-  SoundThemeManager& operator=(SoundThemeManager&& other) = default;
-  ~SoundThemeManager() = default;
+                    std::unique_ptr<ListStoreType> preset_store = nullptr) noexcept;
+  ~SoundThemeManager();
 
   // Interface
   void setStore(std::unique_ptr<ListStoreType> store);
   void setPresetStore(std::unique_ptr<ListStoreType> store);
 
-  std::vector<Primer> list() noexcept;
-  std::vector<Primer> presets() noexcept;
+  PrimerList list() noexcept;
+  PrimerList presets() noexcept;
 
   std::optional<SoundTheme> get(const Identifier& id);
+  std::optional<SoundTheme> getSelected()
+    { return get(selected()); }
+  std::optional<SoundTheme> getDefault()
+    { return get(kDefaultIdentifier); }
 
   std::optional<Primer> create(const SoundTheme& theme);
   std::optional<Primer> create(const Header& header = {}, const Content& content = {})
@@ -89,10 +95,10 @@ public:
 
   bool reorder(const std::vector<Identifier>& order);
 
-  // selection state currently not supported
-  bool select(const Identifier& id) = delete;
-  bool unselect() = delete;
-  const Identifier& selected() const = delete;
+  bool select(const Identifier& id);
+  bool selectDefault() { return select(kDefaultIdentifier); }
+  bool unselect() { return select(kEmptyIdentifier); }
+  Identifier selected() const;
 
   // Signals
   sigc::signal<void(const Identifier&)> signalCreated()
@@ -103,6 +109,8 @@ public:
     { return signal_updated_; }
   sigc::signal<void(const std::vector<Identifier>&)> signalReordered()
     { return signal_reordered_; }
+  sigc::signal<void(const Identifier&)> signalSelected()
+    { return signal_selected_; }
   sigc::signal<void> signalStoreChanged()
     { return signal_store_changed_; }
   sigc::signal<void> signalPresetStoreChanged()
@@ -114,12 +122,24 @@ private:
   sigc::signal<void(const Identifier&)> signal_removed_;
   sigc::signal<void(const Identifier&, const Patch&)> signal_updated_;
   sigc::signal<void(const std::vector<Identifier>&)> signal_reordered_;
+  sigc::signal<void(const Identifier&)> signal_selected_;
   sigc::signal<void> signal_store_changed_;
   sigc::signal<void> signal_preset_store_changed_;
 
   // Underlying list stores
   std::unique_ptr<ListStoreType> store_;
   std::unique_ptr<ListStoreType> preset_store_;
+
+  sigc::connection selected_connection_;
+
+  enum class SearchResult
+  {
+    kNotFound,
+    kPreset,
+    kCustom
+  };
+
+  std::tuple<PrimerList, PrimerList::iterator, SearchResult> find(const Identifier& id);
 };
 
 #endif//GMetronome_SoundThemeManager_h
