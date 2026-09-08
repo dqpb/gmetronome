@@ -41,6 +41,28 @@ namespace sound_migration {
       // not implemented yet
       // TODO: convert volume in percent to dB
     }
+
+    // Check RFC 4122 canonical form: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    bool isUuid(const std::string& s) {
+      if (s.size() != 36)
+        return false;
+
+      for (size_t i = 0; i < s.size(); ++i) {
+        switch (i) {
+        case 8:
+        case 13:
+        case 18:
+        case 23:
+          if (s[i] != '-') return false;
+          break;
+        default:
+          if (!std::isxdigit(static_cast<unsigned char>(s[i])))
+            return false;
+          break;
+        }
+      }
+      return true;
+    }
   }//unnamed namespace
 
   bool check()
@@ -67,6 +89,8 @@ namespace sound_migration {
         auto list_store = std::make_unique<SoundThemeListStoreXML>(file::userSoundsPath());
         for (const auto& id : settings_list->list(false)) {
           try {
+            if (!isUuid(id)) // ignore old presets
+              continue;
             SoundTheme sound = settings_list->get(id);
 #ifndef NDEBUG
             std::cerr << "Sound migration: Transfer '" << sound.header.title << "'." << std::endl;
