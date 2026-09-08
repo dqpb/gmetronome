@@ -28,6 +28,7 @@
 
 #include <glibmm/fileutils.h>
 #include <memory>
+#include <cctype>
 
 #ifndef NDEBUG
 # include <iostream>
