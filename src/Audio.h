@@ -272,10 +272,9 @@ namespace audio {
   public:
     constexpr explicit Decibel(double count = 0.0f) : cnt_{count}
       { /* nothing */ }
-
     constexpr double value() const
       { return cnt_; }
-    double gain() const
+    double linearGain() const
       { return std::pow(10.0f, cnt_ / 20.0f); }
     double power() const
       { return std::pow(10.0f, cnt_ / 10.0f); }
@@ -387,7 +386,7 @@ namespace audio {
   { return Decibel { 20.0 * std::log10(amp) }; }
 
   inline double decibelToGain(const Decibel& dec)
-  { return dec.gain(); }
+  { return dec.linearGain(); }
 
   inline
   Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
