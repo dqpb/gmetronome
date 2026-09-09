@@ -275,7 +275,7 @@ namespace audio {
 
     constexpr double value() const
       { return cnt_; }
-    double amplitude() const
+    double gain() const
       { return std::pow(10.0f, cnt_ / 20.0f); }
     double power() const
       { return std::pow(10.0f, cnt_ / 10.0f); }
@@ -332,7 +332,7 @@ namespace audio {
   constexpr double kMaxVolume = 100.0;
 
   /*
-   * Type of mapping from volume (in percent) to amplitude ratio [0,1]
+   * Type of mapping from volume (in percent) to gain ratio [0,1]
    * https://lists.linuxaudio.org/archives/linux-audio-dev/2009-May/022198.html
    * https://www.dr-lex.be/info-stuff/volumecontrols.html
    */
@@ -343,7 +343,7 @@ namespace audio {
   };
 
   inline
-  double amplitudeToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
+  double gainToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
   {
     switch (map) {
     case VolumeMapping::kQuadratic:
@@ -362,7 +362,7 @@ namespace audio {
   }
 
   inline
-  double volumeToAmplitude(double vol, VolumeMapping map = VolumeMapping::kCubic)
+  double volumeToGain(double vol, VolumeMapping map = VolumeMapping::kCubic)
   {
     vol = vol / 100.0;
 
@@ -383,19 +383,19 @@ namespace audio {
     return vol;
   }
 
-  inline Decibel amplitudeToDecibel(double amp)
+  inline Decibel gainToDecibel(double amp)
   { return Decibel { 20.0 * std::log10(amp) }; }
 
-  inline double decibelToAmplitude(const Decibel& dec)
-  { return dec.amplitude(); }
+  inline double decibelToGain(const Decibel& dec)
+  { return dec.gain(); }
 
   inline
   Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
-  { return amplitudeToDecibel(volumeToAmplitude(vol, map)); }
+  { return gainToDecibel(volumeToGain(vol, map)); }
 
   inline
   double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kCubic)
-  { return amplitudeToVolume(decibelToAmplitude(dec), map); }
+  { return gainToVolume(decibelToGain(dec), map); }
 
 }//namespace audio
 #endif//GMetronome_Audio_h

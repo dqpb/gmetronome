@@ -435,8 +435,8 @@ namespace filter {
       "this filter only supports floating point types");
 
   public:
-    Gain(float amp_l, float amp_r)
-      : mode_{Mode::kAmplitude}, amp_l_{amp_l}, amp_r_{amp_r}
+    Gain(float gain_l, float gain_r)
+      : mode_{Mode::kFixedGain}, gain_l_{gain_l}, gain_r_{gain_r}
       { /* nothing */ }
 
     explicit Gain(float amp = 0.0f) : Gain(amp, amp)
@@ -445,8 +445,8 @@ namespace filter {
     explicit Gain(Automation envelope)
       : mode_{Mode::kAutomation},
         envelope_{std::move(envelope)},
-        amp_l_{0.0f},
-        amp_r_{0.0f}
+        gain_l_{0.0f},
+        gain_r_{0.0f}
       { /* nothing */ }
 
     void setEnvelope(Automation envelope)
@@ -454,17 +454,17 @@ namespace filter {
         envelope_ = std::move(envelope);
         mode_ = Mode::kAutomation;
       }
-    void setAmplitude(float amp_l, float amp_r)
+    void setAmplitude(float gain_l, float gain_r)
       {
-        amp_l_ = amp_l;
-        amp_r_ = amp_r;
-        mode_ = Mode::kAmplitude;
+        gain_l_ = gain_l;
+        gain_r_ = gain_r;
+        mode_ = Mode::kFixedGain;
       }
     void setAmplitude(float amp)
       {
-        amp_l_ = amp;
-        amp_r_ = amp;
-        mode_ = Mode::kAmplitude;
+        gain_l_ = amp;
+        gain_r_ = amp;
+        mode_ = Mode::kFixedGain;
       }
     void prepare(const StreamSpec& spec)
       {
@@ -489,15 +489,15 @@ namespace filter {
         else
         {
           std::for_each(frames.begin(), frames.end(),
-                        [this] (auto& frame) {frame *= {amp_l_, amp_r_}; });
+                        [this] (auto& frame) {frame *= {gain_l_, gain_r_}; });
         }
       }
   private:
-    enum class Mode {kAutomation, kAmplitude} mode_;
+    enum class Mode {kAutomation, kFixedGain} mode_;
 
     Automation envelope_;
-    float amp_l_;
-    float amp_r_;
+    float gain_l_;
+    float gain_r_;
   };
 
   /**
@@ -517,18 +517,18 @@ namespace filter {
     };
 
   public:
-    explicit Noise(float amp = 1.0f) : amp_{amp}
+    explicit Noise(float gain = 1.0f) : gain_{gain}
       { /* nothing */ }
 
     explicit Noise(const Decibel& level)
-      : amp_{static_cast<float>(level.amplitude())}
+      : gain_{static_cast<float>(level.gain())}
       { /* nothing */ }
 
     void setLevel(const Decibel& level)
-      { amp_ = static_cast<float>(level.amplitude()); }
+      { gain_ = static_cast<float>(level.gain()); }
 
-    void setAmplitude(float amp)
-      { amp_ = amp; }
+    void setGain(float gain)
+      { gain_ = gain; }
 
     void prepare(const StreamSpec& spec)
       {
@@ -540,7 +540,7 @@ namespace filter {
       {
         assert(buffer.format() == Format);
 
-        if (amp_ == 0.0f)
+        if (gain_ == 0.0f)
           return;
 
         if (mode_ == Mode::kBlock)
@@ -550,8 +550,8 @@ namespace filter {
         for (auto& frame : frames)
         {
           frame += {
-            amp_ * uniform_distribution(),
-            amp_ * uniform_distribution()
+            gain_ * uniform_distribution(),
+            gain_ * uniform_distribution()
           };
         }
       }
@@ -571,7 +571,7 @@ namespace filter {
           std::chrono::high_resolution_clock::now().time_since_epoch().count());
       }
   private:
-    float amp_;
+    float gain_;
     std::uint32_t seed_{0};
     std::uint32_t value_{0};
     Mode mode_{Mode::kBlock};
@@ -597,7 +597,7 @@ namespace filter {
     struct Parameters
     {
       float freq   {1000.0f};   //!< frequency in hertz
-      float amp    {1.0f};      //!< amplitude
+      float gain   {1.0f};      //!< gain
       float phase  {0.0f};      //!< phase [0.0f, 2.0f * PI]
       float detune {0.0f};      //!< cents [0.0f, 100.0f]
     };
@@ -626,14 +626,14 @@ namespace filter {
         assert(isFloatingPoint(buffer.spec().format));
         assert(buffer.channels() == 2);
 
-        if (tbl_ == nullptr || params_.amp == 0.0f)
+        if (tbl_ == nullptr || params_.gain == 0.0f)
           return;
 
         auto frames = viewFrames<Format>(buffer);
 
         float frame_tm = 1.0 / buffer.spec().rate;
         float freq = params_.freq;
-        float amp = 0.5f * params_.amp; // half the sum of two voices
+        float gain = 0.5f * params_.gain; // half the sum of two voices
         float phase_os = params_.phase / (2.0 * M_PI);
         float detune = freq * std::pow(2.0f, params_.detune / 1200.0f) - freq;
         auto& tbl_page = tbl_->lookup(freq);
@@ -653,8 +653,8 @@ namespace filter {
                         [&] (auto& frame, const auto& values)
                           {
                             frame += {
-                              amp * (values[0] + values[1]),
-                              amp * (values[0] + values[2])
+                              gain * (values[0] + values[1]),
+                              gain * (values[0] + values[2])
                             };
                           });
       }
@@ -675,11 +675,11 @@ namespace filter {
 
   public:
     Normalize(const Decibel& level_l, const Decibel& level_r)
-      : amp_l_{static_cast<float>(level_l.amplitude())},
-        amp_r_{static_cast<float>(level_r.amplitude())}
+      : gain_l_{static_cast<float>(level_l.gain())},
+        gain_r_{static_cast<float>(level_r.gain())}
       {/*nothing*/}
 
-    Normalize(float amp_l, float amp_r) : amp_l_{amp_l}, amp_r_{amp_r}
+    Normalize(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
       {/*nothing*/}
 
     explicit Normalize(const Decibel& level = 0_dB) : Normalize(level, level)
@@ -687,14 +687,14 @@ namespace filter {
 
     void setLevel(const Decibel& level_l, const Decibel& level_r)
       {
-        amp_l_ = static_cast<float>(level_l.amplitude());
-        amp_r_ = static_cast<float>(level_r.amplitude());
+        gain_l_ = static_cast<float>(level_l.gain());
+        gain_r_ = static_cast<float>(level_r.gain());
       }
 
-    void setAmplitude(float amp_l, float amp_r)
+    void setGain(float gain_l, float gain_r)
       {
-        amp_l_ = amp_l;
-        amp_r_ = amp_r;
+        gain_l_ = gain_l;
+        gain_r_ = gain_r;
       }
 
     void prepare(const StreamSpec& spec)
@@ -714,11 +714,11 @@ namespace filter {
 
         if (max != 0.0f)
           for (auto& frame : frames)
-            frame *= { amp_l_ / max, amp_r_ / max};
+            frame *= { gain_l_ / max, gain_r_ / max};
       }
   private:
-    float amp_l_;
-    float amp_r_;
+    float gain_l_;
+    float gain_r_;
   };
 
   /**

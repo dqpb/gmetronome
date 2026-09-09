@@ -152,7 +152,7 @@ namespace audio {
 
     SoundParameters p = clampSoundParameters(params);
 
-    float gain = volumeToAmplitude(p.volume);
+    float gain = volumeToGain(p.volume);
 
     float tone_gain  = std::cos( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );
     float noise_gain = std::sin( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );
@@ -208,7 +208,7 @@ namespace audio {
       };
 
     // configure noise pipe
-    filter::get<filter::std::Noise>   (noise_pipe_).setAmplitude (noise_gain);
+    filter::get<filter::std::Noise>   (noise_pipe_).setGain (noise_gain);
     filter::get<filter::std::Lowpass> (noise_pipe_).setCutoff (p.noise_cutoff);
     filter::get<filter::std::Gain>    (noise_pipe_).setEnvelope (std::move(noise_envelope));
 
