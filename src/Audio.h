@@ -27,6 +27,7 @@
 #include <chrono>
 #include <algorithm>
 #include <vector>
+#include <limits>
 #include <cmath>
 
 namespace audio {
@@ -268,46 +269,61 @@ namespace audio {
    */
   using ChannelMap = std::vector<int>;
 
+  /**
+   * @class Decibel
+   */
   class Decibel {
   public:
-    constexpr explicit Decibel(double count = 0.0f) : cnt_{count}
+    static constexpr double kMuteValue = -std::numeric_limits<double>::infinity();
+
+    constexpr explicit Decibel(double value = 0.0f) noexcept : value_{value}
       { /* nothing */ }
-    constexpr double value() const
-      { return cnt_; }
-    double linearGain() const
-      { return std::pow(10.0f, cnt_ / 20.0f); }
+
+    static constexpr Decibel unity() noexcept
+      { return Decibel(0.0); }
+
+    static constexpr Decibel mute() noexcept
+      { return Decibel(Decibel::kMuteValue); }
+
+    static Decibel fromLinear(double gain) noexcept
+      {
+        if (gain <= 0.0)
+          return Decibel::mute();
+        else
+          return Decibel( 20.0 * std::log10(gain) );
+      }
+
+    static Decibel fromVolume(double volume,
+                              const Decibel& min = Decibel(-40.0),
+                              const Decibel& max = Decibel(0.0)) noexcept;
+
+    constexpr double value() const noexcept
+      { return value_; }
+    constexpr bool isMute() const noexcept {
+      return std::isinf(value_) && value_ < 0; }
+    double linear() const
+      { return isMute() ? 0.0 : std::pow(10.0f, value_ / 20.0f); }
     double power() const
-      { return std::pow(10.0f, cnt_ / 10.0f); }
+      { return isMute() ? 0.0 : std::pow(10.0f, value_ / 10.0f); }
+    double volume(const Decibel& min, const Decibel& max) noexcept;
+
     constexpr Decibel operator+() const
       { return Decibel(*this); }
     constexpr Decibel operator-() const
-      { return Decibel(-cnt_); }
+      { return Decibel(-value_); }
     constexpr Decibel& operator+=(const Decibel& other)
-      { cnt_ += other.value(); return *this; }
+      { value_ += other.value(); return *this; }
     constexpr Decibel& operator-=(const Decibel& other)
-      { cnt_ -= other.value(); return *this; }
-    template<typename T>
-    constexpr Decibel& operator*=(const T& value)
-      { cnt_ *= value; return *this; }
-    template<typename T>
-    constexpr Decibel& operator/=(const T& value)
-      { cnt_ /= value; return *this; }
+      { value_ -= other.value(); return *this; }
 
   private:
-    double cnt_;
+    double value_;
   };
 
   constexpr Decibel operator+(const Decibel& lhs, const Decibel& rhs)
   { return Decibel(lhs.value() + rhs.value()); }
   constexpr Decibel operator-(const Decibel& lhs, const Decibel& rhs)
   { return Decibel(lhs.value() - rhs.value()); }
-
-  template<typename T>
-  constexpr Decibel operator*(const Decibel& lhs, const T& value)
-  { return Decibel(lhs.value() * value); }
-  template<typename T>
-  constexpr Decibel operator/(const Decibel& lhs, const T& value)
-  { return Decibel(lhs.value() / value); }
 
   constexpr bool operator==(const Decibel& lhs, const Decibel& rhs)
   { return lhs.value() == rhs.value(); }
@@ -326,75 +342,6 @@ namespace audio {
   { return Decibel(value); }
   constexpr Decibel operator ""_dB(long double value)
   { return Decibel(value); }
-
-  constexpr double kMinVolume = 0.0;  // percent
-  constexpr double kMaxVolume = 100.0;
-
-  /*
-   * Type of mapping from volume (in percent) to gain ratio [0,1]
-   * https://lists.linuxaudio.org/archives/linux-audio-dev/2009-May/022198.html
-   * https://www.dr-lex.be/info-stuff/volumecontrols.html
-   */
-  enum class VolumeMapping {
-    kLinear     = 1,
-    kQuadratic  = 2,
-    kCubic      = 3
-  };
-
-  inline
-  double gainToVolume(double amp, VolumeMapping map = VolumeMapping::kCubic)
-  {
-    switch (map) {
-    case VolumeMapping::kQuadratic:
-      amp = std::sqrt(amp);
-      break;
-    case VolumeMapping::kCubic:
-      amp = std::cbrt(amp);
-      break;
-    case VolumeMapping::kLinear:
-      [[fallthrough]];
-    default:
-      /* linear mapping */
-      break;
-    };
-    return std::clamp(amp * kMaxVolume, kMinVolume, kMaxVolume);
-  }
-
-  inline
-  double volumeToGain(double vol, VolumeMapping map = VolumeMapping::kCubic)
-  {
-    vol = vol / 100.0;
-
-    switch (map) {
-    case VolumeMapping::kQuadratic:
-      vol = vol * vol;
-      break;
-    case VolumeMapping::kCubic:
-      vol = vol * vol * vol;
-      break;
-    case VolumeMapping::kLinear:
-      [[fallthrough]];
-    default:
-      /* nothing to do */
-      break;
-    };
-
-    return vol;
-  }
-
-  inline Decibel gainToDecibel(double amp)
-  { return Decibel { 20.0 * std::log10(amp) }; }
-
-  inline double decibelToGain(const Decibel& dec)
-  { return dec.linearGain(); }
-
-  inline
-  Decibel volumeToDecibel(double vol, VolumeMapping map = VolumeMapping::kCubic)
-  { return gainToDecibel(volumeToGain(vol, map)); }
-
-  inline
-  double decibelToVolume(const Decibel& dec, VolumeMapping map = VolumeMapping::kCubic)
-  { return gainToVolume(decibelToGain(dec), map); }
 
 }//namespace audio
 #endif//GMetronome_Audio_h
