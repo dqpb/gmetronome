@@ -30,7 +30,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>80</volume>
+	<gain>-6</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -55,7 +55,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -80,7 +80,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
       </sounds>
     </content>
@@ -115,7 +115,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>80</volume>
+	<gain>-6</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -140,7 +140,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -165,7 +165,7 @@
 	</noise>
 	<mix>50</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
       </sounds>
     </content>
@@ -200,7 +200,7 @@
 	</noise>
 	<mix>-100</mix>
 	<pan>0</pan>
-	<volume>50</volume>
+	<gain>-12</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -225,7 +225,7 @@
 	</noise>
 	<mix>-100</mix>
 	<pan>0</pan>
-	<volume>100</volume>
+	<gain>0</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -250,7 +250,7 @@
 	</noise>
 	<mix>-100</mix>
 	<pan>0</pan>
-	<volume>100</volume>
+	<gain>0</gain>
 	</sound>
       </sounds>
     </content>
@@ -285,7 +285,7 @@
 	</noise>
 	<mix>100</mix>
 	<pan>0</pan>
-	<volume>80</volume>
+	<gain>-6</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -310,7 +310,7 @@
 	</noise>
 	<mix>-41.86</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -335,7 +335,7 @@
 	</noise>
 	<mix>26.74</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
       </sounds>
     </content>
@@ -370,7 +370,7 @@
 	</noise>
 	<mix>29.07</mix>
 	<pan>0</pan>
-	<volume>80</volume>
+	<gain>-6</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -395,7 +395,7 @@
 	</noise>
 	<mix>29.07</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -420,7 +420,7 @@
 	</noise>
 	<mix>29.07</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>3</gain>
 	</sound>
       </sounds>
     </content>
@@ -455,7 +455,7 @@
 	</noise>
 	<mix>24.19</mix>
 	<pan>0</pan>
-	<volume>65</volume>
+	<gain>-8</gain>
 	</sound>
 	<sound key="accent/mid">
 	<tone>
@@ -480,7 +480,7 @@
 	</noise>
 	<mix>24.19</mix>
 	<pan>0</pan>
-	<volume>100</volume>
+	<gain>0</gain>
 	</sound>
 	<sound key="accent/strong">
 	<tone>
@@ -505,7 +505,7 @@
 	</noise>
 	<mix>7.91</mix>
 	<pan>0</pan>
-	<volume>110</volume>
+	<gain>0</gain>
 	</sound>
       </sounds>
     </content>

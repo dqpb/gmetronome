@@ -219,7 +219,7 @@ namespace audio {
     : spec_{spec}
   {
     SoundParameters silence;
-    silence.volume = 0.0;
+    silence.gain = Decibel::mute();
 
     sounds_.insert(kAccentOff, silence);
     sounds_.insert(kAccentWeak, SoundParameters{});

@@ -54,9 +54,9 @@ namespace audio {
     p.noise_decay  = std::clamp(p.noise_decay,     0.0f,    20.0f);     // ms
     clampEnvelopeRampShape(p.noise_decay_shape);
 
-    p.mix    = std::clamp(p.mix,   -100.0f, 100.0f);   // percent
-    p.pan    = std::clamp(p.pan,   -100.0f, 100.0f);   // percent
-    p.volume = std::clamp(p.volume,   0.0f, 150.0f);   // percent
+    p.mix  = std::clamp(p.mix,  -100.0f,  100.0f);    // percent
+    p.pan  = std::clamp(p.pan,  -100.0f,  100.0f);    // percent
+    p.gain = std::clamp(p.gain, Decibel::mute(), 12.0_dB);  // dB
   }
 
   SoundParameters clampSoundParameters(const SoundParameters& params)
@@ -152,7 +152,7 @@ namespace audio {
 
     SoundParameters p = clampSoundParameters(params);
 
-    float gain = volumeToGain(p.volume);
+    float gain = p.gain.linear();
 
     float tone_gain  = std::cos( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );
     float noise_gain = std::sin( (M_PI / 2.0) * (100.0 + p.mix) / 200.0 );

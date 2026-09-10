@@ -171,8 +171,8 @@ void SoundThemeParser::on_text(Glib::Markup::ParseContext& context,
           current_params_->mix = stringToDouble(text);
         else if (element_name_lc == "pan")
           current_params_->pan = stringToDouble(text);
-        else if (element_name_lc == "volume")
-          current_params_->volume = stringToDouble(text);
+        else if (element_name_lc == "gain")
+          current_params_->gain = stringToDecibel(text);
       }
       else if (current_block_.top() == "tone" && current_params_ != nullptr)
       {
@@ -299,9 +299,9 @@ namespace {
     ostream->write("        <pan>");
     ostream->write(doubleToString(params.pan));
     ostream->write("</pan>\n");
-    ostream->write("        <volume>");
-    ostream->write(doubleToString(params.volume));
-    ostream->write("</volume>\n");
+    ostream->write("        <gain>");
+    ostream->write(decibelToString(params.gain));
+    ostream->write("</gain>\n");
   }
 
   void writeSoundThemeContent(Glib::RefPtr<Gio::FileOutputStream> ostream,

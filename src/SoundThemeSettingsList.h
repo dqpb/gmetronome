@@ -68,7 +68,7 @@ struct SettingsListDelegate<SoundTheme>
 
         target.mix = settings->get_double(settings::kKeySoundThemeMix);
         target.pan = settings->get_double(settings::kKeySoundThemePan);
-        target.volume = settings->get_double(settings::kKeySoundThemeVolume);
+        target.gain = audio::Decibel(settings->get_double(settings::kKeySoundThemeVolume));
       }
     }
 
@@ -109,7 +109,7 @@ struct SettingsListDelegate<SoundTheme>
 
         settings->set_double(settings::kKeySoundThemeMix, source.mix);
         settings->set_double(settings::kKeySoundThemePan, source.pan);
-        settings->set_double(settings::kKeySoundThemeVolume, source.volume);
+        settings->set_double(settings::kKeySoundThemeVolume, source.gain.value());
       }
     }
 

@@ -67,9 +67,9 @@ namespace audio {
     float             noise_decay        {10.0f};                      // [0.0f, 20.0f] (ms)
     EnvelopeRampShape noise_decay_shape  {EnvelopeRampShape::kLinear};
 
-    float mix     {-100.0f}; // [-100.0f, 100.0f] (percent)
-    float pan     {0.0f};    // [-100.0f, 100.0f] (percent)
-    float volume  {75.0f};   // [   0.0f, 150.0f] (percent)
+    float   mix    {-100.0f};          // [-100.0f, 100.0f] (percent)
+    float   pan    {0.0f};             // [-100.0f, 100.0f] (percent)
+    Decibel gain   {-6.0};             // [-inf,  12.0f] (dB)
   };
 
   // clamp SoundParameter values to the valid range

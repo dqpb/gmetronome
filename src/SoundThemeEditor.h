@@ -77,7 +77,7 @@ private:
   RampShapeButton noise_decay_shape_button_;
 
   Gtk::Scale* pan_scale_;
-  Gtk::Scale* volume_scale_;
+  Gtk::Scale* gain_scale_;
   Glib::RefPtr<Gtk::Adjustment> tone_pitch_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_timbre_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> tone_detune_adjustment_;
@@ -90,7 +90,7 @@ private:
   Glib::RefPtr<Gtk::Adjustment> noise_decay_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> mix_adjustment_;
   Glib::RefPtr<Gtk::Adjustment> pan_adjustment_;
-  Glib::RefPtr<Gtk::Adjustment> volume_adjustment_;
+  Glib::RefPtr<Gtk::Adjustment> gain_adjustment_;
 
   Gtk::Label* unavailable_label_;
 
@@ -137,6 +137,16 @@ private:
       adj->signal_value_changed().connect(
         [this, &adj, &param] () {
           param = adj->get_value();
+          onParametersChanged();
+        })
+      );
+  }
+  template<>
+  void connectParameter(const Glib::RefPtr<Gtk::Adjustment>& adj, audio::Decibel& param) {
+    parameter_connections_.push_back(
+      adj->signal_value_changed().connect(
+        [this, &adj, &param] () {
+          param = audio::Decibel(adj->get_value());
           onParametersChanged();
         })
       );

@@ -86,7 +86,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   builder_->get_widget("noiseHoldBox", noise_hold_box_);
   builder_->get_widget("noiseDecayBox", noise_decay_box_);
   builder_->get_widget("panScale", pan_scale_);
-  builder_->get_widget("volumeScale", volume_scale_);
+  builder_->get_widget("gainScale", gain_scale_);
   builder_->get_widget("unavailableLabel", unavailable_label_);
 
   title_placeholder_ =
@@ -118,8 +118,8 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("mixAdjustment"));
   pan_adjustment_ =
     Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("panAdjustment"));
-  volume_adjustment_ =
-    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("volumeAdjustment"));
+  gain_adjustment_ =
+    Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder_->get_object("gainAdjustment"));
 
   tone_attack_box_->pack_start(tone_attack_shape_button_, Gtk::PACK_SHRINK);
   tone_hold_box_->pack_start(tone_hold_shape_button_, Gtk::PACK_SHRINK);
@@ -152,7 +152,7 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   weak_radio_button_->add(weak_accent_drawing_);
 
   pan_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
-  volume_scale_->add_mark(100.0, Gtk::POS_BOTTOM, "");
+  gain_scale_->add_mark(0.0, Gtk::POS_BOTTOM, "");
 
   loadSoundTheme();
 
@@ -198,10 +198,10 @@ SoundThemeEditor::SoundThemeEditor(BaseObjectType* obj,
   connectParameter( noise_decay_adjustment_,    current_params_.noise_decay );
   connectParameter( noise_decay_shape_button_,  current_params_.noise_decay_shape );
 
-  // Mix, pan, volume
-  connectParameter( mix_adjustment_,    current_params_.mix );
-  connectParameter( pan_adjustment_,    current_params_.pan );
-  connectParameter( volume_adjustment_, current_params_.volume );
+  // Mix, pan, gain
+  connectParameter( mix_adjustment_,  current_params_.mix );
+  connectParameter( pan_adjustment_,  current_params_.pan );
+  connectParameter( gain_adjustment_, current_params_.gain );
 
   //sound parameters drag and drop
   std::vector<Gtk::TargetEntry> targets = {Gtk::TargetEntry{"text/plain"}};
@@ -357,7 +357,7 @@ void SoundThemeEditor:: loadParameters(const audio::SoundParameters& params)
 
   mix_adjustment_->set_value(params.mix);
   pan_adjustment_->set_value(params.pan);
-  volume_adjustment_->set_value(params.volume);
+  gain_adjustment_->set_value(params.gain.value());
 
   current_params_ = params;
 
@@ -429,7 +429,8 @@ namespace {
     std::variant<
       std::reference_wrapper<float>,
       std::reference_wrapper<audio::EnvelopeRampShape>,
-      std::reference_wrapper<audio::EnvelopeHoldShape>
+      std::reference_wrapper<audio::EnvelopeHoldShape>,
+      std::reference_wrapper<audio::Decibel>
       > value;
   };
 
@@ -454,9 +455,9 @@ namespace {
       {"noise-decay",        std::ref(params.noise_decay)},
       {"noise-decay-shape",  std::ref(params.noise_decay_shape)},
 
-      {"mix",      std::ref(params.mix)},
-      {"pan",      std::ref(params.pan)},
-      {"volume",   std::ref(params.volume)}
+      {"mix",   std::ref(params.mix)},
+      {"pan",   std::ref(params.pan)},
+      {"gain",  std::ref(params.gain)}
     };
   }
 }//unnamed namespace
@@ -503,6 +504,8 @@ void SoundThemeEditor::onParamsDragDataGet(Gtk::RadioButton* source_button,
         key_file.set_string(params_group, key, rampShapeToString(ref.get()));
       if constexpr (std::is_same_v<T, std::reference_wrapper<audio::EnvelopeHoldShape>>)
         key_file.set_string(params_group, key, holdShapeToString(ref.get()));
+      if constexpr (std::is_same_v<T, std::reference_wrapper<audio::Decibel>>)
+        key_file.set_double(params_group, key, ref.get().value());
       }, value);
     }
 
@@ -564,6 +567,8 @@ void SoundThemeEditor::onParamsDragDataReceived(Gtk::RadioButton* target_button,
             ref.get() = stringToRampShape(key_file.get_string(params_group, key));
           if constexpr (std::is_same_v<T, std::reference_wrapper<audio::EnvelopeHoldShape>>)
             ref.get() = stringToHoldShape(key_file.get_string(params_group, key));
+          if constexpr (std::is_same_v<T, std::reference_wrapper<audio::Decibel>>)
+            ref.get() = audio::Decibel(key_file.get_double(params_group, key));
         }, value);
       }
     }

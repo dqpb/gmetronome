@@ -243,21 +243,14 @@ void Application::initSounds()
 #ifndef NDEBUG
       std::cout << "Application: Migrate custom sounds to user file." << std::endl;
 #endif
-      if (sound_migration::transfer()) {
+      [[maybe_unused]] bool result = sound_migration::transfer();
 #ifndef NDEBUG
-        if (sound_migration::validate())
-          std::cout << "Application: Sound migration successful." << std::endl;
-        else
-          std::cerr << "Application: Failed to validate sounds after migration." << std::endl;
-#endif
-      }
-      else {
-#ifndef NDEBUG
+      if (result)
+        std::cout << "Application: Sound migration successful." << std::endl;
+      else
         std::cerr << "Application: Failed to migrate custom sounds." << std::endl;
 #endif
-      }
   }
-
   auto preset_path = file::lookupPresetsPath();
   auto custom_path = file::userSoundsPath();
   auto custom_preset_path = file::lookupSoundsPath();
@@ -363,16 +356,14 @@ double Application::getCurrentVolume() const
 
 void Application::updateTickerSound()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   auto selected_theme = sound_theme_manager_.getSelected();
   SoundTheme theme = (selected_theme) ? *selected_theme : kDefaultSoundTheme;
 
   double volume = getCurrentVolume();
 
-  theme.content.weak_params.volume *= volume / 100.0;
-  theme.content.mid_params.volume *= volume / 100.0;
-  theme.content.strong_params.volume *= volume / 100.0;
+  theme.content.weak_params.gain += audio::Decibel::fromVolume(volume);
+  theme.content.mid_params.gain += audio::Decibel::fromVolume(volume);
+  theme.content.strong_params.gain += audio::Decibel::fromVolume(volume);
 
   ticker_.setSound(kAccentWeak, theme.content.weak_params);
   ticker_.setSound(kAccentMid, theme.content.mid_params);
@@ -525,8 +516,6 @@ void Application::onQuit(const Glib::VariantBase& parameter)
 void Application::onSoundThemeUpdated(const SoundThemeManager::Identifier& id,
                                       const SoundThemeManager::Patch& patch)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   if (id != sound_theme_manager_.selected())
     return;
 
@@ -535,25 +524,23 @@ void Application::onSoundThemeUpdated(const SoundThemeManager::Identifier& id,
 
   if (patch.weak_params) {
     params = *patch.weak_params;
-    params.volume *= volume / 100.0;
+    params.gain += audio::Decibel::fromVolume(volume);
     ticker_.setSound(kAccentWeak, params);
   }
   if (patch.mid_params) {
     params = *patch.mid_params;
-    params.volume *= volume / 100.0;
+    params.gain += audio::Decibel::fromVolume(volume);
     ticker_.setSound(kAccentMid, params);
   }
   if (patch.strong_params) {
     params = *patch.strong_params;
-    params.volume *= volume / 100.0;
+    params.gain += audio::Decibel::fromVolume(volume);
     ticker_.setSound(kAccentStrong, params);
   }
 }
 
 void Application::onSoundThemeSelected(const SoundThemeManager::Identifier& theme_id)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   // link sound theme with selected profile
   if (settings::preferences()->get_boolean(settings::kKeyPrefsLinkSoundTheme))
   {
@@ -1390,8 +1377,6 @@ void Application::onSettingsStateChanged(const Glib::ustring& key)
 
 void Application::onSettingsSoundChanged(const Glib::ustring& key)
 {
-  std::cout << __PRETTY_FUNCTION__ << " key: " << key << std::endl;
-
   if (key == settings::kKeySoundVolume)
   {
     if (queryVolumeMute())

@@ -439,7 +439,7 @@ namespace filter {
       : mode_{Mode::kFixedGain}, gain_l_{gain_l}, gain_r_{gain_r}
       { /* nothing */ }
 
-    explicit Gain(float amp = 0.0f) : Gain(amp, amp)
+    explicit Gain(float gain = 0.0f) : Gain(gain, gain)
       { /* nothing */ }
 
     explicit Gain(Automation envelope)
@@ -521,11 +521,11 @@ namespace filter {
       { /* nothing */ }
 
     explicit Noise(const Decibel& level)
-      : gain_{static_cast<float>(level.linearGain())}
+      : gain_{static_cast<float>(level.linear())}
       { /* nothing */ }
 
     void setLevel(const Decibel& level)
-      { gain_ = static_cast<float>(level.linearGain()); }
+      { gain_ = static_cast<float>(level.linear()); }
 
     void setGain(float gain)
       { gain_ = gain; }
@@ -675,8 +675,8 @@ namespace filter {
 
   public:
     Normalize(const Decibel& level_l, const Decibel& level_r)
-      : gain_l_{static_cast<float>(level_l.linearGain())},
-        gain_r_{static_cast<float>(level_r.linearGain())}
+      : gain_l_{static_cast<float>(level_l.linear())},
+        gain_r_{static_cast<float>(level_r.linear())}
       {/*nothing*/}
 
     Normalize(float gain_l, float gain_r) : gain_l_{gain_l}, gain_r_{gain_r}
@@ -687,8 +687,8 @@ namespace filter {
 
     void setLevel(const Decibel& level_l, const Decibel& level_r)
       {
-        gain_l_ = static_cast<float>(level_l.linearGain());
-        gain_r_ = static_cast<float>(level_r.linearGain());
+        gain_l_ = static_cast<float>(level_l.linear());
+        gain_r_ = static_cast<float>(level_r.linear());
       }
 
     void setGain(float gain_l, float gain_r)

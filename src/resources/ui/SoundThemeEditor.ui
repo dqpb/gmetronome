@@ -24,6 +24,12 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
   <!-- interface-license-type gplv3 -->
   <!-- interface-name GMetronome -->
   <!-- interface-copyright 2020-2023 The GMetronome Team -->
+  <object class="GtkAdjustment" id="gainAdjustment">
+    <property name="lower">-40</property>
+    <property name="upper">12</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="mixAdjustment">
     <property name="lower">-100</property>
     <property name="upper">100</property>
@@ -94,12 +100,6 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
     <property name="upper">3</property>
     <property name="step-increment">0.01</property>
     <property name="page-increment">0.10</property>
-  </object>
-  <object class="GtkAdjustment" id="volumeAdjustment">
-    <property name="upper">150</property>
-    <property name="value">75</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
   </object>
   <object class="GtkWindow" id="editorWindow">
     <property name="can-focus">False</property>
@@ -689,9 +689,9 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes" context="Sound theme editor">Volume:</property>
+                        <property name="label" translatable="yes" context="Sound theme editor">Gain:</property>
                         <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">volumeScale</property>
+                        <property name="mnemonic-widget">gainScale</property>
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
@@ -721,11 +721,11 @@ along with GMetronome.  If not, see <http://www.gnu.org/licenses/>.
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="volumeScale">
+                      <object class="GtkScale" id="gainScale">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="hexpand">True</property>
-                        <property name="adjustment">volumeAdjustment</property>
+                        <property name="adjustment">gainAdjustment</property>
                         <property name="restrict-to-fill-level">False</property>
                         <property name="fill-level">1</property>
                         <property name="draw-value">False</property>
