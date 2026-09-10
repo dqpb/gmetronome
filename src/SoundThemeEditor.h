@@ -141,7 +141,6 @@ private:
         })
       );
   }
-  template<>
   void connectParameter(const Glib::RefPtr<Gtk::Adjustment>& adj, audio::Decibel& param) {
     parameter_connections_.push_back(
       adj->signal_value_changed().connect(
