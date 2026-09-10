@@ -211,7 +211,7 @@ namespace filter {
                Iterator end,
                const seconds_dbl& start,
                const seconds_dbl& step,
-               Function fu)
+               Function fu) const
       {
         if (points_.empty())
           return;
@@ -249,6 +249,8 @@ namespace filter {
         }
       }
 
+    PointContainer::size_type size() const
+      { return points_.size(); }
     bool empty() const
       { return points_.empty(); }
     ConstIterator begin() const
@@ -265,6 +267,11 @@ namespace filter {
       { insert(end(), std::move(list)); }
     void prepend(std::initializer_list<Point> list)
       { insert(begin(), std::move(list)); }
+
+    void clear()
+      { points_.clear(); }
+    void reserve(PointContainer::size_type cap)
+      { points_.reserve(cap); }
 
   private:
     PointContainer points_;
@@ -442,28 +449,26 @@ namespace filter {
     explicit Gain(float gain = 0.0f) : Gain(gain, gain)
       { /* nothing */ }
 
-    explicit Gain(Automation envelope)
+    explicit Gain(const Automation* envelope)
       : mode_{Mode::kAutomation},
-        envelope_{std::move(envelope)},
-        gain_l_{0.0f},
-        gain_r_{0.0f}
+        envelope_{envelope}
       { /* nothing */ }
 
-    void setEnvelope(Automation envelope)
+    void setEnvelope(const Automation* envelope)
       {
-        envelope_ = std::move(envelope);
+        envelope_ = envelope;
         mode_ = Mode::kAutomation;
       }
-    void setAmplitude(float gain_l, float gain_r)
+    void setGain(float gain_l, float gain_r)
       {
         gain_l_ = gain_l;
         gain_r_ = gain_r;
         mode_ = Mode::kFixedGain;
       }
-    void setAmplitude(float amp)
+    void setGain(float gain)
       {
-        gain_l_ = amp;
-        gain_r_ = amp;
+        gain_l_ = gain;
+        gain_r_ = gain;
         mode_ = Mode::kFixedGain;
       }
     void prepare(const StreamSpec& spec)
@@ -481,13 +486,14 @@ namespace filter {
         auto frames = viewFrames<Format>(buffer);
         if (mode_ == Mode::kAutomation)
         {
-          seconds_dbl frame_duration {1.0 / buffer.rate()};
-          envelope_.apply(frames.begin(), frames.end(), 0ms, frame_duration,
-                          [] (auto& frame, const auto& time, float value)
-                            { frame *= value; });
+          if (envelope_ != nullptr) {
+            seconds_dbl frame_duration {1.0 / buffer.rate()};
+            envelope_->apply(frames.begin(), frames.end(), 0ms, frame_duration,
+                             [] (auto& frame, const auto& time, float value)
+                               { frame *= value; });
+          }
         }
-        else
-        {
+        else {
           std::for_each(frames.begin(), frames.end(),
                         [this] (auto& frame) {frame *= {gain_l_, gain_r_}; });
         }
@@ -495,9 +501,9 @@ namespace filter {
   private:
     enum class Mode {kAutomation, kFixedGain} mode_;
 
-    Automation envelope_;
-    float gain_l_;
-    float gain_r_;
+    const Automation* envelope_{nullptr};
+    float gain_l_{0.0f};
+    float gain_r_{0.0f};
   };
 
   /**

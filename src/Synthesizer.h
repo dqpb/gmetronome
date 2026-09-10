@@ -25,8 +25,6 @@
 #include "AudioBuffer.h"
 #include "WavetableLibrary.h"
 
-#include <tuple>
-
 namespace audio {
 
   enum class EnvelopeRampShape
@@ -110,10 +108,19 @@ namespace audio {
      */
     void update(ByteBuffer& buffer, const SoundParameters& params);
 
+    /** Helper to build a filter::Automation. */
+    static void buildEnvelope( filter::Automation& envelope,
+                               float attack, EnvelopeRampShape attack_shape,
+                               float hold, EnvelopeHoldShape hold_shape,
+                               float decay, EnvelopeRampShape decay_shape);
   private:
     StreamSpec spec_;
+
     ByteBuffer tone_buffer_;
     ByteBuffer noise_buffer_;
+
+    filter::Automation tone_envelope_;
+    filter::Automation noise_envelope_;
 
     // wavetable library keys
     static constexpr int kSineTable     = 0;
@@ -143,10 +150,6 @@ namespace audio {
     );
 
     OscFilterPipe tone_pipe_;
-
-    filter::Automation buildEnvelope(float attack, EnvelopeRampShape attack_shape,
-                                     float hold, EnvelopeHoldShape hold_shape,
-                                     float decay, EnvelopeRampShape decay_shape) const;
   };
 
 }//namespace audio
