@@ -39,8 +39,17 @@ namespace sound_migration {
   namespace {
     void convert(SoundTheme& sound)
     {
-      // not implemented yet
-      // TODO: convert volume in percent to dB
+      // Convert volume levels (in percent) to dB. Up until now we mapped the
+      // volume cubically to get the gain, so we apply that mapping too.
+
+      sound.content.weak_params.gain = audio::Decibel::fromLinear(
+        std::pow(sound.content.weak_params.gain.value() / 100.0, 3.0));
+
+      sound.content.mid_params.gain = audio::Decibel::fromLinear(
+        std::pow(sound.content.mid_params.gain.value() / 100.0, 3.0));
+
+      sound.content.strong_params.gain = audio::Decibel::fromLinear(
+        std::pow(sound.content.strong_params.gain.value() / 100.0, 3.0));
     }
 
     // Check RFC 4122 canonical form: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -131,26 +140,6 @@ namespace sound_migration {
 #endif
     }
     return false;
-  }
-
-  bool validate()
-  {
-    auto settings_list = settings::soundThemes();
-    auto list_store = std::make_unique<SoundThemeListStoreXML>(file::userSoundsPath());
-
-    if (!settings_list || !list_store)
-      return false;
-
-    const auto id_list = settings_list->list(false); // custom only
-
-    if (const auto primer_list = list_store->list())
-      return std::equal(id_list.begin(), id_list.end(),
-                        primer_list->begin(), primer_list->end(),
-                        [] (const auto& id, const auto& primer) {
-                          return id == primer.id;
-                        });
-    else
-      return false;
   }
 
 } // namespace sound_migration
