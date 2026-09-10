@@ -123,4 +123,10 @@ std::string holdShapeToString(audio::EnvelopeHoldShape shape);
 // Convert string to audio::EnvelopeHoldShape
 audio::EnvelopeHoldShape stringToHoldShape(const std::string& str);
 
+inline std::string decibelToString(const audio::Decibel& d)
+{ return doubleToString(d.value()); }
+
+inline audio::Decibel stringToDecibel(const std::string& str)
+{ return audio::Decibel(stringToDouble(str)); }
+
 #endif//GMetronome_Convert_h
