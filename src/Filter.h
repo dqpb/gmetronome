@@ -25,6 +25,7 @@
 #include "Wavetable.h"
 
 #include <vector>
+#include <array>
 #include <chrono>
 #include <cassert>
 #include <algorithm>
@@ -813,6 +814,48 @@ namespace filter {
     float pan_{0.0f};
   };
 
+  /**
+   * @class PeakDetector
+   */
+  template<SampleFormat Format = kDefaultSampleFormat>
+  class PeakDetector {
+
+    static_assert(isFloatingPoint(Format),
+      "this filter only supports floating point types");
+
+  public:
+    void prepare(const StreamSpec& spec)
+      {
+        assert( isFloatingPoint(spec.format) );
+        assert( spec.channels == 2 );
+      }
+
+    const std::array<float,2> peak() const
+      { return peak_; }
+
+    const std::array<bool,2> clipped() const
+      { return clipped_; }
+
+    void process(ByteBuffer& buffer)
+      {
+        assert(buffer.spec().channels == 2);
+
+        peak_ = {0.0f, 0.0f}; // reset peaks
+
+        for (auto& frame : viewFrames<Format>(buffer))
+        {
+          peak_[0] = std::max(peak_[0], std::abs(frame[0]));
+          peak_[1] = std::max(peak_[1], std::abs(frame[1]));
+        }
+        clipped_[0] = peak_[0] > kClipThreshold;
+        clipped_[1] = peak_[1] > kClipThreshold;
+      }
+  private:
+    static constexpr float kClipThreshold {1.0};
+    std::array<float,2> peak_{0.0f, 0.0f};
+    std::array<bool,2> clipped_{false, false};
+  };
+
   namespace std {
 
     // some shortcuts for default filters
@@ -824,6 +867,7 @@ namespace filter {
     using Wave      = Filter<Wave<kDefaultSampleFormat>>;
     using Normalize = Filter<Normalize<kDefaultSampleFormat>>;
     using Mix       = Filter<Mix<kDefaultSampleFormat>>;
+    using Peak      = Filter<PeakDetector<kDefaultSampleFormat>>;
 
   }//namespace std
 

@@ -84,6 +84,20 @@ namespace audio {
   constexpr milliseconds kSoundDuration = 60ms;
 
   /**
+   * @class Sound
+   * @brief Build by @ref Synthesizer.
+   *
+   * Aggregates a @ref SoundBuffer and some analytical measures produced during
+   * the build process.
+   */
+  struct Sound
+  {
+    ByteBuffer           buffer;
+    std::array<float,2>  peak {0.0, 0.0};
+    std::array<bool,2>   clipped {false, false};
+  };
+
+  /**
    * @class Synthesizer
    * @brief Implements the requirements of a builder for ObjectLibrary.
    */
@@ -98,7 +112,7 @@ namespace audio {
      * Allocates a new sound buffer and generates a sound with the given
      * sound parameters.
      */
-    ByteBuffer create(const SoundParameters& params);
+    Sound create(const SoundParameters& params);
 
     /**
      * Generates a sound with the given sound parameters. The buffer should be
@@ -106,7 +120,7 @@ namespace audio {
      * If the stream specification of the buffer does not fit the specification
      * of the Synthesizer, the buffer will be resized.
      */
-    void update(ByteBuffer& buffer, const SoundParameters& params);
+    void update(Sound& sound, const SoundParameters& params);
 
     /** Helper to build a filter::Automation. */
     static void buildEnvelope( filter::Automation& envelope,
@@ -147,6 +161,7 @@ namespace audio {
       | filter::std::Wave() // Square
       | filter::std::Gain()
       | filter::std::Mix()
+      | filter::std::Peak()
     );
 
     OscFilterPipe tone_pipe_;

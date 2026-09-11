@@ -27,7 +27,7 @@
 
 namespace audio {
 
-  using SoundLibrary = ObjectLibrary<Accent, ByteBuffer, Synthesizer>;
+  using SoundLibrary = ObjectLibrary<Accent, Sound, Synthesizer>;
 
 }//namespace audio
 #endif//GMetronome_SoundLibrary_h

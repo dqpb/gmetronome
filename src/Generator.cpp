@@ -48,7 +48,7 @@ namespace audio {
   void FillBufferGenerator::prepare(BeatStreamController& ctrl)
   {
     max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
-                                 ctrl.sound(kAccentOff).frames());
+                                 ctrl.sound(kAccentOff).buffer.frames());
 
     avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
 
@@ -79,7 +79,7 @@ namespace audio {
     else
       frames_chunk = frames_left / std::lround( (double) frames_left / avg_chunk_frames_ );
 
-    data = ctrl.sound(kAccentOff).data();
+    data = ctrl.sound(kAccentOff).buffer.data();
     bytes = frames_chunk * frameSize(ctrl.spec());
 
     frames_done_ += frames_chunk;
@@ -99,6 +99,8 @@ namespace audio {
     status.acceleration = 0.0;
     status.accent = -1;
     status.next_accent_delay = std::chrono::duration_cast<microseconds>(time_left);
+    status.peak = {0.0f, 0.0f};
+    status.clip = {0, 0};
     status.generator = kFillBufferGenerator;
   }
 
@@ -135,7 +137,7 @@ namespace audio {
   void PreCountGenerator::prepare(BeatStreamController& ctrl)
   {
     max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
-                                 ctrl.sound(kAccentOff).frames());
+                                 ctrl.sound(kAccentOff).buffer.frames());
 
     avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
 
@@ -159,6 +161,7 @@ namespace audio {
     {
       switchGenerator(ctrl, kRegularGenerator); // skip this generator
     }
+    current_sound_ = kAccentOff;
   }
 
   void PreCountGenerator::leave(BeatStreamController& ctrl)
@@ -171,7 +174,8 @@ namespace audio {
     size_t frames_chunk = 0;
     if (accent_point_) // play sound
     {
-      const auto& sound_buffer = ctrl.sound(kAccentMid);
+      current_sound_ = kAccentMid;
+      const auto& sound_buffer = ctrl.sound(current_sound_).buffer;
 
       frames_chunk = std::min(sound_buffer.frames(), frames_left_);
       data = sound_buffer.data();
@@ -179,7 +183,8 @@ namespace audio {
     }
     else // play silence
     {
-      const auto& sound_buffer = ctrl.sound(kAccentOff);
+      current_sound_ = kAccentOff;
+      const auto& sound_buffer = ctrl.sound(current_sound_).buffer;
 
       if (frames_left_ <= max_chunk_frames_)
         frames_chunk = frames_left_;
@@ -257,6 +262,11 @@ namespace audio {
     status.next_accent_delay
       = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio));
 
+    status.peak = ctrl.sound(current_sound_).peak;
+
+    if (ctrl.sound(current_sound_).clipped[0]) ++status.clip[0];
+    if (ctrl.sound(current_sound_).clipped[1]) ++status.clip[1];
+
     status.generator = kPreCountGenerator;
   }
 
@@ -331,7 +341,7 @@ namespace audio {
   void RegularGenerator::prepare(BeatStreamController& ctrl)
   {
     max_chunk_frames_ = std::min(usecsToFrames(kMaxChunkDuration, ctrl.spec()),
-                                 ctrl.sound(kAccentOff).frames());
+                                 ctrl.sound(kAccentOff).buffer.frames());
 
     avg_chunk_frames_ = usecsToFrames(kAvgChunkDuration, ctrl.spec());
 
@@ -381,7 +391,8 @@ namespace audio {
     size_t frames_chunk = 0;
     if (accent_point_) // play sound
     {
-      const auto& sound_buffer = ctrl.sound(accents[accent_]);
+      current_sound_ = accents[accent_];
+      const auto& sound_buffer = ctrl.sound(current_sound_).buffer;
 
       frames_chunk = std::min(sound_buffer.frames(), frames_left_);
 
@@ -390,7 +401,8 @@ namespace audio {
     }
     else // play silence
     {
-      const auto& sound_buffer = ctrl.sound(kAccentOff);
+      current_sound_ = kAccentOff;
+      const auto& sound_buffer = ctrl.sound(current_sound_).buffer;
 
       if (frames_left_ <= max_chunk_frames_)
         frames_chunk = frames_left_;
@@ -422,6 +434,11 @@ namespace audio {
 
     status.next_accent_delay
       = microseconds((microseconds::rep) (frames_left_ * kMicrosecondsFramesRatio));
+
+    status.peak = ctrl.sound(current_sound_).peak;
+
+    if (ctrl.sound(current_sound_).clipped[0]) ++status.clip[0];
+    if (ctrl.sound(current_sound_).clipped[1]) ++status.clip[1];
 
     status.generator = kRegularGenerator;
   }

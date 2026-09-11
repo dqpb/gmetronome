@@ -136,15 +136,17 @@ namespace audio {
     spec_ = spec;
   }
 
-  ByteBuffer Synthesizer::create(const SoundParameters& params)
+  Sound Synthesizer::create(const SoundParameters& params)
   {
-    ByteBuffer buffer(spec_, kSoundDuration);
-    update(buffer, params);
-    return buffer;
+    Sound snd {{spec_, kSoundDuration}};
+    update(snd, params);
+    return snd;
   }
 
-  void Synthesizer::update(ByteBuffer& buffer, const SoundParameters& params)
+  void Synthesizer::update(Sound& sound, const SoundParameters& params)
   {
+    auto& buffer = sound.buffer;
+
     if (buffer.spec() != spec_ || buffer.frames() < usecsToFrames(kSoundDuration, spec_))
     {
 #ifndef NDEBUG
@@ -235,6 +237,10 @@ namespace audio {
 
     // apply oscillator pipe
     tone_pipe_.process(tone_buffer_);
+
+    // store analysis
+    sound.peak    = filter::get<7>(tone_pipe_).peak();
+    sound.clipped = filter::get<7>(tone_pipe_).clipped();
 
     // resample from floating point to target format
     resample(tone_buffer_, buffer);

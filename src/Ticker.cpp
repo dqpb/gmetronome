@@ -727,12 +727,13 @@ namespace audio {
       out_info_.hold         = gen_status.hold;
       out_info_.count_in     = stream_ctrl_.countIn();
 
-      // Meter
       out_info_.default_meter     = !stream_ctrl_.isMeterEnabled();
       out_info_.beats             = meter.beats();
       out_info_.division          = meter.division();
       out_info_.accent            = gen_status.accent;
       out_info_.next_accent_delay = gen_status.next_accent_delay;
+      out_info_.peak              = gen_status.peak;
+      out_info_.clip              = gen_status.clip;
       out_info_.generator         = gen_status.generator;
 
       if (backend_)

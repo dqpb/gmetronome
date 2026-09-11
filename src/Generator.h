@@ -57,6 +57,10 @@ namespace audio {
     int          hold {0};
     int          accent {0};
     microseconds next_accent_delay {0us};
+
+    std::array<float,2>    peak {0.0, 0.0};
+    std::array<unsigned,2> clip {0, 0};
+
     GeneratorId  generator {kInvalidGenerator};
   };
 
@@ -137,7 +141,7 @@ namespace audio {
       { return meter_; }
     const bool isMeterEnabled() const
       { return meter_enabled_; }
-    const ByteBuffer& sound(Accent a)
+    const Sound& sound(Accent a)
       { return sounds_[a]; }
     physics::BeatKinematics& kinematics()
       { return k_; }
@@ -332,6 +336,10 @@ namespace audio {
       spec_ = spec;
     }
 
+    // Initialize stream status.
+    stream_status_ = StreamStatus();
+
+    // Prepare generators.
     std::apply( [this] (auto&&... args) { (args.prepare(*this), ...);}, gs_ );
   }
 
@@ -439,6 +447,7 @@ namespace audio {
     size_t avg_chunk_frames_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
+    Accent current_sound_{kAccentOff};
 
     void updateFramesLeft(BeatStreamController& ctrl);
     void step(BeatStreamController& ctrl, size_t frames_chunk);
@@ -466,6 +475,7 @@ namespace audio {
     size_t accent_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
+    Accent current_sound_{kAccentOff};
     int hold_{0};
 
     void updateFramesLeft(BeatStreamController& ctrl);

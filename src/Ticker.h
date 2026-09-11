@@ -76,6 +76,9 @@ namespace audio {
       int           accent {-1};
       microseconds  next_accent_delay {0us};
 
+      std::array<float,2>    peak {0.0, 0.0};  //!< Audio peak
+      std::array<unsigned,2> clip {0, 0};      //!< Audio clip count
+
       GeneratorId   generator {kInvalidGenerator};
       microseconds  backend_latency {0us};
     };
