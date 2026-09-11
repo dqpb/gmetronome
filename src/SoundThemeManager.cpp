@@ -38,7 +38,13 @@ SoundThemeManager::SoundThemeManager(std::unique_ptr<ListStoreType> store,
 {
   selected_connection_ =
     settings::sound()->signal_changed(settings::kKeySoundThemeSelect).connect(
-      [this] (const Glib::ustring&) { signal_selected_.emit(selected()); });
+      [this] (const Glib::ustring&) {
+        // Since sound settings is in delayed mode we need to apply the changes
+        // here to get the right value if the signal is triggered by an external
+        // change of the settings key.
+        settings::sound()->apply();
+        signal_selected_.emit(selected());
+      });
 }
 
 SoundThemeManager::~SoundThemeManager()
@@ -218,7 +224,6 @@ bool SoundThemeManager::select(const Identifier& id)
 
 auto SoundThemeManager::selected() const -> Identifier
 {
-  settings::sound()->apply();
   return settings::sound()->get_string(settings::kKeySoundThemeSelect);
 }
 
