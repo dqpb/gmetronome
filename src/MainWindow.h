@@ -30,7 +30,6 @@
 #include "AccentButton.h"
 #include "SettingsDialog.h"
 #include "AccentButtonGrid.h"
-#include "SynchronizableCtrl.h"
 
 #include <gtkmm.h>
 
@@ -192,8 +191,6 @@ private:
   bool bottom_resizable_;
   gint64 last_meter_action_;
 
-  SynchronizableCtrl<GlibTimer> sync_ctrl_;
-
 private:
   // Initialization
   void initActions();
@@ -280,9 +277,7 @@ private:
   void updateVolume(double volume);
   void updateVolumeMute(bool mute);
 
-  // App signal handler
-  void onTickerInfo(const audio::Ticker::Info& info);
-
+  // Tapping
   void startTapAnimationTimer();
   void stopTapAnimationTimer();
   bool isTapAnimationTimerRunning();
@@ -296,7 +291,6 @@ private:
   void updatePrefPendulumAction();
   void updatePrefPendulumPhaseMode();
   void updatePrefMeterAnimation();
-  void updatePrefAnimationSync();
 };
 
 #endif//GMetronome_MainWindow_h

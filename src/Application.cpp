@@ -35,6 +35,7 @@
 #include <chrono>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 Glib::RefPtr<Application> Application::create()
@@ -80,6 +81,8 @@ void Application::on_startup()
 
   // initialize application settings (GSettings)
   initSettings();
+  // initialize SynchronizableCtrl
+  initSyncController();
   // initialize application actions
   initActions();
   // initialize sound themes
@@ -114,6 +117,11 @@ void Application::initSettings()
   // we cache sound prefs (e.g. volume adjustment) and propagate them
   // to the backend in the destructor
   settings::sound()->delay();
+}
+
+void Application::initSyncController()
+{
+  updateSyncControllerSyncTime();
 }
 
 void Application::initActions()
@@ -335,6 +343,14 @@ namespace {
     return details;
   }
 }//unnamed namespace
+
+void Application::updateSyncControllerSyncTime()
+{
+  std::chrono::milliseconds sync_time(
+    std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync)));
+
+  sync_ctrl_.setSynchronization(sync_time);
+}
 
 // Helper to compute the currently effective volume, i.e. it takes into account
 // the current global volume, mute state and auto volume dropping when tapping.
@@ -1280,11 +1296,13 @@ void Application::onStart(const Glib::VariantBase& value)
     if (new_state.get())
     {
       ticker_.start();
+      sync_ctrl_.start();
       startInfoTimer();
     }
     else
     {
       stopInfoTimer();
+      sync_ctrl_.stop();
       ticker_.stop();
     }
   }
@@ -1352,7 +1370,11 @@ void Application::onSettingsPrefsChanged(const Glib::ustring& key)
       }
     }
   }
-  if (key == settings::kKeyPrefsAudioBackend)
+  else if (key == settings::kKeyPrefsAnimationSync)
+  {
+    updateSyncControllerSyncTime();
+  }
+  else if (key == settings::kKeyPrefsAudioBackend)
   {
     configureAudioBackend();
   }
@@ -1434,7 +1456,7 @@ bool Application::onInfoTimer()
     if (ticker_.hasInfo())
     {
       audio::Ticker::Info info = ticker_.getInfo(true);
-      signal_ticker_info_.emit(info);
+      sync_ctrl_.enrollTickerInfo(info);
     }
     return true;
   }

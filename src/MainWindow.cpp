@@ -279,7 +279,6 @@ MainWindow::MainWindow(BaseObjectType* cobject,
   updatePrefPendulumAction();
   updatePrefPendulumPhaseMode();
   updatePrefMeterAnimation();
-  updatePrefAnimationSync();
 }
 
 void MainWindow::initActions()
@@ -388,10 +387,10 @@ void MainWindow::initUI()
   updateProfileTitle(title, !id.empty());
 
   // register synchronizables
-  sync_ctrl_.registerSynchronizable(this);
-  sync_ctrl_.registerSynchronizable(&lcd_);
-  sync_ctrl_.registerSynchronizable(&pendulum_);
-  sync_ctrl_.registerSynchronizable(&accent_button_grid_);
+  app_->syncController().registerSynchronizable(this);
+  app_->syncController().registerSynchronizable(&lcd_);
+  app_->syncController().registerSynchronizable(&pendulum_);
+  app_->syncController().registerSynchronizable(&accent_button_grid_);
 }
 
 void MainWindow::initBindings()
@@ -574,9 +573,6 @@ void MainWindow::initBindings()
 
   info_bar_->signal_response()
     .connect(sigc::mem_fun(*this, &MainWindow::onMessageResponse));
-
-  app_->signalTickerInfo()
-    .connect(sigc::mem_fun(*this, &MainWindow::onTickerInfo));
 }
 
 bool MainWindow::on_window_state_event(GdkEventWindowState* window_state_event)
@@ -1587,11 +1583,6 @@ void MainWindow::updateCountIn(int id)
 
 void MainWindow::updateStart(bool running)
 {
-  if (running)
-    sync_ctrl_.start();
-  else
-    sync_ctrl_.stop();
-
   updateStartButtonLabel(running);
 }
 
@@ -1650,11 +1641,6 @@ void MainWindow::updateVolumeMute(bool mute)
     double volume = app_->queryVolume();
     updateVolume(volume);
   }
-}
-
-void MainWindow::onTickerInfo(const audio::Ticker::Info& info)
-{
-  sync_ctrl_.enrollTickerInfo(info);
 }
 
 namespace {
@@ -1744,8 +1730,6 @@ void MainWindow::onSettingsPrefsChanged(const Glib::ustring& key)
     updatePrefPendulumAction();
   else if (key == settings::kKeyPrefsPendulumPhaseMode)
     updatePrefPendulumPhaseMode();
-  else if (key == settings::kKeyPrefsAnimationSync)
-    updatePrefAnimationSync();
   else if (key == settings::kKeyPrefsMeterAnimation)
     updatePrefMeterAnimation();
 }
@@ -1791,28 +1775,20 @@ void MainWindow::updatePrefMeterAnimation()
 {
   if (settings::preferences()->get_boolean(settings::kKeyPrefsMeterAnimation))
   {
-    if (!sync_ctrl_.isRegistered(this))
-      sync_ctrl_.registerSynchronizable(this);
+    if (!app_->syncController().isRegistered(this))
+      app_->syncController().registerSynchronizable(this);
 
-    if (!sync_ctrl_.isRegistered(&accent_button_grid_))
-      sync_ctrl_.registerSynchronizable(&accent_button_grid_);
+    if (!app_->syncController().isRegistered(&accent_button_grid_))
+      app_->syncController().registerSynchronizable(&accent_button_grid_);
   }
   else
   {
-    if (sync_ctrl_.isRegistered(this))
-      sync_ctrl_.unregisterSynchronizable(this);
+    if (app_->syncController().isRegistered(this))
+      app_->syncController().unregisterSynchronizable(this);
 
-    if (sync_ctrl_.isRegistered(&accent_button_grid_))
-      sync_ctrl_.unregisterSynchronizable(&accent_button_grid_);
+    if (app_->syncController().isRegistered(&accent_button_grid_))
+      app_->syncController().unregisterSynchronizable(&accent_button_grid_);
   }
-}
-
-void MainWindow::updatePrefAnimationSync()
-{
-  std::chrono::milliseconds sync_time(
-    std::lround(settings::preferences()->get_double(settings::kKeyPrefsAnimationSync)));
-
-  sync_ctrl_.setSynchronization(sync_time);
 }
 
 Glib::RefPtr<MainWindow::ProfileListStore> MainWindow::ProfileListStore::create()

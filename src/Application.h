@@ -25,6 +25,7 @@
 #include "Message.h"
 #include "ProfileManager.h"
 #include "SoundThemeManager.h"
+#include "SynchronizableCtrl.h"
 #include "TapAnalyser.h"
 #include "Meter.h"
 
@@ -44,17 +45,18 @@ public:
   sigc::signal<void, const Message&> signalMessage()
     { return signal_message_; }
 
-  sigc::signal<void, const audio::Ticker::Info&> signalTickerInfo()
-    { return signal_ticker_info_; }
-
   SoundThemeManager& soundThemeManager()
     { return sound_theme_manager_; }
+
+  SynchronizableCtrl<GlibTimer>& syncController()
+    { return sync_ctrl_; }
 
 private:
   audio::Ticker ticker_;
   TapAnalyser tap_analyser_;
   ProfileManager profile_manager_;
   SoundThemeManager sound_theme_manager_;
+  SynchronizableCtrl<GlibTimer> sync_ctrl_;
   double volume_drop_{0.0};
 
   // Connections
@@ -64,20 +66,20 @@ private:
 
   // Signals
   sigc::signal<void, const Message&> signal_message_;
-  sigc::signal<void, const audio::Ticker::Info&> signal_ticker_info_;
 
   // Main window
   MainWindow* main_window_;
 
   void initSettings();
+  void initSyncController();
   void initActions();
   void initProfiles();
   void initSounds();
   void initUI();
   void initTicker();
 
+  void updateSyncControllerSyncTime();
   double getCurrentVolume() const;
-  void updateTickerSound(Accent accent, double volume = -1.0);
   void updateTickerSound();
   void configureAudioBackend();
   void configureAudioDevice();
