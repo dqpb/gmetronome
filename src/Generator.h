@@ -31,6 +31,7 @@
 #include <type_traits>
 #include <string>
 #include <limits>
+#include <cmath>
 
 namespace audio {
 
@@ -62,6 +63,57 @@ namespace audio {
     std::array<unsigned,2> clip {0, 0};
 
     GeneratorId  generator {kInvalidGenerator};
+  };
+
+  /**
+   * @class PeakBallistics
+   */
+  class PeakBallistics {
+  public:
+    static constexpr float kDefaultRelease = 20.0f; // dB/sec
+
+    void setRelease(float release) noexcept
+      { decay_ = decayFromRelease(release); }
+    void reset() noexcept
+      { b_peak_ = {0.0f, 0.0f}; }
+    const std::array<float,2>& peak() const noexcept
+      { return b_peak_; }
+    void update(std::array<float,2> peak, const audio::microseconds& dt)
+      {
+        const float decay = std::pow(decay_, static_cast<float>(dt.count()));
+
+        b_peak_[0] = (peak[0] >= b_peak_[0]) ? peak[0] : b_peak_[0] * decay;
+        b_peak_[1] = (peak[1] >= b_peak_[1]) ? peak[1] : b_peak_[1] * decay;
+
+        // below audibility; avoids potential denormal slowdown
+        if (!std::isnormal(b_peak_[0])) b_peak_[0] = 0.0f;
+        if (!std::isnormal(b_peak_[1])) b_peak_[1] = 0.0f;
+      }
+
+  private:
+    float decay_{decayFromRelease(kDefaultRelease)}; // per usec
+    std::array<float,2> b_peak_{0.0f, 0.0f};
+
+    float decayFromRelease(float release)
+      { return std::pow(10.0f, -release / (20.0f * static_cast<float>(std::micro::den))); }
+  };
+
+  /**
+   * @class ClipCounter
+   */
+  class ClipCounter {
+  public:
+    void reset() noexcept
+      { count_ = {0,0}; }
+    const std::array<unsigned,2>& count() const noexcept
+      { return count_; }
+    void update(std::array<bool,2> clip)
+      {
+        if (clip[0]) ++count_[0];
+        if (clip[1]) ++count_[1];
+      }
+  private:
+    std::array<unsigned,2> count_{0,0};
   };
 
   /**
@@ -147,6 +199,14 @@ namespace audio {
       { return k_; }
     const physics::BeatKinematics& kinematics() const
       { return k_; }
+    PeakBallistics& peakBallistics()
+      { return peak_bal_; }
+    const PeakBallistics& peakBallistics() const
+      { return peak_bal_; }
+    ClipCounter& clipCounter()
+      { return clip_count_; }
+    const ClipCounter& clipCounter() const
+      { return clip_count_; }
 
     void prepare(const StreamSpec& spec);
 
@@ -174,6 +234,8 @@ namespace audio {
     bool meter_enabled_{false};
     SoundLibrary sounds_;
     physics::BeatKinematics k_;
+    PeakBallistics peak_bal_;
+    ClipCounter clip_count_;
     StreamStatus stream_status_;
     StreamGeneratorBase* g_{nullptr};
 
@@ -447,10 +509,9 @@ namespace audio {
     size_t avg_chunk_frames_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
-    Accent current_sound_{kAccentOff};
 
     void updateFramesLeft(BeatStreamController& ctrl);
-    void step(BeatStreamController& ctrl, size_t frames_chunk);
+    void step(BeatStreamController& ctrl, const Sound& sound, size_t frames_chunk);
   };
 
   /**
@@ -475,11 +536,10 @@ namespace audio {
     size_t accent_{0};
     size_t frames_left_{0};
     bool accent_point_{false};
-    Accent current_sound_{kAccentOff};
     int hold_{0};
 
     void updateFramesLeft(BeatStreamController& ctrl);
-    void step(BeatStreamController& ctrl, size_t frames_chunk);
+    void step(BeatStreamController& ctrl, const Sound& sound, size_t frames_chunk);
 
     void recomputeStepwise(BeatStreamController& ctrl);
     void resetStepwise(BeatStreamController& ctrl);
