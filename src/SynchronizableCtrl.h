@@ -160,6 +160,9 @@ public:
   bool isRunning() const
     { return (bool) timer_; }
 
+  const std::optional<audio::Ticker::Info>& lastInfo() const
+    { return last_info_; }
+
 private:
   // determines video sync accuracy (maybe gsettings candidate?)
   static constexpr std::chrono::milliseconds kTimerResolution{20};
@@ -168,6 +171,7 @@ private:
   std::unique_ptr<TimerT> timer_;
   std::vector<Synchronizable*> syncs_;
   std::chrono::microseconds sync_time_{0};
+  std::optional<audio::Ticker::Info> last_info_{};
 
   void startTimer()
     {
@@ -176,7 +180,10 @@ private:
     }
 
   void stopTimer()
-    { timer_.reset(); }
+    {
+      timer_.reset();
+      last_info_.reset();
+    }
 
   void step()
     {
@@ -186,6 +193,8 @@ private:
       {
         for (auto& s : syncs_)
           s->synchronize(info.value(), sync_time_);
+
+        last_info_ = std::move(*info);
       }
     }
 };
