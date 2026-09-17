@@ -66,7 +66,7 @@ namespace audio {
       double        tempo {0.0};
       double        acceleration {0.0};
       double        target {0.0};
-      int           hold {0};
+      unsigned      hold {0};
 
       int           count_in {0};
 
@@ -128,7 +128,7 @@ namespace audio {
      * @param step   Magnitude of tempo change in BPM
      * @param target Target tempo in BPM
      */
-    void accelerate(int hold, double step, double target);
+    void accelerate(unsigned hold, double step, double target);
 
     /**
      * @brief Stop an ongoing acceleration
@@ -178,10 +178,10 @@ namespace audio {
     int in_count_in_{0};
 
     // acceleration
-    double in_target_{0.0};
-    double in_accel_{0.0};
-    int    in_hold_{0};
-    double in_step_{0.0};
+    double   in_target_{0.0};
+    double   in_accel_{0.0};
+    unsigned in_hold_{0};
+    double   in_step_{0.0};
 
     // synchronization
     double in_sync_beats_{0.0};

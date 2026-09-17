@@ -207,7 +207,7 @@ namespace audio {
     in_ops_.set(kOpFlagAccelCS);
   }
 
-  void Ticker::accelerate(int hold, double step, double target)
+  void Ticker::accelerate(unsigned hold, double step, double target)
   {
     std::lock_guard<SpinLock> guard(spin_mutex_);
 
@@ -777,8 +777,6 @@ namespace audio {
           startBackend();
         }
 
-        tryExportInfo();
-
         tryImportSettings();
 
         // make up deferred accel mode before the new cycle
@@ -786,6 +784,7 @@ namespace audio {
           tryAmendAccel();
 
         stream_ctrl_.cycle(data, bytes);
+        tryExportInfo();
         writeBackend(data, bytes);
 
         updateAccelDeferTimer(bytes);
