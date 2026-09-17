@@ -166,6 +166,7 @@ public:
 private:
   // determines video sync accuracy (maybe gsettings candidate?)
   static constexpr std::chrono::milliseconds kTimerResolution{20};
+  static constexpr std::chrono::milliseconds kSyncAheadTime{25};
 
   TickerInfoQueue info_q_;
   std::unique_ptr<TimerT> timer_;
@@ -189,7 +190,7 @@ private:
     {
       std::chrono::microseconds time {g_get_monotonic_time()};
 
-      if (auto info = info_q_.pop(time - sync_time_ + (kTimerResolution / 2)); info.has_value())
+      if (auto info = info_q_.pop(time - sync_time_ + kSyncAheadTime); info.has_value())
       {
         for (auto& s : syncs_)
           s->synchronize(info.value(), sync_time_);
