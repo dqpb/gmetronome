@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 The GMetronome Team
+ * Copyright (C) 2021-2026 The GMetronome Team
  *
  * This file is part of GMetronome.
  *
@@ -55,7 +55,7 @@ namespace audio {
     double       tempo {0.0};
     TempoMode    mode {TempoMode::kConstant};
     double       acceleration {0.0};
-    int          hold {0};
+    unsigned     hold {0};
     int          accent {0};
     microseconds next_accent_delay {0us};
 
@@ -85,7 +85,7 @@ namespace audio {
         b_peak_[0] = (peak[0] >= b_peak_[0]) ? peak[0] : b_peak_[0] * decay;
         b_peak_[1] = (peak[1] >= b_peak_[1]) ? peak[1] : b_peak_[1] * decay;
 
-        // below audibility; avoids potential denormal slowdown
+        // below audibility; avoid potential denormal slowdown
         if (!std::isnormal(b_peak_[0])) b_peak_[0] = 0.0f;
         if (!std::isnormal(b_peak_[1])) b_peak_[1] = 0.0f;
       }
@@ -135,8 +135,6 @@ namespace audio {
     virtual void leave(Controller& ctrl) {}
     virtual void cycle(Controller& ctrl, const void*& data, size_t& bytes) {}
 
-    virtual void updateStatus(Controller& ctrl, StreamStatus& status) {}
-
   protected:
     void switchGenerator(Controller& ctrl, GeneratorId gen);
 
@@ -161,7 +159,7 @@ namespace audio {
     void setTempo(double tempo);
     void setCountIn(int count_in);
     void accelerate(double accel, double target);
-    void accelerate(int hold, double step, double target);
+    void accelerate(unsigned hold, double step, double target);
     void synchronize(double beats, double tempo, microseconds time);
     void swapMeter(Meter& meter);
     void resetMeter();
@@ -177,7 +175,7 @@ namespace audio {
       { return target_; }
     double acceleration() const
       { return accel_; }
-    int hold() const
+    unsigned hold() const
       { return hold_; }
     double step() const
       { return step_; }
@@ -214,7 +212,8 @@ namespace audio {
     void stop();
     void cycle(const void*& data, size_t& bytes);
 
-    const StreamStatus& status();
+    StreamStatus& status();
+    const StreamStatus& status() const;
 
   private:
     StreamGeneratorTuple gs_;
@@ -224,7 +223,7 @@ namespace audio {
     TempoMode mode_{TempoMode::kConstant};
     double target_{0.0};
     double accel_{0.0};
-    int    hold_{0};
+    unsigned hold_{0};
     double step_{0.0};
     double sync_beats_{0.0};
     double sync_tempo_{0.0};
@@ -325,7 +324,7 @@ namespace audio {
   }
 
   template<typename...Gs>
-  void StreamController<Gs...>::accelerate(int hold, double step, double target)
+  void StreamController<Gs...>::accelerate(unsigned hold, double step, double target)
   {
     TempoMode old_mode = mode_;
 
@@ -425,11 +424,12 @@ namespace audio {
   }
 
   template<typename...Gs>
-  const StreamStatus& StreamController<Gs...>::status()
-  {
-    if (g_) g_->updateStatus(*this, stream_status_);
-    return stream_status_;
-  }
+  const StreamStatus& StreamController<Gs...>::status() const
+  {  return stream_status_; }
+
+  template<typename...Gs>
+  StreamStatus& StreamController<Gs...>::status()
+  {  return stream_status_; }
 
   template<typename...Gs>
   template<size_t N>
@@ -480,13 +480,13 @@ namespace audio {
     void leave(BeatStreamController& ctrl) override;
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
 
-    void updateStatus(BeatStreamController& ctrl, StreamStatus& status) override;
-
   private:
-    size_t max_chunk_frames_{0};
-    size_t avg_chunk_frames_{0};
+    size_t max_chunk_size_{0};
+    size_t avg_chunk_size_{0};
     size_t frames_total_{0};
     size_t frames_done_{0};
+
+    void updateStatus(BeatStreamController& ctrl);
   };
 
   /**
@@ -502,16 +502,13 @@ namespace audio {
     void leave(BeatStreamController& ctrl) override;
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
 
-    void updateStatus(BeatStreamController& ctrl, StreamStatus& status) override;
-
   private:
-    size_t max_chunk_frames_{0};
-    size_t avg_chunk_frames_{0};
+    size_t max_chunk_size_{0}; // frames
+    size_t avg_chunk_size_{0};
     size_t frames_left_{0};
-    bool accent_point_{false};
 
-    void updateFramesLeft(BeatStreamController& ctrl);
-    void step(BeatStreamController& ctrl, const Sound& sound, size_t frames_chunk);
+    size_t step(BeatStreamController& ctrl, size_t pref_chunk_size);
+    void updateStatus(BeatStreamController& ctrl);
   };
 
   /**
@@ -522,28 +519,22 @@ namespace audio {
     void onTempoChanged(BeatStreamController& ctrl, TempoMode old_mode) override;
     void onMeterChanged(BeatStreamController& ctrl,
                         const Meter& old_meter, bool enabled_changed) override;
-
     void prepare(BeatStreamController& ctrl) override;
     void enter(BeatStreamController& ctrl) override;
     void leave(BeatStreamController& ctrl) override;
     void cycle(BeatStreamController& ctrl, const void*& data, size_t& bytes) override;
 
-    void updateStatus(BeatStreamController& ctrl, StreamStatus& status) override;
-
   private:
-    size_t max_chunk_frames_{0};
-    size_t avg_chunk_frames_{0};
-    size_t accent_{0};
+    size_t max_chunk_size_{0};
+    size_t avg_chunk_size_{0};
     size_t frames_left_{0};
-    bool accent_point_{false};
-    int hold_{0};
+    unsigned hold_{0};
 
-    void updateFramesLeft(BeatStreamController& ctrl);
-    void step(BeatStreamController& ctrl, const Sound& sound, size_t frames_chunk);
+    void updateStatus(BeatStreamController& ctrl);
+    size_t step(BeatStreamController& ctrl, size_t pref_chunk_size);
 
-    void recomputeStepwise(BeatStreamController& ctrl);
-    void resetStepwise(BeatStreamController& ctrl);
-    void handleStepwise(BeatStreamController& ctrl);
+    void stepStepwise(BeatStreamController& ctrl);
+    void recomputeStepwise(const BeatStreamController& ctrl);
     void accelerateStepwise(BeatStreamController& ctrl);
     TempoMode effectiveMode(const BeatStreamController& ctrl) const;
   };
